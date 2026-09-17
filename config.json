@@ -1,0 +1,47 @@
+{
+ "download_dir": "D:/git-papers/arXiv",
+ "categories": [
+  "cs.DB",
+  "cs.DC",
+  "cs.FL",
+  "cs.LO",
+  "cs.PL",
+  "cs.SE"
+ ],
+ "category_names": {
+  "cs.DB": "数据库",
+  "cs.DC": "分布式 / 并行 / 集群计算",
+  "cs.FL": "形式语言与自动机",
+  "cs.LO": "计算逻辑",
+  "cs.PL": "程序设计语言",
+  "cs.SE": "软件工程"
+ },
+ "window_days": 3,
+ "max_results_per_cat": 80,
+ "top_recommend": 14,
+ "top_expand": 10,
+ "expand_categories": [
+  "cs.AR",
+  "cs.CR",
+  "cs.CC",
+  "cs.DS",
+  "cs.NI",
+  "cs.OS",
+  "cs.SY",
+  "cs.GT",
+  "cs.IT",
+  "cs.MA",
+  "cs.AI",
+  "cs.LG",
+  "cs.CL",
+  "cs.IR",
+  "cs.HC",
+  "cs.SC",
+  "cs.ET",
+  "math.LO"
+ ],
+ "expand_window_days": 3,
+ "expand_max_results": 600,
+ "affil_targets": 60,
+ "port": 8765
+}

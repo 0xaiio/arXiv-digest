@@ -1,0 +1,24 @@
+# 本项目只提交代码、配置与文档；运行态与个人数据一律不入库。
+# 仓库根 .gitignore 已忽略 output/ 与 **/memory/，此处显式声明以防规则变动。
+
+# 运行产物：报告、评分、索引、缓存
+output/
+outputs/
+
+# WorkBuddy 工作区元数据（含会话记忆 .workbuddy/memory/）
+.workbuddy/
+
+# Python 运行缓存
+__pycache__/
+*.py[cod]
+
+# 抓取失败的坏快照、日志与临时文件
+*.log
+*.bad_*
+*.tmp
+*.temp
+
+# 本地库与行为画像（含本机绝对路径与个人使用记录，见 output/ 下同名文件）
+library.json*
+behavior.json
+profile_state.json
