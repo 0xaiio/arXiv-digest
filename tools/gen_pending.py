@@ -59,7 +59,18 @@ def main():
                 pass
         pool = [t for t in pool if pu.short_id(t[1]) in keep]
 
-    miss = [t for t in pool if pu.short_id(t[1]) not in summ or not summ.get(pu.short_id(t[1]))]
+    # 去重：同一篇可能同时出现在 raw.json 与 raw_expand.json（2026-09-18 踩到：
+    # 15 行里只有 11 个不同 sid），不去重会让补写量被高估、且重复行误导分批。
+    seen = set()
+    uniq = []
+    for t in pool:
+        sid = pu.short_id(t[1])
+        if sid in seen:
+            continue
+        seen.add(sid)
+        uniq.append(t)
+
+    miss = [t for t in uniq if pu.short_id(t[1]) not in summ or not summ.get(pu.short_id(t[1]))]
     if limit:
         miss = miss[:limit]
 
@@ -71,8 +82,8 @@ def main():
                                       " ".join((x.get("abstract") or "").split())[:n]))
     with open(os.path.join(OUT, "_pending.txt"), "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
-    print("pending: %d 篇（池 %d，已有摘要 %d）-> output/_pending.txt"
-          % (len(miss), len(pool), len(summ)))
+    print("pending: %d 篇（池 %d 条/去重后 %d 篇，已有摘要 %d）-> output/_pending.txt"
+          % (len(miss), len(pool), len(uniq), len(summ)))
 
 
 if __name__ == "__main__":
