@@ -22,6 +22,7 @@ __pycache__/
 reel/node_modules/
 reel/out/
 reel/.remotion/
+reel/public/audio/
 
 # 本地库与行为画像（含本机绝对路径与个人使用记录，见 output/ 下同名文件）
 library.json*

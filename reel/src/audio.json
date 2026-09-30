@@ -1,0 +1,6 @@
+{
+  "enabled": false,
+  "voice": "zh-CN-YunxiNeural",
+  "segments": {},
+  "_note": "生成物：由 tools/gen_narration.py 覆写（reel/public/audio/*.mp3 + 本文件）。入库态刻意保持 enabled=false，这样干净检出（没有 mp3）也能构建，只是无旁白；跑一次 gen_narration.py 即恢复有声。"
+}
