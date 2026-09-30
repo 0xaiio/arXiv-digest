@@ -1,0 +1,17 @@
+{
+  "name": "arxiv-weekly-reel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "arXiv Weekly 重点论文解读短视频（Remotion 代码渲染，数据驱动）",
+  "scripts": {
+    "compositions": "remotion compositions src/index.ts",
+    "still": "remotion still src/index.ts PaperReel out/still.png",
+    "render": "remotion render src/index.ts PaperReel out/arxiv-weekly.mp4 --codec=h264 --crf=18"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.526",
+    "remotion": "4.0.526",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  }
+}

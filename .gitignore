@@ -18,6 +18,11 @@ __pycache__/
 *.tmp
 *.temp
 
+# Remotion 视频工程：依赖与渲染产物不入库
+reel/node_modules/
+reel/out/
+reel/.remotion/
+
 # 本地库与行为画像（含本机绝对路径与个人使用记录，见 output/ 下同名文件）
 library.json*
 behavior.json

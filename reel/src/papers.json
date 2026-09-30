@@ -1,0 +1,168 @@
+{
+  "issue": "20260930",
+  "range": "2026-09-28 · 回溯 3 天公告批次",
+  "generated": "2026-09-30T00:08:42+08:00",
+  "stats": {
+    "core": 195,
+    "expand": 851,
+    "rec": 14,
+    "exp": 8
+  },
+  "papers": [
+    {
+      "rank": 1,
+      "sid": "2609.32972",
+      "cat": "cs.DC",
+      "score": 30.6,
+      "title_en": "Time Semantics and Liveness Artifacts in Adversarial Consensus Simulation",
+      "kw": [
+        "Multi-Paxos",
+        "Raft",
+        "RoundTick",
+        "EventCoupled"
+      ],
+      "authors": "Nasit S Sony, Xianzhong Ding",
+      "units": [
+        "University of California, Merced"
+      ],
+      "bullets": [
+        {
+          "tag": "背景",
+          "text": "对抗式共识仿真只有消息投递模型不够，超时敏感协议还必须有显式时间模型"
+        },
+        {
+          "tag": "方法",
+          "text": "在 VeriProtocol 上对比 EventCoupled 与 RoundTick 两种时间语义，跑 Multi-Paxos / Raft 受控实验"
+        },
+        {
+          "tag": "结果",
+          "text": "N=5、K 由 6 升到 14：领导不稳定率 5%→100%；140 次 RoundTick 执行无额外选举"
+        }
+      ],
+      "link": "arxiv.org/abs/2609.32972"
+    },
+    {
+      "rank": 2,
+      "sid": "2609.34881",
+      "cat": "cs.LO",
+      "score": 25.8,
+      "title_en": "Monitoring and Verification of Multitenant Kubernetes Clusters using TLA+ Trace Checking",
+      "kw": [
+        "TLA+",
+        "Kubernetes",
+        "trace"
+      ],
+      "authors": "Ioana Silaş, Adrian Crăciun",
+      "units": [],
+      "bullets": [
+        {
+          "tag": "背景",
+          "text": "模型检查多用于设计期，运行时监控缺少形式化手段"
+        },
+        {
+          "tag": "方法",
+          "text": "用 TLA+ 轨迹检查规约，直接从 Kubernetes 审计日志反推行为、检测违规"
+        },
+        {
+          "tag": "结果",
+          "text": "以多租户越权为主用例，把形式推理嵌入在线 K8s 环境，管道不限于此场景"
+        }
+      ],
+      "link": "arxiv.org/abs/2609.34881"
+    },
+    {
+      "rank": 3,
+      "sid": "2609.33081",
+      "cat": "cs.PL",
+      "score": 20.6,
+      "title_en": "SafePar: Monitoring Asynchrony in Microservices",
+      "kw": [
+        "SafePar",
+        "microservices",
+        "API"
+      ],
+      "authors": "Karuna Grewal, P. Brighten Godfrey, Justin Hsu 等 4 人",
+      "units": [
+        "University of Illinois Urbana-Champaign",
+        "National University of Singapore"
+      ],
+      "bullets": [
+        {
+          "tag": "背景",
+          "text": "一次请求含串行与异步并行的下游调用，现有机制只建模顺序或嵌套轨迹"
+        },
+        {
+          "tag": "方法",
+          "text": "SafePar 刻画并发结构策略：哪些调用可并发、分支数量与结果组合，且与服务实现解耦"
+        },
+        {
+          "tag": "结果",
+          "text": "安全合规团队无需接触服务实现即可强制并行结构策略"
+        }
+      ],
+      "link": "arxiv.org/abs/2609.33081"
+    },
+    {
+      "rank": 4,
+      "sid": "2609.32985",
+      "cat": "cs.DC",
+      "score": 19.0,
+      "title_en": "Simple and Fast Signature-Free Blockchain Consensus",
+      "kw": [
+        "Signature-Free",
+        "Simplex",
+        "Minimmit"
+      ],
+      "authors": "Giuliano Losa, Xuechao Wang, Zhuolun Xiang 等 4 人",
+      "units": [
+        "Stellar Development Foundation",
+        "The Hong Kong University of Science and Technology"
+      ],
+      "bullets": [
+        {
+          "tag": "背景",
+          "text": "无签名协议可省去后量子签名开销，代价是设计难度"
+        },
+        {
+          "tag": "方法",
+          "text": "提出两种最终同步协议，并抽象出 view agreement，实例化 Generic Simplex 构造"
+        },
+        {
+          "tag": "结果",
+          "text": "好情况延迟最优（f<n/3 三跳、f<n/5 两跳）、乐观响应、每视图 O(n^2) 通信"
+        }
+      ],
+      "link": "arxiv.org/abs/2609.32985"
+    },
+    {
+      "rank": 5,
+      "sid": "2609.33066",
+      "cat": "cs.LG",
+      "score": 18.2,
+      "title_en": "Zero-Storage Procedural Neural Synthesis via Boundary Dynamics: Formal Verification in Lean 4 and Bare-Metal Gauntlet Validation",
+      "kw": [
+        "Lean",
+        "Mandelbrot",
+        "EVM",
+        "Mathlib4"
+      ],
+      "authors": "Volkan Dağlı, Zerrin Dağlı, Dağhan Dağlı",
+      "units": [],
+      "bullets": [
+        {
+          "tag": "背景",
+          "text": "稠密权重矩阵受显存墙限制，无法在 EVM 等确定性虚拟机内原生执行"
+        },
+        {
+          "tag": "方法",
+          "text": "以 24 字节种子按需合成决策边界，投影到模 9 残差环与 Q16.16 定点域，零存储"
+        },
+        {
+          "tag": "结果",
+          "text": "论文报告 Lean 4 + Mathlib4 机器验证 10 条定理、零 sorry，并给出裸机实测"
+        }
+      ],
+      "link": "arxiv.org/abs/2609.33066"
+    }
+  ]
+}
