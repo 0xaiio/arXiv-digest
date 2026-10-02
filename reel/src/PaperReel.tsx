@@ -79,6 +79,18 @@ const N = DATA.papers.length;
 
 export const DURATION = INTRO + N * PAPER + XFADE + OUTRO;
 
+// 片尾的 arXiv 号清单按行折行（每行 SID_PER_ROW 个）：篇数从 5 扩到 10 后，
+// 单行等宽排版会超过 1920px 被裁切。
+const SID_PER_ROW = 5;
+const SID_ROWS: string[] = Array.from(
+  { length: Math.ceil(N / SID_PER_ROW) },
+  (_, r) =>
+    DATA.papers
+      .slice(r * SID_PER_ROW, (r + 1) * SID_PER_ROW)
+      .map((p) => p.sid)
+      .join("   ·   "),
+);
+
 const BG = "#05070A";
 const FG = "#FFFFFF";
 const ACC = "#00D4FF";
@@ -599,9 +611,14 @@ const Outro: React.FC = () => {
           color: DIM,
           marginTop: 26,
           letterSpacing: 1,
+          textAlign: "center",
         }}
       >
-        {DATA.papers.map((p) => p.sid).join("   ·   ")}
+        {SID_ROWS.map((row, i) => (
+          <div key={i} style={{ marginTop: i === 0 ? 0 : 10 }}>
+            {row}
+          </div>
+        ))}
       </div>
     </AbsoluteFill>
   );

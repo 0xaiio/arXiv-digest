@@ -1,18 +1,19 @@
-# arXiv Weekly 论文解读视频 · 制作提示词（v2：20s/篇 + 中文语音讲解）
+# arXiv Weekly 论文解读视频 · 制作提示词（v2.1：10 篇 · 20s/篇 + 中文语音讲解）
 
 > 适用范围：定时任务 `af055043`（arXiv cs.\* 论文日报）的「额外制作视频」步骤。
 > 与「AI 周报速递」这类新闻短视频的关键差别：**论文不能被 3 秒带过**。
 > 一条新闻可以只播标题，一篇论文至少要交代「背景 → 方法 → 结果」。
 > v2 相对 v1 的两处实质改动：**单篇 12s → 20s**、**从无音轨 → 中文语音讲解**。
+> v2.1（2026-10-02）：**篇数 5 → 10**，构成改为「🎯 为你推荐前 8 + 🌱 兴趣扩展前 2」。
 
 ## 0. 目标与硬规格
 
 | 项 | 值 |
 |---|---|
 | 分辨率 / 帧率 | **1920×1080 / 30fps**，H.264 + AAC |
-| 时长 | 片头 **5s** + **每篇 20s** + 片尾 **5s**；5 篇 = **110.60s（3318 帧）** |
+| 时长 | 片头 **5s** + **每篇 20s** + 片尾 **5s**；10 篇 = **210.60s（6318 帧）** |
 | 音轨 | **中文语音讲解**（Edge TTS），每段一条独立 mp3，起始帧与画面段严格对齐 |
-| 篇数 | 5 篇，取自 `recommend.json` 按匹配度排序的本期推荐前 5 |
+| 篇数 | **10 篇** = `recommend.json` 按匹配度排序的**本期推荐前 8**（`--top 8`）+ **兴趣扩展前 2**（`--expand 2`） |
 | 渲染方式 | **Remotion 代码渲染**（`reel/` 工程），不用文生视频模型 |
 
 **为什么必须用代码渲染而不是文生视频**：
@@ -25,13 +26,21 @@
 20s 的分法是：0–3s 识别信息（类别 / 编号 / 原题 / 作者），4.1s / 7.1s / 10.1s 三条要点依次出现，
 最后一条要点在切走前仍有约 10 秒停留，配合 16–18.5s 的旁白，阅读与听讲互不抢资源。
 
+**时长随篇数自动伸缩**：`DURATION = INTRO(150) + N*PAPER(600) + XFADE(18) + OUTRO(150)`。
+5 篇 = 3318 帧 / 110.60s，10 篇 = **6318 帧 / 210.60s**。`check_video_av.py` 从 `papers.json` 读篇数，无需硬编码。
+唯一需要人工兜底的是**片尾的 arXiv 号清单**：10 个号单行排版会超过 1920px 被裁切，
+`PaperReel.tsx` 已按 `SID_PER_ROW = 5` 折行。
+
 ## 1. 数据准备（一切事实来自本地产物，禁止凭空生成）
 
 1. 先完成日报流水线（抓取 → 推荐 → 渲染 → 确保 8765 在线）。
-2. 生成数据：`python tools/gen_video_data.py --top 5` → `reel/src/papers.json`。
+2. 生成数据：`python tools/gen_video_data.py --top 8 --expand 2` → `reel/src/papers.json`。
+   **注意 `--top` 默认 8、`--expand` 默认 2，两个参数都要显式写**：
+   `--top 8 --expand 2` → 10 篇（本规格）；`--top 5 --expand 0` → 5 篇（旧规格）；
+   只写 `--top 5` 不写 `--expand` 会**误得 7 篇**，切勿如此。
    字段来源：`recommend.json`（排名 / 分数 / 题名 / 作者）、`issue_core.json`（期号 / 统计 / 回溯窗口）、
    `affiliations.json`（单位）、`summaries.json`（中文摘要）。
-3. **必须为每篇人工撰写 `output/video_notes.json`**：
+3. **必须为每篇人工撰写 `output/video_notes.json`**（10 篇 = 10 个短号条目 + `_intro` / `_outro`）：
 
    ```json
    {
@@ -54,7 +63,7 @@
    - `kw` 取**在中文文案里真实出现过**的英文技术词（2–4 个），用于强调色高亮；不要编造高亮词。
    - 语义归属拿不准时，用中性标签 `要点 1 / 要点 2 / 要点 3`，不要硬套「方法 / 结论」。
    - 缺 notes 时生成器会退化成「英文摘要首句」——**那种产物不可交付**，必须先补 notes。
-4. 再跑一次 `gen_video_data.py` 使 notes 生效。
+4. 再跑一次 `gen_video_data.py` 使 notes 生效（每次改 `video_notes.json` 后都要重跑）。
 
 ## 2. 语音讲解（TTS）
 
@@ -69,11 +78,15 @@ C:\Users\hfwei\.workbuddy\binaries\python\envs\default\Scripts\python.exe -m pip
 C:\Users\hfwei\.workbuddy\binaries\python\envs\default\Scripts\python.exe -X utf8 tools/gen_narration.py
 ```
 
-产出：`reel/public/audio/{intro,p1..p5,outro}.mp3` + `reel/src/audio.json`（每段时长与语速）。
+产出：`reel/public/audio/{intro,p1..p10,outro}.mp3` + `reel/src/audio.json`（每段时长与语速）。
 
 **响度归一化**：Edge TTS 原始输出偏轻（整段 mean_volume 实测 ≈ −27dB，笔记本扬声器上要调大音量才听清）。
 合成后脚本用 ffmpeg `loudnorm` 统一归一到 **−16 LUFS / 峰值 −1.5 dBTP**（网络视频通用响度），
 归一化后每段 mean_volume ≈ −18dB；失败则保留原始音频并告警，不阻断流程。
+
+**瞬时故障重试**：Edge TTS 会偶发 `NoAudioReceived`（服务端抽风，与稿件内容无关）。
+篇数 5 → 10 后单轮要打 **12 次**接口，命中概率显著上升；`run_synth()` 已内置 3 次重试（1.5s / 3s 退避）。
+三次仍失败才整轮报错——此时如实报告「本轮未产出旁白」，不要伪造产物。
 
 ### 2.2 稿件写作准则（这是质量的核心）
 
@@ -81,9 +94,10 @@ C:\Users\hfwei\.workbuddy\binaries\python\envs\default\Scripts\python.exe -X utf
 - **可以补充画面没写的连接与评价**：「换句话说」「值得注意的是」「作者的思路很取巧」「这个结论有点反直觉」。
 - 数字与符号一律改成口语读法：`N=5` →「N 等于五」、`5%→100%` →「百分之五飙到百分之百」、`24 字节` →「二十四字节」。
   脚本里的 `to_speech()` 会自动做这层转换，但**人工撰稿时直接写口语更自然**。
-- **长度**：每篇 **75–90 字**（约 16–19 秒）；片头 / 片尾 **≤ 20 字**。
-  实测基准：`zh-CN-YunxiNeural` 约 4.8 字/秒。写超了脚本会在 `+6%…+30%` 语速阶梯里加速硬塞，
-  那是质量损失的信号——应回头精简稿子，而不是靠加速掩盖。
+- **长度**：每篇 **75–90 字**；脚本计数含标点，实测 **96–120 字**时刚好贴合 18.6s 目标；片头 / 片尾 **≤ 20 字**。
+  基准：`zh-CN-YunxiNeural` 约 4.8 字/秒，语速调整被限制在 `-12% ~ +25%`。
+  写超了脚本会一路加到 `+25%` 上限并打印 `[warn] 超出 X 秒`——**那是必须回头精简稿件的信号**，
+  不要靠加速掩盖（10 篇里通常有 3–4 篇会写超，写完先看 `[warn]` 再定稿）。
 - **语气**：轻松活泼、自然流畅，**不用正式播音腔**；可以设问（「结果怎么样？」）、可以用口语词（「反过来」「一口气」）。
 
 ### 2.3 音画同步机制
@@ -92,7 +106,7 @@ C:\Users\hfwei\.workbuddy\binaries\python\envs\default\Scripts\python.exe -X utf
   音频只会比所在的段**短**（脚本用 `SEGMENT_BUDGET_SEC = {intro: 4.2, paper: 19.0, outro: 4.2}` 硬性约束，
   并为交叉淡出留 ~0.8s 余量）。因此不存在「音频撑长分段」或跨段累积漂移。
 - Remotion 侧 `<Voice id start>` 把 mp3 放在各段起始帧，首尾各做 5 / 10 帧淡入淡出避免爆音。
-- **片尾旁白提前 30 帧（1s）进入**（`OUTRO_LEAD`）：第 5 篇讲完到片尾开场之间本来会留下 ~3s 空档，
+- **片尾旁白提前 30 帧（1s）进入**（`OUTRO_LEAD`）：最后一篇讲完到片尾开场之间本来会留下 ~3s 空档，
   观感像卡住了；让片尾的话叠在最后一张卡的淡出上（标准 voice lead-in），空档降到 ~1s。
 - 脚本先以常速合成一次测出基准时长，再解析地把语速贴到 `SEGMENT_TARGET_SEC`
   （每篇 18.6s），只在 `-12% ~ +25%` 区间内调整；仍超预算才继续加速并打印 `[warn] 超出 X 秒`。
@@ -120,17 +134,18 @@ C:\Users\hfwei\.workbuddy\binaries\python\envs\default\Scripts\python.exe -X utf
   | 要点 1 / 2 / 3 | 124 / 214 / 304 | 4.1 / 7.1 / 10.1s |
   | 页脚 `arxiv.org/abs/<sid>` | 430 | 14.3s |
 
-  - 右上巨型序号水印（200px/900，白 4.5% 透明；**`right` 必须 ≥ 132**，否则被右边缘裁切）
+  - 右上巨型序号水印（200px/900，白 4.5% 透明；**`right` 必须 ≥ 132**，否则被右边缘裁切）；序号 `01`–`10` 随篇数自增
   - **英文原题**（52px/800）——真实可核实，不做机器翻译
   - 作者（含 `等 N 人`）+ `🏛` 单位（最多 2 家 + `等 N 家单位`）
   - 分隔线 + 三条中文要点（标签芯片 + 31px 正文，关键词染强调色）
   - 页脚 `arxiv.org/abs/<sid>`
 - **左侧竖向时间线**（y 250→880）：底线 + 渐变进度线随播放上行；当前节点用 spring
-  （`damping 11 / stiffness 190`）弹亮并带 26px 光晕，已播节点半亮，未播为描边；左侧标 `01`–`05`。
+  （`damping 11 / stiffness 190`）弹亮并带 26px 光晕，已播节点半亮，未播为描边；左侧标 `01`–`10`
+  （间距按 `(RAIL_BOT - RAIL_TOP) / (N - 1)` 自适应，10 篇时约 70px，不会挤在一起）。
 - **转场**：相邻段落 18 帧交叉淡入淡出，**禁止硬切**；片头/片尾同样与正文交叉淡入淡出。
 - **片尾 5s（150f）**：`关注获取更多`（112px/900）呼吸动画
   `scale = 1 + 0.032·sin(2π·t/2.4)`、光晕 `20 + 12·sin(2π·t/2.4)`，周期 2.4s；
-  下方给出更新节奏（每周二 / 周五 23:10）与本片 5 个 arXiv 号。
+  下方给出更新节奏（每周二 / 周五 23:10）与本片 **10 个 arXiv 号（按 `SID_PER_ROW = 5` 折成两行）**。
 - **实现禁令**：禁用 CSS `transition` / `animation`，一律 `useCurrentFrame()` + `interpolate` / `spring`
   并带 `extrapolateLeft/Right: "clamp"`。
 
@@ -140,12 +155,12 @@ C:\Users\hfwei\.workbuddy\binaries\python\envs\default\Scripts\python.exe -X utf
 # 解释器必须是默认 venv（edge-tts 装在那里）
 set PY="C:\Users\hfwei\.workbuddy\binaries\python\envs\default\Scripts\python.exe"
 
-%PY% -X utf8 tools/gen_video_data.py --top 5     # -> reel/src/papers.json
-%PY% -X utf8 tools/gen_narration.py              # -> reel/public/audio/*.mp3 + reel/src/audio.json
+%PY% -X utf8 tools/gen_video_data.py --top 8 --expand 2  # -> reel/src/papers.json（10 篇）
+%PY% -X utf8 tools/gen_narration.py                      # -> reel/public/audio/*.mp3 + reel/src/audio.json
 
 cd reel
 npm install --registry=https://registry.npmmirror.com --no-audit --no-fund   # 仅首次，约 250 包
-npm run compositions                                                          # 先确认 30fps/1920x1080/帧数
+npm run compositions                                                          # 确认 30fps/1920x1080/帧数（10 篇应为 6318）
 npm run still  -- --frame=200                                                 # 抽静帧看版面（可选）
 npm run render                                                                # -> out/arxiv-weekly.mp4
 npx --no-install remotion ffprobe out/arxiv-weekly.mp4                        # 权威校验：时长 / 分辨率 / 音轨
@@ -160,22 +175,25 @@ cd ..
 - **渲染前必须先跑 `gen_narration.py`**：实测「清单写着 enabled=true 但 mp3 不存在」会让渲染
   `Error while downloading http://localhost:3000/public/audio/xxx.mp3: 404` **硬失败（exit 1）**，
   不是静默降级。所以入库清单刻意保持 `enabled:false`，跑完生成脚本才会翻成 `true`。
+- 10 篇的渲染耗时约为 5 篇的 2 倍（实测 ≈ 4–5 分钟），属正常。
 
 ## 5. 质量闸门（不达标就不交付视频，只交付日报）
 
-- [ ] 5 篇中文要点齐全（3 条/篇），英文原题与 arXiv 号**逐字正确**。
+- [ ] **10 篇**中文要点齐全（3 条/篇），英文原题与 arXiv 号**逐字正确**。
 - [ ] 每篇都有**独立的口播稿**，且不是 `bullets` 原句的拼接（这一步靠人工撰写，脚本不做质量判断）。
 - [ ] `gen_narration.py` 无 `[warn] 超出`——每段音频都装进了预算；每段 mean ≈ −18dB（归一化生效）。
-- [ ] `npm run compositions` 显示 `30  1920x1080  3318`（5 篇时），帧数误差 ≤ 1 帧。
-- [ ] `remotion ffprobe` 显示 **110.6s** 且**存在 audio 流**（aac / 48kHz / stereo）。
-- [ ] `tools/check_video_av.py` **全绿**：时长偏差 ≤0.25s；片头 / 5 篇 / 片尾每段都检出人声
+- [ ] `npm run compositions` 显示 `30  1920x1080  6318`（10 篇时），帧数误差 ≤ 1 帧。
+- [ ] `remotion ffprobe` 显示 **210.6s** 且**存在 audio 流**（aac / 48kHz / stereo）。
+- [ ] `tools/check_video_av.py` **全绿**：时长偏差 ≤0.25s；片头 / **10 篇** / 片尾每段都检出人声
       （mean_volume > −40dB）、语音起点在该段开头 2s 内；无 >3s 静音空洞。
       这是「音画是否同步、口播是否清晰、总时长是否达标」的机器判据，FAIL 必须修复后重渲。
-- [ ] 抽 3 张静帧（片头 / 第 3 篇 / 片尾）肉眼确认无文字溢出、无重叠、无残留占位。
+- [ ] 抽 3 张静帧（片头 / 第 3 篇左右 / 片尾）肉眼确认无文字溢出、无重叠、无残留占位；
+      **片尾两行 arXiv 号必须完整可读**（这是 10 篇规格新增的版面风险点）。
 - [ ] 依赖未装或渲染失败：如实报告「本轮未产出视频」并给原因，**不要伪造产物**。
 
 ## 6. 已知边界
 
 - **无背景音乐**：BGM 涉及版权，当前版本只有人声。
+- 成片约 3.5 分钟、体积约 25–30 MB（5 篇时约 13.9 MB）；若嫌长，把 `--top` / `--expand` 调回 5 / 0 即恢复旧规格。
 - Edge TTS 依赖外网端点；不通时 `gen_narration.py` 会失败，此时应报告「本轮未产出旁白」并退化为无声版本，
   或改用 Windows SAPI / 本地模型（`--voice` 参数留了口子，但需自行实现 provider）。

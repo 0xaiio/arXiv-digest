@@ -246,7 +246,23 @@ async def synth(text, voice, rate, path):
 
 
 def run_synth(text, voice, rate, path):
-    asyncio.run(synth(text, voice, rate, path))
+    """
+    Edge TTS 会偶发 NoAudioReceived（服务端瞬时抽风，与稿件内容无关）。
+    篇数从 5 提到 10 后单轮要打 12 次接口，命中概率明显上升，
+    无人值守的定时任务一旦撞上就会整轮失败 —— 故在这里就地重试。
+    """
+    import time
+    last = None
+    for attempt in range(3):
+        try:
+            asyncio.run(synth(text, voice, rate, path))
+            return
+        except Exception as exc:  # noqa: BLE001 - 只重试瞬时错误，三次仍失败才抛出
+            last = exc
+            if attempt < 2:
+                print("       [retry %d/2] Edge TTS 瞬时错误：%s" % (attempt + 1, exc))
+                time.sleep(1.5 * (attempt + 1))
+    raise last
 
 
 def fmt_rate(pct):

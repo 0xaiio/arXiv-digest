@@ -1,7 +1,7 @@
 {
   "issue": "20261002",
   "range": "2026-10-01 · 回溯 3 天公告批次",
-  "generated": "2026-10-02T10:12:22+08:00",
+  "generated": "2026-10-02T23:11:30+08:00",
   "stats": {
     "core": 136,
     "expand": 893,
@@ -11,14 +11,14 @@
   "papers": [
     {
       "rank": 1,
+      "lane": "推荐",
       "sid": "2610.00896",
       "cat": "cs.DC",
-      "score": 38.5,
+      "score": 41.2,
       "title_en": "Seamless Reconfiguration for DAG-BFT",
       "kw": [
-        "DAG-Rider",
-        "FLP",
-        "DAG"
+        "DAG",
+        "BFT"
       ],
       "authors": "Michael Yiqing Hu, Leander Jehl, Paul Franke-Bergmann 等 5 人",
       "units": [
@@ -44,14 +44,14 @@
     },
     {
       "rank": 2,
+      "lane": "推荐",
       "sid": "2609.39715",
       "cat": "cs.DC",
-      "score": 34.5,
+      "score": 35.8,
       "title_en": "Exploring Adaptive Byzantine Quorum Systems to Improve Latency in the WAN",
       "kw": [
         "BFT-SMaRt",
-        "quorum",
-        "WAN"
+        "BFT"
       ],
       "authors": "Linus Gnan, Rüdiger Kapitza, Christian Berger",
       "units": [
@@ -75,13 +75,13 @@
     },
     {
       "rank": 3,
+      "lane": "推荐",
       "sid": "2610.00349",
       "cat": "cs.AI",
-      "score": 19.9,
+      "score": 20.5,
       "title_en": "Fault-Tolerant Budget Conservation in Distributed Multi-Agent Delegation",
       "kw": [
         "TLA+",
-        "escrow",
         "DAG"
       ],
       "authors": "Genliang Zhu, Chu Wang",
@@ -107,14 +107,14 @@
     },
     {
       "rank": 4,
+      "lane": "推荐",
       "sid": "2609.39357",
       "cat": "cs.LG",
-      "score": 17.0,
+      "score": 17.6,
       "title_en": "Robustifying Asynchronous SGD via Soft Throttling",
       "kw": [
         "Throttle",
-        "SGD",
-        "Byzantine"
+        "SGD"
       ],
       "authors": "Kaoru Otsuka, Maxime Meyer, Yuki Takezawa 等 5 人",
       "units": [
@@ -140,14 +140,14 @@
     },
     {
       "rank": 5,
+      "lane": "推荐",
       "sid": "2610.01073",
       "cat": "cs.SE",
-      "score": 16.2,
+      "score": 16.7,
       "title_en": "Safety Must Survive Self-Improvement: Why Failures Persist and How Agents Recover",
       "kw": [
-        "RSI",
-        "rollback",
-        "LLM"
+        "LLM",
+        "rollback"
       ],
       "authors": "Yunbei Zhang, Janet Wang, Saiyue Lyu 等 6 人",
       "units": [],
@@ -162,10 +162,161 @@
         },
         {
           "tag": "结果",
-          "text": "48 段历史中 22 段保留不安全程序；完整验证加已验证回滚可完全正确，并保留超过百分之四十三的部署节省"
+          "text": "48 段历史中 22 段保留不安全程序；完整验证加已验证回滚（rollback）可完全正确，并保留超过百分之四十三的部署节省"
         }
       ],
       "link": "arxiv.org/abs/2610.01073"
+    },
+    {
+      "rank": 6,
+      "lane": "推荐",
+      "sid": "2610.00885",
+      "cat": "cs.SE",
+      "score": 14.4,
+      "title_en": "FORALL-LEAN-AGENT for Auditable Reasoning in Formal Mathematics and Software Verification",
+      "kw": [
+        "Lean",
+        "VeriSoftBench"
+      ],
+      "authors": "Naing Oo Lwin",
+      "units": [],
+      "bullets": [
+        {
+          "tag": "背景",
+          "text": "编码智能体已能自动做 Lean 证明，但编译成功不等于证明了预期命题、假设可接受"
+        },
+        {
+          "tag": "方法",
+          "text": "隔离工作区加 Lean 工具与复审，配命题比对、公理审计、独立证明检查，证据绑定到同一候选产物"
+        },
+        {
+          "tag": "结果",
+          "text": "VeriSoftBench 百题子集上合规成功率由 93 提到 100，成本由 69 美元降到 62 美元；PutnamBench 672 题全部接受"
+        }
+      ],
+      "link": "arxiv.org/abs/2610.00885"
+    },
+    {
+      "rank": 7,
+      "lane": "推荐",
+      "sid": "2610.00671",
+      "cat": "cs.DC",
+      "score": 11.1,
+      "title_en": "MegaFlux: Skew-Resilient MoE Megakernels via Pipelined Expert Replication",
+      "kw": [
+        "MoE",
+        "MegaFlux",
+        "GPU"
+      ],
+      "authors": "Jianzhu Yao, Siva Kumar Sastry Hari, Vignesh Balaji 等 6 人",
+      "units": [],
+      "bullets": [
+        {
+          "tag": "背景",
+          "text": "MoE 巨型内核融合专家并行通信与计算，固定专家放置下路由倾斜会让过载 GPU 成为掉队者"
+        },
+        {
+          "tag": "方法",
+          "text": "把专家复制改为运行时决策：片上规划器在每 GPU 副本预算下选位置并分配对齐的 token 块，前后向内核流水化通信"
+        },
+        {
+          "tag": "结果",
+          "text": "八张 B200 上前后向几何平均加速 1.45 倍与 1.28 倍，最高 2.14 与 2.64 倍；接入 vLLM 端到端中位加速 1.13 到 1.26 倍"
+        }
+      ],
+      "link": "arxiv.org/abs/2610.00671"
+    },
+    {
+      "rank": 8,
+      "lane": "推荐",
+      "sid": "2610.00702",
+      "cat": "cs.DC",
+      "score": 10.7,
+      "title_en": "Ditto: Generalized Reconfigurable Linearizable Reads",
+      "kw": [
+        "Ditto",
+        "Pairwise Quorums"
+      ],
+      "authors": "Aleksey Panas",
+      "units": [
+        "University of Toronto"
+      ],
+      "bullets": [
+        {
+          "tag": "背景",
+          "text": "线性一致读的专用算法众多，但没有哪一种在每个部署下都最优，已有算法只覆盖权衡空间的一部分"
+        },
+        {
+          "tag": "方法",
+          "text": "给出统一分类框架与延迟分析，提出 Pairwise Quorums 填补空缺，再由 Ditto 在运行时按条件重配置"
+        },
+        {
+          "tag": "结果",
+          "text": "组合涵盖该模型下所有已有算法：要么严格更优，要么在存在真实权衡处重配置到与之持平"
+        }
+      ],
+      "link": "arxiv.org/abs/2610.00702"
+    },
+    {
+      "rank": 9,
+      "lane": "兴趣扩展",
+      "sid": "2610.00347",
+      "cat": "cs.CR",
+      "score": 16.3,
+      "title_en": "Authorization for Self-Modifying AI Agent Populations: Conserving Authority across Replacement, Forking, and Rollback",
+      "kw": [
+        "fork",
+        "rollback"
+      ],
+      "authors": "Genliang Zhu, Chu Wang",
+      "units": [
+        "Georgia Institute of Technology",
+        "University of Illinois Urbana-Champaign"
+      ],
+      "bullets": [
+        {
+          "tag": "背景",
+          "text": "自我修改智能体可替换、fork（分叉）与回滚带身份的软件，逐后继授权管不住整个族群，兄弟节点可复制配额或叠加权限"
+        },
+        {
+          "tag": "方法",
+          "text": "定义授权继任：每代绑定清单、根、唯一父代与完整血统；预留冻结前代剩余权限，分叉校验完整子族，提交原子交接"
+        },
+        {
+          "tag": "结果",
+          "text": "rollback（回滚）不重建已消耗权限；证明族群安全继任与撤销闭合等性质，32 条决策 64 次重放全部复现，28 个语义变体全被拒绝"
+        }
+      ],
+      "link": "arxiv.org/abs/2610.00347"
+    },
+    {
+      "rank": 10,
+      "lane": "兴趣扩展",
+      "sid": "2609.39234",
+      "cat": "quant-ph",
+      "score": 15.3,
+      "title_en": "Breaking the Bounded Entanglement Barrier for Quantum Position Verification",
+      "kw": [
+        "LOCC",
+        "BB84"
+      ],
+      "authors": "Amit Behera, Vipul Goyal",
+      "units": [],
+      "bullets": [
+        {
+          "tag": "背景",
+          "text": "经典位置验证不可能；量子位置验证中只要对手持有指数级预共享纠缠，就总存在 LOCC 攻击"
+        },
+        {
+          "tag": "方法",
+          "text": "在理想连续时间模型下给出基于 BB84 的协议，挑战消息的发送时刻从实区间均匀采样"
+        },
+        {
+          "tag": "结果",
+          "text": "可抵御任意有限 LOCC 联盟；离散时间下诚实方总资源可远小于对手资源界，差距随时钟精度提高而增大"
+        }
+      ],
+      "link": "arxiv.org/abs/2609.39234"
     }
   ]
 }
