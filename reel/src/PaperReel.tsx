@@ -28,6 +28,7 @@ import audioRaw from "./audio.json";
 type Bullet = { tag: string; text: string };
 type Paper = {
   rank: number;
+  lane?: string; // "推荐" / "兴趣扩展"（由 gen_video_data.py 写入）
   sid: string;
   cat: string;
   score: number;
@@ -416,6 +417,19 @@ const Card: React.FC<{ p: Paper }> = ({ p }) => {
               }}
             >
               {p.cat}
+            </span>
+            <span style={{ color: "rgba(255,255,255,0.18)" }}>|</span>
+            <span
+              style={{
+                fontFamily: SANS,
+                fontSize: 22,
+                color: p.lane === "兴趣扩展" ? SUB : ACC,
+                border: `1px solid rgba(0,212,255,0.35)`,
+                borderRadius: 8,
+                padding: "2px 10px",
+              }}
+            >
+              {p.lane === "兴趣扩展" ? "🌱 兴趣扩展" : "🎯 为你推荐"}
             </span>
             <span style={{ color: "rgba(255,255,255,0.18)" }}>|</span>
             <span style={{ fontFamily: MONO, fontSize: 26, color: DIM }}>

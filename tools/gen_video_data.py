@@ -10,7 +10,10 @@
 - 英文原题原样呈现（真实可核实），不做机器翻译。
 
 用法：
-  python tools/gen_video_data.py [--top 5] [--out reel/src/papers.json]
+  python tools/gen_video_data.py [--top 8] [--expand 2] [--out reel/src/papers.json]
+
+``--top`` 取本期「🎯 为你推荐」前列（核心六分类 feed），``--expand`` 取「🌱 兴趣扩展」
+前列（其他 cs.xx / math.LO）；两者在 recommend.py 阶段已按短号排除重叠，拼接后即为成片顺序。
 """
 import argparse
 import io
@@ -109,7 +112,11 @@ def pick_keywords(title_en, zh_text, extra=None, limit=4):
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--top", type=int, default=5, help="取推荐榜前 N 篇")
+    ap.add_argument("--top", type=int, default=8, help="取「为你推荐」榜前 N 篇")
+    ap.add_argument(
+        "--expand", type=int, default=2,
+        help="追加「兴趣扩展」榜前 M 篇（排在推荐之后，短号去重）",
+    )
     ap.add_argument("--out", default=os.path.join(ROOT, "reel", "src", "papers.json"))
     args = ap.parse_args(argv)
 
@@ -133,12 +140,32 @@ def main(argv=None):
     n_exp_rec = len(expand_files[1]) if isinstance(expand_files[1], list) else 0
 
     reco_sorted = sorted(reco, key=lambda p: float(p.get("score") or 0), reverse=True)
-    picked = reco_sorted[: args.top]
+    picked: list[tuple[dict, str]] = [(p, "推荐") for p in reco_sorted[: args.top]]
+
+    # 兴趣扩展：expand.json 是 recommend.py 输出的本期扩展推荐（已按分数排好、与核心零重叠）
+    if args.expand > 0:
+        exp_sorted = sorted(
+            (p for p in expand_files[1] if isinstance(p, dict)),
+            key=lambda p: float(p.get("score") or 0),
+            reverse=True,
+        )
+        taken = {sid_of(p.get("id")) for p, _ in picked}
+        for p in exp_sorted:
+            sid = sid_of(p.get("id"))
+            if sid in taken:
+                continue
+            taken.add(sid)
+            picked.append((p, "兴趣扩展"))
+            if len([1 for _, lane in picked if lane == "兴趣扩展"]) >= args.expand:
+                break
+
     if not picked:
         print("[err] recommend.json 为空，先跑流水线")
         return 2
 
-    dates = sorted({str(p.get("published", ""))[:10] for p in picked if p.get("published")})
+    dates = sorted(
+        {str(p.get("published", ""))[:10] for p, _ in picked if p.get("published")}
+    )
     newest = dates[-1] if dates else ""
     window = core.get("window_days") if isinstance(core, dict) else None
     issue_date = core.get("issue_date") if isinstance(core, dict) else None
@@ -146,7 +173,7 @@ def main(argv=None):
     rng = newest + ((" · 回溯 %s 天公告批次" % window) if window else " 批次")
 
     items = []
-    for idx, p in enumerate(picked, start=1):
+    for idx, (p, lane) in enumerate(picked, start=1):
         sid = sid_of(p.get("id"))
         note = notes.get(sid) or notes.get(str(p.get("id"))) or {}
         zh = p.get("summary") or summaries.get(sid) or ""
@@ -178,6 +205,7 @@ def main(argv=None):
         items.append(
             {
                 "rank": idx,
+                "lane": lane,
                 "sid": sid,
                 "cat": p.get("primary") or (p.get("cats") or [""])[0],
                 "score": round(float(p.get("score") or 0), 1),
@@ -211,8 +239,9 @@ def main(argv=None):
     print("     期号 %s  区间 %s  统计 %s" % (issue, rng, data["stats"]))
     for it in items:
         print(
-            "     #%d %-12s %-7s %5.1f  %s"
-            % (it["rank"], it["sid"], it["cat"], it["score"], clip(it["title_en"], 52))
+            "     #%d %-12s %-7s %-6s %5.1f  %s"
+            % (it["rank"], it["sid"], it["cat"], it["lane"], it["score"],
+               clip(it["title_en"], 52))
         )
     return 0
 

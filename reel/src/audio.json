@@ -1,6 +1,69 @@
 {
-  "enabled": false,
+  "enabled": true,
   "voice": "zh-CN-YunxiNeural",
-  "segments": {},
-  "_note": "生成物：由 tools/gen_narration.py 覆写（reel/public/audio/*.mp3 + 本文件）。入库态刻意保持 enabled=false，这样干净检出（没有 mp3）也能构建，只是无旁白；跑一次 gen_narration.py 即恢复有声。"
+  "segments": {
+    "intro": {
+      "id": "intro",
+      "file": "audio/intro.mp3",
+      "seconds": 3.91,
+      "rate": "-4%",
+      "chars": 14,
+      "mean_db": -18.2,
+      "sid": null
+    },
+    "paper1": {
+      "id": "paper1",
+      "file": "audio/p1.mp3",
+      "seconds": 18.65,
+      "rate": "+5%",
+      "chars": 96,
+      "mean_db": -18.0,
+      "sid": "2610.00896"
+    },
+    "paper2": {
+      "id": "paper2",
+      "file": "audio/p2.mp3",
+      "seconds": 18.72,
+      "rate": "+8%",
+      "chars": 102,
+      "mean_db": -18.2,
+      "sid": "2609.39715"
+    },
+    "paper3": {
+      "id": "paper3",
+      "file": "audio/p3.mp3",
+      "seconds": 18.58,
+      "rate": "+17%",
+      "chars": 111,
+      "mean_db": -18.4,
+      "sid": "2610.00349"
+    },
+    "paper4": {
+      "id": "paper4",
+      "file": "audio/p4.mp3",
+      "seconds": 18.62,
+      "rate": "+14%",
+      "chars": 117,
+      "mean_db": -18.0,
+      "sid": "2609.39357"
+    },
+    "paper5": {
+      "id": "paper5",
+      "file": "audio/p5.mp3",
+      "seconds": 18.55,
+      "rate": "+11%",
+      "chars": 103,
+      "mean_db": -18.7,
+      "sid": "2610.01073"
+    },
+    "outro": {
+      "id": "outro",
+      "file": "audio/outro.mp3",
+      "seconds": 4.51,
+      "rate": "+25%",
+      "chars": 24,
+      "mean_db": -18.5,
+      "sid": null
+    }
+  }
 }

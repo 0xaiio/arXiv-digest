@@ -1,168 +1,171 @@
 {
-  "issue": "20260930",
-  "range": "2026-09-28 · 回溯 3 天公告批次",
-  "generated": "2026-09-30T00:08:42+08:00",
+  "issue": "20261002",
+  "range": "2026-10-01 · 回溯 3 天公告批次",
+  "generated": "2026-10-02T10:12:22+08:00",
   "stats": {
-    "core": 195,
-    "expand": 851,
+    "core": 136,
+    "expand": 893,
     "rec": 14,
-    "exp": 8
+    "exp": 10
   },
   "papers": [
     {
       "rank": 1,
-      "sid": "2609.32972",
+      "sid": "2610.00896",
       "cat": "cs.DC",
-      "score": 30.6,
-      "title_en": "Time Semantics and Liveness Artifacts in Adversarial Consensus Simulation",
+      "score": 38.5,
+      "title_en": "Seamless Reconfiguration for DAG-BFT",
       "kw": [
-        "Multi-Paxos",
-        "Raft",
-        "RoundTick",
-        "EventCoupled"
+        "DAG-Rider",
+        "FLP",
+        "DAG"
       ],
-      "authors": "Nasit S Sony, Xianzhong Ding",
+      "authors": "Michael Yiqing Hu, Leander Jehl, Paul Franke-Bergmann 等 5 人",
       "units": [
-        "University of California, Merced"
+        "National University of Singapore",
+        "University of Stavanger",
+        "等 3 家单位"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "对抗式共识仿真只有消息投递模型不够，超时敏感协议还必须有显式时间模型"
+          "text": "既有 DAG 类 BFT 协议多假设进程集合静态，改配置要停服或等到预设纪元边界，会带来停机时间"
         },
         {
           "tag": "方法",
-          "text": "在 VeriProtocol 上对比 EventCoupled 与 RoundTick 两种时间语义，跑 Multi-Paxos / Raft 受控实验"
+          "text": "提出无缝重配置协议：成员与仲裁阈值变化期间 DAG 继续增长，系统不暂停"
         },
         {
           "tag": "结果",
-          "text": "N=5、K 由 6 升到 14：领导不稳定率 5%→100%；140 次 RoundTick 执行无额外选举"
+          "text": "据作者所知，这是全异步网络下首个支持无缝重配置的 DAG 拜占庭原子广播协议"
         }
       ],
-      "link": "arxiv.org/abs/2609.32972"
+      "link": "arxiv.org/abs/2610.00896"
     },
     {
       "rank": 2,
-      "sid": "2609.34881",
-      "cat": "cs.LO",
-      "score": 25.8,
-      "title_en": "Monitoring and Verification of Multitenant Kubernetes Clusters using TLA+ Trace Checking",
+      "sid": "2609.39715",
+      "cat": "cs.DC",
+      "score": 34.5,
+      "title_en": "Exploring Adaptive Byzantine Quorum Systems to Improve Latency in the WAN",
       "kw": [
-        "TLA+",
-        "Kubernetes",
-        "trace"
+        "BFT-SMaRt",
+        "quorum",
+        "WAN"
       ],
-      "authors": "Ioana Silaş, Adrian Crăciun",
-      "units": [],
+      "authors": "Linus Gnan, Rüdiger Kapitza, Christian Berger",
+      "units": [
+        "Friedrich-Alexander-Universität Erlangen-Nürnberg"
+      ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "模型检查多用于设计期，运行时监控缺少形式化手段"
+          "text": "仲裁构造决定 BFT 状态机复制的推进速度，但各构造分散在不同实现中，缺少同口径比较"
         },
         {
           "tag": "方法",
-          "text": "用 TLA+ 轨迹检查规约，直接从 Kubernetes 审计日志反推行为、检测违规"
+          "text": "为 BFT-SMaRt 增加模块化仲裁系统抽象，让多种构造与同一套优化技术共存于同一框架"
         },
         {
           "tag": "结果",
-          "text": "以多租户越权为主用例，把形式推理嵌入在线 K8s 环境，管道不限于此场景"
+          "text": "用网络模拟评估不同仲裁构造对广域网 BFT 复制中客户端观测延迟的影响"
         }
       ],
-      "link": "arxiv.org/abs/2609.34881"
+      "link": "arxiv.org/abs/2609.39715"
     },
     {
       "rank": 3,
-      "sid": "2609.33081",
-      "cat": "cs.PL",
-      "score": 20.6,
-      "title_en": "SafePar: Monitoring Asynchrony in Microservices",
+      "sid": "2610.00349",
+      "cat": "cs.AI",
+      "score": 19.9,
+      "title_en": "Fault-Tolerant Budget Conservation in Distributed Multi-Agent Delegation",
       "kw": [
-        "SafePar",
-        "microservices",
-        "API"
+        "TLA+",
+        "escrow",
+        "DAG"
       ],
-      "authors": "Karuna Grewal, P. Brighten Godfrey, Justin Hsu 等 4 人",
+      "authors": "Genliang Zhu, Chu Wang",
       "units": [
-        "University of Illinois Urbana-Champaign",
-        "National University of Singapore"
+        "Georgia Institute of Technology",
+        "University of Illinois Urbana-Champaign"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "一次请求含串行与异步并行的下游调用，现有机制只建模顺序或嵌套轨迹"
+          "text": "资源限额正成为 AI 智能体委托时的授权边界，但回复丢失、超时后完成、消息重复、分区等会造成超支"
         },
         {
           "tag": "方法",
-          "text": "SafePar 刻画并发结构策略：哪些调用可并发、分支数量与结果组合，且与服务实现解耦"
+          "text": "预算量化为资源向量，由独占托管信用沿委托 DAG 流动；派发前转为绑定血统与幂等键的预留，网关先验签"
         },
         {
           "tag": "结果",
-          "text": "安全合规团队无需接触服务实现即可强制并行结构策略"
+          "text": "证明所有权划分、账本守恒、最多一次结算等性质；有界 TLA+ 检查与注错实验验证声明范围内成立"
         }
       ],
-      "link": "arxiv.org/abs/2609.33081"
+      "link": "arxiv.org/abs/2610.00349"
     },
     {
       "rank": 4,
-      "sid": "2609.32985",
-      "cat": "cs.DC",
-      "score": 19.0,
-      "title_en": "Simple and Fast Signature-Free Blockchain Consensus",
+      "sid": "2609.39357",
+      "cat": "cs.LG",
+      "score": 17.0,
+      "title_en": "Robustifying Asynchronous SGD via Soft Throttling",
       "kw": [
-        "Signature-Free",
-        "Simplex",
-        "Minimmit"
+        "Throttle",
+        "SGD",
+        "Byzantine"
       ],
-      "authors": "Giuliano Losa, Xuechao Wang, Zhuolun Xiang 等 4 人",
+      "authors": "Kaoru Otsuka, Maxime Meyer, Yuki Takezawa 等 5 人",
       "units": [
-        "Stellar Development Foundation",
-        "The Hong Kong University of Science and Technology"
+        "Okinawa Institute of Science and Technology",
+        "National University of Singapore",
+        "等 4 家单位"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "无签名协议可省去后量子签名开销，代价是设计难度"
+          "text": "异步 SGD 中更新到达即应用，速度快但更易受攻击，快客户端可主导整体更新"
         },
         {
           "tag": "方法",
-          "text": "提出两种最终同步协议，并抽象出 view agreement，实例化 Generic Simplex 构造"
+          "text": "提出 Throttle：按因子 q 对更快客户端的更新指数降权，q 等于一退化为异步 SGD，q 趋于无穷退化为同步鲁棒 SGD"
         },
         {
           "tag": "结果",
-          "text": "好情况延迟最优（f<n/3 三跳、f<n/5 两跳）、乐观响应、每视图 O(n^2) 通信"
+          "text": "给出收敛速率的理论分析；实验显示降权在无拜占庭环境下也能提升性能"
         }
       ],
-      "link": "arxiv.org/abs/2609.32985"
+      "link": "arxiv.org/abs/2609.39357"
     },
     {
       "rank": 5,
-      "sid": "2609.33066",
-      "cat": "cs.LG",
-      "score": 18.2,
-      "title_en": "Zero-Storage Procedural Neural Synthesis via Boundary Dynamics: Formal Verification in Lean 4 and Bare-Metal Gauntlet Validation",
+      "sid": "2610.01073",
+      "cat": "cs.SE",
+      "score": 16.2,
+      "title_en": "Safety Must Survive Self-Improvement: Why Failures Persist and How Agents Recover",
       "kw": [
-        "Lean",
-        "Mandelbrot",
-        "EVM",
-        "Mathlib4"
+        "RSI",
+        "rollback",
+        "LLM"
       ],
-      "authors": "Volkan Dağlı, Zerrin Dağlı, Dağhan Dağlı",
+      "authors": "Yunbei Zhang, Janet Wang, Saiyue Lyu 等 6 人",
       "units": [],
       "bullets": [
         {
           "tag": "背景",
-          "text": "稠密权重矩阵受显存墙限制，无法在 EVM 等确定性虚拟机内原生执行"
+          "text": "递归自我改进使智能体跨代保留改动，既要阻止不安全行为持续，也要能在失败后恢复"
         },
         {
           "tag": "方法",
-          "text": "以 24 字节种子按需合成决策边界，投影到模 9 残差环与 Q16.16 定点域，零存储"
+          "text": "构建有状态授权任务测试台：固定 LLM 编辑器优化可执行组件，独立轨迹记录效果，配对干预区分验证与续跑"
         },
         {
           "tag": "结果",
-          "text": "论文报告 Lean 4 + Mathlib4 机器验证 10 条定理、零 sorry，并给出裸机实测"
+          "text": "48 段历史中 22 段保留不安全程序；完整验证加已验证回滚可完全正确，并保留超过百分之四十三的部署节省"
         }
       ],
-      "link": "arxiv.org/abs/2609.33066"
+      "link": "arxiv.org/abs/2610.01073"
     }
   ]
 }

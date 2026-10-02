@@ -15,9 +15,14 @@
 
 用法
 ----
-    python tools/check_video_av.py reel/out/arxiv-weekly.mp4
+    python tools/check_video_av.py reel/out/arxiv-weekly.mp4 [--papers 10]
+
+篇数默认从 reel/src/papers.json 自动读取（与画面分段严格同源），
+仅在离线核对时才有必要用 --papers 覆盖。
 """
 import argparse
+import io
+import json
 import os
 import re
 import subprocess
@@ -90,11 +95,32 @@ def silences(ff, path):
     ]
 
 
+def paper_count(default=10):
+    """从 reel/src/papers.json 读篇数，保证与画面分段严格同源。"""
+    p = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "reel", "src", "papers.json",
+    )
+    try:
+        with io.open(p, encoding="utf-8") as fh:
+            data = json.load(fh)
+        n = len(data.get("papers") or [])
+        return n or default
+    except Exception as exc:
+        print("[warn] 读取 %s 失败（%s），按 %d 篇核对" % (p, exc, default))
+        return default
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("video")
-    ap.add_argument("--papers", type=int, default=5)
+    ap.add_argument(
+        "--papers", type=int, default=None,
+        help="篇数；默认从 reel/src/papers.json 自动读取",
+    )
     args = ap.parse_args(argv)
+    if args.papers is None:
+        args.papers = paper_count()
 
     ff = ffmpeg_exe()
     if not ff:
