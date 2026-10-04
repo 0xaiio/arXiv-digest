@@ -80,22 +80,63 @@ def info(msg: str) -> None:
     print(f"       {msg}")
 
 
+def _is_pe(p: str) -> bool:
+    """是否是可执行的 Windows PE（MZ 头且非空）。
+
+    winget 偶尔会在 %LOCALAPPDATA%\\Microsoft\\WinGet\\Links\\ 留下 0 字节的 biliup.exe 空壳
+    （未开开发者模式时符号链接创建失败所致）。这种文件 shutil.which 照样能找到，
+    但 CreateProcess 会报「不是此 OS 平台的有效应用」。所以命中 PATH 前必须验一遍。
+    """
+    try:
+        with open(p, "rb") as fh:
+            return fh.read(2) == b"MZ"
+    except OSError:
+        return False
+
+
+def repair_winget_link() -> str | None:
+    """修复 winget Links 目录下的 0 字节 biliup.exe 空壳。
+
+    winget 未开「开发者模式」时创建符号链接失败，会在
+    %LOCALAPPDATA%\\Microsoft\\WinGet\\Links\\biliup.exe 留下 0 字节文件；
+    而该目录在用户 PATH 里优先级最高，于是 PowerShell 直接报
+    「Program 'biliup.exe' failed to run: 不是此 OS 平台的有效应用」。
+    这里只把真实二进制复制覆盖这一个空壳文件，不删除任何东西。
+    """
+    import shutil
+
+    link = Path(os.path.expandvars(r"%LOCALAPPDATA%\Microsoft\WinGet\Links\biliup.exe"))
+    good = find_biliup()
+    if not link.exists() or not good or _is_pe(str(link)):
+        return None
+    if os.path.abspath(str(link)) == os.path.abspath(good):
+        return None
+    try:
+        shutil.copy(good, link)
+    except OSError as e:
+        return f"空壳修复失败（可手动复制）：{e}"
+    return f"已修复 PATH 上的 0 字节空壳 biliup.exe → {link}（用 {good} 覆盖）"
+
+
 def find_biliup() -> str | None:
     """biliup 二进制：环境变量 > PATH > WinGet 包目录。
 
     winget 装完后会改用户 PATH，但已运行的 shell 读不到新 PATH，所以必须兜底到包目录。
+    每一级都要过 _is_pe()，否则会拿到 Links 目录下的 0 字节空壳。
     """
     env = os.environ.get("BILIUP")
-    if env and Path(env).is_file():
+    if env and Path(env).is_file() and _is_pe(env):
         return env
     import shutil
 
-    hit = shutil.which("biliup") or shutil.which("biliup.exe")
-    if hit:
-        return hit
+    for name in ("biliup", "biliup.exe"):
+        hit = shutil.which(name)
+        if hit and _is_pe(hit):
+            return hit
     base = os.path.expandvars(r"%LOCALAPPDATA%\Microsoft\WinGet\Packages")
     for p in glob.glob(os.path.join(base, "ForgQi.biliup-rs*", "**", "biliup.exe"), recursive=True):
-        return p
+        if _is_pe(p):
+            return p
     return None
 
 
@@ -241,6 +282,10 @@ def cmd_check(a: argparse.Namespace) -> int:
             warn(f"版本查询失败：{e}")
     else:
         bad("找不到 biliup。安装：winget install --id ForgQi.biliup-rs --exact")
+
+    fix = repair_winget_link()
+    if fix:
+        warn(fix)
 
     ff = find_ffmpeg()
     ok(f"ffmpeg → {ff}") if ff else warn("无 ffmpeg（cover 命令会不可用）")
