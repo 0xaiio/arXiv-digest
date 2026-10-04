@@ -238,7 +238,11 @@ def build_comment(papers: list[dict], issue: str) -> str:
 
 
 def load_cookie_jar() -> dict[str, str]:
-    """biliup 的 cookie 可能是 dict / list-of-dict / Netscape 文本，三种都兼容。"""
+    """兼容三种 cookie 文件：dict（扁平 name→value）/ list-of-dict / Netscape 文本。
+
+    另外要兼容 biliup-rs 的 LoginInfo 结构（tools/bili_tv_qr_login.py 写出的格式）：
+        {"cookie_info": {"cookies": [{"name","value"}, ...], ...}, "sso": [...], "token_info": {...}}
+    """
     raw = COOKIE.read_text(encoding="utf-8", errors="replace").strip()
     try:
         j = json.loads(raw)
@@ -251,6 +255,14 @@ def load_cookie_jar() -> dict[str, str]:
             if len(parts) >= 7:
                 jar[parts[5]] = parts[6]
         return jar
+    # biliup-rs LoginInfo：从 cookie_info.cookies 提取
+    if isinstance(j, dict) and isinstance(j.get("cookie_info"), dict):
+        jar = {}
+        for it in j["cookie_info"].get("cookies", []):
+            if isinstance(it, dict) and "name" in it and "value" in it:
+                jar[str(it["name"])] = str(it["value"])
+        if jar:
+            return jar
     if isinstance(j, dict):
         return {str(k): str(v) for k, v in j.items()}
     jar = {}
@@ -401,6 +413,7 @@ def cmd_upload(a: argparse.Namespace) -> int:
     cover = Path(m["cover"])
     cmd = [
         exe, "-u", str(COOKIE), "upload", str(video),
+        "--submit", "web",  # cookie 登录必须走 web 提交；默认 client 需要 token_info.access_token
         "--title", m["title"],
         "--tid", TID,
         "--tag", m["tags"],
@@ -522,29 +535,51 @@ def cmd_comment(a: argparse.Namespace) -> int:
         bad("稿件缺少 aid，无法评论")
         return 1
     jar = load_cookie_jar()
-    cred = Credential(
-        sessdata=jar.get("SESSDATA", ""),
-        bili_jct=jar.get("bili_jct", ""),
-        buvid3=jar.get("buvid3") or None,
-        dedeuserid=jar.get("DedeUserID", ""),
-    )
+    if not {"SESSDATA", "bili_jct"} <= set(jar):
+        bad("cookie 缺 SESSDATA / bili_jct，无法发送评论")
+        return 1
+    hdr = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0.0.0",
+        "Referer": "https://www.bilibili.com/",
+        "Cookie": cookie_header(),
+    }
+    csrf = jar["bili_jct"]
     try:
-        import asyncio
-
-        async def run():
-            r = await comment.send_comment(text=txt, oid=int(oid), type_=comment.CommentResourceType.VIDEO, credential=cred)
-            rid = (r or {}).get("rpid")
-            if rid:
-                await comment.set_comment_top(
-                    credential=cred,
-                    oid=int(oid),
-                    rp_id=rid,
-                    type_=comment.CommentResourceType.VIDEO,
-                    action=True,
-                )
-            return rid
-
-        rid = asyncio.run(run())
+        # 防重复：先查自己的评论里有没有链接清单
+        r = requests.get(
+            "https://api.bilibili.com/x/v2/reply/main",
+            params={"oid": int(oid), "type": 1, "mode": 3},
+            headers=hdr, timeout=15,
+        ).json()
+        existing = (r.get("data") or {}).get("replies") or []
+        mine = [
+            c for c in existing
+            if c.get("mid") and c["mid"] == int(jar.get("DedeUserID") or -1)
+            and "论文链接清单" in c["content"]["message"]
+        ]
+        if mine:
+            rid = mine[0]["rpid"]
+            warn(f"评论已存在（rpid={rid}），跳过发送，直接置顶")
+        else:
+            r2 = requests.post(
+                "https://api.bilibili.com/x/v2/reply/send",
+                data={"oid": int(oid), "type": 1, "message": txt,
+                      "csrf": csrf, "csrf_token": csrf},
+                headers=hdr, timeout=15,
+            ).json()
+            if r2.get("code") != 0:
+                bad(f"评论发送失败：{r2}")
+                return 1
+            rid = (r2.get("data") or {}).get("rpid")
+        r3 = requests.post(
+            "https://api.bilibili.com/x/v2/reply/top",
+            data={"oid": int(oid), "rpid": rid, "type": 1,
+                  "action": 1, "csrf": csrf, "csrf_token": csrf},
+            headers=hdr, timeout=15,
+        ).json()
+        if r3.get("code") != 0:
+            bad(f"评论已发送但置顶失败：{r3}（可手动置顶）")
+            return 1
         ok(f"评论已发送并置顶（rpid={rid}）")
         return 0
     except Exception as e:

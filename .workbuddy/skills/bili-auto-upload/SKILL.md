@@ -23,16 +23,21 @@ winget install --id ForgQi.biliup-rs --exact     # v0.2.4
 
 ## 一次性准备（每个账号只做一次）
 
+**首选：TV 通道扫码（无需终端）**
+
 ```powershell
-mkdir -p "D:/code-repo/coworkers/git-paper/arXiv/.secrets"
-biliup -u "D:/code-repo/coworkers/git-paper/arXiv/.secrets/bili_cookies.json" login
+python -X utf8 tools/bili_tv_qr_login.py --wait 280
+# 生成 output/bili_qr_tv.png → B站 App 扫码并点「确认登录」→ 自动写 .secrets/bili_cookies.json
 ```
 
-- `-u` **必须显式给固定路径**。不给的话 cookie 会写进「当前工作目录」的 `cookies.json`，
-  下次换个目录跑脚本就找不到登录态了 —— 这是最常见的翻车点。
-- 手机 B 站 App 扫码后**必须点「确认登录」**，只扫不确认不算数。
-- **cookie = 完整登录凭据**，等同账号密码。放在 `.secrets/` 并确保已进 `.gitignore`；
-  不要把 cookie 文件路径、SESSDATA、bili_jct 写进任何日志、提交或发给第三方的话术里。
+**为什么不能用 `biliup login`**：① 需要 TTY（无人值守/沙箱里直接拒绝）；② 只在进程正常退出时才落盘，
+扫码后 Ctrl-C / 关窗 = 白扫；③ 最重要的——**biliup 的提交通道走 App 接口，必须要 `token_info.access_token`**。
+普通 Web 扫码（cookie/info）换不来 access_token，手写 cookie 文件会在启动时的 SSO 交换环节收到
+`-400 请求错误`。TV 通道（`passport-tv-login`，appkey `4409e2ce8ffd12b8`）一次返回
+access_token + refresh_token + cookie_info，正好是 biliup 的 `LoginInfo` 结构。
+
+**cookie = 完整登录凭据**，等同账号密码。放在 `.secrets/`（已被 `.gitignore` 覆盖）；
+不要把 cookie 文件路径、SESSDATA、bili_jct 写进任何日志、提交或发给第三方的话术里。
 
 ## 平台字段硬限制（超了必失败）
 
@@ -71,8 +76,12 @@ python bili_upload.py upload                    # dry-run：只打印将执行�
 python bili_upload.py upload --exec             # 真投稿
 python bili_upload.py verify                    # 对账：查 member 稿件列表，确认 BV 号与状态
 python bili_upload.py comment                   # 打印将发的置顶评论稿
-python bili_upload.py comment --exec            # 发评论并置顶（需 bilibili-api-python）
+python bili_upload.py comment --exec            # 发评论并置顶（纯 requests，含防重复）
 ```
+
+评论/对账已改为纯 `requests` 实现（不再依赖 bilibili-api-python——v17 缺 `set_comment_top`，
+且列表接口在我们的代理环境不稳定）。评论带防重复：先查自己名下有没有「论文链接清单」，
+有就直接置顶不重发。
 
 默认 `--date` 取当天；可对历史期补投 `--date 20261002`。
 
@@ -86,8 +95,12 @@ check → meta → cover → upload (先 dry-run 核对) → upload --exec → v
 
 ## 已知坑
 
+- **`-400 请求错误`（秒退，连视频都没传）** = cookie 文件缺 `token_info.access_token`。
+  biliup 提交走 App 接口，Web 扫码换不来 token → 用 `tools/bili_tv_qr_login.py` 重新登录即可。
 - **`code 601 您上传视频过快`** = 账号侧临时频控，不是脚本 bug。等几分钟原命令重投即可，
   **不要改参数硬刷**。新号 / 小号（默认 `bili_数字` 用户名）频控更严，两条之间留间隔。
+- winget 安装后可能留下 0 字节的 `WinGet\Links\biliup.exe` 空壳导致 PowerShell 报
+  「不是此 OS 平台的有效应用」；脚本已内置 `_is_pe()` 校验 + `repair_winget_link()` 自愈。
 - 封面不传也可以，B站会自动生成；但抽帧封面可控性更好，建议传。
 - 非官方对接会随 B站接口变更失效。失效时先看 `biliup upload` 的原始报错，再查
   `SocialSisterYi/bilibili-API-collect` 社区文档。
