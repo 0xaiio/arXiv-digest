@@ -5,8 +5,10 @@
 output/
 outputs/
 
-# WorkBuddy 工作区元数据（含会话记忆 .workbuddy/memory/）
-.workbuddy/
+# WorkBuddy 工作区元数据（含会话记忆 .workbuddy/memory/）。
+# 例外：bili 投稿技能属工具代码，需随项目走，故用 .workbuddy/* + 反向豁免而非整目录忽略。
+.workbuddy/*
+!.workbuddy/skills/
 
 # Python 运行缓存
 __pycache__/

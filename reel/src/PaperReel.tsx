@@ -389,8 +389,8 @@ const Card: React.FC<{ p: Paper }> = ({ p }) => {
       <div
         style={{
           position: "absolute",
-          right: 132,
-          top: 150,
+          right: 78,
+          top: 118,
           fontFamily: MONO,
           fontSize: 200,
           fontWeight: 900,
@@ -403,11 +403,13 @@ const Card: React.FC<{ p: Paper }> = ({ p }) => {
 
       <AbsoluteFill
         style={{
-          paddingLeft: 232,
-          paddingRight: 150,
-          paddingTop: 150,
+          paddingLeft: 208,
+          paddingRight: 82,
+          paddingTop: 108,
+          paddingBottom: 56,
           flexDirection: "column",
           justifyContent: "center",
+          boxSizing: "border-box",
         }}
       >
         {/* meta 行 */}
@@ -423,7 +425,7 @@ const Card: React.FC<{ p: Paper }> = ({ p }) => {
             <span
               style={{
                 fontFamily: MONO,
-                fontSize: 26,
+                fontSize: 28,
                 letterSpacing: 1.5,
                 color: ACC,
               }}
@@ -434,7 +436,7 @@ const Card: React.FC<{ p: Paper }> = ({ p }) => {
             <span
               style={{
                 fontFamily: SANS,
-                fontSize: 22,
+                fontSize: 25,
                 color: p.lane === "兴趣扩展" ? SUB : ACC,
                 border: `1px solid rgba(0,212,255,0.35)`,
                 borderRadius: 8,
@@ -444,14 +446,14 @@ const Card: React.FC<{ p: Paper }> = ({ p }) => {
               {p.lane === "兴趣扩展" ? "🌱 兴趣扩展" : "🎯 为你推荐"}
             </span>
             <span style={{ color: "rgba(255,255,255,0.18)" }}>|</span>
-            <span style={{ fontFamily: MONO, fontSize: 26, color: DIM }}>
+            <span style={{ fontFamily: MONO, fontSize: 28, color: DIM }}>
               arXiv:{p.sid}
             </span>
           </div>
           <div
             style={{
               fontFamily: MONO,
-              fontSize: 24,
+              fontSize: 27,
               color: ACC,
               border: `1px solid rgba(0,212,255,0.55)`,
               borderRadius: 8,
@@ -466,9 +468,9 @@ const Card: React.FC<{ p: Paper }> = ({ p }) => {
         <div
           style={{
             ...title,
-            fontSize: 52,
+            fontSize: 56,
             fontWeight: 800,
-            lineHeight: 1.24,
+            lineHeight: 1.22,
             letterSpacing: -0.5,
             color: FG,
             marginTop: 20,
@@ -481,10 +483,10 @@ const Card: React.FC<{ p: Paper }> = ({ p }) => {
         <div
           style={{
             ...who,
-            fontSize: 27,
+            fontSize: 30,
             color: SUB,
             marginTop: 22,
-            lineHeight: 1.35,
+            lineHeight: 1.34,
           }}
         >
           {p.authors}
@@ -493,10 +495,10 @@ const Card: React.FC<{ p: Paper }> = ({ p }) => {
           <div
             style={{
               ...units,
-              fontSize: 24,
+              fontSize: 27,
               color: DIM,
               marginTop: 10,
-              lineHeight: 1.35,
+              lineHeight: 1.34,
             }}
           >
             🏛 {p.units.join(" · ")}
@@ -521,18 +523,18 @@ const Card: React.FC<{ p: Paper }> = ({ p }) => {
               ...(bulletStyle[i] ?? bulletStyle[2]),
               display: "flex",
               alignItems: "flex-start",
-              marginBottom: 20,
+              marginBottom: 24,
             }}
           >
             <span
               style={{
                 fontFamily: MONO,
-                fontSize: 24,
+                fontSize: 30,
                 color: ACC,
                 background: "rgba(0,212,255,0.12)",
                 borderRadius: 8,
-                padding: "4px 12px",
-                marginRight: 18,
+                padding: "5px 14px",
+                marginRight: 20,
                 flexShrink: 0,
               }}
             >
@@ -540,10 +542,11 @@ const Card: React.FC<{ p: Paper }> = ({ p }) => {
             </span>
             <span
               style={{
-                fontSize: 31,
-                lineHeight: 1.5,
+                fontSize: 37,
+                lineHeight: 1.46,
                 color: "#E6EDF5",
                 flex: 1,
+                overflowWrap: "anywhere",
               }}
             >
               {hl(b.text, p.kw)}
@@ -555,12 +558,18 @@ const Card: React.FC<{ p: Paper }> = ({ p }) => {
           style={{
             ...foot,
             fontFamily: MONO,
-            fontSize: 23,
-            color: DIM,
-            marginTop: 22,
+            fontSize: 28,
+            color: ACC,
+            marginTop: 24,
+            display: "flex",
+            alignItems: "center",
+            gap: 18,
           }}
         >
-          {p.link}
+          <span>{p.link}</span>
+          <span style={{ fontFamily: SANS, fontSize: 22, color: DIM }}>
+            可点击链接见视频简介
+          </span>
         </div>
       </AbsoluteFill>
     </AbsoluteFill>
