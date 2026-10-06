@@ -54,11 +54,15 @@ TID = "171"  # 知识·野生技术协会
 TITLE_MAX, DESC_MAX, TAG_MAX = 80, 250, 200
 BASE_TAGS = ["arXiv", "论文速递", "计算机科学", "分布式系统", "数据库", "形式化方法", "论文解读"]
 
-# member API 的稿件状态码：宁可给区间描述，也不猜错具体语义
+# member API 的稿件状态码（依据 bilibili-API-collect 稿件状态表）
 STATE_TEXT = {
     "0": "已发布 / 开放浏览",
-    "-2": "审核中",
-    "-30": "审核不通过（需查看退回原因）",
+    "-1": "待审",
+    "-2": "被打回（审核不通过）",
+    "-4": "被锁定",
+    "-9": "管理员锁定",
+    "-16": "被禁止",
+    "-30": "创建已提交（排队审核/转码中）",
     "-40": "定时发布中",
     "1": "仅自己可见",
 }
@@ -545,6 +549,11 @@ def cmd_comment(a: argparse.Namespace) -> int:
     }
     csrf = jar["bili_jct"]
     try:
+        import requests
+    except Exception:
+        bad("requests 未安装：pip install requests")
+        return 1
+    try:
         # 防重复：先查自己的评论里有没有链接清单
         r = requests.get(
             "https://api.bilibili.com/x/v2/reply/main",
@@ -561,16 +570,39 @@ def cmd_comment(a: argparse.Namespace) -> int:
             rid = mine[0]["rpid"]
             warn(f"评论已存在（rpid={rid}），跳过发送，直接置顶")
         else:
+            # 2026-10-06 实测：/x/v2/reply/send 已下线（POST 恒 404 HTML），改用 /x/v2/reply/add
             r2 = requests.post(
-                "https://api.bilibili.com/x/v2/reply/send",
-                data={"oid": int(oid), "type": 1, "message": txt,
+                "https://api.bilibili.com/x/v2/reply/add",
+                data={"oid": int(oid), "type": 1, "message": txt, "plat": 1,
                       "csrf": csrf, "csrf_token": csrf},
                 headers=hdr, timeout=15,
             ).json()
-            if r2.get("code") != 0:
+            if r2.get("code") == 12051:
+                # B 站判重先于本地判重（reply/main 热门列表可能不含新评论）：
+                # 视为已存在，改按时间序找 rpid 补置顶，找不到就跳过
+                warn("评论已存在（B 站返回 12051 重复评论），跳过发送")
+                rid = None
+                try:
+                    r4 = requests.get(
+                        "https://api.bilibili.com/x/v2/reply/main",
+                        params={"oid": int(oid), "type": 1, "mode": 2},
+                        headers=hdr, timeout=15,
+                    ).json()
+                    for c in (r4.get("data") or {}).get("replies") or []:
+                        if c.get("mid") == int(jar.get("DedeUserID") or -1) \
+                                and "论文链接清单" in c["content"]["message"]:
+                            rid = c["rpid"]
+                            break
+                except Exception:
+                    pass
+                if rid is None:
+                    ok("评论已存在；如未置顶请到评论区手动置顶")
+                    return 0
+            elif r2.get("code") != 0:
                 bad(f"评论发送失败：{r2}")
                 return 1
-            rid = (r2.get("data") or {}).get("rpid")
+            else:
+                rid = (r2.get("data") or {}).get("rpid")
         r3 = requests.post(
             "https://api.bilibili.com/x/v2/reply/top",
             data={"oid": int(oid), "rpid": rid, "type": 1,

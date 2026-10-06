@@ -1,322 +1,331 @@
 {
-  "issue": "20261002",
-  "range": "2026-10-01 · 回溯 3 天公告批次",
-  "generated": "2026-10-02T23:11:30+08:00",
+  "issue": "20261006",
+  "range": "2026-10-05 · 回溯 3 天公告批次",
+  "generated": "2026-10-06T23:11:32+08:00",
   "stats": {
-    "core": 136,
-    "expand": 893,
-    "rec": 14,
-    "exp": 10
+    "core": 123,
+    "expand": 791,
+    "rec": 10,
+    "exp": 7
   },
   "papers": [
     {
       "rank": 1,
       "lane": "推荐",
-      "sid": "2610.00896",
-      "cat": "cs.DC",
-      "score": 41.2,
-      "title_en": "Seamless Reconfiguration for DAG-BFT",
+      "sid": "2610.05683",
+      "cat": "cs.PL",
+      "score": 24.5,
+      "title_en": "RESOLVE: Language-Agnostic Validation of GPU Kernels Through Testing, Reduction, and Proof",
       "kw": [
-        "DAG",
-        "BFT"
+        "RESOLVE",
+        "KernelBench",
+        "GEMM"
       ],
-      "authors": "Michael Yiqing Hu, Leander Jehl, Paul Franke-Bergmann 等 5 人",
+      "authors": "Ashkan Vedadi Gargary, Guido Martínez, Sebastian Burckhardt 等 6 人",
       "units": [
-        "National University of Singapore",
-        "University of Stavanger",
-        "等 3 家单位"
+        "University of California, Riverside",
+        "Math, Inc"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "既有 DAG 类 BFT 协议多假设进程集合静态，改配置要停服或等到预设纪元边界，会带来停机时间"
+          "text": "AI 已能编写和优化生产级 GPU kernel，但随机输入对拍加数值容差既可能漏掉数据竞争，也会掩盖真实缺陷"
         },
         {
           "tag": "方法",
-          "text": "提出无缝重配置协议：成员与仲裁阈值变化期间 DAG 继续增长，系统不暂停"
+          "text": "RESOLVE 三步：二进制插桩扰动时序暴露竞争；智能体改写出低并发等价版本；在 F*/Pulse 中形式化证明实数语义等价"
         },
         {
           "tag": "结果",
-          "text": "据作者所知，这是全异步网络下首个支持无缝重配置的 DAG 拜占庭原子广播协议"
+          "text": "在 KernelBench 上验证多种 kernel，证明 CUTLASS / Triton / Gluon 的融合 GEMM 等价，并在…"
         }
       ],
-      "link": "arxiv.org/abs/2610.00896"
+      "link": "arxiv.org/abs/2610.05683"
     },
     {
       "rank": 2,
       "lane": "推荐",
-      "sid": "2609.39715",
-      "cat": "cs.DC",
-      "score": 35.8,
-      "title_en": "Exploring Adaptive Byzantine Quorum Systems to Improve Latency in the WAN",
+      "sid": "2610.05571",
+      "cat": "cs.LO",
+      "score": 17.4,
+      "title_en": "Scenario-Based Compositional Statistical Model Checking for Safety Specifications",
       "kw": [
-        "BFT-SMaRt",
-        "BFT"
+        "SMC",
+        "co-safety"
       ],
-      "authors": "Linus Gnan, Rüdiger Kapitza, Christian Berger",
+      "authors": "Abhinav Pomalapally, Arya Raeesi, Kevin Kai-Chun Chang 等 5 人",
       "units": [
-        "Friedrich-Alexander-Universität Erlangen-Nürnberg"
+        "University of California"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "仲裁构造决定 BFT 状态机复制的推进速度，但各构造分散在不同实现中，缺少同口径比较"
+          "text": "自动驾驶等安全关键系统需在大量复合场景下评估；既有统计模型检验逐条独立分析，仿真开销大且结构共享时冗余严重"
         },
         {
           "tag": "方法",
-          "text": "为 BFT-SMaRt 增加模块化仲裁系统抽象，让多种构造与同一套优化技术共存于同一框架"
+          "text": "把场景分解为基本场景、安全与 co-safety 规约分解为子规约，逐条独立验证后用重要性采样与核密度估计组合统计估计"
         },
         {
           "tag": "结果",
-          "text": "用网络模拟评估不同仲裁构造对广域网 BFT 复制中客户端观测延迟的影响"
+          "text": "能准确回答此前未见过复合场景的验证查询，并通过并行化与轨迹复用降低仿真成本"
         }
       ],
-      "link": "arxiv.org/abs/2609.39715"
+      "link": "arxiv.org/abs/2610.05571"
     },
     {
       "rank": 3,
       "lane": "推荐",
-      "sid": "2610.00349",
-      "cat": "cs.AI",
-      "score": 20.5,
-      "title_en": "Fault-Tolerant Budget Conservation in Distributed Multi-Agent Delegation",
+      "sid": "2610.05263",
+      "cat": "cs.LO",
+      "score": 16.4,
+      "title_en": "A Logic for Minor-Free Graph Classes: Model Checking, Dependence, and Combinatorial Reconfiguration",
       "kw": [
-        "TLA+",
-        "DAG"
+        "FOscon",
+        "twin-width"
       ],
-      "authors": "Genliang Zhu, Chu Wang",
+      "authors": "Nikolas Mählmann, Patrice {Ossona de Mendez}, Nicole Schirrmacher 等 6 人",
       "units": [
-        "Georgia Institute of Technology",
-        "University of Illinois Urbana-Champaign"
+        "University of Warsaw",
+        "CAMS, EHESS/CNRS UMR 8557",
+        "等 5 家单位"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "资源限额正成为 AI 智能体委托时的授权边界，但回复丢失、超时后完成、消息重复、分区等会造成超支"
+          "text": "提出子连通性逻辑 FOscon：带一组允许边 Z 的一阶逻辑扩展，新原子断言两点由只用 Z 中边且避开给定顶点的路径相连"
         },
         {
           "tag": "方法",
-          "text": "预算量化为资源向量，由独占托管信用沿委托 DAG 流动；派发前转为绑定血统与幂等键的预留，网关先验签"
+          "text": "主结构结果：弱稀疏图类按有根生成森林序扩张后 twin-width 有界，当且仅当该类排除某个固定 minor；再把逻辑翻译到深度优先生成森林序上的一阶逻辑"
         },
         {
           "tag": "结果",
-          "text": "证明所有权划分、账本守恒、最多一次结算等性质；有界 TLA+ 检查与注错实验验证声明范围内成立"
+          "text": "得到运行时间 f(|φ|,h(G))·|G|^c 的模型检验算法（h(G) 为 Hadwiger 数），刻画单调依赖性边界，并用于组合重构与解发现问题"
         }
       ],
-      "link": "arxiv.org/abs/2610.00349"
+      "link": "arxiv.org/abs/2610.05263"
     },
     {
       "rank": 4,
       "lane": "推荐",
-      "sid": "2609.39357",
-      "cat": "cs.LG",
-      "score": 17.6,
-      "title_en": "Robustifying Asynchronous SGD via Soft Throttling",
+      "sid": "2610.04236",
+      "cat": "cs.DC",
+      "score": 15.8,
+      "title_en": "OACM: Optimistic Asynchronous Communication Model for Large-Scale SNN Simulation",
       "kw": [
-        "Throttle",
-        "SGD"
+        "OACM",
+        "PDES",
+        "HyperX"
       ],
-      "authors": "Kaoru Otsuka, Maxime Meyer, Yuki Takezawa 等 5 人",
+      "authors": "Guangnan Feng, Yangle Zeng, Honghui Liang 等 5 人",
       "units": [
-        "Okinawa Institute of Science and Technology",
-        "National University of Singapore",
-        "等 4 家单位"
+        "organization=Sun Yat-sen University"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "异步 SGD 中更新到达即应用，速度快但更易受攻击，快客户端可主导整体更新"
+          "text": "大规模分布式 SNN 仿真受限于时间驱动的频繁同步、乐观 PDES 的大量次级回滚，以及通信模式低效导致带宽利用不足"
         },
         {
           "tag": "方法",
-          "text": "提出 Throttle：按因子 q 对更快客户端的更新指数降权，q 等于一退化为异步 SGD，q 趋于无穷退化为同步鲁棒 SGD"
+          "text": "OACM 三项创新：同步窗口内策略性回滚的乐观混合仿真、基于 UNR 的异步单边通信实现计算通信完全重叠、2D-HyperX 虚拟拓扑上的自适应消息聚合与路由"
         },
         {
           "tag": "结果",
-          "text": "给出收敛速率的理论分析；实验显示降权在无拜占庭环境下也能提升性能"
+          "text": "高性能集群上比 CORTEX 快 1.4 倍、比 NEST 快 22.6 倍，规模达 174 个计算节点的多区域猕猴脑模型"
         }
       ],
-      "link": "arxiv.org/abs/2609.39357"
+      "link": "arxiv.org/abs/2610.04236"
     },
     {
       "rank": 5,
       "lane": "推荐",
-      "sid": "2610.01073",
-      "cat": "cs.SE",
-      "score": 16.7,
-      "title_en": "Safety Must Survive Self-Improvement: Why Failures Persist and How Agents Recover",
+      "sid": "2610.06003",
+      "cat": "cs.PL",
+      "score": 12.8,
+      "title_en": "A Complete, Formal Semantics for Rust Source Code",
       "kw": [
-        "LLM",
-        "rollback"
+        "Rust",
+        "Tokio"
       ],
-      "authors": "Yunbei Zhang, Janet Wang, Saiyue Lyu 等 6 人",
+      "authors": "Daniel Drodt",
       "units": [],
       "bullets": [
         {
           "tag": "背景",
-          "text": "递归自我改进使智能体跨代保留改动，既要阻止不安全行为持续，也要能在失败后恢复"
+          "text": "对 Rust 程序做演绎验证与并发推理，需要一套贴近源码层次的严格形式语义"
         },
         {
           "tag": "方法",
-          "text": "构建有状态授权任务测试台：固定 LLM 编辑器优化可执行组件，独立轨迹记录效果，配对干预区分验证与续跑"
+          "text": "基于「局部抽象、全局具体」框架给出模块化语义，把表达式的局部求值与具体执行轨迹的组合分离，并扩展到建模异步特性与 Tokio 运行时"
         },
         {
           "tag": "结果",
-          "text": "48 段历史中 22 段保留不安全程序；完整验证加已验证回滚（rollback）可完全正确，并保留超过百分之四十三的部署节省"
+          "text": "基于该抽象形式化证明了 Tokio 调度器的公平性，并为一套 Rust 程序逻辑给出可靠性证明"
         }
       ],
-      "link": "arxiv.org/abs/2610.01073"
+      "link": "arxiv.org/abs/2610.06003"
     },
     {
       "rank": 6,
       "lane": "推荐",
-      "sid": "2610.00885",
-      "cat": "cs.SE",
-      "score": 14.4,
-      "title_en": "FORALL-LEAN-AGENT for Auditable Reasoning in Formal Mathematics and Software Verification",
+      "sid": "2610.05335",
+      "cat": "cs.CR",
+      "score": 10.7,
+      "title_en": "StateSync-GKR: Machine-Checking the Trust Chain from Sparse-Merkle State Transitions to GKR Verification",
       "kw": [
-        "Lean",
-        "VeriSoftBench"
+        "GKR",
+        "Merkle",
+        "Isabelle"
       ],
-      "authors": "Naing Oo Lwin",
-      "units": [],
+      "authors": "Jinwook Kim",
+      "units": [
+        "Oraclizer Labs",
+        "Oraclizer Labs Korea"
+      ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "编码智能体已能自动做 Lean 证明，但编译成功不等于证明了预期命题、假设可接受"
+          "text": "GKR 的可靠性只界定电路不会输出错误断言，应用还需确信电路确实编码了预期的状态转移"
         },
         {
           "tag": "方法",
-          "text": "隔离工作区加 Lean 工具与复审，配命题比对、公理审计、独立证明检查，证据绑定到同一候选产物"
+          "text": "在 Isabelle/HOL 中机器校验稀疏 Merkle 树的成员、非成员与更新：编译器模型双向关联电路接受与转移有效性，协议模型装配出对显式链事件的界…"
         },
         {
           "tag": "结果",
-          "text": "VeriSoftBench 百题子集上合规成功率由 93 提到 100，成本由 69 美元降到 62 美元；PutnamBench 672 题全部接受"
+          "text": "构造精确的四次 KoalaBear 扩张并给出分母为 p^4 的装配界；附可执行 Rust 证明器，并显式列出剩余的实现与密码学义务"
         }
       ],
-      "link": "arxiv.org/abs/2610.00885"
+      "link": "arxiv.org/abs/2610.05335"
     },
     {
       "rank": 7,
       "lane": "推荐",
-      "sid": "2610.00671",
-      "cat": "cs.DC",
-      "score": 11.1,
-      "title_en": "MegaFlux: Skew-Resilient MoE Megakernels via Pipelined Expert Replication",
+      "sid": "2610.05316",
+      "cat": "cs.PL",
+      "score": 10.7,
+      "title_en": "More Powerful Constant Value Checking with SMT Solving",
       "kw": [
-        "MoE",
-        "MegaFlux",
-        "GPU"
+        "SMT",
+        "Checker"
       ],
-      "authors": "Jianzhu Yao, Siva Kumar Sastry Hari, Vignesh Balaji 等 6 人",
-      "units": [],
+      "authors": "Jonas Mittnacht, Florian Lanzinger",
+      "units": [
+        "Institute of Information Security and Dependability"
+      ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "MoE 巨型内核融合专家并行通信与计算，固定专家放置下路由倾斜会让过载 GPU 成为掉队者"
+          "text": "Constant Value Checker 让用户用常量集合或区间约束 Java 基本整型 / 布尔变量的取值，但现有实现只用有限的语法定型规则"
         },
         {
           "tag": "方法",
-          "text": "把专家复制改为运行时决策：片上规划器在每 GPU 副本预算下选位置并分配对齐的 token 块，前后向内核流水化通信"
+          "text": "用 SMT 求解器扩展 Checker Framework：把语法规则判不出的表达式转成一阶逻辑公式，按公式可满足性判定良类型性"
         },
         {
           "tag": "结果",
-          "text": "八张 B200 上前后向几何平均加速 1.45 倍与 1.28 倍，最高 2.14 与 2.64 倍；接入 vLLM 端到端中位加速 1.13 到 1.26 倍"
+          "text": "显著增强复杂代码的检查能力，并引入可依赖程序中其他变量表达式来指定允许取值的新依赖类型"
         }
       ],
-      "link": "arxiv.org/abs/2610.00671"
+      "link": "arxiv.org/abs/2610.05316"
     },
     {
       "rank": 8,
       "lane": "推荐",
-      "sid": "2610.00702",
+      "sid": "2610.05008",
       "cat": "cs.DC",
-      "score": 10.7,
-      "title_en": "Ditto: Generalized Reconfigurable Linearizable Reads",
+      "score": 10.3,
+      "title_en": "Min-Max Uniform Circle Formation by Asynchronous Mobile Robots",
       "kw": [
-        "Ditto",
-        "Pairwise Quorums"
+        "ASYNC",
+        "Look-Compute-Move"
       ],
-      "authors": "Aleksey Panas",
+      "authors": "Animesh Maiti, Prakhar Shukla, Subhash Bhagat",
       "units": [
-        "University of Toronto"
+        "Department of Mathematics",
+        "Indian Institute of Technology Jodhpur"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "线性一致读的专用算法众多，但没有哪一种在每个部署下都最优，已有算法只覆盖权衡空间的一部分"
+          "text": "均匀圆形成是群体机器人的基础协调任务，用于周界监控与队形生成；既有文献未优化形成过程中的最大个体移动距离"
         },
         {
           "tag": "方法",
-          "text": "给出统一分类框架与延迟分析，提出 Pairwise Quorums 填补空缺，再由 Ditto 在运行时按条件重配置"
+          "text": "在 ASYNC 模型（自主、匿名、相同、遗忘、沉默，Look-Compute-Move 且非刚性移动）下先给出确定性解的必要条件…"
         },
         {
           "tag": "结果",
-          "text": "组合涵盖该模型下所有已有算法：要么严格更优，要么在存在真实权衡处重配置到与之持平"
+          "text": "算法在有限时间内形成圆与均匀圆并保证最小化最大移动距离；均匀情形下机器人停在圆上互异且等距的位置"
         }
       ],
-      "link": "arxiv.org/abs/2610.00702"
+      "link": "arxiv.org/abs/2610.05008"
     },
     {
       "rank": 9,
       "lane": "兴趣扩展",
-      "sid": "2610.00347",
-      "cat": "cs.CR",
-      "score": 16.3,
-      "title_en": "Authorization for Self-Modifying AI Agent Populations: Conserving Authority across Replacement, Forking, and Rollback",
+      "sid": "2610.06617",
+      "cat": "cs.CV",
+      "score": 14.2,
+      "title_en": "RealtimeWAM: One-Step Asynchronous World Action Models",
       "kw": [
-        "fork",
-        "rollback"
+        "TACD",
+        "CEWP",
+        "KV"
       ],
-      "authors": "Genliang Zhu, Chu Wang",
+      "authors": "Chengtao Lv, Jinyang Du, Shuyi Feng 等 6 人",
       "units": [
-        "Georgia Institute of Technology",
-        "University of Illinois Urbana-Champaign"
+        "Nanyang Technological University Beihang University…"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "自我修改智能体可替换、fork（分叉）与回滚带身份的软件，逐后继授权管不住整个族群，兄弟节点可复制配额或叠加权限"
+          "text": "世界动作模型用视频生成骨干的视觉表征指导动作预测；现有高效方案仍受专家内多步去噪迭代与专家间串行等待限制"
         },
         {
           "tag": "方法",
-          "text": "定义授权继任：每代绑定清单、根、唯一父代与完整血统；预留冻结前代剩余权限，分叉校验完整子族，提交原子交接"
+          "text": "TACD 用冻结教师多步 rollout 端点提供显式监督，弥补局部与全局的误差gap，实现一步动作生成；CEWP 按块共享视频 KV cache 重叠两个专家"
         },
         {
           "tag": "结果",
-          "text": "rollback（回滚）不重建已消耗权限；证明族群安全继任与撤销闭合等性质，32 条决策 64 次重放全部复现，28 个语义变体全被拒绝"
+          "text": "在 LIBERO、LIBERO-Plus、RoboTwin 上性能损失不到百分之一，H100 上端到端加速约二十五倍"
         }
       ],
-      "link": "arxiv.org/abs/2610.00347"
+      "link": "arxiv.org/abs/2610.06617"
     },
     {
       "rank": 10,
       "lane": "兴趣扩展",
-      "sid": "2609.39234",
-      "cat": "quant-ph",
-      "score": 15.3,
-      "title_en": "Breaking the Bounded Entanglement Barrier for Quantum Position Verification",
+      "sid": "2610.05701",
+      "cat": "cs.AI",
+      "score": 12.7,
+      "title_en": "Second-Order Problem Solving for Recursive Self-Improvement in Formal Verification",
       "kw": [
-        "LOCC",
-        "BB84"
+        "SO-RSI",
+        "Lean",
+        "Verus"
       ],
-      "authors": "Amit Behera, Vipul Goyal",
-      "units": [],
+      "authors": "Yuxuan Jiang, Aditya Vempaty, Ashish Jagmohan",
+      "units": [
+        "University of Maryland, Baltimore County"
+      ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "经典位置验证不可能；量子位置验证中只要对手持有指数级预共享纠缠，就总存在 LOCC 攻击"
+          "text": "递归自我改进让智能体依据执行反馈迭代优化工作流，但标准做法只做一阶优化，反复打补丁且陷入试错抖动"
         },
         {
           "tag": "方法",
-          "text": "在理想连续时间模型下给出基于 BB84 的协议，挑战消息的发送时刻从实区间均匀采样"
+          "text": "SO-RSI 把优化提升为二阶诊断：监视执行轨迹中的三类结构异常（复现、对立编辑、期望不符）触发机制调查，执行轻量诊断探针并跨轮维护持久询问记忆"
         },
         {
           "tag": "结果",
-          "text": "可抵御任意有限 LOCC 联盟；离散时间下诚实方总资源可远小于对手资源界，差距随时钟精度提高而增大"
+          "text": "在 Lean 4 证明生成与 Verus 可验证代码生成上，同等二十四小时预算下比朴素 RSI 分别提升 21.8 与 25.8 个百分点"
         }
       ],
-      "link": "arxiv.org/abs/2609.39234"
+      "link": "arxiv.org/abs/2610.05701"
     }
   ]
 }
