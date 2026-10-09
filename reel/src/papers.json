@@ -1,331 +1,333 @@
 {
-  "issue": "20261006",
-  "range": "2026-10-05 · 回溯 3 天公告批次",
-  "generated": "2026-10-06T23:11:32+08:00",
+  "issue": "20261009",
+  "range": "2026-10-08 · 回溯 3 天公告批次",
+  "generated": "2026-10-09T23:12:15+08:00",
   "stats": {
-    "core": 123,
-    "expand": 791,
-    "rec": 10,
-    "exp": 7
+    "core": 202,
+    "expand": 974,
+    "rec": 14,
+    "exp": 10
   },
   "papers": [
     {
       "rank": 1,
       "lane": "推荐",
-      "sid": "2610.05683",
-      "cat": "cs.PL",
-      "score": 24.5,
-      "title_en": "RESOLVE: Language-Agnostic Validation of GPU Kernels Through Testing, Reduction, and Proof",
+      "sid": "2610.07759",
+      "cat": "cs.DC",
+      "score": 53.2,
+      "title_en": "When Can Stateless Recovery Defeat Byzantine Quorum Safety? A Tight Normal Form for Single-Step BFT",
       "kw": [
-        "RESOLVE",
-        "KernelBench",
-        "GEMM"
+        "Byzantine",
+        "quorum"
       ],
-      "authors": "Ashkan Vedadi Gargary, Guido Martínez, Sebastian Burckhardt 等 6 人",
+      "authors": "Arnab Mallick, Indraveni Chebolu",
       "units": [
-        "University of California, Riverside",
-        "Math, Inc"
+        "Information Security Group",
+        "Centre for Development of Advanced Computing"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "AI 已能编写和优化生产级 GPU kernel，但随机输入对拍加数值容差既可能漏掉数据竞争，也会掩盖真实缺陷"
+          "text": "Byzantine quorum 的安全依赖正确副本拒绝对冲突值重复签名，但副本恢复后丢状态会遗忘旧投票"
         },
         {
           "tag": "方法",
-          "text": "RESOLVE 三步：二进制插桩扰动时序暴露竞争；智能体改写出低并发等价版本；在 F*/Pulse 中形式化证明实数语义等价"
+          "text": "把两个冲突证书交集的松弛量 b+c-(2q-n) 拆成四个非负计数，松弛为零时签名者划分唯一"
         },
         {
           "tag": "结果",
-          "text": "在 KernelBench 上验证多种 kernel，证明 CUTLASS / Triton / Gluon 的融合 GEMM 等价，并在…"
+          "text": "在 n=3f+1、阈值 q=2f+1 且仅一次恢复时，冲突迫使 f 个 Byzantine 副本全落在交集里"
         }
       ],
-      "link": "arxiv.org/abs/2610.05683"
+      "link": "arxiv.org/abs/2610.07759"
     },
     {
       "rank": 2,
       "lane": "推荐",
-      "sid": "2610.05571",
-      "cat": "cs.LO",
-      "score": 17.4,
-      "title_en": "Scenario-Based Compositional Statistical Model Checking for Safety Specifications",
+      "sid": "2610.07665",
+      "cat": "cs.DB",
+      "score": 51.1,
+      "title_en": "Mechanizing Transactional Anomalous Patterns for Weak Isolation Levels",
       "kw": [
-        "SMC",
-        "co-safety"
+        "TAP",
+        "Rocq",
+        "Plume",
+        "Read Atomicity"
       ],
-      "authors": "Abhinav Pomalapally, Arya Raeesi, Kevin Kai-Chun Chang 等 5 人",
+      "authors": "Long Gu, Si Liu, Hengfeng Wei",
       "units": [
-        "University of California"
+        "The Chinese University of Hong Kong, Shenzhen"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "自动驾驶等安全关键系统需在大量复合场景下评估；既有统计模型检验逐条独立分析，仿真开销大且结构共享时冗余严重"
+          "text": "事务异常模式 TAP 给出弱隔离级别的语义刻画，但既有刻画只停留在纸笔证明"
         },
         {
           "tag": "方法",
-          "text": "把场景分解为基本场景、安全与 co-safety 规约分解为子规约，逐条独立验证后用重要性采样与核密度估计组合统计估计"
+          "text": "在 Rocq 中首次给出 TAP 与弱隔离级别的机器检验形式化，并证明相应的刻画定理"
         },
         {
           "tag": "结果",
-          "text": "能准确回答此前未见过复合场景的验证查询，并通过并行化与轨迹复用降低仿真成本"
+          "text": "暴露事务历史欠规格化与 Read Atomicity 刻画不完整两处缺陷，修正后已集成进 Plume"
         }
       ],
-      "link": "arxiv.org/abs/2610.05571"
+      "link": "arxiv.org/abs/2610.07665"
     },
     {
       "rank": 3,
       "lane": "推荐",
-      "sid": "2610.05263",
-      "cat": "cs.LO",
-      "score": 16.4,
-      "title_en": "A Logic for Minor-Free Graph Classes: Model Checking, Dependence, and Combinatorial Reconfiguration",
+      "sid": "2610.07368",
+      "cat": "cs.DC",
+      "score": 26.6,
+      "title_en": "Byzantine-Tolerant Causal Unicast with Constant Message Space Overhead",
       "kw": [
-        "FOscon",
-        "twin-width"
+        "Byzantine",
+        "SPS",
+        "O(1)"
       ],
-      "authors": "Nikolas Mählmann, Patrice {Ossona de Mendez}, Nicole Schirrmacher 等 6 人",
+      "authors": "Purv Patel, Ajay D. Kshemkalyani",
       "units": [
-        "University of Warsaw",
-        "CAMS, EHESS/CNRS UMR 8557",
-        "等 5 家单位"
+        "University of Illinois Chicago"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "提出子连通性逻辑 FOscon：带一组允许边 Z 的一阶逻辑扩展，新原子断言两点由只用 Z 中边且避开给定顶点的路径相连"
+          "text": "拜占庭 Byzantine 故障下的异步系统里，因果序难兼顾强安全与活性，现有方案要 O(n) 消息空间开销"
         },
         {
           "tag": "方法",
-          "text": "主结构结果：弱稀疏图类按有根生成森林序扩张后 twin-width 有界，当且仅当该类排除某个固定 minor；再把逻辑翻译到深度优先生成森林序上的一阶逻辑"
+          "text": "用发送者发送许可 SPS 不变式与每对端隔离队列，配事件驱动的级联空间驱逐，规避状态钉住攻击"
         },
         {
           "tag": "结果",
-          "text": "得到运行时间 f(|φ|,h(G))·|G|^c 的模型检验算法（h(G) 为 Hadwiger 数），刻画单调依赖性边界，并用于组合重构与解发现问题"
+          "text": "点到点消息达到最优 O(1) 空间开销，并证明系统级活性与拥塞松弛因果投递这一弱化安全抽象"
         }
       ],
-      "link": "arxiv.org/abs/2610.05263"
+      "link": "arxiv.org/abs/2610.07368"
     },
     {
       "rank": 4,
       "lane": "推荐",
-      "sid": "2610.04236",
+      "sid": "2610.11875",
       "cat": "cs.DC",
-      "score": 15.8,
-      "title_en": "OACM: Optimistic Asynchronous Communication Model for Large-Scale SNN Simulation",
+      "score": 24.6,
+      "title_en": "NosRacer: Dynamic Detection of Race Conditions in On-Device Network Operating Systems",
       "kw": [
-        "OACM",
-        "PDES",
-        "HyperX"
+        "NosRacer",
+        "NOS",
+        "race condition"
       ],
-      "authors": "Guangnan Feng, Yangle Zeng, Honghui Liang 等 5 人",
+      "authors": "Runze Wu, Jingbo Zhai, Shanming Ping 等 6 人",
       "units": [
-        "organization=Sun Yat-sen University"
+        "State Key Laboratory of Novel Software Technology",
+        "Huawei Technologies Co., Ltd"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "大规模分布式 SNN 仿真受限于时间驱动的频繁同步、乐观 PDES 的大量次级回滚，以及通信模式低效导致带宽利用不足"
+          "text": "设备内 NOS 的配置更新由多个松耦合组件异步发消息完成，容易因投递顺序不同产生 race condition"
         },
         {
           "tag": "方法",
-          "text": "OACM 三项创新：同步窗口内策略性回滚的乐观混合仿真、基于 UNR 的异步单边通信实现计算通信完全重叠、2D-HyperX 虚拟拓扑上的自适应消息聚合与路由"
+          "text": "先用配置更新任务的局部性收敛分析范围，再主动扰动消息异步性，分组并行并自适应加强"
         },
         {
           "tag": "结果",
-          "text": "高性能集群上比 CORTEX 快 1.4 倍、比 NEST 快 22.6 倍，规模达 174 个计算节点的多区域猕猴脑模型"
+          "text": "在商用 NOS 上检出 21 个被开发者确认的严重竞态，准确率 66%，检测开销低于 10%"
         }
       ],
-      "link": "arxiv.org/abs/2610.04236"
+      "link": "arxiv.org/abs/2610.11875"
     },
     {
       "rank": 5,
       "lane": "推荐",
-      "sid": "2610.06003",
-      "cat": "cs.PL",
-      "score": 12.8,
-      "title_en": "A Complete, Formal Semantics for Rust Source Code",
+      "sid": "2610.11801",
+      "cat": "cs.SE",
+      "score": 21.6,
+      "title_en": "ObliVul: Alert-Conditioned Safety Obligation Modeling and Bidirectional Counterfactual Validation for Code Vulnerability Detection",
       "kw": [
-        "Rust",
-        "Tokio"
+        "ObliVul",
+        "CPG",
+        "LLM"
       ],
-      "authors": "Daniel Drodt",
-      "units": [],
+      "authors": "Heyang Tan, Chengxin Gao, Xin Wen 等 5 人",
+      "units": [
+        "Taiyuan University of Technology"
+      ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "对 Rust 程序做演绎验证与并发推理，需要一套贴近源码层次的严格形式语义"
+          "text": "静态分析告警太多，真正的难点是判断哪条告警值得关注，学习方法难抽取以告警为中心的完整证据"
         },
         {
           "tag": "方法",
-          "text": "基于「局部抽象、全局具体」框架给出模块化语义，把表达式的局部求值与具体执行轨迹的组合分离，并扩展到建模异步特性与 Tokio 运行时"
+          "text": "从代码属性图 CPG 抽局部证据包，用大模型恢复安全义务，再对齐到程序节点、依赖边与路径"
         },
         {
           "tag": "结果",
-          "text": "基于该抽象形式化证明了 Tokio 调度器的公平性，并为一套 Rust 程序逻辑给出可靠性证明"
+          "text": "能有效区分漏洞版本与已修复版本，减少对已修复代码的持续误报，消融实验确认各组件必要"
         }
       ],
-      "link": "arxiv.org/abs/2610.06003"
+      "link": "arxiv.org/abs/2610.11801"
     },
     {
       "rank": 6,
       "lane": "推荐",
-      "sid": "2610.05335",
+      "sid": "2610.07282",
       "cat": "cs.CR",
-      "score": 10.7,
-      "title_en": "StateSync-GKR: Machine-Checking the Trust Chain from Sparse-Merkle State Transitions to GKR Verification",
+      "score": 16.2,
+      "title_en": "A Resilient Runtime-Verification Fabric for Security Monitoring of Critical Edge-IoT Infrastructure",
       "kw": [
-        "GKR",
-        "Merkle",
-        "Isabelle"
+        "RV-Fabric",
+        "MQTT",
+        "MonPoly"
       ],
-      "authors": "Jinwook Kim",
+      "authors": "Nikolaos Kekatos, Marinelio Chintri, Panagiotis Katsaros 等 6 人",
       "units": [
-        "Oraclizer Labs",
-        "Oraclizer Labs Korea"
+        "International Hellenic University",
+        "Aristotle University of Thessaloniki",
+        "等 3 家单位"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "GKR 的可靠性只界定电路不会输出错误断言，应用还需确信电路确实编码了预期的状态转移"
+          "text": "运行时验证流水线多是单宿主机原型读共享日志，崩溃、时钟偏移、整网静默都会静默破坏判定"
         },
         {
           "tag": "方法",
-          "text": "在 Isabelle/HOL 中机器校验稀疏 Merkle 树的成员、非成员与更新：编译器模型双向关联电路接受与转移有效性，协议模型装配出对显式链事件的界…"
+          "text": "用 MQTT 与持久流 broker 两级承载，重建持久投递、可信事件序、静默下进展、隔离与流控五项保证"
         },
         {
           "tag": "结果",
-          "text": "构造精确的四次 KoalaBear 扩张并给出分母为 p^4 的装配界；附可执行 Rust 证明器，并显式列出剩余的实现与密码学义务"
+          "text": "以 MonPoly 引擎做故障注入，共享日志基线漏掉七次事故中的六次且误报 all-clear，本方案保住七次"
         }
       ],
-      "link": "arxiv.org/abs/2610.05335"
+      "link": "arxiv.org/abs/2610.07282"
     },
     {
       "rank": 7,
       "lane": "推荐",
-      "sid": "2610.05316",
-      "cat": "cs.PL",
-      "score": 10.7,
-      "title_en": "More Powerful Constant Value Checking with SMT Solving",
+      "sid": "2610.11991",
+      "cat": "cs.FL",
+      "score": 15.6,
+      "title_en": "Quantitative Verification of Infinite-State Networks",
       "kw": [
-        "SMT",
-        "Checker"
+        "pushdown",
+        "semiring",
+        "reachability"
       ],
-      "authors": "Jonas Mittnacht, Florian Lanzinger",
-      "units": [
-        "Institute of Information Security and Dependability"
-      ],
+      "authors": "Dhruv Nevatia, David Basin",
+      "units": [],
       "bullets": [
         {
           "tag": "背景",
-          "text": "Constant Value Checker 让用户用常量集合或区间约束 Java 基本整型 / 布尔变量的取值，但现有实现只用有限的语法定型规则"
+          "text": "网络协议常同时有递归、无界状态与代价延迟等量化行为，已有 pushdown 系统网络结果基本是定性的"
         },
         {
           "tag": "方法",
-          "text": "用 SMT 求解器扩展 Checker Framework：把语法规则判不出的表达式转成一阶逻辑公式，按公式可满足性判定良类型性"
+          "text": "提出 pumping semiring 权重域，配合线段树代数与 thermal extension，给出可终止的精确饱和算法"
         },
         {
           "tag": "结果",
-          "text": "显著增强复杂代码的检查能力，并引入可依赖程序中其他变量表达式来指定允许取值的新依赖类型"
+          "text": "首次得到 pushdown 系统网络的量化安全性与 reachability 分析，并统一计算上下文无关语言的闭包"
         }
       ],
-      "link": "arxiv.org/abs/2610.05316"
+      "link": "arxiv.org/abs/2610.11991"
     },
     {
       "rank": 8,
       "lane": "推荐",
-      "sid": "2610.05008",
-      "cat": "cs.DC",
-      "score": 10.3,
-      "title_en": "Min-Max Uniform Circle Formation by Asynchronous Mobile Robots",
+      "sid": "2610.08898",
+      "cat": "cs.LO",
+      "score": 12.9,
+      "title_en": "Proceedings Seventeenth International Symposium on Games, Automata, Logics, and Formal Verification",
       "kw": [
-        "ASYNC",
-        "Look-Compute-Move"
+        "GandALF",
+        "Formal Verification"
       ],
-      "authors": "Animesh Maiti, Prakhar Shukla, Subhash Bhagat",
-      "units": [
-        "Department of Mathematics",
-        "Indian Institute of Technology Jodhpur"
-      ],
+      "authors": "Giorgio Bacci, Mickaël Randour",
+      "units": [],
       "bullets": [
         {
           "tag": "背景",
-          "text": "均匀圆形成是群体机器人的基础协调任务，用于周界监控与队形生成；既有文献未优化形成过程中的最大个体移动距离"
+          "text": "GandALF 是博弈、自动机、逻辑与 Formal Verification 方向的专题研讨会，2026 年已是第十七届"
         },
         {
           "tag": "方法",
-          "text": "在 ASYNC 模型（自主、匿名、相同、遗忘、沉默，Look-Compute-Move 且非刚性移动）下先给出确定性解的必要条件…"
+          "text": "本卷收录 2026 年 9 月 15 至 17 日在丹麦奥尔堡举行的会议论文，覆盖从理论到应用的主题"
         },
         {
           "tag": "结果",
-          "text": "算法在有限时间内形成圆与均匀圆并保证最小化最大移动距离；均匀情形下机器人停在圆上互异且等距的位置"
+          "text": "旨在汇聚该领域的学术界与工业界研究者，推动跨领域交融"
         }
       ],
-      "link": "arxiv.org/abs/2610.05008"
+      "link": "arxiv.org/abs/2610.08898"
     },
     {
       "rank": 9,
       "lane": "兴趣扩展",
-      "sid": "2610.06617",
-      "cat": "cs.CV",
-      "score": 14.2,
-      "title_en": "RealtimeWAM: One-Step Asynchronous World Action Models",
+      "sid": "2610.11483",
+      "cat": "cs.AI",
+      "score": 21.4,
+      "title_en": "BridgeGuard: Explicit Safety Drift for Diffusion-based Autonomous Driving",
       "kw": [
-        "TACD",
-        "CEWP",
-        "KV"
+        "BridgeGuard",
+        "diffusion",
+        "Bench2Drive"
       ],
-      "authors": "Chengtao Lv, Jinyang Du, Shuyi Feng 等 6 人",
+      "authors": "Zhenjun Qiu, Jianing Huang, Dongang Liu 等 6 人",
       "units": [
-        "Nanyang Technological University Beihang University…"
+        "Shanghai Jiao Tong University"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "世界动作模型用视频生成骨干的视觉表征指导动作预测；现有高效方案仍受专家内多步去噪迭代与专家间串行等待限制"
+          "text": "基于 diffusion 的驾驶规划器行为多样，但遇到分布偏移会生成不安全轨迹"
         },
         {
           "tag": "方法",
-          "text": "TACD 用冻结教师多步 rollout 端点提供显式监督，弥补局部与全局的误差gap，实现一步动作生成；CEWP 按块共享视频 KV cache 重叠两个专家"
+          "text": "在去噪过程中逐步加强安全约束项，用 DistanceFieldNet 从鸟瞰特征预测时变距离场提供约束"
         },
         {
           "tag": "结果",
-          "text": "在 LIBERO、LIBERO-Plus、RoboTwin 上性能损失不到百分之一，H100 上端到端加速约二十五倍"
+          "text": "Bench2Drive 上驾驶分数与成功率提升，BridgeDrive 达 90.88/76.36%，展示跨模型泛化"
         }
       ],
-      "link": "arxiv.org/abs/2610.06617"
+      "link": "arxiv.org/abs/2610.11483"
     },
     {
       "rank": 10,
       "lane": "兴趣扩展",
-      "sid": "2610.05701",
-      "cat": "cs.AI",
-      "score": 12.7,
-      "title_en": "Second-Order Problem Solving for Recursive Self-Improvement in Formal Verification",
+      "sid": "2610.11934",
+      "cat": "cs.NI",
+      "score": 15.7,
+      "title_en": "Digital Twin for Pre-Deployment Validation of AI-Driven Safety-Critical Industrial Edge Control Loops",
       "kw": [
-        "SO-RSI",
-        "Lean",
-        "Verus"
+        "Digital Twin",
+        "5G",
+        "RSRP",
+        "RTT"
       ],
-      "authors": "Yuxuan Jiang, Aditya Vempaty, Ashish Jagmohan",
+      "authors": "Sara Cavallero, Federico Tonini, Tony Chahoud 等 6 人",
       "units": [
-        "University of Maryland, Baltimore County"
+        "and Walter Cerroni are with the DEI, University of…"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "递归自我改进让智能体依据执行反馈迭代优化工作流，但标准做法只做一阶优化，反复打补丁且陷入试错抖动"
+          "text": "工业环境里物理过程、通信网络与智能应用紧耦合，既有 Digital Twin 往往只建模其中一侧"
         },
         {
           "tag": "方法",
-          "text": "SO-RSI 把优化提升为二阶诊断：监视执行轨迹中的三类结构异常（复现、对立编辑、期望不符）触发机制调查，执行轻量诊断探针并跨轮维护持久询问记忆"
+          "text": "提出模块化数字孪生框架，在同一架构里联合建模物理过程、无线通信与应用逻辑"
         },
         {
           "tag": "结果",
-          "text": "在 Lean 4 证明生成与 Verus 可验证代码生成上，同等二十四小时预算下比朴素 RSI 分别提升 21.8 与 25.8 个百分点"
+          "text": "BI-REX 试验线用 5G 机器人搬运有害液体做验证，RSRP、时延与应用级 RTT 均与实测吻合"
         }
       ],
-      "link": "arxiv.org/abs/2610.05701"
+      "link": "arxiv.org/abs/2610.11934"
     }
   ]
 }

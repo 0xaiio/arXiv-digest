@@ -239,6 +239,9 @@ def outro_script():
 
 # ------------------------------------------------------------------- Edge TTS
 
+TTS_TIMEOUT_SEC = 45
+
+
 async def synth(text, voice, rate, path):
     import edge_tts  # 延迟导入，缺依赖时报错更友好
     comm = edge_tts.Communicate(text, voice, rate=rate)
@@ -255,8 +258,15 @@ def run_synth(text, voice, rate, path):
     last = None
     for attempt in range(3):
         try:
-            asyncio.run(synth(text, voice, rate, path))
+            # wait_for：Edge TTS 偶发「连接建好但流永不结束」的挂死（实测卡住 15+ 分钟无输出），
+            # 没有超时会让无人值守的定时任务整轮白等。超时计入重试，最多 3 次。
+            asyncio.run(asyncio.wait_for(synth(text, voice, rate, path), timeout=TTS_TIMEOUT_SEC))
             return
+        except asyncio.TimeoutError:
+            last = TimeoutError("Edge TTS 超时（%ds 未返回音频）" % TTS_TIMEOUT_SEC)
+            if attempt < 2:
+                print("       [retry %d/2] %s" % (attempt + 1, last))
+                time.sleep(1.5 * (attempt + 1))
         except Exception as exc:  # noqa: BLE001 - 只重试瞬时错误，三次仍失败才抛出
             last = exc
             if attempt < 2:
