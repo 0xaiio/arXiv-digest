@@ -1,333 +1,335 @@
 {
-  "issue": "20261009",
-  "range": "2026-10-08 · 回溯 3 天公告批次",
-  "generated": "2026-10-09T23:12:15+08:00",
+  "issue": "20261014",
+  "range": "2026-10-10 · 回溯 3 天公告批次",
+  "generated": "2026-10-14T09:58:03+08:00",
   "stats": {
-    "core": 202,
-    "expand": 974,
-    "rec": 14,
+    "core": 122,
+    "expand": 718,
+    "rec": 8,
     "exp": 10
   },
   "papers": [
     {
       "rank": 1,
       "lane": "推荐",
-      "sid": "2610.07759",
+      "sid": "2610.14543",
       "cat": "cs.DC",
-      "score": 53.2,
-      "title_en": "When Can Stateless Recovery Defeat Byzantine Quorum Safety? A Tight Normal Form for Single-Step BFT",
+      "score": 44.2,
+      "title_en": "Byzantine-linearizable Single-Writer Multi-Reader Register in the GPU-Inspired Shared Memory Model",
       "kw": [
-        "Byzantine",
-        "quorum"
+        "SWMR",
+        "CAReg",
+        "SnapObject"
       ],
-      "authors": "Arnab Mallick, Indraveni Chebolu",
+      "authors": "Chryssis Georgiou, Sathya Peri, Manaswani Piduguralla 等 4 人",
       "units": [
-        "Information Security Group",
-        "Centre for Development of Advanced Computing"
+        "University of Cyprus"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "Byzantine quorum 的安全依赖正确副本拒绝对冲突值重复签名，但副本恢复后丢状态会遗忘旧投票"
+          "text": "GPU 共享内存缺乏访问控制，任何线程都能修改共享对象；连指定的写者都可能拜占庭，原子寄存器语义还能不能保住？"
         },
         {
           "tag": "方法",
-          "text": "把两个冲突证书交集的松弛量 b+c-(2q-n) 拆成四个非负计数，松弛为零时签名者划分唯一"
+          "text": "在 GPU 启发的共享内存模型下构造拜占庭可线性化的单写多读 SWMR 寄存器：CAReg 用常量内存，SnapObject 维护有界认证写窗口。"
         },
         {
           "tag": "结果",
-          "text": "在 n=3f+1、阈值 q=2f+1 且仅一次恢复时，冲突迫使 f 个 Byzantine 副本全落在交集里"
+          "text": "SnapObject 消除非法读，lock-free 与 wait-free 变体最多容忍 n-1 个拜占庭进程；GPU 的 lock-step 补上访问控制。"
         }
       ],
-      "link": "arxiv.org/abs/2610.07759"
+      "link": "arxiv.org/abs/2610.14543"
     },
     {
       "rank": 2,
       "lane": "推荐",
-      "sid": "2610.07665",
-      "cat": "cs.DB",
-      "score": 51.1,
-      "title_en": "Mechanizing Transactional Anomalous Patterns for Weak Isolation Levels",
+      "sid": "2610.12649",
+      "cat": "cs.SE",
+      "score": 13.8,
+      "title_en": "Quantifying SMT Solver Instability for Formal Verification",
       "kw": [
-        "TAP",
-        "Rocq",
-        "Plume",
-        "Read Atomicity"
+        "SMT",
+        "CV"
       ],
-      "authors": "Long Gu, Si Liu, Hengfeng Wei",
-      "units": [
-        "The Chinese University of Hong Kong, Shenzhen"
-      ],
+      "authors": "Daniel Evans, Rylie Hansen, John Shorter",
+      "units": [],
       "bullets": [
         {
           "tag": "背景",
-          "text": "事务异常模式 TAP 给出弱隔离级别的语义刻画，但既有刻画只停留在纸笔证明"
+          "text": "SMT 求解器是自动验证的主力，但语义等价的代码改写会让求解时间暴涨甚至超时，这就是 SMT 不稳定性。"
         },
         {
           "tag": "方法",
-          "text": "在 Rocq 中首次给出 TAP 与弱隔离级别的机器检验形式化，并证明相应的刻画定理"
+          "text": "用变异系数 CV 在三个软件领域的大规模 SMT 查询集上建模不稳定性，并给出新的量化方法：把优化目标从方差转向求解时间。"
         },
         {
           "tag": "结果",
-          "text": "暴露事务历史欠规格化与 Read Atomicity 刻画不完整两处缺陷，修正后已集成进 Plume"
+          "text": "不稳定性在各领域都显著，且随平均耗时上升；改为针对运行时优化查询结构，可同时缓解不稳定性并提升整体求解性能。"
         }
       ],
-      "link": "arxiv.org/abs/2610.07665"
+      "link": "arxiv.org/abs/2610.12649"
     },
     {
       "rank": 3,
       "lane": "推荐",
-      "sid": "2610.07368",
+      "sid": "2610.14798",
       "cat": "cs.DC",
-      "score": 26.6,
-      "title_en": "Byzantine-Tolerant Causal Unicast with Constant Message Space Overhead",
+      "score": 13.0,
+      "title_en": "Accelerating MoE Training through Expert Placement and Replica Coordination",
       "kw": [
-        "Byzantine",
-        "SPS",
-        "O(1)"
+        "MoE",
+        "PlaceMoE",
+        "A2A"
       ],
-      "authors": "Purv Patel, Ajay D. Kshemkalyani",
+      "authors": "Zhiqiang Tan, Maoxin Wang, Wenxiang Lin 等 6 人",
       "units": [
-        "University of Illinois Chicago"
+        "School of Computer Science and Technology, Harbin…",
+        "Hong Kong University of Science and Technology, Hong Kong"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "拜占庭 Byzantine 故障下的异步系统里，因果序难兼顾强安全与活性，现有方案要 O(n) 消息空间开销"
+          "text": "稀疏激活 MoE 的分布式训练受限于专家负载不均与动态路由引发的 all-to-all 通信，已有的去重、放置、副本技术各自为战。"
         },
         {
           "tag": "方法",
-          "text": "用发送者发送许可 SPS 不变式与每对端隔离队列，配事件驱动的级联空间驱逐，规避状态钉住攻击"
+          "text": "PlaceMoE 联合优化 E 个专家在 P 个设备上的布局与源感知的 token-副本映射：协同选择分组加有界动态规划分配副本，再交替精化。"
         },
         {
           "tag": "结果",
-          "text": "点到点消息达到最优 O(1) 空间开销，并证明系统级活性与拥塞松弛因果投递这一弱化安全抽象"
+          "text": "32 卡 GPU 与 64 卡 NPU 集群跑 Qwen3-VL 与 DeepSeek-V3：A2A 通信加速 6.94 倍，训练加速 1.74–2.33 倍。"
         }
       ],
-      "link": "arxiv.org/abs/2610.07368"
+      "link": "arxiv.org/abs/2610.14798"
     },
     {
       "rank": 4,
       "lane": "推荐",
-      "sid": "2610.11875",
-      "cat": "cs.DC",
-      "score": 24.6,
-      "title_en": "NosRacer: Dynamic Detection of Race Conditions in On-Device Network Operating Systems",
+      "sid": "2610.13421",
+      "cat": "cs.SE",
+      "score": 10.2,
+      "title_en": "REINS: Agent-guided Thread Scheduling for Concurrency Bug Detection and Reproduction",
       "kw": [
-        "NosRacer",
-        "NOS",
-        "race condition"
+        "REINS",
+        "agent",
+        "bug"
       ],
-      "authors": "Runze Wu, Jingbo Zhai, Shanming Ping 等 6 人",
+      "authors": "Yu Zhang, Corina S. Pasareanu, Guowei Yang",
       "units": [
-        "State Key Laboratory of Novel Software Technology",
-        "Huawei Technologies Co., Ltd"
+        "The University of Queensland",
+        "Carnegie Mellon University"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "设备内 NOS 的配置更新由多个松耦合组件异步发消息完成，容易因投递顺序不同产生 race condition"
+          "text": "并发缺陷只在特定线程交错下出现；受控并发测试接管调度去探索交错空间，但空间随程序规模急速膨胀。"
         },
         {
           "tag": "方法",
-          "text": "先用配置更新任务的局部性收敛分析范围，再主动扰动消息异步性，分组并行并自适应加强"
+          "text": "REINS 让 agent 推理并发语义与已知 bug 模式，把假设翻译成事件序与变量状态的约束，驱动调度器走向可疑交错并据结果迭代精化。"
         },
         {
           "tag": "结果",
-          "text": "在商用 NOS 上检出 21 个被开发者确认的严重竞态，准确率 66%，检测开销低于 10%"
+          "text": "三个公开基准上同等时间预算内检出更多缺陷；在真实项目中发现 6 个未知并发缺陷，其中 3 个已被开发者确认。"
         }
       ],
-      "link": "arxiv.org/abs/2610.11875"
+      "link": "arxiv.org/abs/2610.13421"
     },
     {
       "rank": 5,
       "lane": "推荐",
-      "sid": "2610.11801",
+      "sid": "2610.12890",
       "cat": "cs.SE",
-      "score": 21.6,
-      "title_en": "ObliVul: Alert-Conditioned Safety Obligation Modeling and Bidirectional Counterfactual Validation for Code Vulnerability Detection",
+      "score": 9.4,
+      "title_en": "Evaluation of Software Quality Through Refactoring Commit-Impact Analysis",
       "kw": [
-        "ObliVul",
-        "CPG",
-        "LLM"
+        "refactoring",
+        "GitHub",
+        "bug"
       ],
-      "authors": "Heyang Tan, Chengxin Gao, Xin Wen 等 5 人",
+      "authors": "Md Safayat Hossen, Sheikh Moonwara Anjum Monisha, Shadid Intisar Quasem",
       "units": [
-        "Taiyuan University of Technology"
+        "Department of Computer Science and Engineering",
+        "Islamic University of Technology, Bangladesh"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "静态分析告警太多，真正的难点是判断哪条告警值得关注，学习方法难抽取以告警为中心的完整证据"
+          "text": "重构究竟有没有提升软件质量，缺少基于真实仓库的实证度量与指标对照。"
         },
         {
           "tag": "方法",
-          "text": "从代码属性图 CPG 抽局部证据包，用大模型恢复安全义务，再对齐到程序节点、依赖边与路径"
+          "text": "考察每个 refactoring 提交前后的代码变化，用规模、复杂度、代码异味、漏洞与 bug 检出等软件指标做静态代码分析。"
         },
         {
           "tag": "结果",
-          "text": "能有效区分漏洞版本与已修复版本，减少对已修复代码的持续误报，消融实验确认各组件必要"
+          "text": "基于 GitHub 开源项目的仓库挖掘与静态分析，围绕预设研究问题汇总结果，并以表格与图形呈现结论。"
         }
       ],
-      "link": "arxiv.org/abs/2610.11801"
+      "link": "arxiv.org/abs/2610.12890"
     },
     {
       "rank": 6,
       "lane": "推荐",
-      "sid": "2610.07282",
-      "cat": "cs.CR",
-      "score": 16.2,
-      "title_en": "A Resilient Runtime-Verification Fabric for Security Monitoring of Critical Edge-IoT Infrastructure",
+      "sid": "2610.12542",
+      "cat": "cs.AI",
+      "score": 9.4,
+      "title_en": "Equal-Budget Monte Carlo Tree Search versus Randomized-Restart List Scheduling for DAG Workflows: A Controlled Equal-Budget Computational…",
       "kw": [
-        "RV-Fabric",
-        "MQTT",
-        "MonPoly"
+        "MCTS",
+        "DAG",
+        "UCT",
+        "list scheduling"
       ],
-      "authors": "Nikolaos Kekatos, Marinelio Chintri, Panagiotis Katsaros 等 6 人",
+      "authors": "Yuyu Zhang",
+      "units": [],
+      "bullets": [
+        {
+          "tag": "背景",
+          "text": "MCTS 常被提议用于 DAG 工作流调度，但多数研究从不做那个可能证伪它的对照实验：给简单方法同等搜索预算。"
+        },
+        {
+          "tag": "方法",
+          "text": "受控协议下三组同预算比较：预注册的 MCTS 为主臂，随机重启 list scheduling 为对照，教科书 UCT 为后继臂，分析计划事前锁定。"
+        },
+        {
+          "tag": "结果",
+          "text": "2048 个候选调度预算下 MCTS 比随机重启差 2.88%，并非预算饥饿；换成 UCT 后差距基本消失，只剩 0.26%。"
+        }
+      ],
+      "link": "arxiv.org/abs/2610.12542"
+    },
+    {
+      "rank": 7,
+      "lane": "推荐",
+      "sid": "2610.14470",
+      "cat": "cs.SE",
+      "score": 9.0,
+      "title_en": "When Is a Reconciliation Break Real? A Temporal Correctness Contract for Streaming Financial Reconciliation",
+      "kw": [
+        "watermark",
+        "break",
+        "ground truth"
+      ],
+      "authors": "Abhishek Sharma",
+      "units": [],
+      "bullets": [
+        {
+          "tag": "背景",
+          "text": "流式对账要在证据不全时判断钱是否到账；现有流水线用超时或 watermark 拍板，直接把异常当作结论。"
+        },
+        {
+          "tag": "方法",
+          "text": "给出时间正确性契约与无需 ground truth 的检查器，把 break 拆成三类：判得太早、输入违反自声明上界、钱确实丢了。"
+        },
+        {
+          "tag": "结果",
+          "text": "模拟器负载上空闲超时引入 5.42% 的契约违规；迟到漂移时四个对账器产生 18.3% 到 23.0% 的虚假 break，自身违规率不超过 1.01%。"
+        }
+      ],
+      "link": "arxiv.org/abs/2610.14470"
+    },
+    {
+      "rank": 8,
+      "lane": "推荐",
+      "sid": "2610.14405",
+      "cat": "cs.SE",
+      "score": 7.7,
+      "title_en": "SPROUT: Scaling Agentic Reinforcement Learning for Long-Horizon Software Engineering",
+      "kw": [
+        "SPROUT",
+        "rollout",
+        "checkpoint",
+        "GRPO"
+      ],
+      "authors": "Mengyang Liu, Weiming Wang, Haixin Nan 等 6 人",
       "units": [
-        "International Hellenic University",
-        "Aristotle University of Thessaloniki",
+        "Shanghai Jiao Tong University",
+        "King’s College London",
         "等 3 家单位"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "运行时验证流水线多是单宿主机原型读共享日志，崩溃、时钟偏移、整网静默都会静默破坏判定"
+          "text": "RL 驱动的编码智能体靠成功轨迹学习，但长 horizon 软件任务里轨迹极稀缺，一个小错就让整条 rollout 作废。"
         },
         {
           "tag": "方法",
-          "text": "用 MQTT 与持久流 broker 两级承载，重建持久投递、可信事件序、静默下进展、隔离与流控五项保证"
+          "text": "SPROUT 在每轮 assistant 回合后为文件系统与智能体上下文做 checkpoint，再由 verifier 引导回溯，决定从哪个中间状态恢复。"
         },
         {
           "tag": "结果",
-          "text": "以 MonPoly 引擎做故障注入，共享日志基线漏掉七次事故中的六次且误报 all-clear，本方案保住七次"
+          "text": "长 horizon 任务上 pass@k 提升 23.6%，token 只用三到五成；训练 Qwen3-8-27B 比 GRPO 高 13.9 分。"
         }
       ],
-      "link": "arxiv.org/abs/2610.07282"
-    },
-    {
-      "rank": 7,
-      "lane": "推荐",
-      "sid": "2610.11991",
-      "cat": "cs.FL",
-      "score": 15.6,
-      "title_en": "Quantitative Verification of Infinite-State Networks",
-      "kw": [
-        "pushdown",
-        "semiring",
-        "reachability"
-      ],
-      "authors": "Dhruv Nevatia, David Basin",
-      "units": [],
-      "bullets": [
-        {
-          "tag": "背景",
-          "text": "网络协议常同时有递归、无界状态与代价延迟等量化行为，已有 pushdown 系统网络结果基本是定性的"
-        },
-        {
-          "tag": "方法",
-          "text": "提出 pumping semiring 权重域，配合线段树代数与 thermal extension，给出可终止的精确饱和算法"
-        },
-        {
-          "tag": "结果",
-          "text": "首次得到 pushdown 系统网络的量化安全性与 reachability 分析，并统一计算上下文无关语言的闭包"
-        }
-      ],
-      "link": "arxiv.org/abs/2610.11991"
-    },
-    {
-      "rank": 8,
-      "lane": "推荐",
-      "sid": "2610.08898",
-      "cat": "cs.LO",
-      "score": 12.9,
-      "title_en": "Proceedings Seventeenth International Symposium on Games, Automata, Logics, and Formal Verification",
-      "kw": [
-        "GandALF",
-        "Formal Verification"
-      ],
-      "authors": "Giorgio Bacci, Mickaël Randour",
-      "units": [],
-      "bullets": [
-        {
-          "tag": "背景",
-          "text": "GandALF 是博弈、自动机、逻辑与 Formal Verification 方向的专题研讨会，2026 年已是第十七届"
-        },
-        {
-          "tag": "方法",
-          "text": "本卷收录 2026 年 9 月 15 至 17 日在丹麦奥尔堡举行的会议论文，覆盖从理论到应用的主题"
-        },
-        {
-          "tag": "结果",
-          "text": "旨在汇聚该领域的学术界与工业界研究者，推动跨领域交融"
-        }
-      ],
-      "link": "arxiv.org/abs/2610.08898"
+      "link": "arxiv.org/abs/2610.14405"
     },
     {
       "rank": 9,
       "lane": "兴趣扩展",
-      "sid": "2610.11483",
-      "cat": "cs.AI",
-      "score": 21.4,
-      "title_en": "BridgeGuard: Explicit Safety Drift for Diffusion-based Autonomous Driving",
+      "sid": "2610.12711",
+      "cat": "cs.LG",
+      "score": 21.8,
+      "title_en": "Byzantine-Resilient Federated Large Language Model via Hypergraph Message Passing",
       "kw": [
-        "BridgeGuard",
-        "diffusion",
-        "Bench2Drive"
+        "FedLLM",
+        "HMP-GAE",
+        "message passing",
+        "Qwen-2.5"
       ],
-      "authors": "Zhenjun Qiu, Jianing Huang, Dongang Liu 等 6 人",
+      "authors": "Kai Li, Hanlin Cai, Zihao Liu 等 6 人",
       "units": [
-        "Shanghai Jiao Tong University"
+        "are with the School of Computer Science and Digital…"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "基于 diffusion 的驾驶规划器行为多样，但遇到分布偏移会生成不安全轨迹"
+          "text": "联邦大语言模型 FedLLM 的去中心化训练易受拜占庭攻击，恶意模型更新会破坏语义一致性与事实稳健性。"
         },
         {
           "tag": "方法",
-          "text": "在去噪过程中逐步加强安全约束项，用 DistanceFieldNet 从鸟瞰特征预测时变距离场提供约束"
+          "text": "提出 HMP-GAE：把低秩模型更新表示为超图节点，用迭代 message passing 挖掘多智能体间的高阶语义关系，抑制语义不一致的更新。"
         },
         {
           "tag": "结果",
-          "text": "Bench2Drive 上驾驶分数与成功率提升，BridgeDrive 达 90.88/76.36%，展示跨模型泛化"
+          "text": "以 Qwen-2.5 与 Llama-3.2 为骨干，全局精度提升 1.21%，最终模型语义熵降低 44.08%，困惑度降低 13.34%。"
         }
       ],
-      "link": "arxiv.org/abs/2610.11483"
+      "link": "arxiv.org/abs/2610.12711"
     },
     {
       "rank": 10,
       "lane": "兴趣扩展",
-      "sid": "2610.11934",
-      "cat": "cs.NI",
-      "score": 15.7,
-      "title_en": "Digital Twin for Pre-Deployment Validation of AI-Driven Safety-Critical Industrial Edge Control Loops",
+      "sid": "2610.13901",
+      "cat": "stat.ML",
+      "score": 15.9,
+      "title_en": "Hitting-Time Bounds for Asynchronous Q-Learning",
       "kw": [
-        "Digital Twin",
-        "5G",
-        "RSRP",
-        "RTT"
+        "Q-learning",
+        "Bellman",
+        "envelope",
+        "TD"
       ],
-      "authors": "Sara Cavallero, Federico Tonini, Tony Chahoud 等 6 人",
+      "authors": "Yang Peng",
       "units": [
-        "and Walter Cerroni are with the DEI, University of…"
+        "Yau Mathematical Sciences Center, Tsinghua University"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "工业环境里物理过程、通信网络与智能应用紧耦合，既有 Digital Twin 往往只建模其中一侧"
+          "text": "单条轨迹上的异步 Q-learning，已有样本复杂度界常依赖混合时间，难以覆盖周期链与最后迭代。"
         },
         {
           "tag": "方法",
-          "text": "提出模块化数字孪生框架，在同一架构里联合建模物理过程、无线通信与应用逻辑"
+          "text": "用两个确定性 Bellman envelope 分离统计误差与固定策略初始化误差，并把 TD 学习中的逆时命中代价补偿适配到状态-动作传播。"
         },
         {
           "tag": "结果",
-          "text": "BI-REX 试验线用 5G 机器人搬运有害液体做验证，RSRP、时延与应用级 RTT 均与实测吻合"
+          "text": "常数步长零初始化的样本复杂度为 H 的四次方除以 μ_min 与 ε 平方之积，再加最大期望命中时间，初始化代价只是相加，并给出探索下界。"
         }
       ],
-      "link": "arxiv.org/abs/2610.11934"
+      "link": "arxiv.org/abs/2610.13901"
     }
   ]
 }

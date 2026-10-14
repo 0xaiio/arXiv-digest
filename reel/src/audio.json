@@ -5,109 +5,109 @@
     "intro": {
       "id": "intro",
       "file": "audio/intro.mp3",
-      "seconds": 3.91,
-      "rate": "-2%",
-      "chars": 14,
-      "mean_db": -18.2,
+      "seconds": 4.01,
+      "rate": "+25%",
+      "chars": 20,
+      "mean_db": -18.5,
       "sid": null
     },
     "paper1": {
       "id": "paper1",
       "file": "audio/p1.mp3",
       "seconds": 18.55,
-      "rate": "+10%",
-      "chars": 116,
-      "mean_db": -18.8,
-      "sid": "2610.05683"
+      "rate": "+13%",
+      "chars": 105,
+      "mean_db": -17.7,
+      "sid": "2610.14543"
     },
     "paper2": {
       "id": "paper2",
       "file": "audio/p2.mp3",
-      "seconds": 18.58,
-      "rate": "+23%",
-      "chars": 111,
-      "mean_db": -18.1,
-      "sid": "2610.05571"
+      "seconds": 18.62,
+      "rate": "+22%",
+      "chars": 106,
+      "mean_db": -18.3,
+      "sid": "2610.12649"
     },
     "paper3": {
       "id": "paper3",
       "file": "audio/p3.mp3",
       "seconds": 18.55,
-      "rate": "+19%",
-      "chars": 122,
+      "rate": "+25%",
+      "chars": 121,
       "mean_db": -18.2,
-      "sid": "2610.05263"
+      "sid": "2610.14798"
     },
     "paper4": {
       "id": "paper4",
       "file": "audio/p4.mp3",
-      "seconds": 18.7,
-      "rate": "+22%",
-      "chars": 108,
-      "mean_db": -18.3,
-      "sid": "2610.04236"
+      "seconds": 18.67,
+      "rate": "+15%",
+      "chars": 117,
+      "mean_db": -18.1,
+      "sid": "2610.13421"
     },
     "paper5": {
       "id": "paper5",
       "file": "audio/p5.mp3",
-      "seconds": 18.67,
-      "rate": "+20%",
-      "chars": 119,
-      "mean_db": -18.1,
-      "sid": "2610.06003"
+      "seconds": 18.65,
+      "rate": "+11%",
+      "chars": 116,
+      "mean_db": -19.0,
+      "sid": "2610.12890"
     },
     "paper6": {
       "id": "paper6",
       "file": "audio/p6.mp3",
-      "seconds": 18.58,
-      "rate": "+15%",
-      "chars": 120,
-      "mean_db": -17.9,
-      "sid": "2610.05335"
+      "seconds": 18.67,
+      "rate": "+13%",
+      "chars": 103,
+      "mean_db": -18.2,
+      "sid": "2610.12542"
     },
     "paper7": {
       "id": "paper7",
       "file": "audio/p7.mp3",
-      "seconds": 18.67,
-      "rate": "+19%",
-      "chars": 106,
-      "mean_db": -18.6,
-      "sid": "2610.05316"
+      "seconds": 18.62,
+      "rate": "+20%",
+      "chars": 128,
+      "mean_db": -18.1,
+      "sid": "2610.14470"
     },
     "paper8": {
       "id": "paper8",
       "file": "audio/p8.mp3",
-      "seconds": 18.94,
-      "rate": "+25%",
-      "chars": 109,
-      "mean_db": -18.7,
-      "sid": "2610.05008"
+      "seconds": 18.67,
+      "rate": "+17%",
+      "chars": 131,
+      "mean_db": -18.1,
+      "sid": "2610.14405"
     },
     "paper9": {
       "id": "paper9",
       "file": "audio/p9.mp3",
-      "seconds": 18.89,
+      "seconds": 18.65,
       "rate": "+25%",
-      "chars": 115,
-      "mean_db": -18.6,
-      "sid": "2610.06617"
+      "chars": 130,
+      "mean_db": -18.3,
+      "sid": "2610.12711"
     },
     "paper10": {
       "id": "paper10",
       "file": "audio/p10.mp3",
-      "seconds": 18.62,
-      "rate": "+14%",
-      "chars": 101,
-      "mean_db": -18.7,
-      "sid": "2610.05701"
+      "seconds": 18.6,
+      "rate": "+18%",
+      "chars": 123,
+      "mean_db": -18.8,
+      "sid": "2610.13901"
     },
     "outro": {
       "id": "outro",
       "file": "audio/outro.mp3",
-      "seconds": 4.06,
-      "rate": "+25%",
-      "chars": 20,
-      "mean_db": -18.0,
+      "seconds": 3.96,
+      "rate": "+16%",
+      "chars": 19,
+      "mean_db": -17.4,
       "sid": null
     }
   }
