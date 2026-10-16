@@ -36,6 +36,11 @@ DEFAULT_CFG = {
     "lr_topic": 0.06, "lr_keyword": 0.05,
     "topic_range": [0.25, 3.0], "keyword_range": [-4.0, 4.0],
     "downvote_paper_penalty": -12.0,
+    # 负向行为（downvote / undownvote）是否参与「主题倍率 / 关键词权重」的全局学习。
+    # 默认关闭，原因见 apply_event() 的注释：Downvote 的语义是「这篇不要」，
+    # 它已经由论文级 -12 惩罚精确定位；再让它在全局词表 / 主题上扣分会产生曝光偏置，
+    # 把用户的主研究方向反复打到下限，最终让推荐器整体失效。
+    "learn_neg_topics": False, "learn_neg_keywords": False,
 }
 
 STOP = set("""a an the and or but if then than that this these those of in on at to for from by with without
@@ -178,6 +183,22 @@ def apply_event(sid, action, paper=None, index=None):
         if paper is None and index is not None:
             paper = index.get(sid)
 
+        # 负向行为是否参与全局学习（见 DEFAULT_CFG 注释）。
+        # 曝光偏置：推荐越多的主题，被 Downvote 的绝对次数也越多；若让 Downvote 扣主题分，
+        # 系统会把自己的主打方向一路打到 0.25 下限（2026-10-16 实测：用户五个主研究方向
+        # 全部触底，164 篇新论文 0 篇够到推荐线）。论文级 -12 已经能精确定位「这篇不要」，
+        # 全局学习只保留正向信号（收藏 / 下载 / PDF / Abstract），语义上更可靠。
+        is_neg = action in ("downvote", "undownvote")
+        learn_t = bool(cfg.get("learn_neg_topics", False)) if is_neg else True
+        learn_k = bool(cfg.get("learn_neg_keywords", False)) if is_neg else True
+        if is_neg and not (learn_t or learn_k):
+            save(st)
+            beh = load_behavior()
+            beh.append({"id": sid, "action": action, "at": pu.now_str(), "topics": []})
+            save_behavior(beh)
+            return st, {"action": action, "weight": w, "topics": [], "kw": 0,
+                        "note": "negative signal: paper-level penalty only"}
+
         info = {"action": action, "weight": w, "topics": [], "kw": 0}
         if paper and w:
             try:
@@ -192,17 +213,19 @@ def apply_event(sid, action, paper=None, index=None):
                 tmin, tmax = cfg.get("topic_range", [0.25, 3.0])
                 kmin, kmax = cfg.get("keyword_range", [-4.0, 4.0])
                 # 命中越多，单次学习量越大（但收敛，避免刷同一篇刷爆）
-                for name, (th, ah) in hits.items():
-                    strength = min(4, th) * 0.6 + min(8, ah) * 0.1
-                    cur = float(st["topic_mult"].get(name, 1.0))
-                    nxt = cur + lr_t * w * max(0.3, min(2.5, strength))
-                    st["topic_mult"][name] = round(min(tmax, max(tmin, nxt)), 4)
-                    info["topics"].append(name)
-                for tk in toks:
-                    cur = float(st["kw"].get(tk, 0.0))
-                    nxt = cur + lr_k * w
-                    st["kw"][tk] = round(min(kmax, max(kmin, nxt)), 4)
-                info["kw"] = len(toks)
+                if learn_t:
+                    for name, (th, ah) in hits.items():
+                        strength = min(4, th) * 0.6 + min(8, ah) * 0.1
+                        cur = float(st["topic_mult"].get(name, 1.0))
+                        nxt = cur + lr_t * w * max(0.3, min(2.5, strength))
+                        st["topic_mult"][name] = round(min(tmax, max(tmin, nxt)), 4)
+                        info["topics"].append(name)
+                if learn_k:
+                    for tk in toks:
+                        cur = float(st["kw"].get(tk, 0.0))
+                        nxt = cur + lr_k * w
+                        st["kw"][tk] = round(min(kmax, max(kmin, nxt)), 4)
+                    info["kw"] = len(toks)
             except Exception as e:  # noqa
                 info["error"] = str(e)
 

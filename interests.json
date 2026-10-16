@@ -698,6 +698,8 @@
    -4.0,
    4.0
   ],
-  "downvote_paper_penalty": -12.0
+  "downvote_paper_penalty": -12.0,
+  "learn_neg_topics": false,
+  "learn_neg_keywords": false
  }
 }

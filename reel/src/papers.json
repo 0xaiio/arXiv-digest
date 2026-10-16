@@ -1,335 +1,299 @@
 {
-  "issue": "20261014",
-  "range": "2026-10-10 · 回溯 3 天公告批次",
-  "generated": "2026-10-14T09:58:03+08:00",
+  "issue": "20261016",
+  "range": "2026-10-15 · 回溯 3 天公告批次",
+  "generated": "2026-10-16T23:11:56+08:00",
   "stats": {
-    "core": 122,
-    "expand": 718,
-    "rec": 8,
+    "core": 164,
+    "expand": 935,
+    "rec": 14,
     "exp": 10
   },
   "papers": [
     {
       "rank": 1,
       "lane": "推荐",
-      "sid": "2610.14543",
-      "cat": "cs.DC",
-      "score": 44.2,
-      "title_en": "Byzantine-linearizable Single-Writer Multi-Reader Register in the GPU-Inspired Shared Memory Model",
+      "sid": "2610.17697",
+      "cat": "cs.LG",
+      "score": 17.3,
+      "title_en": "LeanPRM: Lean-Grounded Process Supervision for Natural Language Proof Verification",
       "kw": [
-        "SWMR",
-        "CAReg",
-        "SnapObject"
+        "LeanPRM",
+        "Lean"
       ],
-      "authors": "Chryssis Georgiou, Sathya Peri, Manaswani Piduguralla 等 4 人",
-      "units": [
-        "University of Cyprus"
-      ],
+      "authors": "Rodney Lafuente-Mercado, Salman Rahman, Jingyan Shen 等 6 人",
+      "units": [],
       "bullets": [
         {
           "tag": "背景",
-          "text": "GPU 共享内存缺乏访问控制，任何线程都能修改共享对象；连指定的写者都可能拜占庭，原子寄存器语义还能不能保住？"
+          "text": "AI 已能写出长而难的数学证明，但逐步校验其正确性正成为瓶颈；开放式证明没有最终答案，步骤级标签难以获得。"
         },
         {
           "tag": "方法",
-          "text": "在 GPU 启发的共享内存模型下构造拜占庭可线性化的单写多读 SWMR 寄存器：CAReg 用常量内存，SnapObject 维护有界认证写窗口。"
+          "text": "LeanPRM 用 Lean 证明助手为自然语言证明自动产生步骤级正确性标签：模型先写证明，再由 Lean 逐步判定。"
         },
         {
           "tag": "结果",
-          "text": "SnapObject 消除非法读，lock-free 与 wait-free 变体最多容忍 n-1 个拜占庭进程；GPU 的 lock-step 补上访问控制。"
+          "text": "据此训练过程监督验证器，无需人工逐步标注，也无需专家把每条证明形式化进 Lean。"
         }
       ],
-      "link": "arxiv.org/abs/2610.14543"
+      "link": "arxiv.org/abs/2610.17697"
     },
     {
       "rank": 2,
       "lane": "推荐",
-      "sid": "2610.12649",
-      "cat": "cs.SE",
-      "score": 13.8,
-      "title_en": "Quantifying SMT Solver Instability for Formal Verification",
+      "sid": "2610.19764",
+      "cat": "cs.PL",
+      "score": 14.0,
+      "title_en": "Verifying deployed bytecode against executable EVM semantics, with exact gas and no added axioms",
       "kw": [
-        "SMT",
-        "CV"
+        "Lean",
+        "EVM",
+        "Jaune"
       ],
-      "authors": "Daniel Evans, Rylie Hansen, John Shorter",
+      "authors": "Seulkee Baek",
       "units": [],
       "bullets": [
         {
           "tag": "背景",
-          "text": "SMT 求解器是自动验证的主力，但语义等价的代码改写会让求解时间暴涨甚至超时，这就是 SMT 不稳定性。"
+          "text": "以太坊上大量关键代码是不可变字节码：既有未验证编译器的老产物，也有作为合约运行的协议逻辑。"
         },
         {
           "tag": "方法",
-          "text": "用变异系数 CV 在三个软件领域的大规模 SMT 查询集上建模不稳定性，并给出新的量化方法：把优化目标从方差转向求解时间。"
+          "text": "Blanc 是 Lean 4 验证栈：用内核校验的证书读取固定运行时字节，全部定理针对 Jaune——EVM 与区块处理的可执行语义。"
         },
         {
           "tag": "结果",
-          "text": "不稳定性在各领域都显著，且随平均耗时上升；改为针对运行时优化查询结构，可同时缓解不稳定性并提升整体求解性能。"
+          "text": "Jaune 通过以太坊 v20.0.2 全部 34205 个相关测试；可原样验证字节码、给出精确 gas，且不引入 Lean 之外的公理。"
         }
       ],
-      "link": "arxiv.org/abs/2610.12649"
+      "link": "arxiv.org/abs/2610.19764"
     },
     {
       "rank": 3,
       "lane": "推荐",
-      "sid": "2610.14798",
-      "cat": "cs.DC",
-      "score": 13.0,
-      "title_en": "Accelerating MoE Training through Expert Placement and Replica Coordination",
+      "sid": "2610.21379",
+      "cat": "cs.LO",
+      "score": 13.7,
+      "title_en": "Model Checking HyperRecHML is Decidable",
       "kw": [
-        "MoE",
-        "PlaceMoE",
-        "A2A"
+        "HyperRecHML"
       ],
-      "authors": "Zhiqiang Tan, Maoxin Wang, Wenxiang Lin 等 6 人",
-      "units": [
-        "School of Computer Science and Technology, Harbin…",
-        "Hong Kong University of Science and Technology, Hong Kong"
-      ],
+      "authors": "Elli Anastasiadi, Kim Guldstrand Larsen, Martin Zimmermann",
+      "units": [],
       "bullets": [
         {
           "tag": "背景",
-          "text": "稀疏激活 MoE 的分布式训练受限于专家负载不均与动态路由引发的 all-to-all 通信，已有的去重、放置、副本技术各自为战。"
+          "text": "时序超逻辑把对轨迹的显式量化与时序要求结合。HyperRecHML 允许任意混合轨迹量化并用不动点表达，已在运行时验证中应用，但模型检验的可判定性悬而未决。"
         },
         {
           "tag": "方法",
-          "text": "PlaceMoE 联合优化 E 个专家在 P 个设备上的布局与源感知的 token-副本映射：协同选择分组加有界动态规划分配副本，再交替精化。"
+          "text": "两项主要贡献，第一项是规范化过程，把公式化为便于判定的形式；由此给出模型检验的判定论证。"
         },
         {
           "tag": "结果",
-          "text": "32 卡 GPU 与 64 卡 NPU 集群跑 Qwen3-VL 与 DeepSeek-V3：A2A 通信加速 6.94 倍，训练加速 1.74–2.33 倍。"
+          "text": "肯定地回答了 HyperRecHML 模型检验可判定这一开放问题，补上该逻辑在静态验证方向的一块空白。"
         }
       ],
-      "link": "arxiv.org/abs/2610.14798"
+      "link": "arxiv.org/abs/2610.21379"
     },
     {
       "rank": 4,
       "lane": "推荐",
-      "sid": "2610.13421",
+      "sid": "2610.19895",
       "cat": "cs.SE",
-      "score": 10.2,
-      "title_en": "REINS: Agent-guided Thread Scheduling for Concurrency Bug Detection and Reproduction",
+      "score": 12.8,
+      "title_en": "Systematic Detection of Energy Regressions in Software Version Histories",
       "kw": [
-        "REINS",
-        "agent",
-        "bug"
+        "EnergyTrackr"
       ],
-      "authors": "Yu Zhang, Corina S. Pasareanu, Guowei Yang",
-      "units": [
-        "The University of Queensland",
-        "Carnegie Mellon University"
-      ],
+      "authors": "Jérôme Maquoi, François Bechet, Luís Cruz 等 5 人",
+      "units": [],
       "bullets": [
         {
           "tag": "背景",
-          "text": "并发缺陷只在特定线程交错下出现；受控并发测试接管调度去探索交错空间，但空间随程序规模急速膨胀。"
+          "text": "绿色软件工程应对 IT 能耗增长，但在持续开发中按提交粒度自动识别统计显著的能耗回归仍缺方法。"
         },
         {
           "tag": "方法",
-          "text": "REINS 让 agent 推理并发语义与已知 bug 模式，把假设翻译成事件序与变量状态的约束，驱动调度器走向可疑交错并据结果迭代精化。"
+          "text": "提出 EnergyTrackr，在多个提交之间检测能耗回归，识别统计上显著的能耗变化。"
         },
         {
           "tag": "结果",
-          "text": "三个公开基准上同等时间预算内检出更多缺陷；在真实项目中发现 6 个未知并发缺陷，其中 3 个已被开发者确认。"
+          "text": "对 EnergyTrackr 做了实证评估，验证其跨提交检测能耗回归的效果。"
         }
       ],
-      "link": "arxiv.org/abs/2610.13421"
+      "link": "arxiv.org/abs/2610.19895"
     },
     {
       "rank": 5,
       "lane": "推荐",
-      "sid": "2610.12890",
-      "cat": "cs.SE",
-      "score": 9.4,
-      "title_en": "Evaluation of Software Quality Through Refactoring Commit-Impact Analysis",
+      "sid": "2610.21237",
+      "cat": "cs.FL",
+      "score": 11.6,
+      "title_en": "Compositional Automata Learning of Timed Synchronous Systems",
       "kw": [
-        "refactoring",
-        "GitHub",
-        "bug"
+        "RTA"
       ],
-      "authors": "Md Safayat Hossen, Sheikh Moonwara Anjum Monisha, Shadid Intisar Quasem",
-      "units": [
-        "Department of Computer Science and Engineering",
-        "Islamic University of Technology, Bangladesh"
-      ],
+      "authors": "Hanyue Chen, Chang Liu, Miaomiao Zhang",
+      "units": [],
       "bullets": [
         {
           "tag": "背景",
-          "text": "重构究竟有没有提升软件质量，缺少基于真实仓库的实证度量与指标对照。"
+          "text": "主动模型学习为黑盒时序系统自动构造形式模型；现有方法常构造单一整体自动机，掩盖构件结构、阻碍构件级分析。"
         },
         {
           "tag": "方法",
-          "text": "考察每个 refactoring 提交前后的代码变化，用规模、复杂度、代码异味、漏洞与 bug 检出等软件指标做静态代码分析。"
+          "text": "提出组合式学习：仅凭对整体目标系统的访问，为每个构件学习一个确定性实时自动机（RTA）。"
         },
         {
           "tag": "结果",
-          "text": "基于 GitHub 开源项目的仓库挖掘与静态分析，围绕预设研究问题汇总结果，并以表格与图形呈现结论。"
+          "text": "学习终止后，学到的 RTA 组成网络，与目标系统展现完全相同的时序行为。"
         }
       ],
-      "link": "arxiv.org/abs/2610.12890"
+      "link": "arxiv.org/abs/2610.21237"
     },
     {
       "rank": 6,
       "lane": "推荐",
-      "sid": "2610.12542",
-      "cat": "cs.AI",
-      "score": 9.4,
-      "title_en": "Equal-Budget Monte Carlo Tree Search versus Randomized-Restart List Scheduling for DAG Workflows: A Controlled Equal-Budget Computational…",
+      "sid": "2610.19405",
+      "cat": "cs.DC",
+      "score": 11.5,
+      "title_en": "Scaling LLM Inference via Parallelism: Throughput-Latency Trade-off",
       "kw": [
-        "MCTS",
-        "DAG",
-        "UCT",
-        "list scheduling"
+        "prefill",
+        "decode"
       ],
-      "authors": "Yuyu Zhang",
+      "authors": "Javad Mirzaei, Jeebak Mitra",
       "units": [],
       "bullets": [
         {
           "tag": "背景",
-          "text": "MCTS 常被提议用于 DAG 工作流调度，但多数研究从不做那个可能证伪它的对照实验：给简单方法同等搜索预算。"
+          "text": "LLM 服务要平衡延迟与吞吐并高效利用分布式 GPU；难点是 prefill 决定 TTFT、decode 决定 ITL，两阶段性质迥异。"
         },
         {
           "tag": "方法",
-          "text": "受控协议下三组同预算比较：预注册的 MCTS 为主臂，随机重启 list scheduling 为对照，教科书 UCT 为后继臂，分析计划事前锁定。"
+          "text": "考察张量并行（TP）、流水并行（PP）与混合配置在两个延迟维度上的权衡。"
         },
         {
           "tag": "结果",
-          "text": "2048 个候选调度预算下 MCTS 比随机重启差 2.88%，并非预算饥饿；换成 UCT 后差距基本消失，只剩 0.26%。"
+          "text": "最优并行配置高度依赖负载特征、延迟要求与上下文长度，不存在通用最优解。"
         }
       ],
-      "link": "arxiv.org/abs/2610.12542"
+      "link": "arxiv.org/abs/2610.19405"
     },
     {
       "rank": 7,
       "lane": "推荐",
-      "sid": "2610.14470",
-      "cat": "cs.SE",
-      "score": 9.0,
-      "title_en": "When Is a Reconciliation Break Real? A Temporal Correctness Contract for Streaming Financial Reconciliation",
+      "sid": "2610.17708",
+      "cat": "quant-ph",
+      "score": 11.0,
+      "title_en": "QEDIA: Quantum Program Verification in Lean",
       "kw": [
-        "watermark",
-        "break",
-        "ground truth"
+        "QEDIA"
       ],
-      "authors": "Abhishek Sharma",
+      "authors": "Yuanjie, Ren, Zhicheng Zhang 等 6 人",
       "units": [],
       "bullets": [
         {
           "tag": "背景",
-          "text": "流式对账要在证据不全时判断钱是否到账；现有流水线用超时或 watermark 拍板，直接把异常当作结论。"
+          "text": "量子程序交织量子与经典计算：经典数据决定量子操作，测量结果决定后续经典计算；在证明助手中验证需各层一致机械化。"
         },
         {
           "tag": "方法",
-          "text": "给出时间正确性契约与无需 ground truth 的检查器，把 break 拆成三类：判得太早、输入违反自声明上界、钱确实丢了。"
+          "text": "提出 QEDIA 框架，把从量子力学的数学、程序语法与语义，到规范与证明规则的程序逻辑整体机械化。"
         },
         {
           "tag": "结果",
-          "text": "模拟器负载上空闲超时引入 5.42% 的契约违规；迟到漂移时四个对账器产生 18.3% 到 23.0% 的虚假 break，自身违规率不超过 1.01%。"
+          "text": "目标是降低量子程序形式验证与其上程序证明所需的大量人工投入。"
         }
       ],
-      "link": "arxiv.org/abs/2610.14470"
+      "link": "arxiv.org/abs/2610.17708"
     },
     {
       "rank": 8,
       "lane": "推荐",
-      "sid": "2610.14405",
-      "cat": "cs.SE",
-      "score": 7.7,
-      "title_en": "SPROUT: Scaling Agentic Reinforcement Learning for Long-Horizon Software Engineering",
+      "sid": "2610.17541",
+      "cat": "math.OC",
+      "score": 10.7,
+      "title_en": "Convex-Analytic View of Query Selection for Safety Verification of Markov Decision Processes",
       "kw": [
-        "SPROUT",
-        "rollout",
-        "checkpoint",
-        "GRPO"
+        "MDP"
       ],
-      "authors": "Mengyang Liu, Weiming Wang, Haixin Nan 等 6 人",
-      "units": [
-        "Shanghai Jiao Tong University",
-        "King’s College London",
-        "等 3 家单位"
-      ],
+      "authors": "Han Bao, Shinsaku Sakaue, Kazuki Watanabe",
+      "units": [],
       "bullets": [
         {
           "tag": "背景",
-          "text": "RL 驱动的编码智能体靠成功轨迹学习，但长 horizon 软件任务里轨迹极稀缺，一个小错就让整条 rollout 作废。"
+          "text": "MDP 安全性验证要判断：是否在所有调度器下，到达若干失败状态的概率都共同落在凸的安全区域内。"
         },
         {
           "tag": "方法",
-          "text": "SPROUT 在每轮 assistant 回合后为文件系统与智能体上下文做 checkpoint，再由 verifier 引导回溯，决定从哪个中间状态恢复。"
+          "text": "Watanabe 与 Unno（2026）用外逼近精化证明安全性，按最大欧氏违反量选权重；本文给出统一框架，在显式误差单位下度量。"
         },
         {
           "tag": "结果",
-          "text": "长 horizon 任务上 pass@k 提升 23.6%，token 只用三到五成；训练 Qwen3-8-27B 比 GRPO 高 13.9 分。"
+          "text": "用外逼近与安全域之间的支撑函数间隙、归一化后为方向打分，使查询权重的选择更可解释。"
         }
       ],
-      "link": "arxiv.org/abs/2610.14405"
+      "link": "arxiv.org/abs/2610.17541"
     },
     {
       "rank": 9,
       "lane": "兴趣扩展",
-      "sid": "2610.12711",
+      "sid": "2610.21881",
       "cat": "cs.LG",
-      "score": 21.8,
-      "title_en": "Byzantine-Resilient Federated Large Language Model via Hypergraph Message Passing",
+      "score": 13.5,
+      "title_en": "Learning Lean Feedback for Efficient Proof-Candidate Evaluation on GPUs",
       "kw": [
-        "FedLLM",
-        "HMP-GAE",
-        "message passing",
-        "Qwen-2.5"
+        "Lean",
+        "GPU"
       ],
-      "authors": "Kai Li, Hanlin Cai, Zihao Liu 等 6 人",
-      "units": [
-        "are with the School of Computer Science and Digital…"
-      ],
+      "authors": "Lazar Milikic, Etienne Bamas, Emmanuel Abbe 等 4 人",
+      "units": [],
       "bullets": [
         {
           "tag": "背景",
-          "text": "联邦大语言模型 FedLLM 的去中心化训练易受拜占庭攻击，恶意模型更新会破坏语义一致性与事实稳健性。"
+          "text": "训练形式定理证明模型需要海量验证器调用；校验慢或超时让 GPU 空等，还可能使可能正确的证明拿不到奖励。"
         },
         {
           "tag": "方法",
-          "text": "提出 HMP-GAE：把低秩模型更新表示为超图节点，用迭代 message passing 挖掘多智能体间的高阶语义关系，抑制语义不一致的更新。"
+          "text": "用 484 万个带标签程序，在 GPU 上训练神经评估器预测 Lean 4 的判定结果与编译器反馈。"
         },
         {
           "tag": "结果",
-          "text": "以 Qwen-2.5 与 Llama-3.2 为骨干，全局精度提升 1.21%，最终模型语义熵降低 44.08%，困惑度降低 13.34%。"
+          "text": "先用分类器筛选、再用反馈模型给正例打分的两阶段评估器，对 Lean 判定结果的预测准确率达 87.8%。"
         }
       ],
-      "link": "arxiv.org/abs/2610.12711"
+      "link": "arxiv.org/abs/2610.21881"
     },
     {
       "rank": 10,
       "lane": "兴趣扩展",
-      "sid": "2610.13901",
-      "cat": "stat.ML",
-      "score": 15.9,
-      "title_en": "Hitting-Time Bounds for Asynchronous Q-Learning",
+      "sid": "2610.22047",
+      "cat": "cs.CR",
+      "score": 13.0,
+      "title_en": "SMT-Boosted Security Types and Correctness for Low-Level MPC",
       "kw": [
-        "Q-learning",
-        "Bellman",
-        "envelope",
-        "TD"
+        "MPC",
+        "SMT"
       ],
-      "authors": "Yang Peng",
-      "units": [
-        "Yau Mathematical Sciences Center, Tsinghua University"
-      ],
+      "authors": "Christian Skalka, Steven Baldasty, Yeonhee Yeh 等 5 人",
+      "units": [],
       "bullets": [
         {
           "tag": "背景",
-          "text": "单条轨迹上的异步 Q-learning，已有样本复杂度界常依赖混合时间，难以覆盖周期链与最后迭代。"
+          "text": "安全多方计算（MPC）是现代分布式应用中实现数据隐私的关键支撑技术。"
         },
         {
           "tag": "方法",
-          "text": "用两个确定性 Bellman envelope 分离统计误差与固定策略初始化误差，并把 TD 学习中的逆时命中代价补偿适配到状态-动作传播。"
+          "text": "为 Prelude/Overture 语言框架下的协议开发新的霍尔逻辑与类型论，并用 SMT 验证驱动分析的自动化。"
         },
         {
           "tag": "结果",
-          "text": "常数步长零初始化的样本复杂度为 H 的四次方除以 μ_min 与 ε 平方之积，再加最大期望命中时间，初始化代价只是相加，并给出探索下界。"
+          "text": "自动保证协议的正确性、机密性与完整性；方法组合式、可扩展，并推广到任意素数域与秘密共享方案。"
         }
       ],
-      "link": "arxiv.org/abs/2610.13901"
+      "link": "arxiv.org/abs/2610.22047"
     }
   ]
 }
