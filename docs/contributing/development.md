@@ -9,6 +9,9 @@
 
 **必需**：Python 3.9+（运行期只用标准库）。
 
+**跑测试**：`python -m pip install -r requirements-dev.txt`（pytest / pytest-cov /
+websocket-client），详见[测试与回归](testing.md)。
+
 **可选**：
 
 | 场景 | 依赖 |
@@ -109,13 +112,15 @@ python netroute.py --forget      # 清缓存重探
 # 1) 语法
 python -m py_compile *.py tools/*.py
 
-# 2) 关键回归（按改动范围选）
-python tools/concurrency_check.py                       # 动了 server.py 的并发
-python tools/dv_unify_check.py                          # 动了 Downvote / 卡片渲染
-python tools/owner_ui_check.py                          # 动了 /profile 画像主来源
-python tools/ui_file_check.py output/arxiv_digest_<日期>.html   # 动了页面 JS/链接
+# 2) 主闸门：pytest 套件（305 用例 / 87% 覆盖）
+python -m pytest -m "not ui"        # 快速：单元 + 集成 + 端到端，约 35s
+python -m pytest --cov              # 全量 + 覆盖率门槛（85%）
 
-# 3) 仓库卫生
+# 3) 交付前补跑黑盒验收（真下载 / 真点按钮）
+python tools/concurrency_check.py
+python tools/dv_unify_check.py
+
+# 4) 仓库卫生
 git status --short
 git diff --cached | grep -iE 'cookie|token|secret|password'    # 应为空
 ```

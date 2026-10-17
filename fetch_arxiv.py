@@ -139,8 +139,11 @@ def main():
         recent.sort(key=lambda p: dt(p["published"]), reverse=True)
         sys.stderr.write("merge pool: %d 既有 + 本次 -> %d 篇（新增 %d）\n"
                          % (len(prev), len(recent), added))
+    # 给每条补一份「抓取时所属分类」的快照字段。
+    # 累积池里的老条目可能来自更早的版本或手工修复，未必带 primary —— 直接下标会
+    # 让整轮抓取在 merge 之后崩掉（真实踩过：池子里有一条补录数据）。
     for p in recent:
-        p["_primary"] = p["primary"]
+        p["_primary"] = p.get("primary") or p.get("queried_cat") or ""
     print(json.dumps({
         "generated_at": datetime.now(timezone(timedelta(hours=8))).isoformat(timespec="seconds"),
         "newest_seen": newest.isoformat(),

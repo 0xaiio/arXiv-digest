@@ -13,6 +13,15 @@ outputs/
 *.temp
 *.part
 
+# ---------------------------------------------------------------- 测试
+# 测试沙箱：conftest.py 在项目内建目录且从不删除（本机沙箱对删除是累积拦截的）
+tmp_pytest/
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
 # ---------------------------------------------------------------- 个人配置与画像
 # 只有模板（*.example.json）和个人预设（presets/<名字>/）入库；
 # 你本机正在用的 config.json / interests.json 属于个人数据，默认不进版本库。

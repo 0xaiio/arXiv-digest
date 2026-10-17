@@ -1,0 +1,9 @@
+# 开发/测试依赖（运行期不需要任何第三方包）
+#
+#   python -m pip install -r requirements-dev.txt
+#
+# 主流程只用标准库；这里装的是测试工具与可选的浏览器自动化依赖。
+pytest>=8.0
+pytest-cov>=5.0
+# tests/e2e/test_ui_browser.py 用 CDP 驱动 Edge（缺失时该模块自动跳过）
+websocket-client>=1.6

@@ -69,9 +69,15 @@ def load_config():
 
 
 def short_id(p):
-    """从 arXiv id / paper dict 取出短号（如 2609.01234，去掉版本号）。"""
+    """从 arXiv id / paper dict 取出短号（如 2609.01234，去掉版本号）。
+
+    接受的形态：纯短号、带版本、`arXiv:2609.01234v2` 前缀、abs/pdf 链接、前后空白。
+    库文件与接口的 key 都由此产生，所以这一步必须幂等且不抛异常。
+    """
     s = p if isinstance(p, str) else (p.get("id") or "")
-    s = s.rsplit("/", 1)[-1]
+    s = (s or "").strip()
+    s = s.rsplit("/", 1)[-1].strip()
+    s = re.sub(r"^arxiv:\s*", "", s, flags=re.I)
     return re.sub(r"v\d+$", "", s)
 
 

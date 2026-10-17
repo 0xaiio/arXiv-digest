@@ -32,7 +32,8 @@ arXiv-digest/
 ├─ start_digest.bat            # Windows 双击启动
 │
 ├─ docs/                       # 全部文档（见 §3）
-├─ tools/                      # 辅助脚本：维护 / 回归 / 视频 / 投稿（见 §2）
+├─ tests/                      # pytest 套件：unit / integration / e2e（沙箱隔离）
+├─ tools/                      # 辅助脚本：维护 / 回归验收 / 视频 / 投稿（见 §2）
 ├─ presets/                    # 可选预设（默认不加载）
 ├─ reel/                       # 可选视频工程（Remotion）
 └─ output/                     # 运行产物（.gitignore，见文档 reference/data-files.md）
@@ -44,7 +45,7 @@ arXiv-digest/
 
 | 类别 | 文件 | 说明 |
 | --- | --- | --- |
-| **回归测试** | `concurrency_check.py` `dv_unify_check.py` `owner_ui_check.py` `ui_file_check.py` `dl_button_check.py` | 发布闸门，见[测试与回归](../contributing/testing.md) |
+| **黑盒验收** | `concurrency_check.py` `dv_unify_check.py` `owner_ui_check.py` `ui_file_check.py` `dl_button_check.py` | 发布前的整页实测（可能读写真实 output/）；日常回归请用 `tests/`，见[测试与回归](../contributing/testing.md) |
 | **开发探针** | `ui_probe.py` `ui_shots.py` `ui_final_check.py` `ui_check_v3.py` | 一次性验证与截图留档，非闸门 |
 | **历史一次性脚本** | `restore_raw_20260916.py` `summaries_20260916.py` `summaries_20260918.py` `seed_notes_20260912.py` | 按日期命名的当期数据修复/补录脚本，保留作示例；新的一期不需要它们 |
 | **内容与数据维护** | `gen_pending.py` `merge_raw_pool.py` `rebuild_raw_from_index.py` `backfill_archive.py` | 补摘要、修池子、回填归档 |

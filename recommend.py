@@ -38,8 +38,22 @@ def _norm(s):
 
 
 def _rx(term):
-    esc = re.escape(term.lower()).replace(r"\ ", r"[\s\-]+").replace(r"\-", r"[\s\-]?")
-    return re.compile(r"(?<![a-z0-9])" + esc + r"(?![a-z0-9])")
+    r"""关键词 → 词边界正则。
+
+    空格 / 连字符 / 下划线视为**等价分隔**：`isolation level` 也要能命中
+    `isolation-level`。早期实现是一串链式 replace：
+
+        re.escape(t).replace(r"\ ", r"[\s\-]+").replace(r"\-", r"[\s\-]?")
+
+    第二次 replace 会把第一次刚生成的 `[\s\-]` 里的 `\-` 再改一遍，产出的字符类
+    实际变成 `[\\s[\\s\\-]?]`（`?` 成了字面量、`]` 提前闭合），**多词关键词从此永不命中**，
+    且单测很难察觉——分数只是偏低而不会报错。现改为按分隔符切词再拼装。
+    """
+    parts = [p for p in re.split(r"[\s\-_]+", (term or "").lower().strip()) if p]
+    if not parts:
+        return re.compile(r"(?!)")          # 空关键词：永不匹配
+    body = r"[\s\-_]+".join(re.escape(p) for p in parts)
+    return re.compile(r"(?<![a-z0-9])" + body + r"(?![a-z0-9])")
 
 
 def load_profile():

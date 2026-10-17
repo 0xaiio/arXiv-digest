@@ -71,16 +71,25 @@ def _looks_like_org(s):
     """严格判定：必须命中机构关键词。宽松的「词首大写」启发式会造成大量误报。"""
     if not s or len(s) < 5 or len(s) > 160:
         return False
-    if s.isdigit() or PERSON_LIKE_RX.match(s) or CITY_STATE_RX.search(s):
+    if s.isdigit() or PERSON_LIKE_RX.match(s):
+        return False
+    if CITY_STATE_RX.search(s) and not ORG_RX.search(s):
         return False
     return bool(ORG_RX.search(s))
 
 
 def _acceptable_affil(s):
-    """ltx_affiliation 节点里的内容是作者明文标注的单位，可信度高，只做基本清洗。"""
+    """ltx_affiliation 节点里的内容是作者明文标注的单位，可信度高，只做基本清洗。
+
+    「城市+两位代码」的判定必须让位给机构关键词：`CITY_STATE_RX` 无法区分
+    美国州缩写与英国/中国等国家代码（"Manchester, UK"、"Shanghai, CN" 都命中），
+    早先无条件下这一刀，把整批英国单位判成城市丢弃（真实漏检）。
+    """
     if not s or len(s) < 3 or len(s) > 160:
         return False
-    if s.isdigit() or PERSON_LIKE_RX.match(s) or CITY_STATE_RX.search(s):
+    if s.isdigit() or PERSON_LIKE_RX.match(s):
+        return False
+    if CITY_STATE_RX.search(s) and not ORG_RX.search(s):
         return False
     return True
 

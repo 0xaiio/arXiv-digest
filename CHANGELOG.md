@@ -9,6 +9,38 @@
 
 ## [未发布]
 
+### 新增
+
+- **pytest 测试套件**：305 个用例分四层——`tests/unit`（234）、`tests/integration`（63）、
+  `tests/e2e`（5）、浏览器层（3，Edge + CDP），行覆盖率 **87%**，门槛 85%（`.coveragerc`）；
+- `tests/conftest.py`：沙箱隔离（10 个模块的路径常量重定向到 `tmp_pytest/`）+ 数据工厂
+  （`make_paper` / `pool` / `seeded`）+ 真实 HTTP 客户端（`live_server` / `http`）；
+- `tests/unit/test_sandbox_isolation.py`：测试**自身**的回归——隔离断言 + 自动发现未登记的
+  `OUT = pu.OUT` 模块，防止再出现「测试写坏真实 output/」；
+- `requirements-dev.txt`（pytest / pytest-cov / websocket-client）、`pytest.ini`、`.coveragerc`。
+
+### 修复
+
+测试过程中发现并修掉的三处真实缺陷：
+
+- **多词关键词永不命中**（`recommend._rx`）：链式 `replace` 把 `[\s\-]` 里的 `\-` 再改一遍，
+  产出的字符类变成 `[\\s[\\s\\-]?]`（`?` 字面化、`]` 提前闭合），`isolation level` 这类
+  短语一次都匹配不上，表现为「分数普遍偏低」而不报错。改为按分隔符切词后拼装，并补回归；
+- **`short_id` 不认 `arXiv:` 前缀与空白**：`arXiv:2609.09742v2` 会原样留下前缀，
+  与库文件 key 对不上（接口文档却声称会归一化）。现在统一 strip + 去前缀 + 去版本；
+- **单位判定把国家代码当美国州**（`fetch_affil`）：`Manchester, UK` / `Shanghai, CN`
+  命中「城市, 两位代码」正则，整批英国/中国单位被丢弃。改为「有机构关键词时不按城市拒绝」；
+- `fetch_arxiv.main()` 对累积池里缺 `primary` 的老条目 `KeyError`，导致整轮抓取在 merge 后崩掉；
+- `customize._save_cfg_patch()` 用 `HERE/config.json` 而非 `paperutil.CONFIG_PATH` 写配置，
+  重定向后出现「读 A 写 B」。
+
+### 文档
+
+- 重写 [测试与回归](docs/contributing/testing.md)：分层表、覆盖范围（核心模块 / 关键流程 /
+  边界）、逐模块覆盖率、运行方式、沙箱三条硬性设计、断言约定、失败排查、「保持全绿」约定；
+- 新增 [tests/README.md](tests/README.md)（最短上手路径）；
+- README 的质量闸门改为「pytest 为主 + `tools/*_check.py` 为发布前黑盒验收」，补徽章与结构图。
+
 ---
 
 ## 2026-10-17

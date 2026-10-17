@@ -22,7 +22,8 @@
 | 视频渲染 | Node 18+、`npm ci`（在 `reel/` 内） | [视频与投稿](../guide/video-pipeline.md) |
 | 中文旁白 | `pip install edge-tts imageio-ffmpeg` | 同上 |
 | B 站投稿 | `biliup-rs` + 扫码登录得到的 cookie | 同上 |
-| 浏览器回归测试 | Microsoft Edge（用 CDP 无头驱动） | [测试与回归](../contributing/testing.md) |
+| 跑测试套件 | `pip install -r requirements-dev.txt`（pytest / pytest-cov / websocket-client） | [测试与回归](../contributing/testing.md) |
+| 浏览器层测试 | Microsoft Edge（用 CDP 无头驱动；缺失时自动跳过） | [测试与回归](../contributing/testing.md) |
 
 ## 二、获取代码
 

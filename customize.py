@@ -169,7 +169,10 @@ def category_label(cat):
 
 
 def _save_cfg_patch(patch):
-    p = os.path.join(HERE, "config.json")
+    # 必须走 paperutil.CONFIG_PATH：它是「配置文件在哪」的唯一真源。
+    # 早先这里写的是 os.path.join(HERE, "config.json")，与 load_config() 的读取路径
+    # 各算一遍，一旦有人重定向 CONFIG_PATH（测试、多实例）就会出现「读的是 A、写的是 B」。
+    p = pu.CONFIG_PATH
     cfg = _read_json(p, {})
     cfg.update(patch)
     _write_json(p, cfg)
