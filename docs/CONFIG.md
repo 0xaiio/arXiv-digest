@@ -72,7 +72,7 @@
 
 ### `people[]` / `signature_systems[]`
 
-- `people`：姓名列表，**大小写不敏感的整名匹配**（`"Hagit Attiya"` 命中作者列表即 +10）。
+- `people`：姓名列表，**大小写不敏感的整名匹配**（例如 `"Ada Lovelace"` 命中作者列表即 +10）。
 - `signature_systems`：系统/工具名，按词边界匹配标题或摘要，命中 +6。
 
 ### `negative`

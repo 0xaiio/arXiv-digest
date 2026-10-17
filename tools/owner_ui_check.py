@@ -12,7 +12,7 @@
   5. 全程无 JS 异常。
 
 安全边界：只增删「UI Test Owner」这一条临时数据，结束即清理；
-不会触碰真实的 owners（Constantin Enea 等）。
+不会触碰真实的 owners（已有的画像主来源）。
 
 运行： python tools/owner_ui_check.py
 """

@@ -38,7 +38,7 @@ python server.py                                 # 重启服务，页面才会�
 
 ## 导入前必改的三件事
 
-1. **`download_dir`**：预设里是别人机器上的路径（例如 `D:/git-papers/arXiv`）。
+1. **`download_dir`**：预设里是别人机器上的路径（例如 `D:/papers`）。
    导入后到 `/profile` → 「下载目录」改成你自己的，或先编辑 `presets/<名字>/config.json`。
 2. **`categories`**：作者追的分类不等于你的方向。换成你自己每天要看的 2–6 个分类。
 3. **`interests.json` 会被整体替换**：你之前调好的主题关键词会没掉（`output/profile_state.json`
