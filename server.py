@@ -20,6 +20,8 @@
   POST /api/download_all     {ids:[...]}  批量下载（DL_WORKERS 路并发）
   POST /api/open             {id}  打开已下载的 PDF
   POST /api/open_folder      {dir?}  打开下载目录
+  POST /api/owner            {op:add|update|remove, name, label?, site?, affiliation?,
+                              interests?, signature_topics[], link_person?, orig?}  画像主来源
   POST /api/category         {op:add|remove, cat, name?}  增删 arXiv 类别
   POST /api/config           {download_dir}                指定下载目录
   POST /api/source           {op:add|remove, type, value, note?, sid?}  兴趣来源
@@ -529,6 +531,22 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json({"ok": True, "results": res,
                                    "n_ok": sum(1 for r in res if r["ok"]),
                                    "profile": profile_snapshot()})
+
+            if u.path == "/api/owner":
+                # 画像主来源（interests.json 的 owners）增 / 删 / 改
+                op = (body.get("op") or "").strip()
+                link = body.get("link_person") if "link_person" in body else None
+                with _lib_lock:
+                    if op == "add":
+                        ok, msg, info = CZ.add_owner(body, link_person=True if link is None else bool(link))
+                    elif op == "update":
+                        ok, msg, info = CZ.update_owner(body.get("orig") or "", body,
+                                                        link_person=link)
+                    elif op == "remove":
+                        ok, msg, info = CZ.remove_owner(body.get("name") or "")
+                    else:
+                        ok, msg, info = False, "未知操作 %s" % op, None
+                return self._json({"ok": ok, "msg": msg, "info": info, "state": CZ.view()})
 
             if u.path == "/api/category":
                 op = (body.get("op") or "add").strip()

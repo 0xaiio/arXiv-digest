@@ -3,6 +3,7 @@
  "owners": [
   {
    "name": "Hengfeng Wei (魏恒峰)",
+   "label": "hengxin.github.io",
    "site": "https://hengxin.github.io",
    "affiliation": "湖南大学 信息科学与工程学院（原南京大学软件研究所）",
    "interests": "Database Systems, Distributed Computing, Formal Methods",
@@ -11,10 +12,12 @@
     "弱一致性复制数据类型与 CRDT 的规约框架",
     "Jupiter 协同编辑协议、PaxosStore / TPaxos 协议的形式化推导与精化",
     "TLA+ 规约、运行时验证、PRAM / Pipeline-RAM 一致性验证"
-   ]
+   ],
+   "people_linked": false
   },
   {
    "name": "Alexey Gotsman",
+   "label": "Alexey Gotsman",
    "site": "https://software.imdea.org/~gotsman/",
    "affiliation": "IMDEA Software Institute / AWS",
    "interests": "software verification and distributed computing",
@@ -23,10 +26,12 @@
     "仲裁系统与不可靠信道下的容错计算",
     "原子提交、因果一致性与强一致性的融合（UniStore / Tempo）",
     "分离逻辑与并发程序验证、协同编辑的空间复杂度"
-   ]
+   ],
+   "people_linked": false
   },
   {
    "name": "Hagit Attiya",
+   "label": "Hagit Attiya",
    "site": "https://hagit.net.technion.ac.il/",
    "affiliation": "Technion — Israel Institute of Technology, Faculty of Computer Science",
    "interests": "Distributed and parallel computing: synchronization primitives, fault-tolerance, agreement problems, randomization, timing-based algorithms; transactional memory; performance analysis",
@@ -35,7 +40,22 @@
     "事务内存的规约与可组合性（opacity / TMS）、同步原语与仲裁（arbitration）",
     "分布式计算的不可能性与下界：集合协商、无色任务、heard-of 模型、消息传递与共享内存的等价分离",
     "时序与随机化算法、容错与故障检测器、分布式服务器性能分析"
-   ]
+   ],
+   "people_linked": false
+  },
+  {
+   "name": "Constantin Enea",
+   "label": "Constantin Enea",
+   "site": "https://www.irif.fr/~cenea/",
+   "affiliation": "École Polytechnique, LIX（原 Université Paris Cité / IRIF）",
+   "interests": "Formal verification and analysis for reliable software: programming abstractions for concurrent and distributed software",
+   "signature_topics": [
+    "弱隔离级别下的正确性测试与检查（MonkeyDB、按事务隔离级别做动态偏序归约 DPOR）",
+    "线性一致性与一致性判定的可判定性 / 复杂度：饱和归约到可达性、鲁棒性（robustness）检查",
+    "共识协议的抽象与验证：quorum tree 抽象、参数化验证、随机化 BFT 协议的模拟",
+    "CRDT 与弱一致性规约的逻辑刻画、一致性问题复杂度"
+   ],
+   "people_linked": true
   }
  ],
  "topics": [
@@ -596,7 +616,6 @@
   "Zijing Yin",
   "Tiancheng Xing",
   "Hexu Li",
-  "Constantin Enea",
   "Armando Castaneda",
   "Armando Castañeda",
   "Rotem Oshman",
@@ -615,7 +634,8 @@
   "Panagiota Fatourou",
   "Sergio Rajsbaum",
   "Michel Raynal",
-  "Andreia Mordido"
+  "Andreia Mordido",
+  "Constantin Enea"
  ],
  "signature_systems": [
   "UniStore",

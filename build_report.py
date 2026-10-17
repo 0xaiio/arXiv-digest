@@ -727,7 +727,7 @@ PAGE = """<!DOCTYPE html>
 <div class="stats">%(stats)s</div>
 
 <div class="rec-box" id="sec-rec">
-<div class="rec-h">🎯 为你推荐<span class="cnt">基于 hengxin.github.io × Alexey Gotsman × Hagit Attiya 的兴趣画像</span></div>
+<div class="rec-h">🎯 为你推荐<span class="cnt">基于 %(srclabels)s 的兴趣画像</span></div>
 <p class="rec-sub">画像主线：数据库事务与隔离级别 · 一致性模型与规约 · 共识与复制协议 · CRDT 与复制数据类型 ·
 共享内存并发与线性一致性 · 形式化验证与定理证明 · 分布式系统测试与黑盒检查。
 「Abstract」就地展开原文摘要；「下载」按 <code>arXiv&lt;年&gt; &lt;arXiv号&gt; &lt;去标点标题&gt;.pdf</code>
@@ -849,8 +849,25 @@ def build_html(d, groups, by_sid, recs, exps, themes, idx):
         "topexp": int(cfg.get("top_expand", 10)),
         "themes": th, "secs": secs, "win": d.get("window_days", 3),
         "excats": excats, "rail": rail,
+        "srclabels": esc(_source_labels()),
         "pdata": jssafe(json.dumps(pdata, ensure_ascii=False)),
     }
+
+
+def _source_labels():
+    """摘要页头部「基于 A × B × C 的兴趣画像」里的 A/B/C。
+
+    取自 interests.json 的 owners（画像主来源，可在 /profile 增删改）：
+    优先用 label（简称），否则用姓名。改完 owner 后「↻ 重算推荐」即同步。
+    """
+    try:
+        import customize as CZ
+        ow = CZ.owners()
+    except Exception:  # noqa
+        ow = []
+    labs = [((o.get("label") or "").strip() or (o.get("name") or "").strip()) for o in ow]
+    labs = [x for x in labs if x]
+    return " × ".join(labs) if labs else "（尚未设置画像主来源）"
 
 
 def build_pool_list(idx, chosen, pool, size):
@@ -1072,6 +1089,20 @@ PROFILE_PAGE = """<!DOCTYPE html>
 .owner .aff{font-size:12.2px;color:var(--tx2);margin-bottom:6px}
 .owner ul{margin:6px 0 0;padding-left:18px;font-size:12.6px;color:var(--tx2);line-height:1.7}
 .owner a{font-size:12px;color:var(--ac);text-decoration:none;word-break:break-all}
+.ow-top{display:flex;align-items:flex-start;gap:8px}
+.ow-top h4{flex:1;min-width:0}
+.ow-act{display:flex;gap:6px;flex-shrink:0}
+.ow-tag{font-size:11.5px;color:var(--exp);background:#eaf7f0;border-radius:5px;
+ padding:2px 7px;display:inline-block;margin-top:8px}
+.own-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;
+ align-items:start;margin-bottom:14px;padding:12px 14px;border:1px dashed var(--bd);border-radius:10px;background:#fcfdfe}
+.own-form input,.own-form textarea{border:1px solid var(--bd);border-radius:8px;padding:7px 11px;
+ font-size:13.2px;font-family:inherit;color:var(--tx);background:#fff;width:100%%;box-sizing:border-box}
+.own-form textarea{grid-column:1/-1;resize:vertical;line-height:1.6}
+.own-form .chk{grid-column:1/-1;font-size:12.8px;color:var(--tx2);display:flex;align-items:center;gap:6px}
+.own-form .chk input{width:auto}
+.own-form .tb{align-self:center}
+.own-form.editing{border-color:var(--ac);background:#f7faff}
 .themes{display:flex;flex-direction:column;gap:7px}
 .theme-row{display:grid;grid-template-columns:minmax(112px,196px) 1fr 58px;gap:10px;align-items:center}
 .theme-name{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -1131,8 +1162,23 @@ PROFILE_PAGE = """<!DOCTYPE html>
 
 <h2 class="sec-h">🎛 兴趣画像</h2>
 <div class="panel">
-<div class="p-h">画像主来源</div>
-<div class="owners">%(owners)s</div>
+<div class="p-h">画像主来源<span class="p-hint">摘要页头部「基于 … 的兴趣画像」就取自这里</span></div>
+<p class="p-note">下面几位是画像的主来源（本人 + 对标研究者），可<b>新增 / 编辑 / 删除</b>。
+「简称」用于摘要页头部那行文案（留空则显示姓名）；勾选<b>计入熟悉研究者</b>后，
+该作者出现在论文作者列表里即 <b>+10 分／篇</b>，删除该来源会同时撤销这条加成。
+改动后点工具栏 <b>↻ 重算推荐</b>，摘要页的文案与排序即刻同步。</p>
+<div class="form own-form" id="own-form">
+<input id="own-name" placeholder="姓名（必填，如 Constantin Enea）">
+<input id="own-label" placeholder="简称（可选，头部显示）">
+<input id="own-site" placeholder="主页 https://…（可选）">
+<input id="own-affil" placeholder="所属机构（可选）">
+<input id="own-interests" placeholder="研究兴趣一句话（可选）">
+<textarea id="own-topics" rows="2" placeholder="代表方向（每行一条，可选）"></textarea>
+<label class="chk"><input type="checkbox" id="own-link" checked> 计入熟悉研究者（+10/篇）</label>
+<button class="tb primary" id="own-save">+ 添加画像来源</button>
+<button class="tb" id="own-cancel" style="display:none">取消编辑</button>
+</div>
+<div class="owners" id="owners">%(owners)s</div>
 <div class="p-h">主题权重<span class="p-hint">权重 = 种子权重 × 行为学习倍率；收藏 / 下载 / Downvote 会实时改变倍率</span></div>
 <div class="themes" id="themes"></div>
 <div class="p-h">熟悉研究者<span class="p-hint">姓名出现在作者列表里即 +10 分／篇；由下方「兴趣来源」自动扩充</span></div>
@@ -1227,6 +1273,59 @@ function renderSources(list){
    +(s.error?'<div class="si-err">⚠ '+esc2(s.error)+'</div>':'')
    +(ch?'<div class="si-chips">'+ch+'</div>':'')
    +'</div><button class="btn-x" data-del-src="'+esc2(s.sid)+'">删除</button></div>';}).join('');}
+/* ---- 画像主来源（interests.json 的 owners）：新增 / 编辑 / 删除 ----
+   表单是「新增」与「编辑」共用的：点卡片上的「编辑」把该条填进表单，
+   按钮变成「保存修改」，提交时带 orig=原姓名，服务端按原名定位后整条覆盖（允许改名）。 */
+var OWNS=[],EDITING=null;
+function ownerCard(o){
+ var ch=(o.signature_topics||[]).slice(0,4).map(function(s){return '<li>'+esc2(s)+'</li>';}).join('');
+ return '<div class="owner" data-owner="'+esc2(o.name)+'">'
+  +'<div class="ow-top"><h4>'+esc2(o.name)+'</h4><span class="ow-act">'
+  +'<button class="btn-x" data-edit-owner="'+esc2(o.name)+'">编辑</button>'
+  +'<button class="btn-x" data-del-owner="'+esc2(o.name)+'">删除</button></span></div>'
+  +(o.affiliation?'<div class="aff">'+esc2(o.affiliation)+'</div>':'')
+  +(o.site?'<a href="'+esc2(o.site)+'" target="_blank" rel="noopener">'+esc2(o.site)+'</a>':'')
+  +(o.interests?'<div class="date">'+esc2(o.interests)+'</div>':'')
+  +(ch?'<ul>'+ch+'</ul>':'')
+  +(o.people_linked?'<span class="ow-tag">已计入熟悉研究者（+10/篇）</span>':'')
+  +'</div>';}
+function renderOwners(){
+ var el=document.getElementById('owners');if(!el)return;
+ el.innerHTML=(OWNS||[]).map(ownerCard).join('')
+  ||'<div class="p-empty">还没有画像主来源，请在上方添加。</div>';}
+function ownForm(d){d=d||{};
+ var set=function(id,v){var e=document.getElementById(id);if(e)e.value=v==null?'':v;};
+ set('own-name',d.name);set('own-label',d.label);set('own-site',d.site);
+ set('own-affil',d.affiliation);set('own-interests',d.interests);
+ set('own-topics',(d.signature_topics||[]).join('\\n'));
+ var lk=document.getElementById('own-link');if(lk)lk.checked=(d.people_linked!==false);
+ var f=document.getElementById('own-form');if(f)f.classList.toggle('editing',!!EDITING);
+ var sv=document.getElementById('own-save');if(sv)sv.textContent=EDITING?'保存修改':'+ 添加画像来源';
+ var cc=document.getElementById('own-cancel');if(cc)cc.style.display=EDITING?'':'none';}
+function ownPayload(){
+ var g=function(id){var e=document.getElementById(id);return e?e.value.trim():'';};
+ var lk=document.getElementById('own-link');
+ return {name:g('own-name'),label:g('own-label'),site:g('own-site'),
+  affiliation:g('own-affil'),interests:g('own-interests'),
+  signature_topics:g('own-topics').split('\\n'),
+  link_person:lk?!!lk.checked:true};}
+function ownSubmit(btn){
+ var p=ownPayload();
+ if(!p.name){toast('姓名不能为空','err');return;}
+ var body=EDITING?Object.assign({},p,{op:'update',orig:EDITING})
+                  :Object.assign({},p,{op:'add'});
+ var lbl=EDITING?'保存修改':'+ 添加画像来源';
+ busy(btn,true,'保存中…');
+ api('/api/owner',body).then(function(r){
+  busy(btn,false,lbl);toast(r.msg||'',r.ok?'ok':'err');
+  if(r.ok){EDITING=null;ownForm({people_linked:true});apply(r.state);}});}
+function startEditOwner(name){
+ var o=(OWNS||[]).filter(function(x){return x.name===name;})[0];
+ if(!o)return;
+ EDITING=name;ownForm(o);
+ var f=document.getElementById('own-form');
+ if(f&&f.scrollIntoView)f.scrollIntoView({behavior:'smooth',block:'center'});
+ var n=document.getElementById('own-name');if(n)n.focus();}
 function renderCats(cats,names){
  document.getElementById('cat-list').innerHTML=
   (cats||[]).map(function(c){
@@ -1237,6 +1336,8 @@ function renderCats(cats,names){
 function apply(d){if(!d)return;
  var p=d.profile||{};
  BLOCKED={};((d.blocked_keywords)||[]).forEach(function(k){BLOCKED[String(k).toLowerCase()]=1;});
+ OWNS=p.owners||[];
+ renderOwners();
  renderThemes(p.themes||[]);
  renderChips('people',p.people,'au');
  renderChips('systems',p.systems);
@@ -1264,6 +1365,11 @@ document.addEventListener('DOMContentLoaded',function(){
   api('/api/source',{op:'add',type:t,value:v,note:n}).then(function(r){
    busy(sa,false,'+ 添加');toast(r.msg||'',r.ok?'ok':'err');
    if(r.ok){document.getElementById('src-value').value='';document.getElementById('src-note').value='';apply(r.state);}});});
+
+ var os=document.getElementById('own-save');
+ if(os)os.addEventListener('click',function(){ownSubmit(os);});
+ var oc=document.getElementById('own-cancel');
+ if(oc)oc.addEventListener('click',function(){EDITING=null;ownForm({people_linked:true});});
 
  var ca=document.getElementById('cat-add');
  if(ca)ca.addEventListener('click',function(){
@@ -1297,6 +1403,15 @@ document.addEventListener('DOMContentLoaded',function(){
   .catch(function(){toast('本地服务未运行：无法读取画像与设置','err');});
 });
 document.addEventListener('click',function(ev){
+ var eo=ev.target.closest('[data-edit-owner]');
+ if(eo){startEditOwner(eo.dataset.editOwner);return;}
+ var dob=ev.target.closest('[data-del-owner]');
+ if(dob){var nm=dob.dataset.delOwner;
+  if(!window.confirm('删除画像主来源「'+nm+'」？该条目及其熟悉研究者加成会一并撤销。'))return;
+  dob.disabled=true;
+  api('/api/owner',{op:'remove',name:nm}).then(function(r){
+   dob.disabled=false;toast(r.msg||'',r.ok?'ok':'err');
+   if(r.ok){if(EDITING===nm){EDITING=null;ownForm({people_linked:true});}apply(r.state);}});return;}
  var k=ev.target.closest('.tp.kw');
  if(k){var kw=k.dataset.kw,off=!!BLOCKED[kw.toLowerCase()];
   api('/api/source',{op:off?'unblock':'block',kw:kw}).then(function(r){
@@ -1317,18 +1432,29 @@ document.addEventListener('click',function(ev){
 
 
 def _owner_cards(prof):
+    """画像主来源卡片（服务端首屏渲染；改动用前端 renderOwners 重画，两者结构保持一致）。"""
     out = []
     for o in prof.get("owners") or []:
+        name = o.get("name", "")
         sig = "".join("<li>%s</li>" % esc(s) for s in (o.get("signature_topics") or [])[:4])
-        site = o.get("site") or ""
+        site = (o.get("site") or "").strip()
         link = ('<a href="%s" target="_blank" rel="noopener">%s</a>' % (esc(site), esc(site))
                 if site else "")
+        aff = ('<div class="aff">%s</div>' % esc(o.get("affiliation", ""))
+               if o.get("affiliation") else "")
+        itr = ('<div class="date">%s</div>' % esc(o.get("interests", ""))
+               if o.get("interests") else "")
+        tag = ('<span class="ow-tag">已计入熟悉研究者（+10/篇）</span>'
+               if o.get("people_linked") else "")
         out.append(
-            '<div class="owner"><h4>%s</h4><div class="aff">%s</div>%s'
-            '<div class="date">%s</div><ul>%s</ul></div>'
-            % (esc(o.get("name", "")), esc(o.get("affiliation", "")), link,
-               esc(o.get("interests", "")), sig))
-    return "".join(out) or '<div class="p-empty">interests.json 里没有 owners</div>'
+            '<div class="owner" data-owner="%s">'
+            '<div class="ow-top"><h4>%s</h4><span class="ow-act">'
+            '<button class="btn-x" data-edit-owner="%s">编辑</button>'
+            '<button class="btn-x" data-del-owner="%s">删除</button></span></div>'
+            '%s%s%s%s%s</div>'
+            % (esc(name), esc(name), esc(name), esc(name), aff, link, itr,
+               ("<ul>%s</ul>" % sig) if sig else "", tag))
+    return "".join(out) or '<div class="p-empty">还没有画像主来源，请在上方添加。</div>'
 
 
 def build_profile_page():

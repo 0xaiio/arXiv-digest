@@ -52,8 +52,9 @@ python .\server.py --no-open
 | `tools/dl_button_check.py` | **下载按钮回归**：真点一次下载按钮，断言 toast 与按钮态（只点已下载项，不写新文件） |
 | `tools/dv_unify_check.py` | **Downvote 一致性回归**：在三个模块各真点一次，断言 opacity / 删除线 / 不隐藏 / 不位移 / 可撤销三处一致 |
 | `tools/concurrency_check.py` | **并发回归**：桩化下载，断言「下载中另一篇 Downvote 不被阻塞」+ 批量并行 + 单篇仍串行 |
+| `tools/owner_ui_check.py` | **画像主来源回归**：在 `/profile` 真点「新增 → 编辑（含改名）→ 删除」，只用临时条目，结束即清理 |
 
-`customize.py` 是「类别 / 下载目录 / 兴趣来源」三个可定制项的唯一读写层，
+`customize.py` 是「类别 / 下载目录 / 兴趣来源 / 画像主来源（owners）」四个可定制项的唯一读写层，
 `profile.py` 维护行为驱动的动态画像（主题倍率与关键词权重）。
 
 ## 页面
@@ -66,6 +67,7 @@ python .\server.py --no-open
 | `/archive` | **历史存档总览**：按日期列出往期日报（日期 / 周几 / 新增 / 推荐 / 扩展） |
 | `/archive/<YYYYMMDD>` | 某一期的日报快照（当时那一版，交互按钮同样可用） |
 | `/api/archive/days` | 存档日期与统计（JSON） |
+| `POST /api/owner` | **画像主来源**增删改（`op=add/update/remove`） |
 | `/api/net_route` | **下载路由诊断**：当前选中的路由、候选数、上次失败摘要（下载报错时先看这里） |
 
 ## 交互：Downvote 语义与动作并发
@@ -135,11 +137,36 @@ python tools/dv_unify_check.py      # 三处 opacity 与删除线取值相同、
 - 主题归纳（`themes.json`）属编辑性内容：引用了往期论文的主题不再出现在当期页面，
   避免旧编号与失效锚点（往期副本留 `output/archive/<日期>.themes.json`）。
 
+## 画像主来源（`/profile` 可增删改）
+
+「画像主来源」= `interests.json` 的 `owners`：画像页顶部那几张卡片，同时决定摘要页顶部
+「基于 A × B × C 的兴趣画像」这行文案。此前只能手改 JSON，现在可在 `/profile` 里
+**新增 / 编辑 / 删除**（`POST /api/owner`，`op=add|update|remove`）。
+
+| 字段 | 说明 |
+| --- | --- |
+| `name` | 姓名，唯一键；改名用 `update` + `orig`（原姓名）定位 |
+| `label` | 摘要页头部显示的简称；留空回退到 `name` |
+| `site` / `affiliation` | 主页与机构，卡片展示 |
+| `interests` / `signature_topics` | 研究兴趣一句话 + 代表方向（每行一条，卡片列前 4 条） |
+| `people_linked` | 是否同步计入「熟悉研究者」（该作者出现在论文作者里即 +10 分/篇） |
+
+- 校验：姓名必填、不可重名；`site` 必须 `http(s)://` 开头；**至少保留一条** owner。
+- 写回时只动 `owners` / `people` 两个键，`interests.json` 其余内容与键序原样保留。
+- 删除 owner 时，若它是 `people_linked` 加进 `people` 的，会把该名字一并撤掉
+  （不会误删你手写的熟悉研究者）；改名同理替换。
+- 改动后点工具栏 **↻ 重算推荐**（= `recommend.py` + `build_report.py`）：摘要页头部文案
+  由 `_source_labels()` 在渲染期生成，作者加成也在 `recommend.py` 里重算。
+- 端到端实测（2026-10-17）：用 Constantin Enea 走完「新增 → 改名/改单位 + 取消联动 →
+  删除 → 再添加」全链路（HTTP 与页面真实点击双重验证），最终保留该条
+  （`label = Constantin Enea`，`people_linked = true`）。
+
 ## 配置与数据
 
 - `config.json` — 类别、时间窗、推荐条数、端口、PDF 下载目录。
   下载目录当前为 `D:\git-papers\arXiv`（**带 s**，1700+ 篇既有文库，写入只增量、同名跳过，绝不覆盖或删除）。
-- `interests.json` — 静态兴趣画像（主题 / 熟悉研究者 / 代表系统 / 负向词 / 学习超参）。
+- `interests.json` — 静态兴趣画像（主题 / 熟悉研究者 / 代表系统 / 负向词 / 学习超参），
+  以及**画像主来源** `owners`（在 `/profile` 页增删改，写入走 `POST /api/owner`）。
 - `output/` — 运行产物（抓取结果、评分、日报、收藏记录、行为画像）。**不入库**。
   - `output/archive.db` — 归档库（SQLite，stdlib）；`output/archive/` — 每期日报快照。**只增不改**。
 - `.workbuddy/memory/` — WorkBuddy 工作区记忆（含定时任务执行记录）。**不入库**。
@@ -147,6 +174,8 @@ python tools/dv_unify_check.py      # 三处 opacity 与删除线取值相同、
 ## 维护要点
 
 - 编辑性内容（中文摘要、推荐理由）外置在 `output/*.json`，**key 统一用 arXiv 短号**（如 `2609.09742`）。
+- `interests.json` 入库且是画像种子（含 `owners`）：批量改之前先备份；单条改动走 `/profile`
+  或 `POST /api/owner`，别手改 `people` 与 `owners` 的对应关系（联动标记在 `people_linked`）。
 - 抓取失败时 `run_daily.py` 会保留上一期 feed 而不覆盖；坏输出另存 `*.bad_<时间戳>`。
 - 改动 `server.py` / `build_report.py` 后必须重启服务进程，否则跑的还是旧代码。
 - `server.py` 的并发约定：**任何网络 IO 都不得在 `_lib_lock` 内进行**（否则下载会串行化整个页面）；

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """用户可定制项的统一读写层（被 build_report / server / profile / recommend 共用）。
 
-三类定制
+四类定制
   1) arXiv 类别   -> config.json 的 categories + category_names
   2) 下载目录     -> config.json 的 download_dir
   3) 兴趣来源     -> output/interests_extra.json
@@ -13,6 +13,9 @@
        人名 -> 追加到 people（命中 +10 分/人）
        实词 -> 追加到自定义主题 "我的来源关注" 的 keywords
      解析结果逐条可查、可删；删除来源即撤销其增量。
+  4) 画像主来源   -> interests.json 的 owners（增 / 删 / 改）
+      摘要页头部「基于 A × B × C 的兴趣画像」即取自 owners 的 label/name；
+      可选择把 owner 计入 people（熟悉研究者 +10 分/篇）。
 
 顺序不变式（重要）
   recommend.py 的 topics 顺序、profile.seed_weights() 的顺序、
@@ -571,6 +574,143 @@ def refresh_all():
     return True, "已重新解析 %d 个来源" % len(extra["sources"]), extra
 
 
+# ------------------------------------------------------------------ 画像主来源
+# 「画像主来源」= interests.json 的 owners：画像页顶部的几张卡片，
+# 也是摘要页顶部「基于 A × B × C 的兴趣画像」这行文案的来源。
+# 它此前只能手改 interests.json，这里补上增 / 删 / 改的统一入口。
+#
+# 与「熟悉研究者」(people) 的联动：owner 可选择同步进 people（命中 +10 分/篇）。
+# 打标 people_linked 记录该名字是「跟着 owner 加进来的」，删 owner / 取消勾选时
+# 才会把它撤掉，不会误删用户自己手写的熟悉研究者。
+
+OWNER_TEXT_FIELDS = ("name", "label", "site", "affiliation", "interests")
+
+
+def owners():
+    return list(load_interests().get("owners") or [])
+
+
+def _people_add(lst, name):
+    if not name:
+        return lst
+    low = {x.lower() for x in lst}
+    return lst if name.lower() in low else lst + [name]
+
+
+def _people_drop(lst, name):
+    return [x for x in lst if x.lower() != (name or "").strip().lower()]
+
+
+def _clean_owner(data):
+    o = {k: (data.get(k) or "").strip() for k in OWNER_TEXT_FIELDS}
+    topics = data.get("signature_topics") or []
+    if isinstance(topics, str):
+        topics = topics.splitlines()
+    o["signature_topics"] = [s.strip(" \t-·•") for s in topics if s and s.strip()]
+    return o
+
+
+def _owner_check(o, owners, skip_name=""):
+    """校验一条 owner；返回错误串或 ""。"""
+    if not o["name"]:
+        return "姓名不能为空"
+    if o["site"] and not o["site"].lower().startswith(("http://", "https://")):
+        return "主页链接需以 http:// 或 https:// 开头"
+    for x in owners:
+        nm = (x.get("name") or "")
+        if nm.lower() == o["name"].lower() and nm.lower() != (skip_name or "").lower():
+            return "画像主来源已存在：%s" % o["name"]
+    return ""
+
+
+def _owner_save(prof):
+    _write_json(INTERESTS, prof)
+    return prof.get("owners") or []
+
+
+def add_owner(data, link_person=True):
+    o = _clean_owner(data)
+    prof = load_interests()
+    owners = list(prof.get("owners") or [])
+    err = _owner_check(o, owners)
+    if err:
+        return False, err, None
+    o["people_linked"] = bool(link_person)
+    owners.append(o)
+    prof["owners"] = owners
+    if o["people_linked"]:
+        prof["people"] = _people_add(list(prof.get("people") or []), o["name"])
+    _owner_save(prof)
+    return True, ("已添加画像主来源 %s。点工具栏「↻ 重算推荐」后，摘要页头部与作者加成同步更新。"
+                  % o["name"]), o
+
+
+def update_owner(orig, data, link_person=None):
+    """按原姓名 orig 定位并整条覆盖；允许改名。link_person=None 表示保持原联动状态。"""
+    orig = (orig or "").strip()
+    prof = load_interests()
+    owners = list(prof.get("owners") or [])
+    idx = next((i for i, x in enumerate(owners)
+                if (x.get("name") or "").lower() == orig.lower()), -1)
+    if idx < 0:
+        return False, "未找到画像主来源：%s" % (orig or "（空）"), None
+    old = owners[idx]
+    o = _clean_owner(data)
+    err = _owner_check(o, owners, skip_name=orig)
+    if err:
+        return False, err, None
+
+    prev_linked = bool(old.get("people_linked"))
+    new_linked = prev_linked if link_person is None else bool(link_person)
+    renamed = (old.get("name") or "").lower() != o["name"].lower()
+    people = list(prof.get("people") or [])
+    if prev_linked and (renamed or not new_linked):
+        people = _people_drop(people, old.get("name"))
+    if new_linked:
+        people = _people_add(people, o["name"])
+
+    o["people_linked"] = new_linked
+    owners[idx] = o
+    prof["owners"] = owners
+    prof["people"] = people
+    _owner_save(prof)
+    return True, "已更新画像主来源 %s%s。" % (
+        o["name"], "（原 %s）" % orig if renamed else ""), o
+
+
+def remove_owner(name):
+    name = (name or "").strip()
+    prof = load_interests()
+    owners = list(prof.get("owners") or [])
+    hit = next((x for x in owners if (x.get("name") or "").lower() == name.lower()), None)
+    if hit is None:
+        return False, "未找到画像主来源：%s" % (name or "（空）"), None
+    owners = [x for x in owners if x is not hit]
+    if not owners:
+        return False, "至少要保留一个画像主来源", None
+    prof["owners"] = owners
+    if hit.get("people_linked"):
+        prof["people"] = _people_drop(list(prof.get("people") or []), hit.get("name"))
+    _owner_save(prof)
+    return True, "已删除画像主来源 %s（其熟悉研究者加成同时撤销）。" % name, None
+
+
+def owners_view():
+    """画像页渲染用：只暴露前端要用的字段。"""
+    out = []
+    for o in owners():
+        out.append({
+            "name": o.get("name", ""),
+            "label": o.get("label", ""),
+            "site": o.get("site", ""),
+            "affiliation": o.get("affiliation", ""),
+            "interests": o.get("interests", ""),
+            "signature_topics": list(o.get("signature_topics") or []),
+            "people_linked": bool(o.get("people_linked")),
+        })
+    return out
+
+
 # ------------------------------------------------------------------ 画像合并
 
 def effective_topics(prof=None):
@@ -664,7 +804,7 @@ def profile_view():
         })
     neg = prof.get("negative") or {}
     return {
-        "owners": prof.get("owners") or [],
+        "owners": owners_view(),
         "themes": themes,
         "people": effective_people(prof),
         "systems": effective_systems(prof),
