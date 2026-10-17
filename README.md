@@ -2,7 +2,7 @@
 
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![Runtime deps](https://img.shields.io/badge/runtime-stdlib--only-brightgreen)](#环境与依赖)
-[![Docs](https://img.shields.io/badge/docs-22%20pages-informational)](docs/README.md)
+[![Docs](https://img.shields.io/badge/docs-22%20pages-informational)](docs/documentation.md)
 [![Tests](https://img.shields.io/badge/tests-551%20passed-success)](docs/contributing/testing.md)
 [![Coverage](https://img.shields.io/badge/coverage-89%25-brightgreen)](docs/contributing/testing.md#三覆盖率)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
@@ -84,7 +84,7 @@ Windows 可双击 `start_digest.bat`（自动找 Python，端口读 `config.json
 
 ## 文档索引
 
-完整导航（按角色 / 按用途）见 **[文档中心](docs/README.md)**。下面按类别列出全部文档。
+完整导航（按角色 / 按用途）见 **[文档中心](docs/documentation.md)**。下面按类别列出全部文档。
 
 ### 教程：从零跑起来
 

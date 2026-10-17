@@ -12,7 +12,7 @@
 | 报告 bug | [故障排查](docs/operations/troubleshooting.md)（很多问题在那里已有结论） |
 | 提功能建议 | [FAQ](docs/meta/faq.md)（先看是否已有明确取舍） |
 | 改代码 | [开发指南](docs/contributing/development.md) |
-| 写文档 | [文档中心](docs/README.md) 的"贡献文档"一节 |
+| 写文档 | [文档中心](docs/documentation.md) 的"贡献文档"一节 |
 
 ## 二、报告问题
 
@@ -46,7 +46,7 @@ git push -u origin feat/short-description
 | --- | --- |
 | **一个 PR 一件事** | 修 bug 与重构请分开，便于审查与回滚 |
 | **必须跑对应回归** | 动了并发跑 `concurrency_check`；动了页面跑 `dv_unify_check` / `ui_file_check`；动了 `/profile` 跑 `owner_ui_check` |
-| **同步文档** | 改接口 / 字段 / 命令 / 语义，必须一起改对应参考页并把新文档登记进 [docs/README](docs/README.md) 与 [README](README.md) |
+| **同步文档** | 改接口 / 字段 / 命令 / 语义，必须一起改对应参考页并把新文档登记进 [docs/documentation](docs/documentation.md) 与 [README](README.md) |
 | **不新增运行期依赖** | 主流程只用标准库；确实需要时先在 issue 里讨论 |
 | **注释写"为什么"** | 项目里的注释主要用于记录踩过的坑，复述代码的注释会被要求删除 |
 | **面向用户的文案用中文** | 错误信息、toast、按钮文字保持中文且说人话 |
@@ -83,7 +83,7 @@ chore:    构建 / 忽略规则 / 脚本
 
 - 一个主题一个文件，放在 `docs/<类别>/`，不要平铺在 `docs/` 根下；
 - 文档内链接一律用**相对路径**，保证本地可跳转；
-- 新文档必须被 [文档中心](docs/README.md) 与 [README](README.md) 的索引收录；
+- 新文档必须被 [文档中心](docs/documentation.md) 与 [README](README.md) 的索引收录；
 - 示例中不要出现真实人名、真实本机路径——用中性占位（`Ada Lovelace`、`./papers`）。
 
 ## 六、许可
