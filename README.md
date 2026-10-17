@@ -1,152 +1,212 @@
 # arXiv-digest
 
-把 arXiv 的每日新论文，按**你自己的研究画像**排序，生成一个可交互的本地日报：
-收藏、下载 PDF、就地展开摘要、Downvote 反馈，全部离线可用，点一次就当场学会你的口味。
+[![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
+[![Runtime deps](https://img.shields.io/badge/runtime-stdlib--only-brightgreen)](#环境与依赖)
+[![Docs](https://img.shields.io/badge/docs-22%20pages-informational)](docs/README.md)
+[![Status](https://img.shields.io/badge/status-active-success)](#项目状态)
 
-> 默认初始化是**干净的**：clone 下来不会带上任何人的研究兴趣、分类偏好或本机路径。
-> 作者本人那套完整设置作为**可选预设**放在 `presets/hengxin/`，需要时一条命令导入。
+把 arXiv 的每日新论文按**你自己的研究画像**排序，生成一份可交互的本地日报：
+收藏、下载 PDF、就地展开摘要、Downvote 反馈——全部离线可用，点一次就当场学会你的口味。
 
-```
-run_daily.py   →  抓取 → 推荐 → 抓作者单位 → 渲染日报 → 起本地服务
-                     ↓
-              http://127.0.0.1:8765/   今日推荐 + 兴趣扩展 + 分类详解
+> **默认初始化是干净的**：clone 下来不带任何人的研究兴趣、分类偏好或本机路径。
+> 想看一份调了半年的真实画像，用 `python tools/preset.py import hengxin` 按需导入。
+
+```text
+抓取 arXiv  →  打分排序  →  渲染单文件 HTML  →  本地服务提供交互
+             (画像 + 行为学习)                    (收藏 / 下载 / 反馈 → 改写画像)
 ```
 
 ---
 
-## 1. 它适合谁
+## 目录
 
-| 你的情况 | 怎么用 |
+- [特性](#特性)
+- [快速开始](#快速开始)
+- [界面一览](#界面一览)
+- [文档索引](#文档索引)
+- [项目结构](#项目结构)
+- [配置与个人数据](#配置与个人数据)
+- [质量闸门](#质量闸门)
+- [环境与依赖](#环境与依赖)
+- [贡献](#贡献)
+- [项目状态](#项目状态)
+
+## 特性
+
+| 特性 | 说明 |
 | --- | --- |
-| 盯 1–3 个方向的日常跟进（如 PL / 形式化 / 系统 / DB） | 把 `categories` 设成这几个分类，`topics` 写 3–6 个主题关键词；每天扫一遍推荐列表即可 |
-| 想在主方向之外**顺带看看邻域**（避免信息茧房） | 主分类 + `expand_categories`：「兴趣扩展」区独立打分，不占你的推荐位 |
-| 跨领域（比如做 ML 但关心系统 / 理论） | 主分类放 ML、扩展分类放系统与理论，两个区各自成篇 |
-| 只想先看看长什么样 | `python tools/preset.py import hengxin` 导入作者的完整画像，跑一遍再改成自己的 |
+| **两层推荐** | 「🎯 为你推荐」（主分类，阈值 ≥7）与「🌱 兴趣扩展」（邻域分类，阈值 ≥9）互不重叠，前者求准、后者破茧 |
+| **只呈现本期新增** | SQLite `seen` 表判定首次出现期次，往期进 `/archive` 按日期回看，不会天天重播旧论文 |
+| **可解释的打分** | 主题命中 / 熟悉作者 / 代表系统 / 降权词 / 关键词权重逐项可拆，公式与算例见[排序算法](docs/architecture/ranking.md) |
+| **会学习的画像** | 收藏 +1.0、下载 +1.3、展开摘要 +0.3、Downvote 单篇 -12；主题倍率与关键词权重实时更新 |
+| **交互零等待** | 乐观更新 + 30ms 合并重排；下载期间其它论文的 Downvote / 收藏照常响应（[并发实测](docs/architecture/server-runtime.md)） |
+| **离线单文件 HTML** | 内联 CSS/JS、无 CDN、无构建步骤；`file://` 双击也能读，服务在跑时还能交互 |
+| **零运行期依赖** | 只用 Python 标准库，`clone` 即跑，不需要 `pip install` |
+| **可选视频链路** | Remotion 代码渲染 + Edge TTS 中文旁白 + A/V 质量闸门 + B 站投稿（[指南](docs/guide/video-pipeline.md)） |
+| **可导入的预设** | 一整套 `config.json` + `interests.json`，一条命令搬过来，分享前有隐私检查清单 |
 
-不依赖任何云服务：抓取走 arXiv 官方 API（限流时自动降级 RSS），打分与页面全在本地。
-
-## 2. 五分钟上手
+## 快速开始
 
 ```bash
 git clone git@github.com:0xaiio/arXiv-digest.git
 cd arXiv-digest
-
-python run_daily.py            # 首次运行会自动生成 config.json / interests.json（干净模板）
+python run_daily.py          # 首次运行自动生成干净的 config.json / interests.json
 ```
 
-跑完浏览器会自动打开 `http://127.0.0.1:8765/`。之后：
+跑完浏览器会打开 `http://127.0.0.1:8765/`。之后：
 
 ```bash
-python run_daily.py --skip-fetch --skip-affil   # 复用已抓数据，只重算推荐 + 重渲染（秒级）
-python server.py                                 # 只起服务（不重新抓取）
+python run_daily.py --skip-fetch --skip-affil   # 改完画像/模板，秒级重算重渲染
+python server.py                                 # 只起服务，不重新抓取
 ```
 
-Windows 上也可以双击 `start_digest.bat`（自动找 `python`，端口读 `config.json`）。
+Windows 可双击 `start_digest.bat`（自动找 Python，端口读 `config.json`）。
 
-> 需要 Python 3.9+，**运行期只用标准库**，不需要 `pip install`。
-> 视频链路（可选）另需 Node 与 `edge-tts`，见 `docs/ARCHITECTURE.md`。
+**下一步**：跟着 [快速开始](docs/getting-started/quickstart.md) 走一遍 10 分钟的完整闭环，
+或者先看 [安装](docs/getting-started/installation.md) 弄清初始化到底生成了什么。
 
-## 3. 目录结构
+## 界面一览
 
-```
+| 区域 | 内容 | 数量（默认） |
+| --- | --- | --- |
+| 🎯 为你推荐 | 主分类里本期最相关的论文，带评分、命中主题、推荐理由 | 14 |
+| 🌱 兴趣扩展 | 主分类之外、与你画像相邻的论文，独立打分 | 10 |
+| 📖 分类详解 | 本期全部新增论文，按分类与日期排列 | 全部 |
+| 工具栏 | 已收藏 / 已下载 / 已 Downvote 筛选与搜索（作用于「分类详解」）、批量下载、重算推荐、往期回看 | — |
+| `/favorites` | 收藏清单，可一键导出 `favorites.md` | — |
+| `/profile` | 类别、下载目录、兴趣来源、画像主来源、主题权重 | — |
+| `/archive` | 每期快照，按日期回看 | — |
+
+## 文档索引
+
+完整导航（按角色 / 按用途）见 **[文档中心](docs/README.md)**。下面按类别列出全部文档。
+
+### 教程：从零跑起来
+
+| 文档 | 内容 |
+| --- | --- |
+| [安装](docs/getting-started/installation.md) | 环境要求、克隆、首次初始化生成了什么、如何验证、卸载与重置 |
+| [快速开始](docs/getting-started/quickstart.md) | 10 分钟闭环：跑流水线 → 读日报 → 交互 → 改画像 → 看效果 |
+
+### 指南：按任务查
+
+| 文档 | 解决的问题 |
+| --- | --- |
+| [日常使用](docs/guide/daily-workflow.md) | 三个板块怎么读、工具栏、五个按钮各自触发什么、收藏导出、往期回看、离线使用 |
+| [调优画像](docs/guide/profile-tuning.md) | 推荐不准怎么调：起步配置、主题与降权词、兴趣来源、行为强度、画像漂移修复 |
+| [预设](docs/guide/presets.md) | `tools/preset.py` 的 list / import / export，导入前必改项，分享前隐私检查 |
+| [视频与投稿](docs/guide/video-pipeline.md) | 选片 → 口播稿 → TTS → Remotion 渲染 → A/V 闸门 → B 站投稿 → 归入合集 |
+
+### 参考：精确取值
+
+| 文档 | 覆盖范围 |
+| --- | --- |
+| [命令行](docs/reference/cli.md) | 所有入口脚本与 `tools/` 脚本的参数、默认值、产物、调度示例 |
+| [HTTP API](docs/reference/http-api.md) | 页面路由 + 全部 JSON 接口，含请求体、响应字段、错误约定、调用示例 |
+| [config.json](docs/reference/config.md) | 抓取、显示、端口等 13 个字段的默认值与影响范围 |
+| [interests.json](docs/reference/interests.md) | 画像结构：主来源、主题、熟悉作者、代表系统、降权词、行为超参 |
+| [数据文件](docs/reference/data-files.md) | `output/` 每个文件的用途与结构、`archive.db` 三张表、`library.json` 字段 |
+
+### 概念：实现与取舍
+
+| 文档 | 讲什么 |
+| --- | --- |
+| [架构总览](docs/architecture/overview.md) | 六阶段流水线、三层降级、本期新增判定、分层与依赖方向、扩展点 |
+| [模块职责](docs/architecture/modules.md) | 13 个模块的职责、依赖图、关键函数、"我要改什么"定位表 |
+| [排序与学习算法](docs/architecture/ranking.md) | 打分公式逐项拆解、数值算例、阈值与兜底、行为更新式、负向学习故障复盘 |
+| [服务运行时](docs/architecture/server-runtime.md) | 两级锁、论文索引缓存、静态页 vs 动态页、CORS 与 `file://`、下载选路 |
+
+### 开发与运维
+
+| 文档 | 用途 |
+| --- | --- |
+| [开发指南](docs/contributing/development.md) | 代码约定、改完什么必须重启、调试手法、提交前检查清单、加功能的推荐路径 |
+| [测试与回归](docs/contributing/testing.md) | 5 个回归脚本各断言什么、怎么跑、结果怎么读、如何新增 |
+| [故障排查](docs/operations/troubleshooting.md) | 服务 / 抓取 / 推荐 / 下载 / 归档 / 摘要 / 视频 / 投稿 的"症状→诊断→修复" |
+
+### 元信息
+
+| 文档 | 用途 |
+| --- | --- |
+| [目录职责](docs/meta/structure.md) | 每个目录与顶层文件为什么在那里，以及为什么没有引入 `src/` 布局 |
+| [FAQ](docs/meta/faq.md) | 概念型问题：定位、隐私、设计取舍、使用建议 |
+| [术语表](docs/meta/glossary.md) | 本期新增、种子权重、学习倍率、短号、选路等术语的准确定义 |
+| [贡献指南](CONTRIBUTING.md) | 提交 issue / PR 的流程与要求（根级文件，GitHub 自动识别） |
+| [变更记录](CHANGELOG.md) | 按日期的功能与修复记录 |
+
+## 项目结构
+
+```text
 arXiv-digest/
-├─ run_daily.py            # 一键流水线（抓取 → 推荐 → 单位 → 渲染 → 起服务）
-├─ fetch_arxiv.py          # 主分类抓取（config.categories）
-├─ fetch_expand.py         # 兴趣扩展抓取（config.expand_categories）
-├─ fetch_rss.py            # 降级通道：API 限流时改抓分类 RSS，按短号增量合并
-├─ fetch_affil.py          # 从 arXiv HTML 解析作者单位（带跨日缓存）
-├─ recommend.py            # 打分与推荐（主题命中 / 熟悉作者 / 代表系统 / 负向词）
-├─ profile.py              # 行为画像：收藏 / 下载 / Downvote → 主题倍率与关键词权重
-├─ archive.py              # 归档层（SQLite）：判定「本期新增」、留档往期
-├─ build_report.py         # 渲染日报 HTML/MD、收藏页、/profile、/archive
-├─ server.py               # 本地服务（127.0.0.1:8765）：收藏 / 下载 / Downvote / 画像
-├─ netroute.py             # 下载取数选路（直连 / 环境代理 / 本机代理）
-├─ customize.py            # 可定制项读写：分类、下载目录、兴趣来源、画像主来源
-├─ paperutil.py            # 命名、库文件、配置读写
-│
-├─ config.example.json     # 默认配置模板（机器无关）→ 首次运行生成 config.json
-├─ interests.example.json  # 空白画像模板 → 首次运行生成 interests.json
-├─ presets/                # 可选预设（示例画像），默认不生效
-│   └─ hengxin/            #   作者本人那套：4 位主来源 / 14 主题 / 61 位熟悉作者
-├─ docs/
-│   ├─ CONFIG.md           # config.json 与 interests.json 每个字段的说明
-│   ├─ ARCHITECTURE.md     # 流水线、打分公式、归档、并发模型、视频链路
-│   └─ PRESETS.md          # 预设的导入 / 导出 / 自己造一份
-├─ tools/                  # 辅助脚本与回归测试（见 §7）
-└─ reel/                   # 可选：每期视频（Remotion 代码渲染 + Edge TTS 中文旁白）
+├─ run_daily.py … netroute.py   # 13 个主流程模块（抓取 / 打分 / 归档 / 渲染 / 服务 / 选路）
+├─ config.example.json          # 配置模板 → 首次运行生成 config.json（个人数据）
+├─ interests.example.json       # 画像模板 → 首次运行生成 interests.json（个人数据）
+├─ docs/                        # 文档（getting-started / guide / reference / architecture / …）
+├─ tools/                       # 回归测试、数据维护、视频、投稿脚本
+├─ presets/                     # 可选预设（默认不加载）
+├─ reel/                        # 可选视频工程（Remotion）
+└─ output/                      # 运行产物（.gitignore，含归档库与收藏记录）
 ```
 
-**哪些是个人数据（默认不进版本库）**：`config.json`（含本机下载路径与你的分类）、
-`interests.json`（你的画像）、`output/`（日报、收藏、下载记录、归档库）、`.secrets/`（凭据）。
-只有模板 `*.example.json` 与预设 `presets/` 入库。
+各目录的职责边界与"文件该放哪里"的决策树见 [目录职责](docs/meta/structure.md)。
 
-## 4. 配置与画像
+## 配置与个人数据
 
-两个文件，都在首次运行时自动生成：
+两个文件在**首次运行**时自动生成，之后属于你的个人数据（`.gitignore` 已排除）：
 
-- `config.json` — 抓什么、存哪里、每期推荐几条。`download_dir` 支持相对路径（默认 `papers/`）。
-- `interests.json` — 画像种子：`topics`（主题 + 关键词）、`people`（熟悉作者）、
-  `signature_systems`（代表系统）、`negative.keywords`（降权词）、`owners`（画像主来源）。
+| 文件 | 管什么 | 页面上改 |
+| --- | --- | --- |
+| `config.json` | 抓哪些分类、PDF 存哪、每期几条、端口 | `/profile` → 类别 / 下载目录 |
+| `interests.json` | 主题、熟悉作者、代表系统、降权词、画像主来源 | `/profile` 各区块 |
 
-字段逐项说明见 **[docs/CONFIG.md](docs/CONFIG.md)**。
-日常维护不必手改 JSON：打开 `/profile` 页就能改下载目录、增删分类、维护画像主来源、
-点关键词屏蔽噪音词；改完点工具栏 **↻ 重算推荐** 立即生效。
+日常维护不必手改 JSON。字段逐项说明见 [config.json](docs/reference/config.md) 与
+[interests.json](docs/reference/interests.md)。
 
-## 5. 示例预设（可选）
+**绝不入库**：`output/`（日报与收藏记录）、`.secrets/`（B 站 cookie）、各类 `*cookie*.json` / token。
 
-`presets/` 里放的是「一整套现成设置」，**默认不加载**：
+## 质量闸门
 
-```bash
-python tools/preset.py list                    # 看有哪些预设、各自包含什么
-python tools/preset.py import hengxin          # 导入（本地已有同名文件时会拒绝）
-python tools/preset.py import hengxin --force  # 覆盖导入：原文件先备份到 output/backup/<时间>/
-python tools/preset.py export myown            # 反过来：把当前设置存成预设（可提交分享）
-```
-
-导入前**先把 `download_dir` 改成你自己的路径**。详见 [docs/PRESETS.md](docs/PRESETS.md)。
-
-## 6. 页面里有什么
-
-| 区域 | 说明 |
-| --- | --- |
-| 🎯 为你推荐 | 主分类里本期最相关的 N 篇（默认 14），带推荐理由与命中主题 |
-| 🌱 兴趣扩展 | 主分类之外、与你画像相邻的论文（默认 10），用来打破茧房 |
-| 📖 分类详解 | 本期全部新论文，按分类与日期排 |
-| 工具栏 | 已收藏 / 已下载 / 已 Downvote 筛选、搜索、批量下载、往期回看 |
-| `/favorites` | 收藏清单（可导出 Markdown） |
-| `/profile` | 类别、下载目录、兴趣来源、画像主来源、主题权重 |
-| `/archive` | 每期快照，按日期回看（日报只呈现**本期新增**，往期进这里） |
-
-交互细节（Downvote 为什么是「变灰 + 删除线」、按钮为什么能并发、列表为什么不会跳）见
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
-
-## 7. 质量闸门
-
-改完代码建议跑一遍（除并发测试外都需要浏览器）：
+改完代码建议按改动范围跑对应回归（详见[测试与回归](docs/contributing/testing.md)）：
 
 ```bash
-python tools/concurrency_check.py    # 并发：下载中另一篇 Downvote 不被阻塞、批量并行
-python tools/dv_unify_check.py       # 三个模块的 Downvote 视觉 / 行为一致
-python tools/owner_ui_check.py       # /profile 画像主来源增删改（只用临时条目）
+python tools/concurrency_check.py                              # 并发：下载不阻塞 Downvote、批量并行
+python tools/dv_unify_check.py                                 # 三处 Downvote 的视觉/行为一致
+python tools/owner_ui_check.py                                 # /profile 画像主来源增删改
 python tools/ui_file_check.py output/arxiv_digest_<日期>.html   # 本地 HTML 跨源交互
-python tools/dl_button_check.py      # 真实点一次下载按钮
+python tools/dl_button_check.py                                # 真实点一次下载按钮
 ```
 
-## 8. 常见问题
+## 环境与依赖
 
-| 现象 | 处理 |
+| 项 | 要求 |
 | --- | --- |
-| 打开 8765 显示「尚无摘要页」 | 还没跑过流水线：`python run_daily.py` |
-| 推荐区是空的 / 分数都很低 | 画像太空：在 `/profile` 补主题关键词，或导入一份预设先跑起来 |
-| 下载按钮报错 | `python netroute.py` 看出口路由；服务在跑时看 `GET /api/net_route` |
-| 分类改了但没出现新论文 | 需要重新抓取：`python run_daily.py`（删分类只影响下次抓取） |
-| 想从头再来 | 删 `config.json` / `interests.json` / `output/`，再跑一次即按模板重建 |
+| Python | 3.9+，**运行期只用标准库** |
+| 网络 | 能访问 `arxiv.org` / `export.arxiv.org`（限流时自动降级 RSS） |
+| 操作系统 | Windows / Linux / macOS（"打开文件"在非 Windows 上会退化为无操作） |
+| 可选 | Node 18+（视频）、`edge-tts` + `imageio-ffmpeg`（旁白）、`biliup-rs`（投稿）、Edge（浏览器回归） |
 
-## 9. 许可
+## 贡献
 
-目前未附开源许可（默认保留所有权利）。如需在他人项目中复用，欢迎先开 issue 讨论。
+欢迎 issue 与 PR。开始之前请看 [贡献指南](CONTRIBUTING.md) 与
+[开发指南](docs/contributing/development.md)——尤其是"改完什么必须重启"和"不要提交个人数据"两条。
+
+最小流程：
+
+```bash
+git checkout -b feat/my-idea
+python -m py_compile *.py tools/*.py
+python tools/concurrency_check.py        # 无 GUI 也能跑
+git commit -m "feat: ..." && git push
+```
+
+## 项目状态
+
+- 主流程（抓取 / 推荐 / 归档 / 渲染 / 本地服务）稳定，日常在使用；
+- 视频与 B 站投稿是可选的实验性附加链路，接口可能随平台变化；
+- 有一个单机私有实例在长期运行（研究画像：数据库系统 / 分布式计算 / 形式化方法），
+  那份设置以 `presets/hengxin/` 形式公开；
+- **尚未附开源许可**（默认保留所有权利）。如需在他人项目中复用，欢迎先开 issue 讨论。
 
 ---
 
-作者本人的实例：研究画像为数据库系统 / 分布式计算 / 形式化方法，那份完整设置就是
-`presets/hengxin/`。
+<sub>本项目为个人工具，不隶属于 arXiv 或 Cornell University。论文元数据的版权归原作者所有。</sub>
