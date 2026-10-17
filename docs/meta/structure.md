@@ -18,15 +18,22 @@ arXiv-digest/
 ├─ fetch_expand.py             # 抓取：扩展分类
 ├─ fetch_rss.py                # 抓取：RSS 降级通道
 ├─ fetch_affil.py              # 抓取：作者单位
-├─ recommend.py                # 打分与推荐
+├─ fetchsrc.py                 # 兴趣来源取数适配（arXiv / 网页 / 文档）
+├─ recommend.py                # 打分编排与本期隔离
+├─ scoring.py                  # 纯打分函数（无 IO）
+├─ textscan.py                 # 纯文本信号抽取（人名 / 实词 / 主题命中）
 ├─ profile.py                  # 行为学习
 ├─ archive.py                  # 归档（SQLite）
-├─ build_report.py             # 渲染（HTML/MD/收藏页/画像页/存档页）
-├─ server.py                   # 本地 HTTP 服务
+├─ build_report.py             # 渲染逻辑（版面在 templates/）
+├─ server.py                   # 本地 HTTP 服务（进程装配与分发）
+├─ routes.py                   # HTTP 语义（路由表 / Reply / Request）
+├─ service.py                  # 业务用例（收藏 / 下载 / 学习 / 重建）
 ├─ customize.py                # 可定制项读写（唯一入口）
 ├─ paperutil.py                # 配置 / 库文件 / 命名（基础层）
 ├─ netroute.py                 # 下载选路
+├─ paths.py                    # 路径唯一来源（+ `python paths.py` 诊断）
 │
+├─ templates/                  # 版面：style.css / app.js / 四个页面模板
 ├─ config.example.json         # 配置模板 → 首次运行生成 config.json
 ├─ interests.example.json      # 画像模板 → 首次运行生成 interests.json
 ├─ start_digest.bat            # Windows 双击启动
@@ -38,6 +45,16 @@ arXiv-digest/
 ├─ reel/                       # 可选视频工程（Remotion）
 └─ output/                     # 运行产物（.gitignore，见文档 reference/data-files.md）
 ```
+
+### 为什么多了 `templates/` 与三层拆分
+
+| 变化 | 理由 |
+| --- | --- |
+| `templates/` 独立 | 版面原先内联在 `build_report.py` 里，占了 1400 行；`%` 格式化会吃掉内联 JS 的反斜杠（曾导致整段脚本语法错误、所有按钮失效）。独立文件可单独 lint / diff，改完**不用重启** |
+| `service.py` | 业务规则原先内联在 `do_POST` 的 if 链里，与 `self._json()` 缠绕，只能靠起真 HTTP 服务验证 |
+| `routes.py` | 两个 130/170 行的 if 链违反开闭原则：加接口要改 Handler，且路由清单无法被程序读取 |
+| `scoring.py` / `textscan.py` / `fetchsrc.py` | 把「纯计算」「文本处理」「网络取数」从既有模块里剥出来，各自可脱离网络/文件单测 |
+| `paths.py` | 路径原先散落在 10 个模块；新增模块漏跟随约定曾导致测试写坏真实数据 |
 
 ## 二、`tools/` 的分工
 
@@ -84,8 +101,13 @@ Python 社区的 `src/<package>/` 布局适合"要发布到 PyPI、要被别人 
 | 定时自动化与 B 站投稿脚本**已经引用固定路径** | `run_daily.py`、`tools/gen_video_data.py` 等路径一改即断 |
 | 收益只有"目录看起来更规范" | 读者收益 ≈ 0；破坏风险 = 夜间流水线 + 已发布流程 |
 
-所以当前选择是：**根目录 = 主流程模块**（13 个，一眼可数），把"非主流程"的东西全部推到
-`tools/`、`presets/`、`reel/`、`docs/`。这条边界比目录名更重要。
+所以当前选择是：**根目录 = 主流程模块**（18 个，一眼可数），把"非主流程"的东西全部推到
+`tools/`、`templates/`、`presets/`、`reel/`、`docs/`。这条边界比目录名更重要。
+
+**注意区分「拆模块」与「包化」**：这次重构把 `server.py` 拆成 `service` + `routes`、
+把打分/文本/取数拆成独立模块——那是**单一职责**问题，拆完仍然是平级单文件，
+`python server.py` 照样能跑，自动化路径没变。包化解决的是**命名空间**问题，
+收益小、破坏面大。两者不是一回事，别用「既然要重构就顺便包化」把风险叠上去。
 
 真要引入 `src/` 布局，正确姿势是一次性做完并同步更新自动化：
 

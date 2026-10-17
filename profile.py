@@ -22,11 +22,12 @@ import time
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import paperutil as pu  # noqa: E402
+import paths  # noqa: E402
 
 OUT = pu.OUT
-PROFILE_PATH = os.path.join(OUT, "profile_state.json")
-BEHAVIOR_PATH = os.path.join(OUT, "behavior.json")
-INTERESTS = os.path.join(HERE, "interests.json")
+PROFILE_PATH = paths.PROFILE_STATE_PATH
+BEHAVIOR_PATH = paths.BEHAVIOR_PATH
+INTERESTS = paths.INTERESTS
 
 DEFAULT_CFG = {
     "actions": {

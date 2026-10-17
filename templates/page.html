@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>arXiv cs.* 论文摘要 · %(span)s</title>
+<link rel="icon" href="data:,">
+<style>%(css)s</style></head><body id="top">
+<div class="wrap">
+<header>
+<h1>arXiv cs.* 新论文摘要</h1>
+<div class="sub">覆盖 %(cats)s ｜ 提交时间 %(span)s（UTC）｜ 本期新增 <b>%(total)d</b> 篇 ｜ 生成于 %(gen)s ｜
+下载目录 <code class="dldir">%(dldir)s</code></div>
+</header>
+
+%(notice)s
+
+<div class="toolbar">
+<button class="tb on" data-mode="all">全部</button>
+<button class="tb" data-mode="fav">已收藏</button>
+<button class="tb" data-mode="dl">已下载</button>
+<button class="tb" data-mode="dv">已 Downvote</button>
+<input class="search" id="q" placeholder="搜索标题 / 摘要…">
+<span class="grow"></span>
+<span class="counter">收藏 <b id="favcount">0</b> 篇</span>
+<button class="tb" id="dlall">⬇ 下载全部推荐</button>
+<button class="tb" id="openfolder">📁 打开目录</button>
+<a class="tb" id="favlink" href="/favorites" target="_blank">★ 收藏列表</a>
+<a class="tb" id="archlink" href="/archive">🗂 历史存档</a>
+<a class="tb" id="proflink" href="/profile">⚙ 画像与设置</a>
+</div>
+
+<div class="stats">%(stats)s</div>
+
+<div class="rec-box" id="sec-rec">
+<div class="rec-h">🎯 为你推荐<span class="cnt">基于 %(srclabels)s 的兴趣画像</span></div>
+<p class="rec-sub">%(topicline)s
+「Abstract」就地展开原文摘要；「下载」按 <code>arXiv&lt;年&gt; &lt;arXiv号&gt; &lt;去标点标题&gt;.pdf</code>
+保存到 <code class="dldir-m">%(dldir)s</code> 并自动收藏；「Downvote」表示不感兴趣：卡片当场<b>变灰 + 标题删除线</b>并留在原位（再点一次撤销），画像同时降权该类主题。
+按钮动作即时生效、互不等待，一篇论文正在下载时其余操作照常响应。
+类别、兴趣来源与下载目录可在 <a href="/profile">⚙ 画像与设置</a> 里增删修改。</p>
+<div id="rec-list" data-limit="%(toprec)d">%(recs)s</div>
+</div>
+
+<div class="exp-box" id="sec-exp">
+<div class="rec-h">🌱 兴趣扩展<span class="cnt">来自六分类之外的 %(excats)s 等，用于打破知识茧房</span></div>
+<p class="rec-sub">这些论文不在你日常追踪的六个分类里，但主题上与你的研究方向相邻。
+它们同样支持收藏 / 下载 / Abstract / Downvote；如果觉得不相关，直接 Downvote，画像会自动降权该类主题。
+Downvote 的表现与「为你推荐」「分类详解」完全一致：变灰 + 删除线，卡片不消失，可随时再点一次撤销。</p>
+<div id="exp-list" data-limit="%(topexp)d">%(exps)s</div>
+</div>
+
+%(themes)s
+<h2 class="sec-h">分类详解</h2>
+%(secs)s
+
+<footer>
+数据来源：arXiv API（export.arxiv.org）｜ 本页<b>只呈现本期新增</b>的论文；往期日报已存档，可点上方「🗂 历史存档」按日期回看。<br>
+标题与作者保留英文原文，摘要为中文归纳；推荐理由结合个人兴趣画像自动生成。<br>
+收藏 / 下载 / Downvote 记录保存在 output/library.json，行为画像保存在 output/profile_state.json。
+</footer>
+</div>
+<nav id="rail" aria-label="章节导航">%(rail)s</nav>
+<button id="totop" type="button" aria-label="回到顶部" title="回到顶部">↑</button>
+<div id="toast"></div>
+<script id="pdata" type="application/json">%(pdata)s</script>
+<script>%(js)s</script>
+</body></html>

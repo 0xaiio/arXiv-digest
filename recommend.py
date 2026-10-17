@@ -23,6 +23,13 @@ sys.path.insert(0, HERE)
 import archive as AR  # noqa: E402
 import paperutil as pu  # noqa: E402
 import profile as PF  # noqa: E402
+# 打分是纯函数，单独一层（见 scoring.py 顶部说明）。这里 re-export，
+# 保证既有调用方（server / tools / tests）继续用 recommend.features 等名字。
+from scoring import (  # noqa: E402,F401
+    ABS_HIT_CAP, ABS_HIT_W, FAMILIAR_W, NEG_CAP, NEG_SCALE, SYSTEM_W,
+    TITLE_HIT_CAP, TITLE_HIT_W, _norm, _rx, base_score, features, score,
+    topic_hits,
+)
 
 OUT = pu.OUT
 
@@ -31,29 +38,6 @@ def short_id(p):
     s = p if isinstance(p, str) else (p.get("id") or "")
     s = s.rsplit("/", 1)[-1]
     return re.sub(r"v\d+$", "", s)
-
-
-def _norm(s):
-    return re.sub(r"\s+", " ", (s or "")).lower()
-
-
-def _rx(term):
-    r"""关键词 → 词边界正则。
-
-    空格 / 连字符 / 下划线视为**等价分隔**：`isolation level` 也要能命中
-    `isolation-level`。早期实现是一串链式 replace：
-
-        re.escape(t).replace(r"\ ", r"[\s\-]+").replace(r"\-", r"[\s\-]?")
-
-    第二次 replace 会把第一次刚生成的 `[\s\-]` 里的 `\-` 再改一遍，产出的字符类
-    实际变成 `[\\s[\\s\\-]?]`（`?` 成了字面量、`]` 提前闭合），**多词关键词从此永不命中**，
-    且单测很难察觉——分数只是偏低而不会报错。现改为按分隔符切词再拼装。
-    """
-    parts = [p for p in re.split(r"[\s\-_]+", (term or "").lower().strip()) if p]
-    if not parts:
-        return re.compile(r"(?!)")          # 空关键词：永不匹配
-    body = r"[\s\-_]+".join(re.escape(p) for p in parts)
-    return re.compile(r"(?<![a-z0-9])" + body + r"(?![a-z0-9])")
 
 
 def load_profile():
@@ -81,53 +65,6 @@ def load_profile():
     neg = prof.get("negative") or {}
     return (prof, topics, float(neg.get("weight", -1.0)),
             [_rx(k) for k in (neg.get("keywords") or [])])
-
-
-def features(p, topics, neg_w, neg_rx, people, systems, kwmap):
-    """拆解一篇论文的得分构成（静态 base 与动态部分分离）。"""
-    title = _norm(p.get("title"))
-    abstract = _norm(p.get("abstract"))
-    blob = title + " " + abstract
-    authors = " ".join(p.get("authors") or []).lower()
-
-    tv, detail = [], []
-    for i, t in enumerate(topics):
-        th = sum(1 for r in t["rx"] if r.search(title))
-        ah = sum(1 for r in t["rx"] if r.search(abstract))
-        if not (th or ah):
-            continue
-        raw = 4.0 * min(th, 4) + 0.8 * min(ah, 15)
-        tv.append([i, round(raw, 2)])
-        detail.append({"topic": t["name"], "raw": round(raw, 2),
-                       "title_hits": th, "abstract_hits": ah})
-
-    fam = [n for n in people if n.lower() in authors]
-    syshit = [s for s in systems if _rx(s).search(blob)]
-    neg_hits = sum(1 for r in neg_rx if r.search(blob))
-
-    # 静态部分（不随行为权重变化）
-    base = 10.0 * len(fam) + 6.0 * len(syshit) + neg_w * min(neg_hits, 4) * 3.0
-    # 动态部分（随学习到的关键词权重变化）
-    toks = PF.tokens((p.get("title") or "") + " " + (p.get("abstract") or ""))
-    detail.sort(key=lambda x: -x["raw"])
-    return {
-        "tv": tv,
-        "base": round(base, 2),
-        "toks": toks,
-        "detail": detail,
-        "fam": fam,
-        "sys": syshit,
-        "neg_hits": neg_hits,
-    }
-
-
-def score(f, topics, kwmap, pen):
-    s = f["base"] + float(pen or 0.0)
-    for i, raw in f["tv"]:
-        s += raw * topics[i]["weight"]
-    for tk in f["toks"]:
-        s += float(kwmap.get(tk, 0.0))
-    return s
 
 
 def main():

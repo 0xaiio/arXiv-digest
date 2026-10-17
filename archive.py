@@ -23,10 +23,11 @@ import time
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import paperutil as pu  # noqa: E402
+import paths  # noqa: E402
 
 OUT = pu.OUT
-DB_PATH = os.path.join(OUT, "archive.db")
-ARCHIVE_DIR = os.path.join(OUT, "archive")
+DB_PATH = paths.ARCHIVE_DB_PATH
+ARCHIVE_DIR = paths.ARCHIVE_DIR
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS seen (

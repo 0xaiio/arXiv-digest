@@ -3,8 +3,18 @@
 本地服务（默认 `http://127.0.0.1:8765`）负责页面渲染与所有交互写操作。它是**单机服务**：
 只监听 `127.0.0.1`，没有鉴权，不应暴露到公网。
 
-实现：`server.py`，基于标准库 `ThreadingHTTPServer`。并发与锁的细节见
-[服务运行时](../architecture/server-runtime.md)。
+实现分三层：`routes.py`（路径 → 处理函数、`Reply`/`Request`）、`service.py`（业务动作）、
+`server.py`（解析与写 socket）。并发与锁的细节见[服务运行时](../architecture/server-runtime.md)，
+模块职责见[模块职责](../architecture/modules.md)。
+
+**路由清单可以程序化导出**：
+
+```python
+import routes
+print(routes.table())      # {'get': [...], 'get_prefix': [...], 'post': [...]}
+```
+
+测试 `tests/unit/test_routes.py` 用它断言「路由没被误删」——新增接口时同步更新那份清单。
 
 ---
 

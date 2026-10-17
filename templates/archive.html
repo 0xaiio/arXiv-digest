@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>历史存档 · arXiv cs.* 日报</title>
+<link rel="icon" href="data:,">
+<style>%(css)s</style></head><body id="top">
+<div class="wrap">
+<header>
+<h1>🗂 历史存档</h1>
+<div class="sub">共 <b>%(n)d</b> 期 ｜ 已归档论文 <b>%(np)d</b> 条 ｜ 点日期即可查看当天那一版日报</div>
+</header>
+
+<div class="toolbar">
+<a class="tb on" href="/">← 今日日报</a>
+<a class="tb" href="/favorites">★ 收藏列表</a>
+<a class="tb" href="/profile">⚙ 画像与设置</a>
+<span class="grow"></span>
+<span class="counter">归档库 <code>output/archive.db</code></span>
+</div>
+
+<p class="arc-hint">每期日报只呈现<b>当天新出现</b>的论文，往期不再重复出现；下面按日期（新→旧）列出全部存档。
+点进去看到的是当时那一版的完整页面，Abstract 展开 / 收藏 / 下载 / Downvote 等按钮同样可用。</p>
+
+<div class="arc-list">%(items)s</div>
+
+<footer>
+存档快照保存在 <code>output/archive/&lt;日期&gt;.html</code>，索引与统计保存在 <code>output/archive.db</code>（SQLite）。<br>
+快照只增不改，是「当时那一版」的真实留痕。
+</footer>
+</div>
+<button id="totop" type="button" aria-label="回到顶部" title="回到顶部">↑</button>
+<div id="toast"></div>
+<script>%(js)s</script>
+</body></html>

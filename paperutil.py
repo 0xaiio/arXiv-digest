@@ -6,10 +6,14 @@ import os
 import re
 import time
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "output")
-CONFIG_PATH = os.path.join(HERE, "config.json")
-CONFIG_EXAMPLE = os.path.join(HERE, "config.example.json")
+import paths
+
+HERE = paths.ROOT
+# 路径取值统一来自 paths.py（唯一权威定义）。这里保留同名模块级常量，
+# 既方便阅读，也保持「按模块属性 monkeypatch 重定向」这一既有测试约定。
+OUT = paths.OUT
+CONFIG_PATH = paths.CONFIG_PATH
+CONFIG_EXAMPLE = paths.CONFIG_EXAMPLE
 
 # 最后兜底（config.example.json 也缺失时才用）。刻意不含任何本机路径与个人分类：
 # 新用户拿到的是「干净默认」，个人设置走 presets/ 或自己改 config.json。
@@ -109,7 +113,7 @@ def build_filename(sid, title, year=None):
 
 # ---------------- 本地库 ----------------
 
-LIB_PATH = os.path.join(OUT, "library.json")
+LIB_PATH = paths.LIB_PATH
 
 
 def load_library():

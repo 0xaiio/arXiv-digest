@@ -3,8 +3,8 @@
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![Runtime deps](https://img.shields.io/badge/runtime-stdlib--only-brightgreen)](#环境与依赖)
 [![Docs](https://img.shields.io/badge/docs-22%20pages-informational)](docs/README.md)
-[![Tests](https://img.shields.io/badge/tests-305%20passed-success)](docs/contributing/testing.md)
-[![Coverage](https://img.shields.io/badge/coverage-87%25-brightgreen)](docs/contributing/testing.md#三覆盖率)
+[![Tests](https://img.shields.io/badge/tests-551%20passed-success)](docs/contributing/testing.md)
+[![Coverage](https://img.shields.io/badge/coverage-89%25-brightgreen)](docs/contributing/testing.md#三覆盖率)
 [![Status](https://img.shields.io/badge/status-active-success)](#项目状态)
 
 把 arXiv 的每日新论文按**你自己的研究画像**排序，生成一份可交互的本地日报：
@@ -46,7 +46,7 @@
 | **零运行期依赖** | 只用 Python 标准库，`clone` 即跑，不需要 `pip install` |
 | **可选视频链路** | Remotion 代码渲染 + Edge TTS 中文旁白 + A/V 质量闸门 + B 站投稿（[指南](docs/guide/video-pipeline.md)） |
 | **可导入的预设** | 一整套 `config.json` + `interests.json`，一条命令搬过来，分享前有隐私检查清单 |
-| **测试兜底** | 305 个用例分四层（单元 / 集成 / 端到端 / 浏览器），行覆盖率 87%，全部在沙箱里跑，不碰真实数据 |
+| **测试兜底** | 551 个用例分四层（单元 / 集成 / 端到端 / 浏览器），行覆盖率 89%，全部在沙箱里跑，不碰真实数据 |
 
 ## 快速开始
 
@@ -124,7 +124,7 @@ Windows 可双击 `start_digest.bat`（自动找 Python，端口读 `config.json
 | 文档 | 用途 |
 | --- | --- |
 | [开发指南](docs/contributing/development.md) | 代码约定、改完什么必须重启、调试手法、提交前检查清单、加功能的推荐路径 |
-| [测试与回归](docs/contributing/testing.md) | 四层测试结构（305 用例）、覆盖范围、覆盖率与门槛、沙箱隔离、失败排查、如何新增 |
+| [测试与回归](docs/contributing/testing.md) | 四层测试结构（551 用例）、覆盖范围、覆盖率与门槛、沙箱隔离、重构期等价性手段、如何新增 |
 | [故障排查](docs/operations/troubleshooting.md) | 服务 / 抓取 / 推荐 / 下载 / 归档 / 摘要 / 视频 / 投稿 的"症状→诊断→修复" |
 
 ### 元信息
@@ -141,7 +141,13 @@ Windows 可双击 `start_digest.bat`（自动找 Python，端口读 `config.json
 
 ```text
 arXiv-digest/
-├─ run_daily.py … netroute.py   # 13 个主流程模块（抓取 / 打分 / 归档 / 渲染 / 服务 / 选路）
+├─ 18 个主流程模块                # 抓取 / 打分 / 归档 / 渲染 / 服务 / 选路
+│  ├─ 基础  paths.py paperutil.py netroute.py
+│  ├─ 领域  textscan.py fetchsrc.py profile.py archive.py
+│  ├─ 应用  customize.py scoring.py recommend.py fetch_*.py
+│  ├─ 渲染  build_report.py
+│  └─ 接口  service.py routes.py server.py
+├─ templates/                    # 版面：style.css / app.js / 四个页面模板
 ├─ config.example.json          # 配置模板 → 首次运行生成 config.json（个人数据）
 ├─ interests.example.json       # 画像模板 → 首次运行生成 interests.json（个人数据）
 ├─ docs/                        # 文档（getting-started / guide / reference / architecture / …）
@@ -152,6 +158,7 @@ arXiv-digest/
 └─ output/                      # 运行产物（.gitignore，含归档库与收藏记录）
 ```
 
+各模块的职责与依赖方向见 [模块职责](docs/architecture/modules.md)，
 各目录的职责边界与"文件该放哪里"的决策树见 [目录职责](docs/meta/structure.md)。
 
 ## 配置与个人数据
@@ -170,12 +177,12 @@ arXiv-digest/
 
 ## 质量闸门
 
-**主闸门是 pytest 套件**：305 个用例（单元 / 集成 / 端到端 / 浏览器），行覆盖率 87%，
+**主闸门是 pytest 套件**：551 个用例（单元 / 集成 / 端到端 / 浏览器），行覆盖率 89%，
 门槛 85%。它们全部在 `tmp_pytest/` 沙箱里跑，**不会碰你的真实数据**。
 
 ```bash
 python -m pip install -r requirements-dev.txt   # 只装测试工具，运行期仍然零依赖
-python -m pytest                 # 305 passed，约 43s
+python -m pytest                 # 551 passed，约 60s
 python -m pytest -m unit         # 只跑单元，13s（改纯函数时用这个）
 python -m pytest --cov           # 覆盖率，低于 85% 直接失败
 ```

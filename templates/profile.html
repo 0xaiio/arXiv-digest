@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>兴趣画像与设置</title>
+<link rel="icon" href="data:,">
+<style>%(css)s
+.panel{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px 22px 20px;margin-bottom:18px}
+.p-h{font-size:14.5px;font-weight:700;margin:16px 0 8px;display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.p-h:first-child{margin-top:0}
+.p-hint{font-size:12px;color:var(--tx3);font-weight:400}
+.p-note{font-size:13px;color:var(--tx2);margin:0 0 12px;line-height:1.75}
+.p-note code{background:#f1f3f6;padding:1px 5px;border-radius:4px;font-size:12.2px}
+.owners{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:12px}
+.owner{border:1px solid var(--bd);border-radius:12px;padding:13px 15px;background:#fbfcfe}
+.owner h4{margin:0 0 3px;font-size:14.5px}
+.owner .aff{font-size:12.2px;color:var(--tx2);margin-bottom:6px}
+.owner ul{margin:6px 0 0;padding-left:18px;font-size:12.6px;color:var(--tx2);line-height:1.7}
+.owner a{font-size:12px;color:var(--ac);text-decoration:none;word-break:break-all}
+.ow-top{display:flex;align-items:flex-start;gap:8px}
+.ow-top h4{flex:1;min-width:0}
+.ow-act{display:flex;gap:6px;flex-shrink:0}
+.ow-tag{font-size:11.5px;color:var(--exp);background:#eaf7f0;border-radius:5px;
+ padding:2px 7px;display:inline-block;margin-top:8px}
+.own-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;
+ align-items:start;margin-bottom:14px;padding:12px 14px;border:1px dashed var(--bd);border-radius:10px;background:#fcfdfe}
+.own-form input,.own-form textarea{border:1px solid var(--bd);border-radius:8px;padding:7px 11px;
+ font-size:13.2px;font-family:inherit;color:var(--tx);background:#fff;width:100%%;box-sizing:border-box}
+.own-form textarea{grid-column:1/-1;resize:vertical;line-height:1.6}
+.own-form .chk{grid-column:1/-1;font-size:12.8px;color:var(--tx2);display:flex;align-items:center;gap:6px}
+.own-form .chk input{width:auto}
+.own-form .tb{align-self:center}
+.own-form.editing{border-color:var(--ac);background:#f7faff}
+.themes{display:flex;flex-direction:column;gap:7px}
+.theme-row{display:grid;grid-template-columns:minmax(112px,196px) 1fr 58px;gap:10px;align-items:center}
+.theme-name{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.theme-row.is-custom .theme-name{color:var(--exp);font-weight:700}
+.bar{height:9px;background:#eef1f5;border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%%;border-radius:6px;background:linear-gradient(90deg,#5b93f5,var(--ac))}
+.theme-row.is-custom .bar i{background:linear-gradient(90deg,#48c79b,var(--exp))}
+.theme-w{font-size:12.5px;color:var(--tx2);text-align:right;font-variant-numeric:tabular-nums}
+.form{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.form input,.form select{border:1px solid var(--bd);border-radius:8px;padding:7px 11px;font-size:13.5px;
+ font-family:inherit;color:var(--tx);background:#fff;min-width:0}
+.form #src-value{flex:1;min-width:240px}
+.form #src-note{width:150px}
+.form #cat-value{width:160px}
+.form #cat-name{flex:1;min-width:180px}
+.form #dldir{flex:1;min-width:240px}
+.tb.primary{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:600}
+.tb.primary:hover{background:#2560d4;border-color:#2560d4;color:#fff}
+.src-item,.cat-item{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-top:1px dashed var(--bd)}
+.src-item:first-child,.cat-item:first-child{border-top:none}
+.si-main{flex:1;min-width:0}
+.si-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.si-type{font-size:11px;border-radius:5px;padding:2px 7px;background:var(--acbg);color:var(--ac);font-weight:600}
+.si-type.paper{background:#fdf0dd;color:#a15c00}
+.si-type.doc{background:#e9f8f1;color:var(--exp)}
+.si-val{font-size:12.6px;color:var(--tx2);word-break:break-all;margin-top:3px}
+.si-title{font-size:13.2px;font-weight:600;margin-top:3px}
+.si-err{font-size:12.2px;color:var(--warn);margin-top:4px}
+.si-chips{margin-top:7px;display:flex;flex-wrap:wrap;gap:5px}
+.tp.kw{cursor:pointer;user-select:none}
+.tp.kw:hover{background:#dfe9ff;box-shadow:inset 0 0 0 1px var(--ac)}
+.tp.kw.blk{background:#f1f3f6;color:var(--tx3);text-decoration:line-through;opacity:.65}
+.tp.kw.blk:hover{background:#e6e9ee;box-shadow:inset 0 0 0 1px var(--tx3)}
+.cat-item{align-items:center}
+.cat-code{font-weight:800;color:var(--ac);font-size:14.5px;min-width:76px}
+.cat-topic{flex:1;font-size:13.4px}
+.cat-n{font-size:12.5px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.btn-x{background:#fff;border:1px solid var(--bd);color:var(--tx3);border-radius:7px;padding:3px 9px;
+ font-size:12px;cursor:pointer;font-family:inherit}
+.btn-x:hover{border-color:var(--warn);color:var(--warn)}
+.chips.neg .chip{background:#fdecec;color:var(--warn)}
+.p-empty{color:var(--tx3);font-size:13px;padding:8px 0}
+</style></head><body id="top"><div class="wrap">
+<header>
+<h1>⚙ 兴趣画像与设置</h1>
+<div class="sub">%(summary)s</div>
+</header>
+<div class="toolbar">
+<a class="tb" id="backlink" href="/">← 回到本期摘要</a>
+<a class="tb" href="/favorites">★ 收藏列表</a>
+<a class="tb" href="/archive">🗂 历史存档</a>
+<button class="tb" id="openfolder">📁 打开下载目录</button>
+<button class="tb" id="rebuild" title="重跑 recommend.py + build_report.py（不重新抓取），让类别与画像改动立刻反映到摘要页">↻ 重算推荐</button>
+<span class="grow"></span>
+<span class="counter">兴趣来源 <b id="srccount">0</b> 条</span>
+</div>
+
+<h2 class="sec-h">🎛 兴趣画像</h2>
+<div class="panel">
+<div class="p-h">画像主来源<span class="p-hint">摘要页头部「基于 … 的兴趣画像」就取自这里</span></div>
+<p class="p-note">下面几位是画像的主来源（本人 + 对标研究者），可<b>新增 / 编辑 / 删除</b>。
+「简称」用于摘要页头部那行文案（留空则显示姓名）；勾选<b>计入熟悉研究者</b>后，
+该作者出现在论文作者列表里即 <b>+10 分／篇</b>，删除该来源会同时撤销这条加成。
+改动后点工具栏 <b>↻ 重算推荐</b>，摘要页的文案与排序即刻同步。</p>
+<div class="form own-form" id="own-form">
+<input id="own-name" placeholder="姓名（必填，如 Jane Doe / 张三）">
+<input id="own-label" placeholder="简称（可选，头部显示）">
+<input id="own-site" placeholder="主页 https://…（可选）">
+<input id="own-affil" placeholder="所属机构（可选）">
+<input id="own-interests" placeholder="研究兴趣一句话（可选）">
+<textarea id="own-topics" rows="2" placeholder="代表方向（每行一条，可选）"></textarea>
+<label class="chk"><input type="checkbox" id="own-link" checked> 计入熟悉研究者（+10/篇）</label>
+<button class="tb primary" id="own-save">+ 添加画像来源</button>
+<button class="tb" id="own-cancel" style="display:none">取消编辑</button>
+</div>
+<div class="owners" id="owners">%(owners)s</div>
+<div class="p-h">主题权重<span class="p-hint">权重 = 种子权重 × 行为学习倍率；收藏 / 下载 / Downvote 会实时改变倍率</span></div>
+<div class="themes" id="themes"></div>
+<div class="p-h">熟悉研究者<span class="p-hint">姓名出现在作者列表里即 +10 分／篇；由下方「兴趣来源」自动扩充</span></div>
+<div class="chips" id="people"></div>
+<div class="p-h">代表系统<span class="p-hint">标题 / 摘要里出现即 +6 分</span></div>
+<div class="chips" id="systems"></div>
+<div class="p-h">降权关键词<span class="p-hint">出现即减分（用于压掉与主线无关的热点）</span></div>
+<div class="chips neg" id="negkw"></div>
+</div>
+
+<h2 class="sec-h">🔗 兴趣来源（链接 / 论文 / 文档）</h2>
+<div class="panel">
+<p class="p-note">添加后系统会尽力解析出<b>人名</b>与<b>专业实词</b>：人名并入「熟悉研究者」（命中 +10 分／篇），
+实词汇入主题<b>「%(customtopic)s」</b>（权重 %(customw)s），用于提升相关论文的排序。删除来源即撤销它的全部增量。
+自动抽词难免有噪音，<b>点任意关键词即可屏蔽 / 恢复</b>（划掉 = 已屏蔽，不计入画像）。
+改动后点工具栏的 <b>↻ 重算推荐</b> 即可让摘要页排序立刻反映新画像。</p>
+<div class="form">
+<select id="src-type">
+<option value="link">🔗 链接</option>
+<option value="paper">📄 arXiv 论文</option>
+<option value="doc">📁 本地文档</option>
+</select>
+<input id="src-value" placeholder="https://… 或 2609.09742 或 D:/path/paper.pdf">
+<input id="src-note" placeholder="备注（可选）">
+<button class="tb primary" id="src-add">+ 添加</button>
+</div>
+<div id="src-list"></div>
+</div>
+
+<h2 class="sec-h">🗂 arXiv 类别</h2>
+<div class="panel">
+<p class="p-note">增删会写入 <code>config.json</code>。<b>新增</b>类别后需重新抓取（重跑 <code>run_daily.py</code>）
+才会出现该类别的论文；<b>删除</b>只影响下一次抓取。</p>
+<div class="form">
+<input id="cat-value" placeholder="如 cs.LG / math.CO / stat.ML">
+<input id="cat-name" placeholder="主题名（可选，留空自动匹配内置中文名）">
+<button class="tb primary" id="cat-add">+ 添加类别</button>
+</div>
+<div id="cat-list"></div>
+</div>
+
+<h2 class="sec-h">📁 下载目录</h2>
+<div class="panel">
+<div class="form">
+<input id="dldir" placeholder="例如 ./papers 或 D:/papers">
+<button class="tb primary" id="dldir-save">保存</button>
+<button class="tb" id="dldir-open">📁 打开</button>
+</div>
+<p class="p-note">修改后<b>立即生效</b>（下载接口每次都读 <code>config.json</code>）；摘要页顶部显示的路径在下次重建页面后同步。</p>
+</div>
+<footer>画像：<code>interests.json</code> ｜ 来源增量：<code>output/interests_extra.json</code> ｜
+行为学习：<code>output/profile_state.json</code></footer>
+</div>
+<button id="totop" type="button" aria-label="回到顶部" title="回到顶部">↑</button>
+<div id="toast"></div>
+<script>%(js)s</script>
+<script>
+function esc2(s){var d=document.createElement('div');d.textContent=(s==null?'':String(s));return d.innerHTML;}
+var BLOCKED={};
+function chip(t,cls){return '<span class="tp'+(cls?' '+cls:'')+'">'+esc2(t)+'</span>';}
+function renderThemes(th){
+ var mx=1;(th||[]).forEach(function(t){if(t.weight>mx)mx=t.weight;});
+ var h=(th||[]).map(function(t){
+  var w=Math.max(4,Math.round(t.weight/mx*100));
+  return '<div class="theme-row'+(t.custom?' is-custom':'')+'" title="'+esc2(t.name)+'｜种子 '+t.seed+
+   ' × 倍率 '+t.mult+' ｜ '+t.nkw+' 个关键词">'
+   +'<span class="theme-name">'+esc2(t.name)+'</span>'
+   +'<span class="bar"><i style="width:'+w+'%%"></i></span>'
+   +'<span class="theme-w">'+t.weight.toFixed(2)+'</span></div>';}).join('');
+ document.getElementById('themes').innerHTML=h||'<div class="p-empty">暂无主题</div>';}
+function renderChips(id,arr,cls){
+ document.getElementById(id).innerHTML=(arr||[]).map(function(x){return chip(x,cls);}).join('')
+  ||'<span class="p-empty">（空）</span>';}
+function renderSources(list){
+ document.getElementById('srccount').textContent=(list||[]).length;
+ var el=document.getElementById('src-list');
+ if(!list||!list.length){el.innerHTML='<div class="p-empty">还没有添加来源。可以添加个人主页、arXiv 论文或本地 PDF / 笔记。</div>';return;}
+ el.innerHTML=list.map(function(s){
+  var tn={link:'🔗 链接',paper:'📄 论文',doc:'📁 文档'}[s.type]||s.type;
+  var ch=(s.people||[]).map(function(p){return chip(p,'au');}).join('')
+        +(s.keywords||[]).map(function(k){
+          var off=BLOCKED[k.toLowerCase()]?' blk':'';
+          return '<span class="tp kw'+off+'" data-kw="'+esc2(k)+'" title="点击屏蔽 / 恢复该关键词">'+esc2(k)+'</span>';}).join('');
+  return '<div class="src-item"><div class="si-main">'
+   +'<div class="si-top"><span class="si-type '+esc2(s.type)+'">'+tn+'</span>'
+   +'<span class="cat-n">'+esc2(s.added_at)+'</span>'
+   +((s.matched_topics||[]).length?'<span class="date">相关主题：'+esc2(s.matched_topics.join('、'))+'</span>':'')
+   +'</div>'
+   +(s.title?'<div class="si-title">'+esc2(s.title)+'</div>':'')
+   +'<div class="si-val">'+esc2(s.value)+'</div>'
+   +(s.note?'<div class="si-val">备注：'+esc2(s.note)+'</div>':'')
+   +(s.error?'<div class="si-err">⚠ '+esc2(s.error)+'</div>':'')
+   +(ch?'<div class="si-chips">'+ch+'</div>':'')
+   +'</div><button class="btn-x" data-del-src="'+esc2(s.sid)+'">删除</button></div>';}).join('');}
+/* ---- 画像主来源（interests.json 的 owners）：新增 / 编辑 / 删除 ----
+   表单是「新增」与「编辑」共用的：点卡片上的「编辑」把该条填进表单，
+   按钮变成「保存修改」，提交时带 orig=原姓名，服务端按原名定位后整条覆盖（允许改名）。 */
+var OWNS=[],EDITING=null;
+function ownerCard(o){
+ var ch=(o.signature_topics||[]).slice(0,4).map(function(s){return '<li>'+esc2(s)+'</li>';}).join('');
+ return '<div class="owner" data-owner="'+esc2(o.name)+'">'
+  +'<div class="ow-top"><h4>'+esc2(o.name)+'</h4><span class="ow-act">'
+  +'<button class="btn-x" data-edit-owner="'+esc2(o.name)+'">编辑</button>'
+  +'<button class="btn-x" data-del-owner="'+esc2(o.name)+'">删除</button></span></div>'
+  +(o.affiliation?'<div class="aff">'+esc2(o.affiliation)+'</div>':'')
+  +(o.site?'<a href="'+esc2(o.site)+'" target="_blank" rel="noopener">'+esc2(o.site)+'</a>':'')
+  +(o.interests?'<div class="date">'+esc2(o.interests)+'</div>':'')
+  +(ch?'<ul>'+ch+'</ul>':'')
+  +(o.people_linked?'<span class="ow-tag">已计入熟悉研究者（+10/篇）</span>':'')
+  +'</div>';}
+function renderOwners(){
+ var el=document.getElementById('owners');if(!el)return;
+ el.innerHTML=(OWNS||[]).map(ownerCard).join('')
+  ||'<div class="p-empty">还没有画像主来源，请在上方添加。</div>';}
+function ownForm(d){d=d||{};
+ var set=function(id,v){var e=document.getElementById(id);if(e)e.value=v==null?'':v;};
+ set('own-name',d.name);set('own-label',d.label);set('own-site',d.site);
+ set('own-affil',d.affiliation);set('own-interests',d.interests);
+ set('own-topics',(d.signature_topics||[]).join('\n'));
+ var lk=document.getElementById('own-link');if(lk)lk.checked=(d.people_linked!==false);
+ var f=document.getElementById('own-form');if(f)f.classList.toggle('editing',!!EDITING);
+ var sv=document.getElementById('own-save');if(sv)sv.textContent=EDITING?'保存修改':'+ 添加画像来源';
+ var cc=document.getElementById('own-cancel');if(cc)cc.style.display=EDITING?'':'none';}
+function ownPayload(){
+ var g=function(id){var e=document.getElementById(id);return e?e.value.trim():'';};
+ var lk=document.getElementById('own-link');
+ return {name:g('own-name'),label:g('own-label'),site:g('own-site'),
+  affiliation:g('own-affil'),interests:g('own-interests'),
+  signature_topics:g('own-topics').split('\n'),
+  link_person:lk?!!lk.checked:true};}
+function ownSubmit(btn){
+ var p=ownPayload();
+ if(!p.name){toast('姓名不能为空','err');return;}
+ var body=EDITING?Object.assign({},p,{op:'update',orig:EDITING})
+                  :Object.assign({},p,{op:'add'});
+ var lbl=EDITING?'保存修改':'+ 添加画像来源';
+ busy(btn,true,'保存中…');
+ api('/api/owner',body).then(function(r){
+  busy(btn,false,lbl);toast(r.msg||'',r.ok?'ok':'err');
+  if(r.ok){EDITING=null;ownForm({people_linked:true});apply(r.state);}});}
+function startEditOwner(name){
+ var o=(OWNS||[]).filter(function(x){return x.name===name;})[0];
+ if(!o)return;
+ EDITING=name;ownForm(o);
+ var f=document.getElementById('own-form');
+ if(f&&f.scrollIntoView)f.scrollIntoView({behavior:'smooth',block:'center'});
+ var n=document.getElementById('own-name');if(n)n.focus();}
+function renderCats(cats,names){
+ document.getElementById('cat-list').innerHTML=
+  (cats||[]).map(function(c){
+   return '<div class="cat-item"><span class="cat-code">'+esc2(c)+'</span>'
+    +'<span class="cat-topic">'+esc2((names||{})[c]||'（未命名主题）')+'</span>'
+    +'<button class="btn-x" data-del-cat="'+esc2(c)+'">删除</button></div>';}).join('')
+  ||'<div class="p-empty">至少要保留一个类别</div>';}
+function apply(d){if(!d)return;
+ var p=d.profile||{};
+ BLOCKED={};((d.blocked_keywords)||[]).forEach(function(k){BLOCKED[String(k).toLowerCase()]=1;});
+ OWNS=p.owners||[];
+ renderOwners();
+ renderThemes(p.themes||[]);
+ renderChips('people',p.people,'au');
+ renderChips('systems',p.systems);
+ renderChips('negkw',p.negative);
+ renderSources(d.sources||[]);
+ renderCats(d.categories||[],d.category_names||{});
+ var de=document.getElementById('dldir');
+ if(de&&document.activeElement!==de)de.value=d.download_dir||'';}
+function busy(btn,on,txt){if(!btn)return;btn.disabled=!!on;if(txt)btn.textContent=txt;}
+document.addEventListener('DOMContentLoaded',function(){
+ var tt=document.getElementById('totop');
+ if(tt)tt.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
+ function sl(){if(tt)tt.classList.toggle('show',pageY()>420);}
+ window.addEventListener('scroll',sl,{passive:true});sl();
+ var of=document.getElementById('openfolder');if(of)of.addEventListener('click',openFolder);
+ var bl=document.getElementById('backlink');if(bl)bl.href=APIBASE+'/';
+
+ var sa=document.getElementById('src-add');
+ if(sa)sa.addEventListener('click',function(){
+  var t=document.getElementById('src-type').value;
+  var v=document.getElementById('src-value').value.trim();
+  var n=document.getElementById('src-note').value.trim();
+  if(!v){toast('请输入内容','err');return;}
+  busy(sa,true,'解析中…');
+  api('/api/source',{op:'add',type:t,value:v,note:n}).then(function(r){
+   busy(sa,false,'+ 添加');toast(r.msg||'',r.ok?'ok':'err');
+   if(r.ok){document.getElementById('src-value').value='';document.getElementById('src-note').value='';apply(r.state);}});});
+
+ var os=document.getElementById('own-save');
+ if(os)os.addEventListener('click',function(){ownSubmit(os);});
+ var oc=document.getElementById('own-cancel');
+ if(oc)oc.addEventListener('click',function(){EDITING=null;ownForm({people_linked:true});});
+
+ var ca=document.getElementById('cat-add');
+ if(ca)ca.addEventListener('click',function(){
+  var c=document.getElementById('cat-value').value.trim();
+  var nm=document.getElementById('cat-name').value.trim();
+  if(!c){toast('请输入分类，如 cs.LG','err');return;}
+  busy(ca,true,'添加中…');
+  api('/api/category',{op:'add',cat:c,name:nm}).then(function(r){
+   busy(ca,false,'+ 添加类别');toast(r.msg||'',r.ok?'ok':'err');
+   if(r.ok){document.getElementById('cat-value').value='';document.getElementById('cat-name').value='';apply(r.state);}});});
+
+ var ds=document.getElementById('dldir-save');
+ if(ds)ds.addEventListener('click',function(){
+  var v=document.getElementById('dldir').value.trim();
+  if(!v){toast('请输入目录','err');return;}
+  busy(ds,true,'保存中…');
+  api('/api/config',{download_dir:v}).then(function(r){
+   busy(ds,false,'保存');toast(r.msg||'',r.ok?'ok':'err');if(r.ok)apply(r.state);});});
+
+ var dob=document.getElementById('dldir-open');
+ if(dob)dob.addEventListener('click',function(){
+  api('/api/open_folder',{dir:document.getElementById('dldir').value.trim()});});
+
+ var rb=document.getElementById('rebuild');
+ if(rb)rb.addEventListener('click',function(){
+  busy(rb,true,'重算中…');
+  api('/api/rebuild',{}).then(function(r){
+   busy(rb,false,'↻ 重算推荐');toast(r.msg||'',r.ok?'ok':'err');if(r.ok)apply(r.state);});});
+
+ fetch(APIBASE+'/api/customize').then(function(r){return r.json();}).then(apply)
+  .catch(function(){toast('本地服务未运行：无法读取画像与设置','err');});
+});
+document.addEventListener('click',function(ev){
+ var eo=ev.target.closest('[data-edit-owner]');
+ if(eo){startEditOwner(eo.dataset.editOwner);return;}
+ var dob=ev.target.closest('[data-del-owner]');
+ if(dob){var nm=dob.dataset.delOwner;
+  if(!window.confirm('删除画像主来源「'+nm+'」？该条目及其熟悉研究者加成会一并撤销。'))return;
+  dob.disabled=true;
+  api('/api/owner',{op:'remove',name:nm}).then(function(r){
+   dob.disabled=false;toast(r.msg||'',r.ok?'ok':'err');
+   if(r.ok){if(EDITING===nm){EDITING=null;ownForm({people_linked:true});}apply(r.state);}});return;}
+ var k=ev.target.closest('.tp.kw');
+ if(k){var kw=k.dataset.kw,off=!!BLOCKED[kw.toLowerCase()];
+  api('/api/source',{op:off?'unblock':'block',kw:kw}).then(function(r){
+   toast(r.msg||'',r.ok?'ok':'err');if(r.ok)apply(r.state);});return;}
+ var d=ev.target.closest('[data-del-src]');
+ if(d){var sid=d.dataset.delSrc;d.disabled=true;
+  api('/api/source',{op:'remove',sid:sid}).then(function(r){
+   d.disabled=false;toast(r.msg||'',r.ok?'ok':'err');if(r.ok)apply(r.state);});return;}
+ var c=ev.target.closest('[data-del-cat]');
+ if(c){var cat=c.dataset.delCat;
+  if(!window.confirm('删除类别 '+cat+' ？（下一次抓取后生效）'))return;
+  api('/api/category',{op:'remove',cat:cat}).then(function(r){
+   toast(r.msg||'',r.ok?'ok':'err');if(r.ok)apply(r.state);});}
+});
+</script>
+</body></html>

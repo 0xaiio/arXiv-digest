@@ -133,8 +133,10 @@ def _redirect(monkeypatch, sb):
     monkeypatch.setattr(NR, "OUT", str(sb.out))
     monkeypatch.setattr(NR, "CACHE_PATH", str(sb.out / "netroute.json"))
 
-    # 模块内缓存也要清，否则上一个测试的数据会漏进来
-    monkeypatch.setattr(S, "_papers_cache", {"ts": 0.0, "data": {}})
+    # 模块内缓存也要清，否则上一个测试的数据会漏进来。
+    # 论文索引缓存已下沉到 service.PaperIndex（类实例，有显式 reset），
+    # 不能再靠 monkeypatch 模块级 dict —— 那只会替换 server 的一个没人读的别名。
+    S.reset_papers()
     monkeypatch.setattr(B, "AFF", {}, raising=False)
 
     assert_isolated(sb)
@@ -275,12 +277,17 @@ def seeded(sandbox, pool):
 
 @pytest.fixture()
 def live_server(sandbox):
-    """在随机端口起真实的 ThreadingHTTPServer（与生产同一套 Handler）。"""
+    """在随机端口起真实的 ThreadingHTTPServer（与生产同一套 Handler）。
+
+    起好后把端口写回 config：页面里的 APIBASE 由 config.port 决定，
+    若两者不一致，前端请求会打到别的端口 —— 表现就是「点了按钮被回滚」。
+    """
     import threading
     from http.server import ThreadingHTTPServer
 
     srv = ThreadingHTTPServer(("127.0.0.1", 0), S.Handler)
     port = srv.server_address[1]
+    sandbox.set_config(port=port)
     t = threading.Thread(target=srv.serve_forever, daemon=True)
     t.start()
     try:

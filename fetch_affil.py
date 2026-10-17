@@ -32,9 +32,10 @@ import urllib.request
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import paperutil as pu  # noqa: E402
+import paths  # noqa: E402
 
 OUT = pu.OUT
-AFF_PATH = os.path.join(OUT, "affiliations.json")
+AFF_PATH = paths.AFFILIATIONS_PATH
 
 UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) arxiv-digest/3.0"}
 SSL_CTX = ssl.create_default_context()

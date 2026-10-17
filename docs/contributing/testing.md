@@ -1,13 +1,13 @@
 # 测试与回归
 
-项目有一套 **pytest 测试套件**：305 个用例，覆盖单元 / 集成 / 端到端 / 浏览器四层，
-行覆盖率 **87%**（门槛 85%），全量跑完约 43 秒（不含浏览器层约 36 秒）。
+项目有一套 **pytest 测试套件**：551 个用例，覆盖单元 / 集成 / 端到端 / 浏览器四层，
+行覆盖率 **89%**（门槛 85%），全量跑完约 60 秒（不含浏览器层约 50 秒）。
 
 运行期仍然**零第三方依赖**——测试依赖只在 `requirements-dev.txt` 里。
 
 ```bash
 python -m pip install -r requirements-dev.txt
-python -m pytest                 # 305 passed
+python -m pytest                 # 551 passed
 python -m pytest --cov           # 附带覆盖率，低于 85% 直接失败
 ```
 
@@ -18,8 +18,12 @@ python -m pytest --cov           # 附带覆盖率，低于 85% 直接失败
 ```
 tests/
 ├─ conftest.py                 # 沙箱隔离（所有路径常量重定向）+ 数据工厂 + HTTP 客户端
-├─ unit/                       # 234 个：纯函数与单模块，不联网、不起服务
+├─ unit/                       # 480 个：纯函数与单模块，不联网、不起服务
+│  ├─ test_paths.py            #   ★ 路径唯一来源：各模块常量必须与 paths 一致
 │  ├─ test_paperutil.py        #   短号归一、文件名、配置与库文件读写
+│  ├─ test_scoring.py          #   ★ 打分常量、特征拆解、数值算例（100% 覆盖）
+│  ├─ test_textscan.py         #   ★ HTML 去标签、人名、实词分层、主题命中
+│  ├─ test_fetchsrc.py         #   ★ arXiv/网页/文档 取数适配（_get 注入，不联网）
 │  ├─ test_customize.py        #   分类 / 下载目录 / 画像主来源 / 合并视图
 │  ├─ test_customize_sources.py#   兴趣来源解析（本地文档 / 链接 / derive）
 │  ├─ test_profile.py          #   行为学习状态机、上下限裁剪、负向开关
@@ -31,8 +35,11 @@ tests/
 │  ├─ test_netroute.py         #   候选顺序、错误文案、缓存读写
 │  ├─ test_netroute_probe.py   #   探测 / 负缓存 / fetch_first 多 URL 回退
 │  ├─ test_netroute_net.py     #   opener / 请求头 / 本机端口枚举
+│  ├─ test_service.py          #   ★ PaperIndex TTL/并发、注入点、批量保序、重建
+│  ├─ test_routes.py           #   ★ 路由表完整性、精确优先、Runtime 白名单、参数校验
 │  ├─ test_server_download.py  #   download_pdf 落盘的全部分支
 │  ├─ test_run_daily_helpers.py#   子进程封装 run() 与服务拉起
+│  ├─ test_compat_facade.py    #   ★ 兼容门面：重构不得移除的对外符号清单
 │  └─ test_sandbox_isolation.py#   ★ 测试自身的回归：不许写进真实 output/
 ├─ integration/                # 63 个：多模块协作，会起真实 HTTP 服务
 │  ├─ test_pipeline.py         #   抓取池 → 推荐 → 渲染 → 归档 的产物契约
@@ -42,6 +49,8 @@ tests/
    ├─ test_user_journey.py     #   阅读 → 收藏 → 下载 → Downvote → 分数变化 → 撤销
    └─ test_ui_browser.py       #   真实 Edge 点击：变灰、删除线、按钮文字、无 JS 报错
 ```
+
+★ = 这次重构新增或改写的用例：**每一层都补了对应测试**，不是只补单元层。
 
 四层各管一件事，不重叠：
 
@@ -93,20 +102,26 @@ tests/
 
 | 模块 | 行覆盖率 | 说明 |
 | --- | --- | --- |
+| `scoring.py` | 100% | 纯函数，无 IO 无全局状态 |
+| `paths.py` | 98% | 除 `main()` 的少量输出分支外全覆盖 |
+| `textscan.py` | 98% | 未覆盖的是 HTML 解析器的极端容错分支 |
+| `customize.py` | 96% | |
 | `archive.py` | 95% | |
 | `paperutil.py` | 94% | |
-| `recommend.py` | 92% | |
+| `routes.py` | 93% | 未覆盖的是页面渲染异常时的兜底分支 |
+| `service.py` | 93% | 未覆盖的是真实下载的成功路径（真网络） |
+| `recommend.py` | 91% | |
 | `fetch_rss.py` | 88% | |
-| `customize.py` | 87% | 未覆盖的是 arXiv API / 网页抓取的解析分支 |
 | `profile.py` | 87% | |
 | `run_daily.py` | 87% | 未覆盖的是 `--serve` 前台阻塞与 `main` 的 CLI 尾部 |
-| `build_report.py` | 86% | 未覆盖的是少数 CSS 分支与 `main()` 的 CLI 尾部 |
-| `server.py` | 86% | 未覆盖的是 `main()` 的 `serve_forever` 与几个异常兜底 |
+| `server.py` | 87% | 未覆盖的是 `main()` 的 `serve_forever` 与几个异常兜底 |
+| `build_report.py` | 86% | 未覆盖的是少数渲染分支与 `main()` 的 CLI 尾部 |
 | `netroute.py` | 86% | 未覆盖的是真实探测计时分支与日志输出 |
 | `fetch_arxiv.py` | 86% | 未覆盖的是 `fetch()` 的重试循环（真网络） |
-| `fetch_expand.py` | 80% | 同上 |
+| `fetch_expand.py` | 80% | 同 `fetch_arxiv` |
+| `fetchsrc.py` | 79% | 未覆盖的是 `_http_get` 真实网络与 PDF 解析 |
 | `fetch_affil.py` | 78% | 未覆盖的是 `fetch_html`（真网络）与部分清洗分支 |
-| **合计** | **87%** | 13 个模块，2921 条可执行语句 |
+| **合计** | **89%** | 18 个模块，3232 条可执行语句 |
 
 **为什么不是 100%**：剩下的是「只在真实网络/真实浏览器交互里才走到」的分支。
 把它们用 mock 强行走一遍只会增加假信心，不如老实标出来。若要逐行看：
@@ -250,9 +265,21 @@ FAILED tests/unit/test_x.py::test_y - AssertionError: 权重翻倍后分数必�
 2. 联网/开窗/子进程一律 `monkeypatch`；
 3. 在本文「测试范围」表里补一行（否则新能力就是文档盲区）。
 
-## 十、保持全绿
+## 十、重构时怎么保证「没改行为」
 
-红线：**主分支上 `python -m pytest` 必须始终 305 passed、覆盖率 ≥ 85%。**
+拆模块、移文件、改内部结构时，测试要能回答「对外行为变了吗」。这次重构用了三条手段：
+
+| 手段 | 具体做法 | 挡住的失败 |
+| --- | --- | --- |
+| **兼容门面清单** | `tests/unit/test_compat_facade.py` 逐一断言旧符号仍可导入（`server.download_pdf`、`customize.parse_link`、`build_report.PAGE`…） | 「拆分时顺手把一个名字搬走了」，tools / 自动化脚本静默失效 |
+| **逐字节等价** | 模板外置后，用 `git show HEAD:build_report.py` 取出原三引号字符串，与 `templates/*` 逐字节比对 | 搬运时丢了一个 `%%` 或改了一个换行 |
+| **桩化契约** | `test_runtime_forwards_dynamically_so_patching_works` 断言「替换 `server.download_pdf` 后路由层立刻看到新对象」 | 改成 import 期绑定，导致并发回归真的去下载 PDF |
+
+清单**只增不减**：真要删某个符号，必须先显式删掉清单里的一行，让评审看见。
+
+## 十一、保持全绿
+
+红线：**主分支上 `python -m pytest` 必须始终 551 passed、覆盖率 ≥ 85%。**
 
 改代码时的最小自查表：
 

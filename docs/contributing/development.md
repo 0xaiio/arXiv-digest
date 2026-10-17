@@ -18,7 +18,7 @@ websocket-client），详见[测试与回归](testing.md)。
 | --- | --- |
 | 跑浏览器回归 | Microsoft Edge（用 CDP 无头驱动，无需 Selenium） |
 | 跑视频链路 | Node 18+、`cd reel && npm ci`、`pip install edge-tts imageio-ffmpeg` |
-| 编辑页面模板 | 无（模板是 `build_report.py` 里的字符串常量） |
+| 编辑页面模板 | 无（模板在 `templates/`，按 mtime 自动重读） |
 
 不需要虚拟环境也能跑；建议还是建一个，避免把 `edge-tts` 等装进全局。
 
@@ -47,9 +47,11 @@ websocket-client），详见[测试与回归](testing.md)。
 
 | 改动 | 必须做什么 |
 | --- | --- |
-| `server.py` | **重启服务**（进程内代码不会热更新） |
+| `server.py` / `routes.py` / `service.py` | **重启服务**（进程内代码不会热更新） |
 | `recommend.py` | 重跑 `python recommend.py`（服务不缓存它，但页面读的是产物） |
-| `build_report.py` 模板/CSS/JS | `/favorites`、`/profile`、`/archive` 每次请求 `reload`，**刷新即可**；日报是静态文件，需重跑 `build_report.py` |
+| `templates/*`（版面 / CSS / JS） | **刷新即可**（`read_template()` 按 mtime 重读）；日报是静态文件，要看到效果需重跑 `build_report.py` |
+| `build_report.py` 渲染逻辑 | `/favorites`、`/profile`、`/archive` 会 `reload` 该模块，**刷新即可**；日报需重跑 |
+| `config.json` 的 `port` | 重新生成页面即可（端口在渲染时替换）；服务自身要换端口仍需重启 |
 | `paperutil.py` / `customize.py` / `profile.py` | 重启服务 + 重跑相关阶段 |
 | `interests.json` / `config.json` | 点「↻ 重算推荐」或 `--skip-fetch --skip-affil` |
 
@@ -112,8 +114,8 @@ python netroute.py --forget      # 清缓存重探
 # 1) 语法
 python -m py_compile *.py tools/*.py
 
-# 2) 主闸门：pytest 套件（305 用例 / 87% 覆盖）
-python -m pytest -m "not ui"        # 快速：单元 + 集成 + 端到端，约 35s
+# 2) 主闸门：pytest 套件（551 用例 / 89% 覆盖）
+python -m pytest -m "not ui"        # 快速：单元 + 集成 + 端到端，约 50s
 python -m pytest --cov              # 全量 + 覆盖率门槛（85%）
 
 # 3) 交付前补跑黑盒验收（真下载 / 真点按钮）

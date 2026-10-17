@@ -3,7 +3,15 @@
 `server.py` 是本地唯一的常驻进程：渲染页面、处理交互写入、下载 PDF。本文讲它的并发模型、
 缓存、跨源兼容与出网策略——这几处是"页面卡住""收藏丢失""下载报错"的高发区。
 
-接口清单见 [HTTP API](../reference/http-api.md)。
+代码分三层，本文按层讲：
+
+| 层 | 文件 | 负责 |
+| --- | --- | --- |
+| 装配 | `server.py` | 解析请求、写 socket、启动进程、兼容门面 |
+| HTTP 语义 | `routes.py` | 路由表、参数校验、`Reply`/`Request` |
+| 业务用例 | `service.py` | 收藏 / 下载 / 学习 / 重建（不认识 HTTP） |
+
+接口清单见 [HTTP API](../reference/http-api.md)，模块职责见[模块职责](modules.md)。
 
 ---
 
@@ -16,18 +24,42 @@
 | 工作目录 | 启动时 `os.chdir(HERE)` | 防御 `start /b` 不继承 cwd 的情况，避免读写别人的 `output/` |
 | 浏览器 | 默认自动打开，`--no-open` 关闭 | 定时任务里用 `--no-open` |
 
-## 二、锁：两级 + 两个专用锁
+## 二、路由：一张表，而不是 if 链
 
-共享文件必须串行读-改-写，但**网络 IO 绝不能占着锁**。
+```python
+@get("/api/ping")
+def ping(req):
+    return Reply.json({"ok": True})
+```
+
+- 匹配：**精确优先、前缀次之**，所以 `/archive` 不会被 `/archive/` 抢走；
+- 处理器只做 HTTP 语义（取参数、校验、拼响应），业务动作一律 `req.api.xxx(...)`；
+- `routes.table()` 返回全部路由，测试用它断言「路由没被误删」，文档也据此维护。
+
+`server._Runtime` 是路由层能看到的**能力白名单**（`ALLOWED`）。每次访问都回查
+`server` 模块，因此：
+
+```python
+server.download_pdf = stub      # 桩化立即生效
+```
+
+这一点被 `tools/concurrency_check.py` 与多个集成测试依赖——若改成 import 期绑定，
+那些回归会真的去下载 PDF。反过来，路由层摸不到白名单外的属性（`rt.Handler` 直接
+`AttributeError`），避免慢慢长成「什么地方都能捞一把」的大泥球。
+
+## 三、锁：两级 + 两个专用锁
+
+共享文件必须串行读-改-写，但**网络 IO 绝不能占着锁**。锁定义在 `service.py`，
+`server.LIB_LOCK` 是同一个对象（拆层后两把锁就等于没锁）。
 
 | 锁 | 保护范围 | 粒度 |
 | --- | --- | --- |
-| `_lib_lock` | `library.json` / `profile_state.json` 的读-改-写 | 毫秒级 |
+| `LIB_LOCK` | `library.json` / `profile_state.json` 的读-改-写 | 毫秒级 |
 | `dl_lock(sid)` | 某**一篇**论文的下载（防同一篇连点写坏同名 `.part`） | 一次网络下载 |
-| `_papers_lock` | 论文索引缓存的刷新（双重检查） | 一次大 JSON 解析 |
+| `PaperIndex._lock` | 论文索引缓存的刷新（双重检查） | 一次大 JSON 解析 |
 | `_rebuild_lock` | `/api/rebuild`（重跑 recommend + build_report） | 数十秒 |
 
-铁律：**任何网络 IO 都不许在 `_lib_lock` 内**。
+铁律：**任何网络 IO 都不许在 `LIB_LOCK` 内**。
 
 早期版本用一把全局锁把整个 `/api/download` 包住（含最长 90 秒的取数），结果是"点一篇下载，
 整页的收藏 / Downvote 全部排队，界面像死了一样"。拆分后的实测（`tools/concurrency_check.py`，
@@ -64,8 +96,12 @@ def papers(force=False):
 | `/archive` | 每次请求渲染 | 新期次不断加入 |
 | `/archive/<日期>` | 静态快照 | 归档只增不改 |
 
-动态页每次都做 `importlib.reload(build_report)`：否则改了模板后，服务进程里缓存的旧模块会
-一直吐旧 HTML，只有重启才生效。代价是每次多一次模块重载（毫秒级），换来"改模板不用重启"。
+动态页渲染时会 `digest_module()`：惰性导入 `build_report`，并**按需 reload**（收敛到一处、
+加锁）。原来三个页面路由各自 `importlib.reload`，重复且无锁——两个请求同时 reload 会互相打架。
+
+现在 reload 只为「代码改动」服务：**模板改动不需要它**，因为 `read_template()` 按 mtime 缓存，
+文件一变下次渲染就重新读盘。改 `config.port` 也不需要重启——端口占位符在渲染时替换
+（`render_js()`）。
 
 ## 五、跨源与 `file://` 兼容
 

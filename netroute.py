@@ -33,9 +33,11 @@ import time
 import urllib.error
 import urllib.request
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "output")
-CACHE_PATH = os.path.join(OUT, "netroute.json")
+import paths
+
+HERE = paths.ROOT
+OUT = paths.OUT
+CACHE_PATH = paths.NETROUTE_CACHE_PATH
 
 UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) arxiv-digest/2.0"}
 

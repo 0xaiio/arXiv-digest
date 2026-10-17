@@ -7,7 +7,66 @@
 
 ---
 
-## [未发布]
+## 2026-10-17（全方位重构）
+
+对外行为与接口**无破坏性变更**：全部 HTTP 路由、CLI 参数、数据文件格式保持不变。
+验证方式见「文档」一节的兼容门面清单与逐字节比对。
+
+### 新增
+
+- **`paths.py`**：路径的唯一权威定义（原先散落在 10 个模块各写 `os.path.join(HERE, …)`）。
+  附 `python paths.py` 诊断命令，一次列出全部路径并标出是否已生成；
+- **`scoring.py`**：打分纯函数层（`_rx` / `topic_hits` / `base_score` / `features` / `score`）。
+  公式里的魔数提取为命名常量（`TITLE_HIT_W` 等），文档与代码可逐项对照；覆盖率 100%；
+- **`textscan.py`**：文本 → 结构化信号（`strip_html` / `extract_people` / `extract_keywords` /
+  `matched_topics`），不读文件、不联网，可用字符串字面量直接测；
+- **`fetchsrc.py`**：来源取数适配（arXiv / 网页 / 本地文档），统一返回 `(meta, err)`；
+  网络取数通过 `_get` 注入，单测不联网；
+- **`service.py`**：业务用例层（收藏 / 下载 / 画像学习 / 重建 / `PaperIndex`），不认识 HTTP；
+- **`routes.py`**：HTTP 语义层（`@get` / `@get_prefix` / `@post` 路由表、`Request`、`Reply`、
+  `table()` 清单）；
+- **`templates/`**：`style.css` / `app.js` / `page.html` / `favorites.html` / `profile.html` /
+  `archive.html`，从 `build_report.py` 的内联字符串移出；
+- **`tests/unit/test_compat_facade.py`**：兼容门面清单，逐一断言旧符号仍可导入；
+- 新增 246 个用例（551 总数），覆盖率 87% → **89%**。
+
+### 变更
+
+- `server.py` 从 637 行降到约 250 行：`do_GET` / `do_POST` 的两个 if 链改为路由表分发，
+  处理器只做参数校验与响应拼装；`_Runtime` 以白名单暴露能力，且**每次访问回查本模块**，
+  因此 `server.download_pdf = stub` 这类外部替换仍然生效（并发回归依赖这点）；
+- 动态页的 `importlib.reload(build_report)` 从三处收敛到 `digest_module()` 一处并加锁；
+- `build_report.py` 从 1679 行降到约 800 行（版面外置）；`read_template()` 按 mtime 缓存，
+  **改模板不再需要重启服务**；
+- 端口占位符 `__APIPORT__` 改为**渲染时**替换（`render_js()`），改 `config.port` 后重新生成
+  页面即生效；
+- `customize.py` 从 843 行降到约 620 行：文本处理与网络取数移出，原符号以
+  **re-export + 注入型包装** 保留（`monkeypatch.setattr(customize, "_http_get", …)` 仍有效）；
+- `recommend.py` 的 `features` / `score` / `_rx` 改为从 `scoring` re-export；
+- `download_one` / `download_many` 增加 `download_fn` / `learn_fn` 注入点，批量下载与单篇
+  下载的桩化行为保持一致。
+
+### 修复
+
+- **页面端口与服务端口不一致导致交互被回滚**：`live_server` 用随机端口，而页面里的
+  `APIBASE` 仍取 `config.port`，前端请求失败后乐观更新回滚，表现为「点了按钮没反应」。
+  改为 `live_server` 把实际端口写回 config，且端口在渲染时替换；
+- **UI 回归的导航竞态**：`Page.navigate` 后 `location.href` 已变但 `document` 仍是上一份
+  （`about:blank` 也是 `complete`），`goto()` 会提前返回、断言在旧文档上执行。改为在旧文档
+  打标记、新文档里该标记必然不存在。
+
+### 文档
+
+- 重写 [模块职责](docs/architecture/modules.md)：18 个模块分五层，含依赖方向图与
+  「我要改什么」定位表；
+- 更新 [架构总览](docs/architecture/overview.md) 分层图、[服务运行时](docs/architecture/server-runtime.md)
+  的路由表与锁清单、[目录职责](docs/meta/structure.md) 的目录树与「拆模块 ≠ 包化」说明；
+- 更新 [测试与回归](docs/contributing/testing.md)：551 用例 / 89% 覆盖 / 分层清单，
+  新增「重构时怎么保证没改行为」一节（兼容门面 / 逐字节等价 / 桩化契约）。
+
+---
+
+## 2026-10-17（测试套件）
 
 ### 新增
 
@@ -234,5 +293,3 @@
 - 下载选路：`netroute.py` 在直连 / 环境代理 / 本机代理之间自动挑一条能拿到 `%PDF` 的出口。
 
 ---
-
-[未发布]: https://github.com/0xaiio/arXiv-digest/commits/main

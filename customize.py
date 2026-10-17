@@ -37,13 +37,15 @@ from html.parser import HTMLParser
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import paperutil as pu  # noqa: E402
+import paths  # noqa: E402
 
-INTERESTS = os.path.join(HERE, "interests.json")
-INTERESTS_EXAMPLE = os.path.join(HERE, "interests.example.json")
+HERE = paths.ROOT
+INTERESTS = paths.INTERESTS
+INTERESTS_EXAMPLE = paths.INTERESTS_EXAMPLE
 # 画像骨架：字段齐全但没有内容，保证任何模块都能安全 .get()
 EMPTY_PROFILE = {"owners": [], "topics": [], "people": [], "signature_systems": [],
                  "negative": {"keywords": []}, "behavior": {}}
-EXTRA_PATH = os.path.join(pu.OUT, "interests_extra.json")
+EXTRA_PATH = paths.INTERESTS_EXTRA_PATH
 
 # 自定义主题：承载「来源解析出的实词」，名字固定，便于两边对齐
 CUSTOM_TOPIC = "我的来源关注"
@@ -73,47 +75,20 @@ CS_TOPIC_DICT = {
     "quant-ph": "量子物理", "eess.SY": "系统与控制（EESS）",
 }
 
-# 人名 / 实词提取时的噪音词（首词或次词命中即丢弃）
-NAME_STOP = set("""
-the this that these those and or but for from with without via using use used our we you your their his her
-its it is are was were be been being can could may might should would will shall not nor all any both few
-own too only just about into over under again further once here there because while during before after
-above below out off between among within against toward towards upon across behind beyond plus minus per
-non pre post new novel approach approaches paper work works study studies show shows shown propose
-proposed introduces introduced first second third also however therefore thus hence moreover furthermore
-finally proceedings conference journal workshop symposium volume issue pages editors editor edition
-university department institute institution laboratory labs lab college school faculty center centre
-academy research group team project report technical preprint arxiv abstract introduction conclusion
-references appendix figure table section chapter part springer acm ieee siam usenix
-january february march april may june july august september october november december
-monday tuesday wednesday thursday friday saturday sunday
-""".split())
-
-UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) arxiv-digest/3.0"}
-
-# 通用学术英语：出现频率高但没有主题区分度，不进画像
-GENERIC = set("""
-breaking unifying lines worlds partially trusted arbitrary number numbers achieves achieve
-accelerates approaching addresses enables provides improves offers allows requires presents
-discusses describes examines investigates explores applies proposes introduces combines
-extends beyond toward towards across within various several different similar existing
-current recent modern general specific important significant effective efficient practical
-theoretical empirical comprehensive extensive detailed promising potential main major minor
-overview survey review summary outline goal goals aim aims objective objectives contribution
-contributions result results finding findings evaluation evaluations experiment experiments
-experimental performance performances analysis analyses comparison comparisons baseline
-baselines dataset datasets implementation implementations design designs tool tools
-application applications problem problems solution solutions challenge challenges
-case cases example examples scenario scenarios setting settings task tasks
-high low large small better best good great new newer latest
-""".split())
-
-SSL_CTX = ssl.create_default_context()
-SSL_CTX.check_hostname = False
-SSL_CTX.verify_mode = ssl.CERT_NONE
-
-ARXIV_API = "http://export.arxiv.org/api/query"
-NS = {"a": "http://www.w3.org/2005/Atom"}
+# 文本信号抽取与来源取数各自独立成层（见 textscan.py / fetchsrc.py）。
+# 这里 re-export，保证 `customize.strip_html` / `customize.parse_link` 等既有
+# 调用点（服务端、tools、测试）继续可用，调用方无需改动。
+from textscan import (  # noqa: E402,F401
+    GENERIC, NAME_PAIR, NAME_STOP, _existing_keywords, extract_keywords,
+    extract_people, matched_topics, strip_html,
+)
+from fetchsrc import (  # noqa: E402,F401
+    ARXIV_API, MAX_TEXT, NS, SSL_CTX, TEXT_EXT, UA, _read_pdf, is_arxiv_id, parse,
+)
+from fetchsrc import _http_get  # noqa: E402,F401
+from fetchsrc import parse_doc as _parse_doc  # noqa: E402
+from fetchsrc import parse_link as _parse_link  # noqa: E402
+from fetchsrc import parse_paper as _parse_paper  # noqa: E402
 
 
 # ------------------------------------------------------------------ 基础 IO
@@ -252,223 +227,24 @@ def save_extra(d):
     _write_json(EXTRA_PATH, d)
 
 
-# ---- 文本处理 ----
-
-class _Text(HTMLParser):
-    def __init__(self):
-        super().__init__(convert_charrefs=True)
-        self.buf = []
-        self.skip = 0
-
-    def handle_starttag(self, tag, attrs):
-        if tag in ("script", "style", "noscript"):
-            self.skip += 1
-        elif tag in ("p", "div", "br", "li", "h1", "h2", "h3", "h4", "tr", "section"):
-            self.buf.append("\n")
-
-    def handle_endtag(self, tag):
-        if tag in ("script", "style", "noscript") and self.skip:
-            self.skip -= 1
-
-    def handle_data(self, data):
-        if not self.skip:
-            self.buf.append(data)
-
-
-def strip_html(raw):
-    p = _Text()
-    try:
-        p.feed(raw)
-    except Exception:
-        pass
-    txt = "".join(p.buf)
-    txt = re.sub(r"[ \t\r\f\v]+", " ", txt)
-    txt = re.sub(r"\n\s*\n+", "\n", txt)
-    return txt.strip()
-
-
-NAME_PAIR = re.compile(r"\b([A-Z][a-z]{1,15})\s+([A-Z][a-z]{1,15})\b")
-
-
-def extract_people(text, min_count=2, limit=25):
-    """抽「First Last」形式且重复出现的人名（重复 = 大概率是真名字而非标题词）。"""
-    freq = {}
-    for m in NAME_PAIR.finditer(text or ""):
-        a, b = m.group(1), m.group(2)
-        if a.lower() in NAME_STOP or b.lower() in NAME_STOP:
-            continue
-        name = "%s %s" % (a, b)
-        freq[name] = freq.get(name, 0) + 1
-    items = [(n, c) for n, c in freq.items() if c >= min_count]
-    items.sort(key=lambda kv: (-kv[1], kv[0]))
-    return [n for n, _ in items[:limit]]
-
-
-def _existing_keywords(prof):
-    s = set()
-    for t in prof.get("topics") or []:
-        for k in t.get("keywords") or []:
-            s.add(k.lower())
-    for k in (prof.get("negative") or {}).get("keywords") or []:
-        s.add(k.lower())
-    return s
-
-
-def extract_keywords(text, prof, title="", limit=14):
-    """抽专业实词作为画像增量。
-
-    过滤原则（避免把 arbitrary / achieves / number / breaking 这类泛化用词塞进主题）：
-      - 排除画像里已有的关键词（含负向），避免与现有主题重复计分
-      - 排除 GENERIC 通用学术词、停用词、长度 < 5 的词
-      - 带连字符的术语（tee-assisted）> 标题里的长词 > 标题词 > 正文里重复出现 >= 2 次
-    用户还可以在画像页上把不想要的词逐个别屏蔽（block_kw）。
-    """
-    import profile as PF
-    have = _existing_keywords(prof)
-    freq = {}
-    for m in PF.TOKEN_RX.findall((text or "").lower()):
-        if m in PF.STOP or m in GENERIC or len(m) < 5:
-            continue
-        freq[m] = freq.get(m, 0) + 1
-    tset = set()
-    for m in PF.TOKEN_RX.findall((title or "").lower()):
-        if m not in PF.STOP and m not in GENERIC and len(m) >= 5:
-            tset.add(m)
-    cand = []
-    for k, c in freq.items():
-        if k in have:
-            continue
-        if "-" in k:
-            # 连字符术语是最强信号，但要排掉 sub-670 / 2024-01 这类编号
-            if max((len(p) for p in k.split("-")), default=0) < 4:
-                continue
-            tier = 4
-        elif k in tset and len(k) >= 8:
-            tier = 3
-        elif k in tset:
-            tier = 2
-        elif c >= 3:
-            tier = 2
-        elif c >= 2:
-            tier = 1
-        else:
-            continue
-        cand.append((tier, c, k))
-    cand.sort(key=lambda x: (-x[0], -x[1], x[2]))
-    return [k for _, _, k in cand[:limit]]
-
-
-def matched_topics(text, prof):
-    """来源文本命中了哪些现有主题（用于展示"该来源强化了什么"）。"""
-    low = (text or "").lower()
-    hit = []
-    for t in prof.get("topics") or []:
-        n = sum(1 for k in t.get("keywords") or [] if k.lower() in low)
-        if n:
-            hit.append((t.get("name", ""), n))
-    hit.sort(key=lambda kv: -kv[1])
-    return [n for n, _ in hit[:6]]
-
-
-# ---- 抓取 ----
-
-def _http_get(url, timeout=15, limit=600000):
-    req = urllib.request.Request(url, headers=UA)
-    with urllib.request.urlopen(req, timeout=timeout, context=SSL_CTX) as r:
-        raw = r.read(limit)
-    try:
-        return raw.decode("utf-8")
-    except UnicodeDecodeError:
-        return raw.decode("gbk", "replace")
-
+# ---- 来源取数的注入型包装 ----
+# 为什么不直接 re-export 函数本身：单测会 patch `customize._http_get` 来避免联网。
+# 包装在这里显式把**本模块的** `_http_get` 传下去，因此 patch 本模块仍然生效；
+# 同时 patch `fetchsrc._http_get` 也生效（那是默认值）。两种写法都兼容。
 
 def parse_paper(value):
     """arXiv 短号 / abs 链接 / pdf 链接 -> 元数据。"""
-    sid = pu.short_id(value)
-    if not re.match(r"^[0-9]{4}\.[0-9]{4,5}$", sid) and not re.match(r"^[a-z\-]+/\d{7}$", sid):
-        return None, "无法识别 arXiv 编号：%s" % value
-    url = ARXIV_API + "?" + urllib.parse.urlencode({"id_list": sid, "max_results": 1})
-    for attempt in range(3):
-        try:
-            root = __import__("xml.etree.ElementTree", fromlist=["x"]).fromstring(
-                _http_get(url, timeout=25))
-            e = root.find("a:entry", NS)
-            if e is None:
-                return None, "arXiv 未返回该编号：%s" % sid
-            def t(p):
-                n = e.find(p, NS)
-                return (n.text or "").strip() if n is not None else ""
-            authors = [a.find("a:name", NS).text.strip()
-                       for a in e.findall("a:author", NS)
-                       if a.find("a:name", NS) is not None]
-            return {"title": " ".join(t("a:title").split()),
-                    "text": " ".join([t("a:title"), t("a:summary"), " ".join(authors)]),
-                    "authors": authors, "sid": sid}, ""
-        except Exception as ex:  # noqa
-            if attempt == 2:
-                return None, "抓取失败：%s" % ex
-            time.sleep(2)
-    return None, "抓取失败"
+    return _parse_paper(value, _get=_http_get)
 
 
 def parse_link(value):
-    url = (value or "").strip()
-    if not url.lower().startswith(("http://", "https://")):
-        return None, "链接需以 http:// 或 https:// 开头"
-    for attempt in range(2):
-        try:
-            html = _http_get(url, timeout=18)
-            title = ""
-            m = re.search(r"<title[^>]*>(.*?)</title>", html, re.S | re.I)
-            if m:
-                title = " ".join(strip_html(m.group(1)).split())[:160]
-            return {"title": title or url, "text": strip_html(html)[:400000]}, ""
-        except Exception as ex:  # noqa
-            if attempt == 1:
-                return None, "抓取失败：%s" % ex
-            time.sleep(1)
-    return None, "抓取失败"
-
-
-TEXT_EXT = {".txt", ".md", ".markdown", ".rst", ".html", ".htm", ".csv", ".tsv",
-            ".json", ".bib", ".tex", ".xml", ".yaml", ".yml", ".log"}
+    """任意网页 -> {title, text}。"""
+    return _parse_link(value, _get=_http_get)
 
 
 def parse_doc(value):
-    path = os.path.expanduser((value or "").strip().strip('"')).replace("\\", "/")
-    if not os.path.isfile(path):
-        return None, "文件不存在：%s" % path
-    ext = os.path.splitext(path)[1].lower()
-    name = os.path.basename(path)
-    try:
-        if ext == ".pdf":
-            text = _read_pdf(path)
-            if text is None:
-                return None, "需要 pypdf 才能解析 PDF（pip install pypdf），或改用 .txt/.md"
-        elif ext in (".html", ".htm"):
-            text = strip_html(open(path, encoding="utf-8", errors="replace").read())
-        else:
-            text = open(path, encoding="utf-8", errors="replace").read()
-    except Exception as ex:  # noqa
-        return None, "读取失败：%s" % ex
-    if not text.strip():
-        return None, "文件内容为空或无法提取文本"
-    return {"title": name, "text": text[:400000]}, ""
-
-
-def _read_pdf(path):
-    try:
-        from pypdf import PdfReader
-    except Exception:
-        try:
-            from PyPDF2 import PdfReader  # type: ignore
-        except Exception:
-            return None
-    try:
-        rd = PdfReader(path)
-        return "\n".join((pg.extract_text() or "") for pg in rd.pages[:12])
-    except Exception:
-        return None
+    """本地文档（文本类 / PDF）-> {title, text}。"""
+    return _parse_doc(value)
 
 
 def derive(src, prof):

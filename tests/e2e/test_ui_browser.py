@@ -109,11 +109,33 @@ class Browser:
         return r["result"].get("value")
 
     def goto(self, url):
+        """导航并等到「新文档已加载完、内联脚本已执行」。
+
+        只等 ``document.readyState == 'complete'`` 会踩坑：``Page.navigate`` 之后
+        有一小段时间 ``location.href`` 已经变成目标地址，但 ``document`` 仍是上一份
+        （about:blank 也已经是 complete）。此时返回，后续断言就在**旧文档**上执行 ——
+        表现是「卡片能找到、点按钮却毫无反应」（事件委托还没绑定，DV 仍是空的）。
+
+        判别新文档的办法：先在旧文档上打一个标记，新文档里它必然不存在。
+        """
+        want = url.rstrip("/")
+        try:
+            self.evaluate("window.__wbStaleDoc = 1")
+        except Exception:
+            pass
         self.send("Page.navigate", {"url": url})
-        for _ in range(80):
-            time.sleep(0.2)
-            if self.evaluate("document.readyState") == "complete":
+        for _ in range(120):
+            time.sleep(0.15)
+            try:
+                if self.evaluate("typeof window.__wbStaleDoc !== 'undefined'"):
+                    continue          # 还是旧文档
+                if (self.evaluate("location.href") or "").rstrip("/") != want:
+                    continue
+                if self.evaluate("document.readyState") != "complete":
+                    continue
                 return
+            except Exception:
+                continue
         raise AssertionError("页面加载超时：%s" % url)
 
     def close(self):
@@ -145,6 +167,21 @@ def browser(edge_exe, sandbox):
         b.close()
 
 
+def _click(browser, sel, act):
+    """在页面上点一次某个操作按钮。
+
+    这里用 ``dispatchEvent`` 而不是 ``element.click()``：headless Edge 下，
+    对「推荐卡片池里被 data-limit 隐藏、或刚被 DocumentFragment 重排过」的按钮
+    调用 ``.click()`` 有时不会把事件冒泡到 document，委托监听器就收不到
+    （表现为「点了没反应」，但直接调 toggleDv 一切正常）。``dispatchEvent``
+    走的是同一条冒泡与委托路径，且稳定复现用户点击的语义。
+    """
+    browser.evaluate(
+        "(()=>{var b=document.querySelector(\"%s button[data-act='%s']\");"
+        "b.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));})()"
+        % (sel, act))
+
+
 def test_downvote_click_changes_visual_state(seeded, http, browser, monkeypatch):
     """点一次 Downvote：卡片变灰 + 标题删除线 + 按钮文字变化；再点恢复。"""
     import build_report as B
@@ -163,7 +200,7 @@ def test_downvote_click_changes_visual_state(seeded, http, browser, monkeypatch)
         return browser.evaluate(
             "(()=>{var e=document.querySelector(\"%s\");%s})()" % (sel, expr))
 
-    browser.evaluate("document.querySelector(\"%s button[data-act='dv']\").click()" % sel)
+    _click(browser, sel, "dv")
     time.sleep(0.6)
 
     assert style("return !!e.classList.contains('down')") is True
@@ -173,7 +210,7 @@ def test_downvote_click_changes_visual_state(seeded, http, browser, monkeypatch)
     assert style("return e.querySelector('button[data-act=\"dv\"] .lb').textContent") == "已 Downvote"
 
     # 撤销
-    browser.evaluate("document.querySelector(\"%s button[data-act='dv']\").click()" % sel)
+    _click(browser, sel, "dv")
     time.sleep(0.6)
     assert style("return !!e.classList.contains('down')") is False
     assert float(style("return getComputedStyle(e).opacity")) > 0.9
@@ -203,7 +240,7 @@ def test_favorite_button_roundtrip_in_browser(seeded, http, browser):
     browser.goto(http.base + "/")
 
     sel = "[data-sid='2609.10001']"
-    browser.evaluate("document.querySelector(\"%s button[data-act='fav']\").click()" % sel)
+    _click(browser, sel, "fav")
     time.sleep(0.6)
     assert browser.evaluate(
         "document.querySelector(\"%s button[data-act='fav']\").classList.contains('on')" % sel)
@@ -211,7 +248,7 @@ def test_favorite_button_roundtrip_in_browser(seeded, http, browser):
         "document.querySelector(\"%s button[data-act='fav'] .lb\").textContent" % sel)
     assert "已收藏" in label
 
-    browser.evaluate("document.querySelector(\"%s button[data-act='fav']\").click()" % sel)
+    _click(browser, sel, "fav")
     time.sleep(0.6)
     assert not browser.evaluate(
         "document.querySelector(\"%s button[data-act='fav']\").classList.contains('on')" % sel)
