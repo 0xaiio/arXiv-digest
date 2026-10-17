@@ -50,6 +50,8 @@ python .\server.py --no-open
 | `tools/backfill_archive.py` | 把已有的 `arxiv_digest_<日期>.md/.html` 回填进 `archive.db` |
 | `tools/ui_file_check.py` | **交付回归**：用 Edge CDP 以 `file://` 打开日报 HTML，断言跨源基址 / 链接改写 / 无报错 toast / 收藏点击往返 |
 | `tools/dl_button_check.py` | **下载按钮回归**：真点一次下载按钮，断言 toast 与按钮态（只点已下载项，不写新文件） |
+| `tools/dv_unify_check.py` | **Downvote 一致性回归**：在三个模块各真点一次，断言 opacity / 删除线 / 不隐藏 / 不位移 / 可撤销三处一致 |
+| `tools/concurrency_check.py` | **并发回归**：桩化下载，断言「下载中另一篇 Downvote 不被阻塞」+ 批量并行 + 单篇仍串行 |
 
 `customize.py` 是「类别 / 下载目录 / 兴趣来源」三个可定制项的唯一读写层，
 `profile.py` 维护行为驱动的动态画像（主题倍率与关键词权重）。
@@ -65,6 +67,43 @@ python .\server.py --no-open
 | `/archive/<YYYYMMDD>` | 某一期的日报快照（当时那一版，交互按钮同样可用） |
 | `/api/archive/days` | 存档日期与统计（JSON） |
 | `/api/net_route` | **下载路由诊断**：当前选中的路由、候选数、上次失败摘要（下载报错时先看这里） |
+
+## 交互：Downvote 语义与动作并发
+
+### Downvote 在三个模块表现一致
+
+「为你推荐」「兴趣扩展」「分类详解」（以及重点论文块、收藏列表）的 Downvote **只有一个实现**：
+**变灰 + 标题删除线，卡片不消失、不挪位，再点一次即可撤销。**
+
+- 视觉只有一处来源：`build_report.py` 的 CSS 中
+  `.rec-card.down, .plist li.item.down, .hl.down, .fav-item.down` 共用一组规则
+  （`opacity:.42` + 标题 `text-decoration:line-through`）；三类容器都靠同一个
+  `setDv()` 加 `.down` 类 —— 不存在第二套样式或第二段逻辑。
+- 「为你推荐 / 兴趣扩展」列表的 `data-limit`（14 / 10）只约束**未 Downvote** 的推荐条数。
+  Downvote 的卡片额外保留：点击时把当时的位次记进 `data-dvpos`，重排时「钉」回原处，
+  因此它既不消失也不跳到别处，误点可当场撤销。
+- 改动前这两处是把卡片 `hidden` 掉（分类详解却是变灰划线），既不一致，也让按下即消失、
+  无从撤销。
+
+### 按钮动作并发执行
+
+不同论文的下载与 Downvote 现在可以同时进行（此前一篇 PDF 下载期间，全站按钮像是失灵）：
+
+| 层 | 机制 |
+| --- | --- |
+| 前端 | **乐观更新**：点下即改按钮 / 卡片状态，请求在后台跑，失败回滚；**重排合并**：`queueResort()` 在 30ms 内只执行一次，连点不再反复重排整屏 |
+| 服务端 | **两级锁**：`_lib_lock` 只保护 `library.json` / `profile_state.json` 的读-改-写（毫秒级）；下载走每篇论文独立的 `_dl_locks`，网络取数**不持库锁** |
+| 批量下载 | `/api/download_all` 用 `DL_WORKERS=3` 线程池并发，总耗时 ≈ 单篇而非 N 倍；同一篇连点两次仍串行，避免交叉写同名 `.part` |
+
+根因：`/api/download` 原先整段包在一把全局锁里（含最长 90s 的网络取数），
+于是任意一次下载都会把收藏 / Downvote / Abstract 的请求排在后面。
+
+回归命令（需服务在线）：
+
+```powershell
+python tools/concurrency_check.py   # 下载中另一篇 Downvote 不被阻塞 / 批量并行 / 单篇仍串行
+python tools/dv_unify_check.py      # 三处 opacity 与删除线取值相同、不隐藏、不位移、可撤销
+```
 
 ## 下载取数：为什么要挑路由
 
@@ -110,6 +149,8 @@ python .\server.py --no-open
 - 编辑性内容（中文摘要、推荐理由）外置在 `output/*.json`，**key 统一用 arXiv 短号**（如 `2609.09742`）。
 - 抓取失败时 `run_daily.py` 会保留上一期 feed 而不覆盖；坏输出另存 `*.bad_<时间戳>`。
 - 改动 `server.py` / `build_report.py` 后必须重启服务进程，否则跑的还是旧代码。
+- `server.py` 的并发约定：**任何网络 IO 都不得在 `_lib_lock` 内进行**（否则下载会串行化整个页面）；
+  写 `library.json` 一律 `with _lib_lock:`，下载取数一律 `with dl_lock(sid):`。
 - 新增「只呈现本期」逻辑后，若某天日报为空，属正常（arXiv 无新公告）——页面会给出提示，
   往期内容到 `/archive` 看。补历史：`python tools/backfill_archive.py`（`--dry` 只报告）。
 - 依赖：运行期仅 Python 标准库；`tools/ui_file_check.py` 与 `tools/dl_button_check.py`

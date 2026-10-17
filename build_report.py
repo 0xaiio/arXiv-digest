@@ -5,7 +5,9 @@
 v3 能力
   - 🎯 为你推荐（六分类 feed 内） 与  🌱 兴趣扩展（六分类之外的 cs.xx / 其他）
   - 每篇论文：收藏 / 下载 / Abstract（内联展开折叠）/ PDF / Downvote
-  - 所有交互行为都会回传本地服务，实时更新兴趣画像，并当场重排推荐列表
+  - Downvote 在「为你推荐 / 兴趣扩展 / 分类详解」三处表现统一：变灰 + 标题删除线，
+    卡片保留原位、不消失，可再点一次撤销（三处共用同一组 CSS 规则与同一段 JS）
+  - 所有交互行为都会回传本地服务，实时更新兴趣画像；按钮乐观更新，重排合并执行
   - 顶部分类统计为可跳转锚点
 
 输入（output/ 下）
@@ -336,8 +338,12 @@ input.search{border:1px solid var(--bd);border-radius:8px;padding:6px 11px;font-
 .rec-card{display:flex;gap:14px;padding:14px 0;border-top:1px dashed #eadfc9}
 .exp-box .rec-card{border-top-color:#d3ecdf}
 .rec-card.hidden{display:none}
-.rec-card.down{opacity:.42}
-.rec-card.down .rec-t{text-decoration:line-through}
+/* ---- Downvote 视觉统一（为你推荐 / 兴趣扩展 / 分类详解 / 重点论文 / 收藏列表）：
+   「变灰 + 标题删除线」，卡片不隐藏、不消失，就地保留以便再次点击撤销。
+   三处共用这一组规则，改这里就等于三处同改。 ---- */
+.rec-card.down,.plist li.item.down,.hl.down,.fav-item.down{opacity:.42}
+.rec-card.down .rec-t,.plist li.item.down .r-t a,.hl.down .hl-t a,
+.fav-item.down .rec-t{text-decoration:line-through}
 .rec-no{font-size:19px;font-weight:800;color:#d9c49a;min-width:34px;padding-top:2px;font-variant-numeric:tabular-nums}
 .exp-box .rec-no{color:#9ecfb8}
 .rec-main{flex:1;min-width:0}
@@ -392,8 +398,6 @@ input.search{border:1px solid var(--bd);border-radius:8px;padding:6px 11px;font-
 .plist{margin:0;padding-left:22px}
 .plist li.item{margin:0 0 14px;padding:2px 4px;border-radius:8px}
 .plist li.item.hidden{display:none}
-.plist li.item.down{opacity:.4}
-.plist li.item.down .r-t a{text-decoration:line-through}
 .r-t a{color:var(--tx);text-decoration:none;font-size:14.2px}
 .r-t a:hover{color:var(--ac)}
 .theme{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:15px 19px;margin-bottom:11px}
@@ -431,9 +435,7 @@ html{scroll-behavior:smooth;overflow-anchor:none}
 html.nosm{scroll-behavior:auto}
 body{overflow-anchor:none}
 
-/* ---- 重点论文块也要支持 Downvote 打灰划掉 ---- */
-.hl.down{opacity:.42}
-.hl.down .hl-t a{text-decoration:line-through}
+/* ---- Downvote 的「变灰 + 删除线」规则统一在上面 .rec-card.down 那一组 ---- */
 .hl{scroll-margin-top:78px}
 #sec-rec,#sec-exp,section.cat{scroll-margin-top:78px}
 
@@ -512,30 +514,53 @@ function setDl(sid,on){eachBtn(sid,function(b){if(b.dataset.act!=='dl')return;
 function setDv(sid,on){if(on)DV[sid]=1;else delete DV[sid];
  eachBtn(sid,function(b){if(b.dataset.act!=='dv')return;b.classList.toggle('on',!!on);
   var lb=b.querySelector('.lb');if(lb)lb.textContent=on?'已 Downvote':'Downvote';});
- document.querySelectorAll('.rec-card[data-sid="'+sid+'"],li.item[data-sid="'+sid+'"],.hl[data-sid="'+sid+'"]')
-  .forEach(function(e){e.classList.toggle('down',!!on);});}
+ document.querySelectorAll('.rec-card[data-sid="'+sid+'"],li.item[data-sid="'+sid+'"],'
+  +'.hl[data-sid="'+sid+'"],.fav-item[data-sid="'+sid+'"]')
+  .forEach(function(e){e.classList.toggle('down',!!on);});
+ /* 记住点击时卡片在列表里的位次：重排时按这个位次「钉」回原处，
+    让 Downvote 在三个模块里一律只是「变灰 + 删除线」，不位移、不消失。 */
+ document.querySelectorAll('#rec-list .rec-card[data-sid="'+sid+'"],#exp-list .rec-card[data-sid="'+sid+'"]')
+  .forEach(function(c){
+   if(!on){delete c.dataset.dvpos;return;}
+   var sibs=[].slice.call(c.parentNode.children).filter(function(e){return e.classList.contains('rec-card');});
+   var i=sibs.indexOf(c);if(i>=0)c.dataset.dvpos=i;});}
 function syncCount(){var s={};document.querySelectorAll('.btn.fav.on').forEach(function(b){if(b.dataset.sid)s[b.dataset.sid]=1;});
  var c=document.getElementById('favcount');if(c)c.textContent=Object.keys(s).length;}
 async function track(sid,action,extra){var body={id:sid,action:action};if(extra)for(var k in extra)body[k]=extra[k];
  var r=await api('/api/event',body);applyProfile(r.profile);
  /* 只刷新分数数字，绝不重排：展开 Abstract / 点 PDF 时列表不能动，否则像页面在刷新。 */
  if(action==='abstract'||action==='pdf')rescore();return r;}
-async function toggleFav(sid){var on=!document.querySelector('.btn.fav.on[data-act="fav"][data-sid="'+sid+'"]');
- var r=await api(on?'/api/favorite':'/api/unfavorite',{id:sid});
- if(r.ok){setFav(sid,on);applyProfile(r.profile);toast(on?'已收藏 ★ '+sid:'已取消收藏 '+sid,'ok');resort();}
- else toast(r.msg||'操作失败','err');}
-async function doDl(sid,btn){if(btn)btn.disabled=true;var lb=btn?btn.querySelector('.lb'):null;var old=lb?lb.textContent:'';
+/* ---- 并发与响应速度：乐观更新 + 合并重排 ----
+   1) 点按钮立刻改界面（不等网络往返），请求在后台跑：一篇论文正在下载时，
+      别的论文的 Downvote / 收藏 / 下载照常响应，不同操作真正并行。
+   2) 重排（排序 + 重新编号 + 视口锚定）在 30ms 内合并成一次，连点不会
+      反复重排整屏。 */
+var _rsT=0,_rsNoAnchor=false;
+function queueResort(noAnchor){if(noAnchor)_rsNoAnchor=true;
+ if(_rsT)return;
+ _rsT=setTimeout(function(){_rsT=0;var na=_rsNoAnchor;_rsNoAnchor=false;resort(na);},30);}
+function toggleFav(sid){
+ var b=document.querySelector('.btn.fav[data-act="fav"][data-sid="'+sid+'"]');
+ var on=!(b&&b.classList.contains('on'));
+ setFav(sid,on);                    /* 先改按钮，再发请求（失败回滚） */
+ api(on?'/api/favorite':'/api/unfavorite',{id:sid}).then(function(r){
+  if(!r.ok){setFav(sid,!on);queueResort();toast(r.msg||'操作失败','err');return;}
+  applyProfile(r.profile);toast(on?'已收藏 ★ '+sid:'已取消收藏 '+sid,'ok');queueResort();});}
+function doDl(sid,btn){if(btn)btn.disabled=true;var lb=btn?btn.querySelector('.lb'):null;var old=lb?lb.textContent:'';
  if(lb)lb.textContent='下载中…';
- var r=await api('/api/download',{id:sid});
- if(btn){btn.disabled=false;if(lb)lb.textContent=old;}
- if(r.ok){setFav(sid,true);setDl(sid,r.path||true);applyProfile(r.profile);
-  toast('已下载并收藏：'+((r.path||'').split(/[\\\\/]/).pop()||sid),'ok');resort();}
- else toast('下载失败：'+(r.msg||''),'err');}
-async function toggleDv(sid,btn){var on=!DV[sid];
- var r=await api(on?'/api/downvote':'/api/undownvote',{id:sid});
- if(!r.ok){toast(r.msg||'操作失败','err');return;}
- setDv(sid,on);applyProfile(r.profile);
- toast(on?'已 Downvote：'+sid+'，后续会减少同类推荐':'已撤销 Downvote','ok');resort();}
+ api('/api/download',{id:sid}).then(function(r){
+  if(btn){btn.disabled=false;if(lb)lb.textContent=old;}
+  if(r.ok){setFav(sid,true);setDl(sid,r.path||true);applyProfile(r.profile);
+   toast('已下载并收藏：'+((r.path||'').split(/[\\\\/]/).pop()||sid),'ok');queueResort();}
+  else toast('下载失败：'+(r.msg||''),'err');});}
+function toggleDv(sid){
+ var on=!DV[sid];
+ setDv(sid,on);                     /* 先变灰划线，再发请求（失败回滚） */
+ api(on?'/api/downvote':'/api/undownvote',{id:sid}).then(function(r){
+  if(!r.ok){setDv(sid,!on);queueResort();toast(r.msg||'操作失败','err');return;}
+  applyProfile(r.profile);
+  toast(on?'已 Downvote：'+sid+'（变灰划线，再点一次可撤销）':'已撤销 Downvote：'+sid,'ok');
+  queueResort();});}
 function toggleAbs(sid,btn){var box=document.getElementById('ab-'+sid);if(!box)return;
  var open=!box.classList.contains('open');box.classList.toggle('open',open);
  document.querySelectorAll('[data-act="abs"][data-sid="'+sid+'"]').forEach(function(b){
@@ -577,11 +602,20 @@ function resort(noAnchor){var anchor=noAnchor?null:saveAnchor();
  rescore();
  ['rec-list','exp-list'].forEach(function(id){
  var box=document.getElementById(id);if(!box)return;
- var cards=[].slice.call(box.querySelectorAll('.rec-card'));
- cards.sort(function(a,b){return parseFloat(b.dataset.score)-parseFloat(a.dataset.score);});
+ var all=[].slice.call(box.querySelectorAll('.rec-card'));
+ /* Downvote 的卡片一律不隐藏（与「分类详解」同一套逻辑：变灰 + 删除线），
+    并钉在点击时记下的位次上，所以它既不消失也不跳到别处，再点一次即可撤销。
+    data-limit 只约束「正常推荐」的条数，灰色卡片额外保留。 */
+ var ups=all.filter(function(c){return !DV[c.dataset.sid];});
+ var downs=all.filter(function(c){return DV[c.dataset.sid];});
+ ups.sort(function(a,b){return parseFloat(b.dataset.score)-parseFloat(a.dataset.score);});
  var limit=parseInt(box.dataset.limit||'14',10),shown=0;
- cards.forEach(function(c){var hide=!!DV[c.dataset.sid]||shown>=limit;
-  c.classList.toggle('hidden',hide);if(!hide)shown++;});
+ ups.forEach(function(c){var hide=shown>=limit;c.classList.toggle('hidden',hide);if(!hide)shown++;});
+ var cards=ups.slice();
+ downs.forEach(function(c){
+  c.classList.remove('hidden');
+  var p=parseInt(c.dataset.dvpos||'',10);if(isNaN(p))p=cards.length;
+  cards.splice(Math.max(0,Math.min(p,cards.length)),0,c);});
  /* 顺序没变就不动 DOM —— 逐个 appendChild 会造成整屏闪烁与跳动 */
  var cur=[].slice.call(box.children).filter(function(e){return e.classList.contains('rec-card');});
  var same=cur.length===cards.length;
@@ -697,7 +731,8 @@ PAGE = """<!DOCTYPE html>
 <p class="rec-sub">画像主线：数据库事务与隔离级别 · 一致性模型与规约 · 共识与复制协议 · CRDT 与复制数据类型 ·
 共享内存并发与线性一致性 · 形式化验证与定理证明 · 分布式系统测试与黑盒检查。
 「Abstract」就地展开原文摘要；「下载」按 <code>arXiv&lt;年&gt; &lt;arXiv号&gt; &lt;去标点标题&gt;.pdf</code>
-保存到 <code class="dldir-m">%(dldir)s</code> 并自动收藏；「Downvote」表示不感兴趣。你的每一次点击都会实时更新画像并当场重排下面的列表。
+保存到 <code class="dldir-m">%(dldir)s</code> 并自动收藏；「Downvote」表示不感兴趣：卡片当场<b>变灰 + 标题删除线</b>并留在原位（再点一次撤销），画像同时降权该类主题。
+按钮动作即时生效、互不等待，一篇论文正在下载时其余操作照常响应。
 类别、兴趣来源与下载目录可在 <a href="/profile">⚙ 画像与设置</a> 里增删修改。</p>
 <div id="rec-list" data-limit="%(toprec)d">%(recs)s</div>
 </div>
@@ -705,7 +740,8 @@ PAGE = """<!DOCTYPE html>
 <div class="exp-box" id="sec-exp">
 <div class="rec-h">🌱 兴趣扩展<span class="cnt">来自六分类之外的 %(excats)s 等，用于打破知识茧房</span></div>
 <p class="rec-sub">这些论文不在你日常追踪的六个分类里，但主题上与你的研究方向相邻。
-它们同样支持收藏 / 下载 / Abstract / Downvote；如果觉得不相关，直接 Downvote，画像会自动降权该类主题。</p>
+它们同样支持收藏 / 下载 / Abstract / Downvote；如果觉得不相关，直接 Downvote，画像会自动降权该类主题。
+Downvote 的表现与「为你推荐」「分类详解」完全一致：变灰 + 删除线，卡片不消失，可随时再点一次撤销。</p>
 <div id="exp-list" data-limit="%(topexp)d">%(exps)s</div>
 </div>
 

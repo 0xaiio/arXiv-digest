@@ -17,12 +17,15 @@
   POST /api/favorite         {id}  收藏（可带 meta）
   POST /api/unfavorite       {id}  取消收藏
   POST /api/download         {id}  下载 PDF 到 download_dir 并自动收藏
-  POST /api/download_all     {ids:[...]}  批量下载
+  POST /api/download_all     {ids:[...]}  批量下载（DL_WORKERS 路并发）
   POST /api/open             {id}  打开已下载的 PDF
   POST /api/open_folder      {dir?}  打开下载目录
   POST /api/category         {op:add|remove, cat, name?}  增删 arXiv 类别
   POST /api/config           {download_dir}                指定下载目录
   POST /api/source           {op:add|remove, type, value, note?, sid?}  兴趣来源
+
+并发模型：库锁（_lib_lock）只保护 library.json / profile_state.json 的读-改-写，
+网络下载不持库锁、每篇论文一把独立锁 —— 不同论文的下载与 Downvote 可同时执行。
 """
 import json
 import os
@@ -34,6 +37,7 @@ import time
 import urllib.parse
 import urllib.request
 import webbrowser
+from concurrent.futures import ThreadPoolExecutor
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -55,7 +59,25 @@ SSL_CTX = ssl.create_default_context()
 SSL_CTX.check_hostname = False
 SSL_CTX.verify_mode = ssl.CERT_NONE
 
-_lock = threading.Lock()
+# ---------------------------------------------------------------- 并发模型
+# 服务是 ThreadingHTTPServer，但「共享文件」必须串行读-改-写，否则两个请求
+# 各自 load→改→save 会互相覆盖（收藏 / Downvote 丢记录）。
+#
+# 这里把锁拆成两级，关键在于**网络下载不再持库锁**：
+#   _lib_lock  只覆盖 library.json / profile_state.json 的内存操作 + 落盘（毫秒级）
+#   _dl_locks  每篇论文一把，防止同一篇被连点两次时并发写同名 .part 文件
+# 由此，一篇 PDF 下到一半（最长 90s）时，另一篇的 Downvote / 收藏 / 下载
+# 都能同时进行 —— 之前所有请求排在同一把锁后面，一个下载就把整个页面卡住。
+_lib_lock = threading.Lock()
+_dl_locks = {}
+_dl_locks_guard = threading.Lock()
+DL_WORKERS = 3
+
+
+def dl_lock(sid):
+    """取某篇论文的下载锁（同一篇串行，不同篇并行）。"""
+    with _dl_locks_guard:
+        return _dl_locks.setdefault(sid, threading.Lock())
 
 
 def latest_digest():
@@ -127,14 +149,21 @@ def download_pdf(sid, papers, cfg, force=False):
 
 
 _papers_cache = {"ts": 0.0, "data": {}}
+_papers_lock = threading.Lock()
 
 
 def papers(force=False):
-    """带缓存的论文索引（抓取结果较大，避免每次请求都重新解析）。"""
+    """带缓存的论文索引（抓取结果较大，避免每次请求都重新解析）。
+
+    并发下载线程会同时要索引：加锁 + 双重检查，只让一个线程真正去解析大 JSON，
+    其余线程等它解析完直接复用缓存（比各自解析 N 份更省内存与时间）。
+    """
     now = time.time()
     if force or now - _papers_cache["ts"] > 60:
-        _papers_cache["data"] = pu.load_papers()
-        _papers_cache["ts"] = now
+        with _papers_lock:
+            if force or time.time() - _papers_cache["ts"] > 60:
+                _papers_cache["data"] = pu.load_papers()
+                _papers_cache["ts"] = time.time()
     return _papers_cache["data"]
 
 
@@ -198,6 +227,27 @@ def add_favorite(sid, note=None):
     lib["favorites"][sid] = rec
     pu.save_library(lib)
     return lib
+
+
+def _record_download(sid, path):
+    """把「已下载」写进 library.json 并自动收藏（纯内存 + 落盘，毫秒级，持库锁）。"""
+    with _lib_lock:
+        lib = pu.load_library()
+        lib["downloads"][sid] = {
+            "path": path, "at": pu.now_str(),
+            "title": (papers().get(sid) or {}).get("title", "")}
+        pu.save_library(lib)
+        add_favorite(sid)
+        learn(sid, "download")
+
+
+def _download_one(sid, cfg):
+    """单篇下载（批量下载的工作单元）：取数不持库锁，落库才持锁。"""
+    with dl_lock(sid):
+        ok, msg, path = download_pdf(sid, papers(), cfg)
+    if ok:
+        _record_download(sid, path)
+    return {"id": sid, "ok": ok, "msg": msg, "path": path}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -401,7 +451,7 @@ class Handler(BaseHTTPRequestHandler):
                 sid = pu.short_id(body.get("id", ""))
                 if not sid:
                     return self._json({"ok": False, "msg": "缺少 id"}, 400)
-                with _lock:
+                with _lib_lock:
                     add_favorite(sid, body.get("note"))
                     lib = pu.load_library()
                     lib["downvotes"].pop(sid, None)
@@ -412,7 +462,7 @@ class Handler(BaseHTTPRequestHandler):
 
             if u.path == "/api/unfavorite":
                 sid = pu.short_id(body.get("id", ""))
-                with _lock:
+                with _lib_lock:
                     lib = pu.load_library()
                     lib["favorites"].pop(sid, None)
                     pu.save_library(lib)
@@ -424,7 +474,7 @@ class Handler(BaseHTTPRequestHandler):
                 sid = pu.short_id(body.get("id", ""))
                 if not sid:
                     return self._json({"ok": False, "msg": "缺少 id"}, 400)
-                with _lock:
+                with _lib_lock:
                     lib = pu.load_library()
                     p = papers().get(sid) or lib["favorites"].get(sid) or {}
                     rec = {"title": p.get("title", sid), "at": pu.now_str()}
@@ -438,7 +488,7 @@ class Handler(BaseHTTPRequestHandler):
 
             if u.path == "/api/undownvote":
                 sid = pu.short_id(body.get("id", ""))
-                with _lock:
+                with _lib_lock:
                     lib = pu.load_library()
                     lib["downvotes"].pop(sid, None)
                     pu.save_library(lib)
@@ -451,7 +501,7 @@ class Handler(BaseHTTPRequestHandler):
                 action = (body.get("action") or "").strip()
                 if not sid or action not in ("abstract", "pdf", "open", "expand"):
                     return self._json({"ok": False, "msg": "参数不合法"}, 400)
-                with _lock:
+                with _lib_lock:
                     learn(sid, action)
                 return self._json({"ok": True, "id": sid, "action": action,
                                    "profile": profile_snapshot()})
@@ -460,36 +510,22 @@ class Handler(BaseHTTPRequestHandler):
                 sid = pu.short_id(body.get("id", ""))
                 if not sid:
                     return self._json({"ok": False, "msg": "缺少 id"}, 400)
-                with _lock:
+                # 取数（最长 90s 的网络 IO）只持有「本篇」的下载锁：
+                # 别的论文的下载 / Downvote / 收藏 / Abstract 完全不受影响。
+                with dl_lock(sid):
                     ok, msg, path = download_pdf(sid, papers(), cfg,
                                                  force=bool(body.get("force")))
-                    if ok:
-                        lib = pu.load_library()
-                        lib["downloads"][sid] = {
-                            "path": path, "at": pu.now_str(),
-                            "title": (papers().get(sid) or {}).get("title", ""),
-                        }
-                        pu.save_library(lib)
-                        add_favorite(sid)
-                        learn(sid, "download")
+                if ok:
+                    _record_download(sid, path)
                 return self._json({"ok": ok, "msg": msg, "path": path, "id": sid,
                                    "favorited": ok, "profile": profile_snapshot()})
 
             if u.path == "/api/download_all":
-                ids = [pu.short_id(x) for x in (body.get("ids") or [])]
-                res = []
-                for sid in ids:
-                    with _lock:
-                        ok, msg, path = download_pdf(sid, papers(), cfg)
-                        if ok:
-                            lib = pu.load_library()
-                            lib["downloads"][sid] = {
-                                "path": path, "at": pu.now_str(),
-                                "title": (papers().get(sid) or {}).get("title", "")}
-                            pu.save_library(lib)
-                            add_favorite(sid)
-                            learn(sid, "download")
-                    res.append({"id": sid, "ok": ok, "msg": msg, "path": path})
+                ids = [x for x in (pu.short_id(x) for x in (body.get("ids") or [])) if x]
+                # 批量下载不再一篇一篇排队：DL_WORKERS 路并发，明显缩短总耗时，
+                # 又不会把 arXiv 打出频控。结果顺序与请求顺序一致。
+                with ThreadPoolExecutor(max_workers=DL_WORKERS) as ex:
+                    res = list(ex.map(lambda s: _download_one(s, cfg), ids))
                 return self._json({"ok": True, "results": res,
                                    "n_ok": sum(1 for r in res if r["ok"]),
                                    "profile": profile_snapshot()})
