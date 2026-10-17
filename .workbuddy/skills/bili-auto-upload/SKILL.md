@@ -88,10 +88,35 @@ python bili_upload.py comment --exec            # 发评论并置顶（纯 reque
 ## 流程编排
 
 ```
-check → meta → cover → upload (先 dry-run 核对) → upload --exec → verify → comment --exec
+check → meta → cover → upload (先 dry-run 核对) → upload --exec → verify → comment --exec → collect
 ```
 
 每一步都可独立重跑，`upload` 默认 dry-run 是**故意的** —— 对外发布不可逆，默认值必须安全。
+
+## 合集（season）管理 —— arXiv-daily
+
+**规则（用户硬要求）**：所有 arXiv-daily 视频——已上传的 + 未来每次投稿的——都归入 B站合集「arXiv-daily」。
+
+B站里合集叫 **season**，接口在 `member.bilibili.com/x2/creative/web/season/*`。管理脚本独立于 `bili_upload.py`：
+
+```
+python tools/bili_collection.py videos        # 列出 member 稿件中「arXiv 日报」前缀视频（只读）
+python tools/bili_collection.py collections   # 列出已有合集（只读）
+python tools/bili_collection.py cover         # 生成封面 PNG→JPG 并上传图床，打印 URL
+python tools/bili_collection.py sync          # dry-run：预览将新建/挂载哪些视频
+python tools/bili_collection.py sync --exec   # 建合集(若不存在)+ 挂载所有未挂载的匹配视频
+```
+
+`create` / `add` / `sync` 默认 dry-run，**必须 `--exec` 才真正写 B站**。脚本幂等：`sync` 只补未挂载的视频，已挂载的自动跳过，可每次投稿后无脑重跑。
+
+**已建合集（2026-10-17）**：`season_id=9343347`，默认小节「正片」`section_id=10455435`，封面 `https://archive.biliimg.com/bfs/archive/acbddc1265c5c8ddac0c07d53545fd4fede505b8.jpg`。已挂载 4 期（20261002/1006/1009/1014）。
+
+**两个接口坑（2026-10-17 实测）**：
+- 封面上传 `POST /x/vu/web/cover/up`：**不是 multipart**，必须 `Content-Type: application/x-www-form-urlencoded`，正文 `csrf` + `cover=data:image/jpeg;base64,<bytes>`（带 data URI 前缀），URL 带 `ts=毫秒时间戳`。用 multipart 的 `file` 字段会报 `-400 请求错误`。
+- 建合集 `POST /x2/creative/web/season/add` 必填 `cover`（图床 URL）、`csrf`，且**触发人工审核**（state -6，通常很快过）；默认自动生成「正片」小节。
+- 加视频 `POST /x2/creative/web/season/section/episodes/add?csrf=...` 需 `sectionId` + 每集 `aid`/`cid`（cid 取自 `x/web-interface/view?aid=`）。
+
+**未来自动投稿**：自动化 `af055043`（prompt v8）在 `bili_upload.py verify` 成功后追加 `python tools/bili_collection.py sync --exec`，把新视频挂进合集。
 
 ## 已知坑
 
