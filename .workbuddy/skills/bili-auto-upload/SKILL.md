@@ -66,7 +66,7 @@ MP4 容器本身**不能承载超链接** —— 这一点要在画面里对用�
 
 ## 命令
 
-脚本：`scripts/bili_upload.py`（项目 git 根 `D:/code-repo/coworkers` 下的 `git-paper/arXiv/.workbuddy/skills/bili-auto-upload/scripts/`）。
+脚本：`scripts/bili_upload.py`（位于本仓库 `.workbuddy/skills/bili-auto-upload/scripts/`，用 `python <路径>` 调用即可）。
 
 ```powershell
 python bili_upload.py check                     # 环境体检：biliup / ffmpeg / cookie / 产物

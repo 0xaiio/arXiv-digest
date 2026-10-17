@@ -74,8 +74,8 @@
 脚本：`tools/gen_narration.py`；依赖装在 WorkBuddy **默认 venv** 里：
 
 ```bash
-C:\Users\hfwei\.workbuddy\binaries\python\envs\default\Scripts\python.exe -m pip install edge-tts imageio-ffmpeg
-C:\Users\hfwei\.workbuddy\binaries\python\envs\default\Scripts\python.exe -X utf8 tools/gen_narration.py
+python -m pip install edge-tts imageio-ffmpeg
+python -X utf8 tools/gen_narration.py
 ```
 
 产出：`reel/public/audio/{intro,p1..p10,outro}.mp3` + `reel/src/audio.json`（每段时长与语速）。
@@ -153,7 +153,7 @@ C:\Users\hfwei\.workbuddy\binaries\python\envs\default\Scripts\python.exe -X utf
 
 ```bash
 # 解释器必须是默认 venv（edge-tts 装在那里）
-set PY="C:\Users\hfwei\.workbuddy\binaries\python\envs\default\Scripts\python.exe"
+set PY="python"
 
 %PY% -X utf8 tools/gen_video_data.py --top 8 --expand 2  # -> reel/src/papers.json（10 篇）
 %PY% -X utf8 tools/gen_narration.py                      # -> reel/public/audio/*.mp3 + reel/src/audio.json

@@ -1,5 +1,5 @@
 {
- "download_dir": "D:/git-papers/arXiv",
+ "download_dir": "papers",
  "categories": [
   "cs.DB",
   "cs.DC",
@@ -43,5 +43,6 @@
  "expand_window_days": 3,
  "expand_max_results": 600,
  "affil_targets": 60,
- "port": 8765
+ "port": 8765,
+ "_comment": "作者本人的分类与扩展分类，来自其日常跟踪的数据库 / 分布式 / 形式化方向。download_dir 已改成中性的 papers/，导入后请改成你自己的目录。"
 }

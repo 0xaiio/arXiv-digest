@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""把旧下载目录（D:/git-paper/arXiv）里已下载的论文迁移到新目录
-（D:/git-papers/arXiv）。
+"""把旧下载目录里已下载的论文迁移到新目录（作者当年换目录时用的一次性脚本，留作参考）。
+
+目录通过环境变量传入，脚本本身不含任何本机路径：
+    set OLD_DIR=D:\\old\\arXiv
+    set NEW_DIR=D:\\new\\arXiv
+或直接改下面的 OLD / NEW 常量。
 
 安全约束（严格遵守）：
   1. 源目录、目标目录下**任何**已有文件都不删除、不覆盖。
@@ -9,9 +13,9 @@
   3. 迁移 = 同盘 rename（原子），随后逐文件核对 size + sha256，校验不过则回滚该文件。
   4. 全程留 manifest，写到 output/download_migration_<ts>.json 供审计。
 
-用法：
-  python tools/migrate_download_dir.py            # 干跑，只报告
-  python tools/migrate_download_dir.py --apply    # 实际执行
+用法（在仓库根执行）：
+  python presets/<预设名>/legacy/migrate_download_dir.py            # 干跑，只报告
+  python presets/<预设名>/legacy/migrate_download_dir.py --apply    # 实际执行
 """
 
 import os
@@ -21,9 +25,21 @@ import time
 import hashlib
 import shutil
 
-OLD = r"D:\git-paper\arXiv"
-NEW = r"D:\git-papers\arXiv"
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OLD = os.environ.get("OLD_DIR", r"<旧下载目录>")
+NEW = os.environ.get("NEW_DIR", r"<新下载目录>")
+
+
+def _repo_root(start):
+    """向上找到含 paperutil.py 的目录（兼容脚本被挪进 presets/ 的情况）。"""
+    d = start
+    for _ in range(6):
+        if os.path.exists(os.path.join(d, "paperutil.py")):
+            return d
+        d = os.path.dirname(d)
+    return start
+
+
+ROOT = _repo_root(os.path.dirname(os.path.abspath(__file__)))
 
 
 def sha256(path, chunk=1 << 20):

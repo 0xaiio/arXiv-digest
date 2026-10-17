@@ -29,7 +29,7 @@ Edge TTS（Microsoft Edge 的在线朗读服务，免费、中文自然度高）
 ----------------------------------
     pip install edge-tts imageio-ffmpeg
 
-    C:\\Users\\hfwei\\.workbuddy\\binaries\\python\\envs\\default\\Scripts\\python.exe -m pip install edge-tts imageio-ffmpeg
+    python -m pip install edge-tts imageio-ffmpeg
 
 用法
 ----

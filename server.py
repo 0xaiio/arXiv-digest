@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""本地论文服务：为摘要页提供「收藏 / 下载到 D:/git-papers/arXiv」能力。
+"""本地论文服务：为摘要页提供「收藏 / 下载 PDF」等交互能力（端口与下载目录见 config.json）。
 
 启动： python server.py  (默认 http://127.0.0.1:8765)
 接口：

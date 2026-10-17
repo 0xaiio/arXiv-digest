@@ -39,6 +39,10 @@ sys.path.insert(0, HERE)
 import paperutil as pu  # noqa: E402
 
 INTERESTS = os.path.join(HERE, "interests.json")
+INTERESTS_EXAMPLE = os.path.join(HERE, "interests.example.json")
+# 画像骨架：字段齐全但没有内容，保证任何模块都能安全 .get()
+EMPTY_PROFILE = {"owners": [], "topics": [], "people": [], "signature_systems": [],
+                 "negative": {"keywords": []}, "behavior": {}}
 EXTRA_PATH = os.path.join(pu.OUT, "interests_extra.json")
 
 # 自定义主题：承载「来源解析出的实词」，名字固定，便于两边对齐
@@ -133,7 +137,17 @@ def _write_json(path, obj):
 
 
 def load_interests():
-    return _read_json(INTERESTS, {"topics": [], "people": [], "signature_systems": []})
+    """读画像种子；不存在就按 interests.example.json 初始化一份（干净默认）。
+
+    interests.json 属个人数据（研究方向、对标学者、熟悉作者），不进版本库；
+    想用别人的现成画像，走 `python tools/preset.py import <预设名>`。
+    """
+    if not os.path.exists(INTERESTS):
+        pu.seed_from_example(
+            INTERESTS, INTERESTS_EXAMPLE, EMPTY_PROFILE,
+            notice="[init] 已按 interests.example.json 生成 interests.json（画像种子）。"
+                   "可在 /profile 页维护，或 `python tools/preset.py import <预设>` 导入一份示例画像。")
+    return _read_json(INTERESTS, dict(EMPTY_PROFILE))
 
 
 # ------------------------------------------------------------------ 类别 & 目录

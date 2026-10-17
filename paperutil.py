@@ -9,10 +9,13 @@ import time
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "output")
 CONFIG_PATH = os.path.join(HERE, "config.json")
+CONFIG_EXAMPLE = os.path.join(HERE, "config.example.json")
 
+# 最后兜底（config.example.json 也缺失时才用）。刻意不含任何本机路径与个人分类：
+# 新用户拿到的是「干净默认」，个人设置走 presets/ 或自己改 config.json。
 DEFAULT_CONFIG = {
-    "download_dir": "D:/git-papers/arXiv",
-    "categories": ["cs.DB", "cs.DC", "cs.FL", "cs.LO", "cs.PL", "cs.SE"],
+    "download_dir": "papers",
+    "categories": ["cs.AI", "cs.CL", "cs.LG", "cs.SE"],
     "window_days": 3,
     "max_results_per_cat": 80,
     "top_recommend": 14,
@@ -20,7 +23,42 @@ DEFAULT_CONFIG = {
 }
 
 
+def seed_from_example(target, example, fallback=None, notice=""):
+    """目标文件不存在时，用同目录的 *.example.json 生成一份。
+
+    这样仓库里只需要提交「模板」，而 config.json / interests.json 属于每个用户的
+    个人数据（含本机路径与画像），既不进版本库，也不会在别人 clone 后带着我的痕迹。
+    返回 True 表示这次真的初始化了。
+    """
+    if os.path.exists(target):
+        return False
+    data = fallback or {}
+    try:
+        if os.path.exists(example):
+            with open(example, encoding="utf-8") as f:
+                data = json.load(f)
+        os.makedirs(os.path.dirname(target) or ".", exist_ok=True)
+        tmp = "%s.%d.tmp" % (target, os.getpid())
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=1)
+        os.replace(tmp, target)
+    except Exception:
+        return False
+    if notice:
+        try:
+            print(notice)
+        except Exception:
+            pass
+    return True
+
+
 def load_config():
+    """读 config.json；不存在就按 config.example.json 初始化一份（干净默认）。"""
+    if not os.path.exists(CONFIG_PATH):
+        seed_from_example(
+            CONFIG_PATH, CONFIG_EXAMPLE, DEFAULT_CONFIG,
+            notice="[init] 已按 config.example.json 生成 config.json。"
+                   "请按需修改 categories（跟踪的分类）与 download_dir（PDF 保存目录）。")
     cfg = dict(DEFAULT_CONFIG)
     if os.path.exists(CONFIG_PATH):
         try:

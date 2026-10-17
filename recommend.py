@@ -49,7 +49,10 @@ def load_profile():
     （interests.json 原有主题 + 用户自定义主题），必须与 profile.seed_weights() 同序。
     """
     import customize as CZ  # noqa: E402
-    prof = json.load(open(os.path.join(HERE, "interests.json"), encoding="utf-8"))
+    # 用 customize.load_interests() 而不是直接 json.load：
+    # 前者在文件缺失时会按 interests.example.json 初始化，并且对缺字段有兜底，
+    # 新用户手写半份画像（比如只写 topics）也不会在这里 KeyError。
+    prof = CZ.load_interests()
     st = PF.load()
     topics = []
     for t in CZ.effective_topics(prof):
@@ -61,8 +64,9 @@ def load_profile():
             "custom": bool(t.get("custom")),
             "rx": [_rx(k) for k in t["keywords"]],
         })
-    neg = prof["negative"]
-    return prof, topics, float(neg["weight"]), [_rx(k) for k in neg["keywords"]]
+    neg = prof.get("negative") or {}
+    return (prof, topics, float(neg.get("weight", -1.0)),
+            [_rx(k) for k in (neg.get("keywords") or [])])
 
 
 def features(p, topics, neg_w, neg_rx, people, systems, kwmap):
@@ -214,14 +218,42 @@ def main():
     core_recs = [s for s in scored if picked(s, 7)][:top_n]
     exp_recs = [s for s in expand_all if picked(s, 9)][:top_e]
 
+    # 首次上手兜底：画像还很薄（比如刚用 examples 初始化、一个主题都没调）时，
+    # 严格阈值可能一篇都不达标，页面会是空的。此时退化为「按分数取前 N」，
+    # 并给每条打上提示，让用户至少能开始收藏 / Downvote 来喂画像。
+    # 注意只在**严格结果为 0** 时触发，不改变已调好画像的用户（作者本人）的精度。
+    fallback = []
+    if not core_recs and scored:
+        core_recs = [s for s in scored if picked(s, -1e9)][:top_n]
+        for s in core_recs:
+            s["_fb"] = True
+        if core_recs:
+            fallback.append("core")
+    if not exp_recs and expand_all:
+        exp_recs = [s for s in expand_all if picked(s, -1e9)][:top_e]
+        for s in exp_recs:
+            s["_fb"] = True
+        if exp_recs:
+            fallback.append("expand")
+    if fallback:
+        print("[fallback] 画像未命中主题，%s 列表改为按分数兜底（建议补充主题关键词）"
+              % " / ".join(fallback), file=sys.stderr)
+
     def tier(s):
         return "强烈推荐" if s >= 16 else ("推荐" if s >= 11 else "相关")
 
     for s in core_recs + exp_recs:
         n = notes.get(s["id"], {})
         s["tier"] = n.get("tier") or tier(s["score"])
-        s["note"] = n.get("note") or ("命中：" + "、".join(s["topics"][:3])
-                                      if s["topics"] else "主题相关")
+        if n.get("note"):
+            s["note"] = n["note"]
+        elif s.get("_fb"):
+            s["note"] = "画像尚未命中：先按分数兜底（到 /profile 补充主题关键词后会更准）"
+        elif s["topics"]:
+            s["note"] = "命中：" + "、".join(s["topics"][:3])
+        else:
+            s["note"] = "主题相关"
+        s.pop("_fb", None)
     order = {short_id(k): v.get("rank") for k, v in (notes or {}).items()
              if isinstance(v, dict) and "rank" in v}
     if order:

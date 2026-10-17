@@ -15,7 +15,7 @@ build_report.py 已用 APIBASE 兜底（跨源时改指 http://127.0.0.1:8765，
   C. 点一张卡片的「收藏」→ 服务端 state 立即出现该短号 → 点回取消并复原。
 
 依赖 websocket-client，请用默认 venv 运行：
-  C:\\Users\\hfwei\\.workbuddy\\binaries\\python\\envs\\default\\Scripts\\python.exe tools/ui_file_check.py
+  python tools/ui_file_check.py
 留档工具，不属于日刊流水线。
 """
 import argparse

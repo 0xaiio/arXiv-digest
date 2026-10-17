@@ -728,8 +728,7 @@ PAGE = """<!DOCTYPE html>
 
 <div class="rec-box" id="sec-rec">
 <div class="rec-h">🎯 为你推荐<span class="cnt">基于 %(srclabels)s 的兴趣画像</span></div>
-<p class="rec-sub">画像主线：数据库事务与隔离级别 · 一致性模型与规约 · 共识与复制协议 · CRDT 与复制数据类型 ·
-共享内存并发与线性一致性 · 形式化验证与定理证明 · 分布式系统测试与黑盒检查。
+<p class="rec-sub">%(topicline)s
 「Abstract」就地展开原文摘要；「下载」按 <code>arXiv&lt;年&gt; &lt;arXiv号&gt; &lt;去标点标题&gt;.pdf</code>
 保存到 <code class="dldir-m">%(dldir)s</code> 并自动收藏；「Downvote」表示不感兴趣：卡片当场<b>变灰 + 标题删除线</b>并留在原位（再点一次撤销），画像同时降权该类主题。
 按钮动作即时生效、互不等待，一篇论文正在下载时其余操作照常响应。
@@ -850,8 +849,29 @@ def build_html(d, groups, by_sid, recs, exps, themes, idx):
         "themes": th, "secs": secs, "win": d.get("window_days", 3),
         "excats": excats, "rail": rail,
         "srclabels": esc(_source_labels()),
+        "topicline": _topic_line(),
         "pdata": jssafe(json.dumps(pdata, ensure_ascii=False)),
     }
+
+
+def _topic_line():
+    """摘要页「画像主线」一句：由 interests.json 的主题名现算，不写死在模板里。
+
+    默认画像（interests.example.json）只有一个占位主题，这里就提示怎么配置，
+    避免别人 clone 后看到作者的研究方向。
+    """
+    try:
+        import customize as CZ
+        names = [t.get("name", "") for t in CZ.effective_topics() if t.get("name")]
+    except Exception:  # noqa
+        names = []
+    real = [n for n in names if "示例主题" not in n]
+    if not real:
+        return ('画像主线尚未设置：到 <a href="/profile">⚙ 画像与设置</a> 填主题与熟悉研究者，'
+                '或 <code>python tools/preset.py list</code> 查看并导入一份示例画像。')
+    shown = " · ".join(esc(n) for n in real[:8])
+    more = "" if len(real) <= 8 else "（共 %d 个主题）" % len(real)
+    return "画像主线：%s%s。" % (shown, more)
 
 
 def _source_labels():
@@ -1168,7 +1188,7 @@ PROFILE_PAGE = """<!DOCTYPE html>
 该作者出现在论文作者列表里即 <b>+10 分／篇</b>，删除该来源会同时撤销这条加成。
 改动后点工具栏 <b>↻ 重算推荐</b>，摘要页的文案与排序即刻同步。</p>
 <div class="form own-form" id="own-form">
-<input id="own-name" placeholder="姓名（必填，如 Constantin Enea）">
+<input id="own-name" placeholder="姓名（必填，如 Jane Doe / 张三）">
 <input id="own-label" placeholder="简称（可选，头部显示）">
 <input id="own-site" placeholder="主页 https://…（可选）">
 <input id="own-affil" placeholder="所属机构（可选）">
@@ -1223,7 +1243,7 @@ PROFILE_PAGE = """<!DOCTYPE html>
 <h2 class="sec-h">📁 下载目录</h2>
 <div class="panel">
 <div class="form">
-<input id="dldir" placeholder="D:/git-papers/arXiv">
+<input id="dldir" placeholder="例如 ./papers 或 D:/papers">
 <button class="tb primary" id="dldir-save">保存</button>
 <button class="tb" id="dldir-open">📁 打开</button>
 </div>

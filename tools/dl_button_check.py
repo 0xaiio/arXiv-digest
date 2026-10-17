@@ -14,7 +14,7 @@
 网络取数这一半另由 `python netroute.py` 与隔离目录测试覆盖。
 
 依赖 websocket-client，请用默认 venv 运行：
-  C:\\Users\\hfwei\\.workbuddy\\binaries\\python\\envs\\default\\Scripts\\python.exe tools/dl_button_check.py
+  python tools/dl_button_check.py
 """
 import argparse
 import json
