@@ -265,7 +265,7 @@ curl --noproxy '*' http://127.0.0.1:8765/api/library
 
 - 新增字段是**兼容变更**，可以直接发；前端按需读取；
 - 删除字段、改字段语义、改状态码属于**破坏性变更**，会同时更新本页与
-  [CHANGELOG](../../CHANGELOG.md)；
+  [CHANGELOG](https://github.com/0xaiio/arXiv-digest/blob/main/CHANGELOG.md)；
 - 本项目不承诺跨版本 API 稳定性（它是单机工具，前端与后端总是一起更新）。
 
 ---

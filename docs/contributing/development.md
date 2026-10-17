@@ -146,9 +146,9 @@ git diff --cached | grep -iE 'cookie|token|secret|password'    # 应为空
 
 新增文件前先看[目录职责](../meta/structure.md)：根目录只放**主流程模块**，
 一次性/维护脚本放 `tools/`，文档放 `docs/<类别>/`。每个新文档必须被
-[文档索引](../README.md) 与 [README](../../README.md) 收录。
+[文档中心](../documentation.md) 与 [README](https://github.com/0xaiio/arXiv-digest#readme) 收录。
 
 ---
 
-相关：[测试与回归](testing.md) · [贡献指南](../../CONTRIBUTING.md) ·
+相关：[测试与回归](testing.md) · [贡献指南](https://github.com/0xaiio/arXiv-digest/blob/main/CONTRIBUTING.md) ·
 [目录职责](../meta/structure.md) · [模块职责](../architecture/modules.md)

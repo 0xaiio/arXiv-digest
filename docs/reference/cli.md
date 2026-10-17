@@ -97,7 +97,7 @@ python run_daily.py --no-serve                     # 只出文件
 | `rebuild_raw_from_index.py` | 从 `output/papers_index.json` 反推重建 `raw.json` / `raw_expand.json` |
 | `backfill_archive.py` | 把磁盘上已有的 `arxiv_digest_<日期>.md/.html` 回填进 `archive.db` |
 
-### 回归测试
+### 回归测试 {#回归测试}
 
 | 脚本 | 是否需要浏览器 | 验证什么 |
 | --- | --- | --- |

@@ -86,7 +86,7 @@ arXiv-digest/
 | `operations/` | 故障排查 | 概念型问答（放 `meta/faq.md`） |
 | `meta/` | 目录职责、FAQ、术语表 | 具体功能说明 |
 
-导航入口是 [docs/README.md](../README.md)，同时被根 [README](../../README.md) 完整索引。
+导航入口是 [文档中心](../documentation.md)，同时被根 [README](https://github.com/0xaiio/arXiv-digest#readme) 完整索引。
 **新增文档必须同时登记到这两处**，否则视为不可达。
 
 ## 四、为什么没有 `src/` 布局（以及为什么暂时不改）

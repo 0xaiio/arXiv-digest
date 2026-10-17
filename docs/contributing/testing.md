@@ -293,7 +293,7 @@ FAILED tests/unit/test_x.py::test_y - AssertionError: 权重翻倍后分数必�
 | 准备提交 | `pytest --cov` 全量 |
 
 失败优先怀疑自己的改动，而不是先改测试期望——除非能说明「旧期望本身写错了」
-（本项目里两种情况都真实发生过，见 [CHANGELOG](../../CHANGELOG.md)）。
+（本项目里两种情况都真实发生过，见 [CHANGELOG](https://github.com/0xaiio/arXiv-digest/blob/main/CHANGELOG.md)）。
 
 ---
 

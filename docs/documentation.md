@@ -80,9 +80,9 @@
 - **命令**：Linux/macOS 的 `python` 在 Windows 上可能是 `py -3`；两者等价。
 - **占位符**：`<日期>` 指 `YYYYMMDD`，`<短号>` 指不带版本号的 arXiv 编号（如 `2609.09742`），见[术语表](meta/glossary.md)。
 - **版本**：文档描述的是当前 `main` 分支的行为。接口或字段有破坏性改动时，会同时更新对应参考页与
-  [CHANGELOG](../CHANGELOG.md)。
+  [CHANGELOG](https://github.com/0xaiio/arXiv-digest/blob/main/CHANGELOG.md)。
 - **发现文档与代码不一致**：以代码为准，并提 issue 或直接改文档——文档错误按缺陷处理，参见
-  [贡献指南](../CONTRIBUTING.md)。
+  [贡献指南](https://github.com/0xaiio/arXiv-digest/blob/main/CONTRIBUTING.md)。
 
 ## 九、贡献文档
 
@@ -90,5 +90,5 @@
 
 - 一个主题一个文件，文件名用小写连字符（`profile-tuning.md`）；
 - 放在对应子目录，不要平铺在 `docs/` 根下；
-- 新文档必须被本页与 [README](../README.md) 索引收录，否则视为不可达；
+- 新文档必须被本页与 [README](https://github.com/0xaiio/arXiv-digest#readme) 索引收录，否则视为不可达；
 - 写完后自查所有相对链接指向真实文件（详见 [开发指南](contributing/development.md)）。

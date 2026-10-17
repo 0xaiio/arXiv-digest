@@ -1,0 +1,87 @@
+site_name: arXiv-digest
+site_description: 把 arXiv 每日新论文按你的研究画像排序，生成可交互的本地日报
+site_url: https://0xaiio.github.io/arXiv-digest/
+repo_url: https://github.com/0xaiio/arXiv-digest
+repo_name: 0xaiio/arXiv-digest
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  language: zh
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: 切换到深色模式
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: 切换到浅色模式
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - navigation.indexes
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+extra_css:
+  - stylesheets/extra.css
+
+plugins:
+  - search:
+      lang: zh
+      separator: '[\s\-\.]+'
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - attr_list
+  - toc:
+      permalink: true
+
+nav:
+  - 首页: index.md
+  - 文档中心: documentation.md
+  - 教程:
+      - 安装: getting-started/installation.md
+      - 快速开始: getting-started/quickstart.md
+  - 指南:
+      - 日常使用: guide/daily-workflow.md
+      - 调优画像: guide/profile-tuning.md
+      - 预设: guide/presets.md
+      - 视频与投稿: guide/video-pipeline.md
+  - 参考:
+      - 命令行: reference/cli.md
+      - HTTP API: reference/http-api.md
+      - config.json: reference/config.md
+      - interests.json: reference/interests.md
+      - 数据文件: reference/data-files.md
+  - 概念:
+      - 架构总览: architecture/overview.md
+      - 模块职责: architecture/modules.md
+      - 排序与学习算法: architecture/ranking.md
+      - 服务运行时: architecture/server-runtime.md
+  - 开发与运维:
+      - 开发指南: contributing/development.md
+      - 测试与回归: contributing/testing.md
+      - 故障排查: operations/troubleshooting.md
+  - 元信息:
+      - 目录职责: meta/structure.md
+      - FAQ: meta/faq.md
+      - 术语表: meta/glossary.md

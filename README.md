@@ -5,6 +5,8 @@
 [![Docs](https://img.shields.io/badge/docs-22%20pages-informational)](docs/README.md)
 [![Tests](https://img.shields.io/badge/tests-551%20passed-success)](docs/contributing/testing.md)
 [![Coverage](https://img.shields.io/badge/coverage-89%25-brightgreen)](docs/contributing/testing.md#三覆盖率)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Docs site](https://img.shields.io/badge/docs-site-0xaiio.github.io%2FarXiv--digest-informational)](https://0xaiio.github.io/arXiv-digest/)
 [![Status](https://img.shields.io/badge/status-active-success)](#项目状态)
 
 把 arXiv 的每日新论文按**你自己的研究画像**排序，生成一份可交互的本地日报：
@@ -230,7 +232,7 @@ git commit -m "feat: ..." && git push
 - 视频与 B 站投稿是可选的实验性附加链路，接口可能随平台变化；
 - 有一个单机私有实例在长期运行（研究画像：数据库系统 / 分布式计算 / 形式化方法），
   那份设置以 `presets/hengxin/` 形式公开；
-- **尚未附开源许可**（默认保留所有权利）。如需在他人项目中复用，欢迎先开 issue 讨论。
+- 采用 [MIT License](LICENSE) 开源，可自由复用与二次分发。
 
 ---
 
