@@ -1,5 +1,10 @@
 # arXiv cs.* 论文日报（个性化推荐 / 收藏 / 下载）
 
+> **独立仓库**：本项目原寄生在私有仓库 `0xaiio/coworkers` 的 `git-paper/arXiv` 子目录，
+> 2026-10-17 抽成独立公开仓库 **`0xaiio/arXiv-digest`**（`git filter-repo` 保留全部 17 条
+> 相关提交历史）。权威工作目录：`D:/code-repo/arXiv-digest`。
+> **每次提交后自动 push**（`.git/hooks/post-commit`），见文末「仓库与自动推送」。
+
 按个人研究画像（数据库系统 · 分布式计算 · 形式化方法）每日抓取 arXiv 新论文，
 打分推荐并渲染成可交互的本地 HTML：Abstract 展开、收藏、下载 PDF、Downvote 反馈，
 所有交互回传本地服务（127.0.0.1:8765）实时更新偏好权重。
@@ -188,3 +193,30 @@ python tools/dv_unify_check.py      # 三处 opacity 与删除线取值相同、
   `tools/ui_probe.py` 等旧探针另需 Playwright。
 - **下载报错先查路由**：`python netroute.py`。本机出口代理会掐断 arXiv 的 TLS 流，
   属环境问题而非代码问题；`netroute.py` 已自动绕开，若仍失败再查代理是否整体不可用。
+
+## 仓库与自动推送
+
+| 项 | 值 |
+| --- | --- |
+| 远程 | `git@github.com:0xaiio/arXiv-digest.git`（**public**） |
+| 分支 | `main` |
+| 本地权威目录 | `D:/code-repo/arXiv-digest` |
+| 历史 | 由 `git filter-repo --subdirectory-filter git-paper/arXiv` 从 `0xaiio/coworkers` 抽出，保留 17 条相关提交（作者 / 日期 / 信息原样） |
+
+**自动推送**：`.git/hooks/post-commit` 在每次提交后异步执行 `git push origin <当前分支>`。
+设计成「不阻塞、不阻断」——推送失败只打印一行提示（例如离线），提交本身不受影响，
+下次提交会一并把未推的提交带上去。手动补推：`git push`。
+
+**不放进仓库的东西**（见 `.gitignore`，这个仓库是公开的）：
+
+| 类别 | 内容 |
+| --- | --- |
+| 运行产物 | `output/`（日报、评分、`archive.db`、`library.json`、抓取缓存）、`*.log`、`*.bad_*` |
+| 个人数据 | 下载记录、行为画像、库文件副本（含本机绝对路径） |
+| 凭据 | `.secrets/`（B 站 cookie）、`cookies.json`、`**/*cookie*.json`、token / 密钥 |
+| 依赖与渲染 | `reel/node_modules/`、`reel/out/`、`reel/public/audio/` |
+| 本机状态 | `.workbuddy/memory/`（会话记忆）、探针截图 `tools/ui_*.png` |
+
+新机器上重建可运行环境：`git clone` 后只需补 `output/`（跑一次 `python run_daily.py` 自动生成）、
+`reel/node_modules`（`cd reel && npm ci`）——代码、配置、画像种子（`interests.json`）、
+`config.json` 都在仓库里。
