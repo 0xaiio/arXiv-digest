@@ -1,0 +1,22 @@
+#!/bin/sh
+# arXiv-digest: 每次提交后自动推送到 origin
+# 原则：推送失败绝不阻断提交（离线时下次提交会把未推的提交一并带上去）。
+set +e
+branch=$(git symbolic-ref --quiet --short HEAD 2>/dev/null)
+[ -z "$branch" ] && exit 0
+url=$(git config --get remote.origin.url)
+[ -z "$url" ] && exit 0
+log="$(git rev-parse --git-dir)/auto-push.log"
+if command -v timeout >/dev/null 2>&1; then
+  timeout 30 git push origin "$branch" >"$log" 2>&1
+  rc=$?
+else
+  git push origin "$branch" >"$log" 2>&1
+  rc=$?
+fi
+if [ "$rc" -eq 0 ]; then
+  echo "[auto-push] 已推送到 origin/$branch"
+else
+  echo "[auto-push] 推送失败（可能离线），未推的提交会在下次 git push 时补上；日志：$log" >&2
+fi
+exit 0

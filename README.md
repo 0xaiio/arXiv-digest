@@ -203,9 +203,10 @@ python tools/dv_unify_check.py      # 三处 opacity 与删除线取值相同、
 | 本地权威目录 | `D:/code-repo/arXiv-digest` |
 | 历史 | 由 `git filter-repo --subdirectory-filter git-paper/arXiv` 从 `0xaiio/coworkers` 抽出，保留 17 条相关提交（作者 / 日期 / 信息原样） |
 
-**自动推送**：`.git/hooks/post-commit` 在每次提交后异步执行 `git push origin <当前分支>`。
-设计成「不阻塞、不阻断」——推送失败只打印一行提示（例如离线），提交本身不受影响，
-下次提交会一并把未推的提交带上去。手动补推：`git push`。
+**自动推送**：`.git/hooks/post-commit` 在每次提交后自动执行 `git push origin <当前分支>`（30s 超时）。
+原则是「推送失败不阻断提交」——离线时只打印一行提示，日志落在 `.git/auto-push.log`，
+未推的提交会在下次 `git push` 时一并补上，因此不会出现「本地有提交、远端却落后且无人知晓」。
+手动补推：`git push`。hooks 不被 git 跟踪，**新 clone 后执行一次** `sh tools/git-hooks/install.sh`。
 
 **不放进仓库的东西**（见 `.gitignore`，这个仓库是公开的）：
 
