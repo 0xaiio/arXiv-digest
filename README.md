@@ -2,7 +2,7 @@
 
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![Runtime deps](https://img.shields.io/badge/runtime-stdlib--only-brightgreen)](#环境与依赖)
-[![Docs](https://img.shields.io/badge/docs-22%20pages-informational)](docs/documentation.md)
+[![Docs](https://img.shields.io/badge/docs-23%20pages-informational)](docs/documentation.md)
 [![Tests](https://img.shields.io/badge/tests-551%20passed-success)](docs/contributing/testing.md)
 [![Coverage](https://img.shields.io/badge/coverage-89%25-brightgreen)](docs/contributing/testing.md#三覆盖率)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)

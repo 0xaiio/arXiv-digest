@@ -9,7 +9,7 @@
 | 文件 | 内容 |
 | --- | --- |
 | `config.json` | 6 个主分类（cs.DB / cs.DC / cs.FL / cs.LO / cs.PL / cs.SE）+ 18 个扩展分类 + 推荐条数等 |
-| `interests.json` | 4 位画像主来源（本人 / Alexey Gotsman / Hagit Attiya / Constantin Enea）、7 个研究主题（含关键词）、60 位熟悉研究者、代表系统、降权词 |
+| `interests.json` | 4 位画像主来源（本人 / Alexey Gotsman / Hagit Attiya / Constantin Enea）、14 个研究主题（含关键词）、61 位熟悉研究者、22 个代表系统、降权词 |
 | `legacy/` | 当年一次性用过的迁移/种子脚本（把论文摘要与看点写进 `output/*.json`）。**正常运行不需要**，留作参考 |
 
 ## 怎么用
@@ -29,7 +29,7 @@ python server.py                                # 重启服务，页面才会读
 
 ## 导入前必改
 
-1. `config.json` 的 `download_dir`：这是作者本机的 `D:/git-papers/arXiv`，**改成你自己的目录**，
+1. `config.json` 的 `download_dir`：预设里给的是中性的 `papers/`，**改成你自己的目录**，
    也可以在 `/profile` 页的「下载目录」里改。
 2. `config.json` 的 `categories`：作者只追数据库 / 分布式 / 形式化，别的方向请替换成自己的。
 3. 导入是**整体覆盖**：你之前调好的主题与行为学习（`output/profile_state.json`）不会被重置，
