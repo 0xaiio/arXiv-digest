@@ -259,3 +259,7 @@ def main():
         srv.serve_forever()
     except KeyboardInterrupt:
         print("\nbye")
+
+
+if __name__ == "__main__":
+    main()
