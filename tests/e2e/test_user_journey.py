@@ -151,13 +151,42 @@ def test_fresh_install_has_no_personal_traces(bare_sandbox):
     prof = CZ.load_interests()
 
     assert cfg["download_dir"] == "papers"
+    assert cfg["categories"] == [], "模板不得夹带任何人的分类偏好"
     assert prof["owners"] == [], "不得带入任何人的画像主来源"
     assert prof["people"] == []
+    assert prof["topics"] == [], "模板里的主题必须是空数组，否则首屏就有假数据"
 
     text = (bare_sandbox.interests.read_text(encoding="utf-8")
             + bare_sandbox.cfg.read_text(encoding="utf-8"))
-    for leak in ("魏恒峰", "Gotsman", "Attiya", "Enea", "git-papers"):
+    for leak in ("魏恒峰", "Gotsman", "Attiya", "Enea", "git-papers", "示例主题"):
         assert leak not in text
+
+    # 三层页面（首次引导 / 画像 / 收藏）都不得出现别人的痕迹
+    pages = [B.build_welcome(), B.build_profile_page(),
+             B.build_favorites(pu.load_library())]
+    for html in pages:
+        for leak in ("魏恒峰", "Gotsman", "Attiya", "Enea", "git-papers", "示例主题"):
+            assert leak not in html, "首屏泄露了 %s" % leak
+
+
+def test_pack_in_presets_is_not_loaded_automatically(bare_sandbox):
+    """presets/ 里放着别人的包时，首次启动仍然必须是空的（不自动合并）。"""
+    bare_sandbox.make_pack(
+        "someone", {"config.json": {"categories": ["cs.DB"], "download_dir": "papers"},
+                    "interests.json": {"owners": [{"name": "Someone Else"}],
+                                       "topics": [{"name": "别人的主题", "weight": 1.0,
+                                                   "keywords": ["x"]}]}},
+        manifest={"schema": 1, "title": "别人的画像", "description": "别人的研究方向"})
+
+    assert pu.load_config()["categories"] == [], "包不得在启动时生效"
+    assert CZ.load_interests()["owners"] == []
+
+    page = B.build_welcome()
+    profile = B.build_profile_page()
+    for html in (page, profile):
+        for leak in ("别人的画像", "别人的研究方向", "Someone Else", "别人的主题"):
+            assert leak not in html, "页面上出现了包内内容：%s" % leak
+    assert "someone" in profile, "包名可以出现（那是「这里有一份可选数据」）"
 
 
 def test_pipeline_without_fetch_data_fails_loudly(bare_sandbox):

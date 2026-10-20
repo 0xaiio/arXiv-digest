@@ -23,10 +23,17 @@ coverage.xml
 htmlcov/
 
 # ---------------------------------------------------------------- 个人配置与画像
-# 只有模板（*.example.json）和个人预设（presets/<名字>/）入库；
+# 只有模板（*.example.json）与数据包（presets/<名字>/）入库；
 # 你本机正在用的 config.json / interests.json 属于个人数据，默认不进版本库。
+# 数据包本身允许"可公开的画像 + 不该公开的使用数据"同处一个目录：
+#   library.json / behavior.json / profile_state.json 已被下面的文件名规则忽略，
+#   编辑性笔记在这里按路径忽略（它们只可能出现在 output/ 或数据包里）。
+# 设计与边界见 docs/architecture/data-isolation.md。
 /config.json
 /interests.json
+/presets/*/summaries.json
+/presets/*/rec_notes.json
+/presets/*/highlights.json
 
 # ---------------------------------------------------------------- 本地数据
 # 下载目录与库文件的副本（含本机绝对路径、个人使用记录）

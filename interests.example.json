@@ -1,13 +1,7 @@
 {
-  "_comment": "画像种子模板（干净的默认值）。首次运行若发现 interests.json 不存在，会按本文件生成一份。字段含义见 docs/CONFIG.md：topics = 研究主题（关键词命中加分）、people = 熟悉研究者（作者命中 +10/篇）、signature_systems = 代表系统（标题/摘要命中 +6）、negative.keywords = 降权词、owners = 画像主来源（显示在 /profile 与摘要页头部）。下面的示例主题只是格式示范，请替换成你自己的方向，或在 /profile 页里增删。",
+  "_comment": "画像种子模板（完全空的默认值）。首次运行若发现 interests.json 不存在，会按本文件生成一份。字段含义见 docs/reference/interests.md：topics = 研究主题（关键词命中加分）、people = 熟悉研究者（作者命中 +10/篇）、signature_systems = 代表系统（标题/摘要命中 +6）、negative.keywords = 降权词、owners = 画像主来源（显示在 /profile 与摘要页头部）。这里刻意**全部留空**——模板不得夹带任何人的研究方向。一个主题的格式是 {\"name\": \"事务与隔离级别\", \"weight\": 1.5, \"keywords\": [\"isolation level\", \"serializability\"]}，在 /profile 页可增删，也可以导入一份现成数据包（python tools/preset.py list）。",
   "owners": [],
-  "topics": [
-    {
-      "name": "示例主题（请替换成你的研究方向）",
-      "weight": 1.0,
-      "keywords": ["distributed", "consensus", "verification", "benchmark", "protocol"]
-    }
-  ],
+  "topics": [],
   "people": [],
   "signature_systems": [],
   "negative": {

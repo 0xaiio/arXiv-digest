@@ -29,7 +29,7 @@
 
 | 字段 | 类型 | 模板默认 | 说明 |
 | --- | --- | --- | --- |
-| `download_dir` | string | `"papers"` | PDF 保存目录。**唯一真源**——页面显示、下载、`/api/open` 都读它。相对路径相对项目根，绝对路径原样使用；不存在会自动创建 |
+| `download_dir` | string | `"papers"` | PDF 保存目录。**唯一真源**——页面显示、下载、`/api/open` 都读它。相对路径相对项目根，绝对路径原样使用；不存在会自动创建。用 `tools/preset.py export` 导出数据包时，绝对路径会被中性化成 `papers`（`--keep-paths` 可关闭） |
 | `categories` | string[] | `[]` | **主分类**：每日必抓，「为你推荐」与「分类详解」都来自这里。默认**空**——本工具不预设任何领域，由用户在 `/profile` 里从官方分类表中自选（见 [arXiv 类别](categories.md)）。**数组顺序 = 摘要页分类小节的顺序**（可拖拽排序） |
 | `category_names` | object | `{}` | 分类中文名的**自定义覆盖**。官方表（`arxiv_cats.py`）的 155 个分类都自带中文名，只有想自己起名时才需要写这里 |
 | `window_days` | int | `3` | 抓最近几天的公告。arXiv 每工作日 20:00 ET 公告一次，3 天可覆盖周末 |
@@ -118,4 +118,4 @@ config.expand_categories   → fetch_expand.py → raw_expand.json → 「🌱 �
 ---
 
 相关：[arXiv 类别](categories.md) · [interests.json](interests.md) · [数据文件](data-files.md) ·
-[预设](../guide/presets.md) · [命令行](cli.md)
+[数据包（预设）](../guide/presets.md) · [命令行](cli.md)

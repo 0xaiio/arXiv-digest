@@ -119,10 +119,38 @@ print(routes.table())      # {'get': [...], 'get_prefix': [...], 'post': [...]}
 原样返回 `output/library.json`（`favorites` / `downloads` / `downvotes` 三个对象）。
 字段含义见 [数据文件](data-files.md)。
 
-### `GET /api/archive/days`
+### `GET /api/datapacks`
+
+可用数据包 + 本机个人数据清单。**只返回"形状"，不返回包内容**——包的标题与描述
+往往就是作者的类别选择与研究方向，属于要隔离的内容（见
+[私人数据隔离](../architecture/data-isolation.md)）。
 
 ```json
 {
+  "packs": [
+    { "name": "hengxin",
+      "files": ["config.json", "interests.json"],
+      "groups": { "core": ["config.json", "interests.json"] },
+      "bytes": 17866 }
+  ],
+  "state": {
+    "files": {
+      "library.json": { "group": "usage", "exists": true, "bytes": 189712,
+                        "updated_at": "2026-10-20 10:44:05" }
+    },
+    "has_personal_data": true
+  },
+  "groups": ["core", "usage", "learning", "notes"],
+  "defaults": ["core", "usage", "notes"]
+}
+```
+
+`state.files` **不含绝对路径**（接口输出会进浏览器，路径属本机信息）；
+要排障看路径用 `python paths.py`。
+
+### `GET /api/archive/days`
+
+```json
   "issues": [ { "date": "20261017", "n_new": 164, "n_rec": 14, "n_exp": 10 } ],
   "dates": ["20261017", "20261016"],
   "stats": { "issues": 33, "papers": 4310, "db": "...", "archive_dir": "..." }
@@ -275,6 +303,40 @@ arXiv 官方分类全表，是 `/profile` 两个联动下拉框的数据源（�
 ```
 
 `single:true` 的 archive 只有唯一分类且无点号（`quant-ph` / `hep-th` / `gr-qc` 等 9 个）。
+
+### `POST /api/preset`
+
+导入 / 导出数据包。**导入语义全部在 `datapack.import_pack`**，接口只做参数归一化与状态码。
+
+| 请求体 | 行为 | 响应 |
+| --- | --- | --- |
+| `{"op":"import","name":"hengxin"}` | 导入 `presets/hengxin/` 的 core + usage + notes | `{ok, msg, report, state}` |
+| `{"op":"import","name":"hengxin","force":true}` | 允许覆盖本机 `config.json` / `interests.json`（先备份到 `output/backup/<时间>/`） | 同上 |
+| `{"op":"import","name":"hengxin","groups":["core"]}` | 只导入指定分组（`groups` 也可传逗号分隔字符串） | 同上 |
+| `{"op":"export","name":"mine","groups":["core"]}` | 把本机运行态导出成包（界面不提供入口，留给脚本） | 同上 |
+
+- 成功 `200`；**任何一个文件被拒绝就返回 `400`**（`ok:false`），`msg` 里带逐文件原因，
+  例如「本机已有不同内容（加 --force 覆盖，会先备份）」；
+- `core` 文件若仍是模板初值（与 `*.example.json` 一致），无需 `force` 直接替换——
+  否则新用户点「导入」永远失败；
+- 包名非法（含 `/`、`..`、以 `.` 开头）→ `400`，不触碰任何文件；
+- `report` 是逐文件结果：`[{file, group, action, reason, bytes}]`，
+  `action ∈ {written, replaced, merged, skipped, refused}`；
+- 导入成功后界面应刷新（`state` 已是最新），摘要页仍需 `POST /api/rebuild` 才会重排。
+
+```json
+{
+  "ok": true,
+  "msg": "已处理 2 个文件",
+  "report": [
+    {"file": "config.json", "group": "core", "action": "replaced",
+     "reason": "--force 覆盖（已备份）", "bytes": 993},
+    {"file": "interests.json", "group": "core", "action": "skipped",
+     "reason": "内容与本机一致", "bytes": 16873}
+  ],
+  "state": { "categories": ["cs.DB"], "profile": { } }
+}
+```
 
 ### `POST /api/rebuild`
 

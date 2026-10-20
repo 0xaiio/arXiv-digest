@@ -80,7 +80,11 @@
 | **行为流水**（`behavior.json`） | 最近 2000 条点击记录，仅用于审计与离线分析 |
 | **前端索引**（`papers_index.json`） | 让浏览器用同一套公式重排分数所需的最小数据：`base` / `tv` / `toks` / `pen` / `weights` |
 | **编辑性内容** | `summaries.json`（中文摘要）、`rec_notes.json`（推荐理由）、`highlights.json`（看点）、`themes.json`（主题归纳）。key 一律短号，可手工补 |
-| **预设**（preset） | 一整套 `config.json` + `interests.json`，可用 `tools/preset.py` 导入导出 |
+| **数据包**（data pack） | 一整套设置与使用数据的可迁移单元：`presets/<名字>/` 下的纯 JSON，**默认不加载**，用 `--preset` 或界面「导入」才生效。旧称"预设" |
+| **包清单**（`manifest.json`） | 包的元信息与完整性凭据：`schema` 版本、分组、逐文件 `bytes` 与 `sha256`。导入时据此拒绝未来版本与被手改坏的文件 |
+| **数据分组** | 包的四个分区：`core`（配置/画像，整文件替换）· `usage`（收藏/下载/Downvote，只并集）· `learning`（行为学习，默认不导入）· `notes`（摘要与笔记，只并集）。分组决定导入冲突怎么处理 |
+| **运行态** | 本机正在用的 `config.json` / `interests.json` / `output/`。与"模板""数据包"并列的三层之一，永不进版本库 |
+| **只暴露形状** | 界面与 `/api/datapacks` 只显示包名、文件清单、体积，不显示标题/描述/内容。理由见[私人数据隔离](../architecture/data-isolation.md) |
 
 ## 七、工程与文档
 

@@ -288,6 +288,21 @@ def library(req):
     return Reply.json(req.api.pu.load_library())
 
 
+@get("/api/datapacks")
+def datapacks(req):
+    """可用数据包 + 本机个人数据清单。
+
+    只返回**形状**（包名 / 文件清单 / 体积），不返回包的标题、描述与任何内容 ——
+    那句描述往往就是作者的类别选择与研究方向，属要隔离的内容。
+    规则见 docs/architecture/data-isolation.md §六。
+    """
+    DP = req.api.DP
+    return Reply.json({"packs": DP.public_view(),
+                       "state": DP.state(),
+                       "groups": list(DP.GROUP_ORDER),
+                       "defaults": list(DP.DEFAULT_IMPORT)})
+
+
 @get("/api/archive/days")
 def archive_days(req):
     try:
@@ -508,6 +523,37 @@ def rebuild(req):
     api = req.api
     ok, msg = api.rebuild_digest()
     return Reply.json({"ok": ok, "msg": msg, "state": api.CZ.view()})
+
+
+@post("/api/preset")
+def preset(req):
+    """导入一份数据包（`presets/<名字>/`）。
+
+    op:
+      import  导入（默认 core + usage + notes）；force=true 才覆盖 core 文件
+      export  把本机设置导出成包（界面上不提供入口，保留给脚本与调试）
+
+    语义（合并 / 拒绝 / 备份）全在 ``datapack.import_pack``，这里只做参数归一化与状态码：
+    拒绝导入返回 400，界面据 ``ok`` 弹出逐文件原因。
+    """
+    api, op = req.api, req.op("import")
+    name = (req.arg("name") or "").strip()
+    if not name:
+        return Reply.json({"ok": False, "msg": "缺少数据包名称", "state": api.CZ.view()}, 400)
+    groups = req.arg("groups") or None
+    if isinstance(groups, str):
+        groups = [g.strip() for g in groups.replace("，", ",").split(",") if g.strip()]
+    if op == "import":
+        ok, msg, report = api.DP.import_pack(name, groups=groups,
+                                            force=bool(req.arg("force")))
+        return Reply.json({"ok": ok, "msg": msg, "report": report,
+                           "state": api.CZ.view()}, 200 if ok else 400)
+    if op == "export":
+        ok, msg, report = api.DP.export_pack(name, groups=groups)
+        return Reply.json({"ok": ok, "msg": msg, "report": report,
+                           "state": api.CZ.view()}, 200 if ok else 400)
+    return Reply.json({"ok": False, "msg": "未知操作 %s" % op,
+                       "state": api.CZ.view()}, 400)
 
 
 @post("/api/open")

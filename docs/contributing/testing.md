@@ -1,13 +1,13 @@
 # 测试与回归
 
-项目有一套 **pytest 测试套件**：666 个用例，覆盖单元 / 集成 / 端到端 / 浏览器四层，
+项目有一套 **pytest 测试套件**：720 个用例，覆盖单元 / 集成 / 端到端 / 浏览器四层，
 行覆盖率 **90%**（门槛 85%），全量跑完约 67 秒（不含浏览器层约 55 秒）。
 
 运行期仍然**零第三方依赖**——测试依赖只在 `requirements-dev.txt` 里。
 
 ```bash
 python -m pip install -r requirements-dev.txt
-python -m pytest                 # 666 passed
+python -m pytest                 # 720 passed
 python -m pytest --cov           # 附带覆盖率，低于 85% 直接失败
 ```
 
@@ -18,10 +18,11 @@ python -m pytest --cov           # 附带覆盖率，低于 85% 直接失败
 ```
 tests/
 ├─ conftest.py                 # 沙箱隔离（所有路径常量重定向）+ 数据工厂 + HTTP 客户端
-├─ unit/                       # 566 个：纯函数与单模块，不联网、不起服务
+├─ unit/                       # 605 个：纯函数与单模块，不联网、不起服务
 │  ├─ test_paths.py            #   ★ 路径唯一来源：各模块常量必须与 paths 一致
 │  ├─ test_arxiv_cats.py       #   ★ 官方分类表自洽性、校验七分支、纠错、邻域推导
 │  ├─ test_paperutil.py        #   短号归一、文件名、配置与库文件读写
+│  ├─ test_datapack.py         #   ★ 数据包：名称校验、覆盖/合并/拒绝、清单哈希、导出中性化
 │  ├─ test_scoring.py          #   ★ 打分常量、特征拆解、数值算例（100% 覆盖）
 │  ├─ test_textscan.py         #   ★ HTML 去标签、人名、实词分层、主题命中
 │  ├─ test_fetchsrc.py         #   ★ arXiv/网页/文档 取数适配（_get 注入，不联网）
@@ -42,11 +43,12 @@ tests/
 │  ├─ test_run_daily_helpers.py#   子进程封装 run() 与服务拉起
 │  ├─ test_compat_facade.py    #   ★ 兼容门面：重构不得移除的对外符号清单
 │  └─ test_sandbox_isolation.py#   ★ 测试自身的回归：不许写进真实 output/
-├─ integration/                # 77 个：多模块协作，会起真实 HTTP 服务
+├─ integration/                # 91 个：多模块协作，会起真实 HTTP 服务
 │  ├─ test_pipeline.py         #   抓取池 → 推荐 → 渲染 → 归档 的产物契约；分类顺序 → 页面小节顺序
 │  ├─ test_server_api.py       #   全部路由：状态码、副作用、CORS、目录穿越
+│  ├─ test_datapack_api.py     #   ★ 数据包接口 + 「首屏不泄漏」边界（接口/页面只出现包名）
 │  └─ test_run_daily.py        #   编排顺序、开关语义、RSS 降级、未选类别时的引导路径
-└─ e2e/                        # 23 个：完整用户链路
+└─ e2e/                        # 24 个：完整用户链路
    ├─ test_user_journey.py     #   阅读 → 收藏 → 下载 → Downvote → 分数变化 → 撤销
    ├─ test_ui_browser.py       #   真实 Edge 点击：变灰、删除线、按钮文字、无 JS 报错
    ├─ test_category_picker_ui.py #  类别选择器：联动/搜索/多选/拖拽排序/即时校验/引导页
@@ -66,16 +68,18 @@ tests/
 
 ## 二、测试范围
 
-### 核心模块（14 个，全覆盖）
+### 核心模块（15 个，全覆盖）
 
-`arxiv_cats` · `paperutil` · `customize` · `profile` · `archive` · `recommend` · `build_report` ·
-`server` · `run_daily` · `netroute` · `fetch_arxiv` · `fetch_expand` · `fetch_rss` · `fetch_affil`
+`arxiv_cats` · `paperutil` · `datapack` · `customize` · `profile` · `archive` · `recommend` ·
+`build_report` · `server` · `run_daily` · `netroute` · `fetch_arxiv` · `fetch_expand` ·
+`fetch_rss` · `fetch_affil`
 
 ### 关键业务流程
 
 | 流程 | 覆盖用例 |
 | --- | --- |
-| 首次安装 | `test_fresh_install_has_no_personal_traces`、`test_config_is_seeded_from_example_on_first_use`、`test_shipped_example_has_no_personal_categories`、`test_interests_file_is_created_from_example` |
+| 首次安装 | `test_fresh_install_has_no_personal_traces`（含三层页面渲染）、`test_pack_in_presets_is_not_loaded_automatically`、`test_config_is_seeded_from_example_on_first_use`、`test_shipped_example_has_no_personal_categories`、`test_interests_file_is_created_from_example` |
+| 数据包导入/导出 | `test_datapack.py`（32 个：名称校验/覆盖与合并/清单哈希/中性化/往返）、`test_datapack_api.py`（13 个：接口状态码 + 「首屏只出现包名」边界） |
 | 选择分类（通用版） | `test_arxiv_cats.py`（54 个：表自洽/校验/纠错/检索/邻域）、`test_add_categories_bulk_partial_success`、`test_reorder_rejects_missing_extra_and_duplicate`、`test_digest_sections_follow_config_category_order` |
 | 类别选择器 UI | `test_category_picker_ui.py`（15 个：联动/搜索/多选/拖拽落点/即时校验/引导页） |
 | 抓取 → 推荐 → 渲染 → 归档 | `test_pipeline_writes_all_expected_artifacts` 等 18 个 |
@@ -197,8 +201,11 @@ python -m pytest --cov --cov-report=html   # 另出 output/coverage/index.html
 paperutil.OUT / CONFIG_PATH / LIB_PATH      customize.INTERESTS / EXTRA_PATH
 profile.OUT / PROFILE_PATH / BEHAVIOR_PATH  archive.OUT / DB_PATH / ARCHIVE_DIR
 recommend.OUT  build_report.OUT  run_daily.OUT  server.OUT  netroute.OUT / CACHE_PATH
-fetch_rss.OUT  fetch_affil.OUT / AFF_PATH
+fetch_rss.OUT  fetch_affil.OUT / AFF_PATH    datapack.PACKS
 ```
+
+> `datapack.PACKS` 也要重定向：真实 `presets/` 里就有作者本人的画像，
+> 读错了会让"新装是干净的"这类用例失效（测出来永远是"有数据"）。
 
 三条硬性设计，每一条都是踩过坑之后加的：
 
@@ -285,7 +292,7 @@ FAILED tests/unit/test_x.py::test_y - AssertionError: 权重翻倍后分数必�
 
 ## 十一、保持全绿
 
-红线：**主分支上 `python -m pytest` 必须始终 666 passed、覆盖率 ≥ 85%。**
+红线：**主分支上 `python -m pytest` 必须始终 720 passed、覆盖率 ≥ 85%。**
 
 改代码时的最小自查表：
 

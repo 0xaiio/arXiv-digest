@@ -1,0 +1,26 @@
+{
+ "schema": 1,
+ "name": "hengxin",
+ "title": "Hengxin Wei 的科研画像（示例预设）",
+ "description": "数据库系统 / 分布式计算 / 形式化方法方向的完整画像：4 位主来源、14 个研究主题（含关键词）、61 位熟悉研究者与 22 个代表系统，外加 6 个主分类与 18 个扩展分类。导入前请先把 download_dir 改成自己的路径。",
+ "exported_at": "2026-10-17 15:24:00",
+ "app": "arxiv-digest",
+ "groups": [
+  "core"
+ ],
+ "sanitized": true,
+ "files": [
+  {
+   "name": "config.json",
+   "group": "core",
+   "bytes": 993,
+   "sha256": "422dc5468e2074ac65358cf20c2261296a4dcd849f6de5fa73f7ad5c956ffd22"
+  },
+  {
+   "name": "interests.json",
+   "group": "core",
+   "bytes": 16873,
+   "sha256": "8ea5bd3fc9d137f7a67f74a0364c2783247a76b0120ee5ac31aafb8c71c1d112"
+  }
+ ]
+}

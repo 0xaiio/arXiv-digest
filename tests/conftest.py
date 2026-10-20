@@ -10,6 +10,7 @@
     profile.OUT / PROFILE_PATH / BEHAVIOR_PATH
     archive.OUT / DB_PATH / ARCHIVE_DIR
     recommend.OUT        build_report.OUT        server.OUT        netroute.CACHE_PATH
+    datapack.PACKS       （真实 presets/ 里有作者本人的画像，测试绝不能读到）
 
 直接跑测试会写进真实的 output/、改写真实的 interests.json —— 那是不可接受的。
 `sandbox` fixture 把这些常量逐个改用 monkeypatch 指向一次性目录，测试结束自动还原。
@@ -31,6 +32,7 @@ sys.path.insert(0, str(ROOT))
 import archive as AR          # noqa: E402
 import build_report as B      # noqa: E402
 import customize as CZ        # noqa: E402
+import datapack as DP         # noqa: E402
 import fetch_affil as FA      # noqa: E402
 import fetch_rss as FR        # noqa: E402
 import netroute as NR         # noqa: E402
@@ -61,6 +63,7 @@ class Sandbox:
         self.cfg = root / "config.json"
         self.interests = root / "interests.json"
         self.download_dir = root / "papers"
+        self.packs = root / "presets"
 
     # ---- 便捷写入 ----
     def write(self, name, obj):
@@ -68,6 +71,18 @@ class Sandbox:
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(json.dumps(obj, ensure_ascii=False, indent=1), encoding="utf-8")
         return p
+
+    def make_pack(self, name, files=None, manifest=None):
+        """在沙箱里造一个数据包（files = {文件名: Python 对象}）。"""
+        d = self.packs / name
+        d.mkdir(parents=True, exist_ok=True)
+        for fname, obj in (files or {}).items():
+            (d / fname).write_text(json.dumps(obj, ensure_ascii=False, indent=1),
+                                   encoding="utf-8")
+        if manifest is not None:
+            (d / "manifest.json").write_text(
+                json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
+        return d
 
     def read(self, name):
         return json.loads((self.out / name).read_text(encoding="utf-8"))
@@ -102,7 +117,7 @@ class Sandbox:
 # 每个模块在 import 时就把 OUT 复制成了模块级常量。少打一个，测试就会写进真实的
 # output/ —— 这不是假设：`fetch_rss.OUT` 曾被漏掉，测试直接把真实抓取池重写了一遍。
 # 因此这里集中登记，并在最后断言「一个都不许漏」。
-_OUT_OWNERS = [pu, PF, AR, R, B, RD, S, NR, FR, FA]
+_OUT_OWNERS = [pu, PF, AR, R, B, RD, S, NR, FR, FA, DP]
 
 
 def _redirect(monkeypatch, sb):
@@ -133,6 +148,10 @@ def _redirect(monkeypatch, sb):
     monkeypatch.setattr(NR, "OUT", str(sb.out))
     monkeypatch.setattr(NR, "CACHE_PATH", str(sb.out / "netroute.json"))
 
+    # 数据包根目录：测试里绝不允许读到真实的 presets/（里面有作者本人的画像）
+    sb.packs.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr(DP, "PACKS", str(sb.packs))
+
     # 模块内缓存也要清，否则上一个测试的数据会漏进来。
     # 论文索引缓存已下沉到 service.PaperIndex（类实例，有显式 reset），
     # 不能再靠 monkeypatch 模块级 dict —— 那只会替换 server 的一个没人读的别名。
@@ -149,7 +168,7 @@ def assert_isolated(sb):
     for mod in _OUT_OWNERS:
         for attr in ("OUT", "CONFIG_PATH", "LIB_PATH", "INTERESTS", "EXTRA_PATH",
                      "PROFILE_PATH", "BEHAVIOR_PATH", "DB_PATH", "ARCHIVE_DIR",
-                     "CACHE_PATH"):
+                     "CACHE_PATH", "PACKS"):
             v = getattr(mod, attr, None)
             if isinstance(v, str) and v and not v.startswith(root):
                 bad.append("%s.%s=%s" % (mod.__name__, attr, v))

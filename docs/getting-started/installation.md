@@ -2,7 +2,7 @@
 
 目标：在本机得到一个**能跑、且不含任何他人数据**的实例。全程约 3 分钟。
 
-后续步骤见 [快速开始](quickstart.md)；只想先看看它长什么样，可以跳到那里的"用预设试跑"。
+后续步骤见 [快速开始](quickstart.md)；只想先看看它长什么样，可以跳到那里的"用数据包试跑"。
 
 ---
 
@@ -38,15 +38,20 @@ cd arXiv-digest
 git clone https://github.com/0xaiio/arXiv-digest.git
 ```
 
-仓库里**只有代码、模板与可选预设**。以下内容被 `.gitignore` 排除，克隆后不存在——这是刻意的：
+仓库里**只有代码、模板与数据包**。以下内容被 `.gitignore` 排除，克隆后不存在——这是刻意的：
 
 | 不存在的东西 | 从哪来 |
 | --- | --- |
 | `config.json`（你的分类、下载目录） | 首次运行按 `config.example.json` 自动生成（**分类默认为空**，要你自己选） |
-| `interests.json`（你的画像） | 首次运行按 `interests.example.json` 自动生成 |
+| `interests.json`（你的画像） | 首次运行按 `interests.example.json` 自动生成（**主题默认为空**） |
 | `output/`（日报、归档库、收藏、行为记录） | 首次运行流水线时创建 |
 | `.secrets/`（B 站 cookie 等凭据） | 只有你要用投稿功能时才需要自己准备 |
 | `reel/node_modules/` | 只有你要渲染视频时才 `cd reel && npm ci` |
+
+`presets/<名字>/` 是**数据包**：别人的整套设置与使用数据（纯 JSON），`clone` 后会存在，
+但**运行时不会被读取**——只有 `--preset`、`tools/preset.py import` 或界面上的「导入」才生效。
+所以"仓库里有 `presets/hengxin/`"不等于"界面里能看到作者的画像"。
+两者的分层见 [私人数据隔离](../architecture/data-isolation.md)。
 
 目录职责的完整说明见 [目录职责](../meta/structure.md)。
 
@@ -66,7 +71,8 @@ python run_daily.py
 3. **检查是否已选分类**：`categories` 默认为空（本工具不预设任何领域），此时脚本会提示
    「尚未选择任何 arXiv 分类」并只把本地服务拉起来，不会抓取任何东西。
    去 `http://127.0.0.1:8765/profile` 的「🗂 arXiv 类别」面板选好（或在命令里加
-   `--categories cs.DB,cs.DC`），再跑一次即可。详见 [arXiv 类别](../reference/categories.md)；
+   `--categories cs.DB,cs.DC`），再跑一次即可。想让一份现成设置替你选：
+   `python run_daily.py --preset <名字>`。详见 [arXiv 类别](../reference/categories.md)；
 4. 抓取主分类与扩展分类，写入 `output/raw.json` 与 `output/raw_expand.json`；
 5. 打分、抓作者单位（较慢）、渲染日报，并把当期快照写进 `output/archive/` 与 `output/archive.db`；
 6. 检查 `http://127.0.0.1:<port>/api/ping`，服务没在线就在后台拉起 `server.py`。
@@ -101,7 +107,8 @@ python -c "import archive; print(archive.stats())"
 | 完整流水线 | `python run_daily.py` | 每天一次（或交给定时任务） |
 | 只重算+重渲染 | `python run_daily.py --skip-fetch --skip-affil` | 改了画像/分类，想立刻看到结果（秒级） |
 | 只起服务 | `python server.py` | 补看昨天的日报，不重新抓取 |
-| Windows 双击 | `start_digest.bat` | 自动找 `python`/`py -3`，端口读 `config.json` |
+| 带数据包启动 | `python run_daily.py --preset <名字>` / `python server.py --preset <名字>` | 先把 `presets/<名字>/` 导入本机，再跑/再起 |
+| Windows 双击 | `start_digest.bat`（加参数 `hengxin` 则同时导入数据包） | 自动找 `python`/`py -3`，端口读 `config.json` |
 
 端口冲突时改 `config.json` 的 `port`，或先确认没有旧进程占着（见
 [故障排查](../operations/troubleshooting.md) 第 5 节）。
@@ -116,7 +123,9 @@ python -c "import archive; print(archive.stats())"
 | 完全卸载 | 删除整个项目目录即可——不写注册表、不装系统服务 |
 
 > 删除前请确认：`output/library.json` 里有你的收藏与下载记录，`output/archive.db` 里有往期索引。
-> 想保留就把它们先拷出来。
+> 想保留就把它们先拷出来，或者干脆导成一个数据包：
+> `python tools/preset.py export backup --with-usage --with-learning --with-notes`。
+> 重置不会碰 `presets/` 下的数据包（它们不在运行态里）。
 
 ---
 

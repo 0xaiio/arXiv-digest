@@ -107,8 +107,8 @@
 | `learn_neg_topics` | `false` | **负向行为是否参与主题倍率学习** |
 | `learn_neg_keywords` | `false` | **负向行为是否参与关键词权重学习** |
 
-> 作者预设里用 `lr_topic 0.15` / `lr_keyword 0.12`（学得更快，也更容易被误点带偏）。
-> 代码默认更保守。为什么负向学习默认关闭，见
+> 作者的数据包（`presets/hengxin/`）里用 `lr_topic 0.15` / `lr_keyword 0.12`
+> （学得更快，也更容易被误点带偏）。代码默认更保守。为什么负向学习默认关闭，见
 > [排序与学习算法](../architecture/ranking.md) §5——那是一次真实故障的结论。
 
 ## 七、写入边界
@@ -120,6 +120,10 @@
 - `add_category` / `set_download_dir` 写的是 `config.json`，不碰画像；
 - 「兴趣来源」的解析结果不存在这里，而是 `output/interests_extra.json`
   （见[数据文件](data-files.md)），删除来源即可撤销。
+
+> 模板 `interests.example.json` 的 `topics` / `owners` / `people` **一律为空**：
+> 新装机器的 `/profile` 必须是真正的空状态，不能有任何人的方向，也不能有"示例主题"
+> 这种会参与打分的假数据。格式示例写在模板的 `_comment` 里。
 
 ## 八、一个最小可用的画像
 
@@ -144,4 +148,4 @@
 ---
 
 相关：[config.json](config.md) · [排序与学习算法](../architecture/ranking.md) ·
-[调优画像](../guide/profile-tuning.md) · [预设](../guide/presets.md)
+[调优画像](../guide/profile-tuning.md) · [数据包（预设）](../guide/presets.md)

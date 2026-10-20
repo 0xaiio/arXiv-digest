@@ -3,6 +3,10 @@
 `output/` 是**运行产物目录**：所有抓取缓存、打分结果、渲染页面、收藏记录、归档库都在这里。
 它整体被 `.gitignore` 排除——删掉不会丢代码，但会丢历史与收藏。
 
+**另一类数据**（可迁移的整套设置）不在这里，而在 `presets/<名字>/`，见文末
+[数据包](#packs)；两者的分层与边界见
+[私人数据隔离](../architecture/data-isolation.md)。
+
 本文是该目录的字段级说明。想了解它们如何产生，看[架构总览](../architecture/overview.md)。
 
 ---
@@ -221,6 +225,26 @@ arXiv<年> <短号> <去标点标题>.pdf
 
 标题里的标点会被清理、空格保留。同名文件已存在时**跳过**（除非 `force=true`），
 所以下载是幂等的，不会覆盖你手动改过的文件。
+
+## 十二、数据包（`presets/`）的文件 {#packs}
+
+数据包是**可迁移单元**，不是运行产物：运行时任何页面都不读它，只有显式导入才生效。
+`<名字>/` 下允许出现下列文件（全部 UTF-8 JSON，缩进 1 格，可 diff）：
+
+| 文件 | 分组 | 顶层结构 | 说明 |
+| --- | --- | --- | --- |
+| `manifest.json` | — | `{schema, name, title, description, exported_at, app, groups, sanitized, files[]}` | 清单。`files[]` 每项含 `name / group / bytes / sha256`。`schema` 高于程序支持值时整包拒绝 |
+| `config.json` | core | 同 [config.json](config.md) | 类别、下载目录、推荐参数 |
+| `interests.json` | core | 同 [interests.json](interests.md) | 画像 |
+| `library.json` | usage | 同第五节的 `library.json` | 收藏 / 下载记录 / Downvote |
+| `profile_state.json` | learning | `{topic_mult, kw, paper_bonus, counts, updated_at}` | 行为学习聚合 |
+| `behavior.json` | learning | 数组，最近 2000 条 | 行为流水 |
+| `summaries.json` / `rec_notes.json` / `highlights.json` | notes | 见第四节的编辑性内容 | 编辑性内容 |
+| `meta.json` | — | `{title, description, exported_at}` | 旧版清单，仍可读；导出时会补出 `manifest.json` |
+| `README.md` / `legacy/` | — | — | 人读说明与一次性脚本，不参与导入 |
+
+导入时的冲突处理（覆盖 / 合并 / 拒绝）见 [数据包指南](../guide/presets.md)；
+本机运行态对应文件的路径由 `python paths.py` 一次列全。
 
 ---
 

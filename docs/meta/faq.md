@@ -52,12 +52,40 @@
 ### 为什么 `config.json` / `interests.json` 不进仓库？
 
 它们含**本机路径与个人研究画像**。仓库是公开的，因此只提交模板
-（`*.example.json`）与自愿公开的预设（`presets/`）。这样别人 clone 下来是干净的，
+（`*.example.json`）与自愿公开的数据包（`presets/<名字>/`）。这样别人 clone 下来是干净的，
 你也随时能 `tools/preset.py export` 分享一份。
+
+### 新用户第一次打开会不会看到作者的研究方向？
+
+不会，而且这是**结构保证**而不只是"记得别提交"：
+
+- 模板 `interests.example.json` 的 `topics` / `owners` / `people` 都是空数组，
+  `config.example.json` 的 `categories` 也是空数组；
+- `presets/` 里的数据包**运行时完全不参与**：任何页面都不解析它的内容，
+  只有 `--preset`、`tools/preset.py import` 或界面上的「导入」才会写进本机；
+- `/profile` 的「📦 数据包」面板只显示**包名 + 文件清单 + 体积**，不显示标题、描述、
+  类别、主题与人名——那句描述往往就是作者的类别选择与研究方向。
+
+规则与取舍见[私人数据隔离](../architecture/data-isolation.md)。
 
 ### 换电脑怎么迁移？
 
-拷这几样就够（都不在仓库里）：
+一条命令就够了（旧机器上）：
+
+```bash
+python tools/preset.py export myown --with-usage --with-notes
+```
+
+把 `presets/myown/` 整个目录拷到新机器（放进 `presets/`），然后：
+
+```bash
+python run_daily.py --preset myown
+```
+
+`download_dir` 会被 `export` 中性化成 `papers/`，**导入后记得在 `/profile` 里改成自己的目录**；
+`library.downloads[].path` 也被裁成文件名，换机器后需要重新下载（收藏记录本身会保留）。
+
+手工拷也可以，但要自己带全：
 
 | 要带走的 | 不带也行 |
 | --- | --- |
@@ -65,8 +93,6 @@
 | `output/library.json`（收藏/下载/Downvote） | `papers_index.json`（下次重算生成） |
 | `output/profile_state.json`（学到的权重） | 各种 `*.html`（重渲染） |
 | `output/archive.db` + `output/archive/`（历史） | `netroute.json`（换网络自动重探） |
-
-注意 `library.downloads[].path` 是绝对路径，换机器后需要改或重新下载。
 
 ## 三、设计与行为
 

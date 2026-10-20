@@ -2,8 +2,8 @@
 
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![Runtime deps](https://img.shields.io/badge/runtime-stdlib--only-brightgreen)](#环境与依赖)
-[![Docs](https://img.shields.io/badge/docs-24%20pages-informational)](docs/documentation.md)
-[![Tests](https://img.shields.io/badge/tests-666%20passed-success)](docs/contributing/testing.md)
+[![Docs](https://img.shields.io/badge/docs-25%20pages-informational)](docs/documentation.md)
+[![Tests](https://img.shields.io/badge/tests-720%20passed-success)](docs/contributing/testing.md)
 [![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)](docs/contributing/testing.md#三覆盖率)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Docs site](https://img.shields.io/badge/docs-site-0xaiio.github.io%2FarXiv--digest-informational)](https://0xaiio.github.io/arXiv-digest/)
@@ -15,10 +15,11 @@
 **任何 arXiv 分类都能用**：官方 155 个分类（20 个 archive）任选，两级联动下拉框 + 可搜索多选 +
 拖拽排序的标签，不限于 `cs.*`。
 
-> **默认初始化是干净的**：clone 下来不带任何人的研究兴趣、分类偏好或本机路径——
+> **默认初始化是干净的**：clone 下来不带任何人的研究兴趣、分类偏好、收藏记录或本机路径——
 > 分类列表默认是**空的**，第一次打开会引导你先选几个分类。
-> 想看一份调了半年的真实画像（含 cs.DB / cs.DC / cs.FL / cs.LO / cs.PL / cs.SE 六个分类），
-> 用 `python tools/preset.py import hengxin` 按需导入。
+> 任何人的整套设置都以**数据包**（`presets/<名字>/`，纯 JSON）单独存放，**只有显式导入才生效**。
+> 想参考一份调了半年的真实画像，用 `python run_daily.py --preset hengxin` 或到
+> `/profile` →「📦 数据包」一键导入。
 
 ```text
 抓取 arXiv  →  打分排序  →  渲染单文件 HTML  →  本地服务提供交互
@@ -53,8 +54,8 @@
 | **离线单文件 HTML** | 内联 CSS/JS、无 CDN、无构建步骤；`file://` 双击也能读，服务在跑时还能交互 |
 | **零运行期依赖** | 只用 Python 标准库，`clone` 即跑，不需要 `pip install` |
 | **可选视频链路** | Remotion 代码渲染 + Edge TTS 中文旁白 + A/V 质量闸门 + B 站投稿（[指南](docs/guide/video-pipeline.md)） |
-| **可导入的预设** | 一整套 `config.json` + `interests.json`，一条命令搬过来，分享前有隐私检查清单 |
-| **测试兜底** | 666 个用例分四层（单元 / 集成 / 端到端 / 浏览器），行覆盖率 90%，全部在沙箱里跑，不碰真实数据 |
+| **可导入的数据包** | 某人的一整套设置与使用数据（配置 / 画像 / 收藏 / 行为学习 / 笔记）收在一个目录里，纯 JSON 可 diff；启动参数 `--preset` 或界面一键导入，**默认不加载**（[设计与边界](docs/architecture/data-isolation.md)） |
+| **测试兜底** | 720 个用例分四层（单元 / 集成 / 端到端 / 浏览器），行覆盖率 90%，全部在沙箱里跑，不碰真实数据 |
 
 ## 快速开始
 
@@ -73,9 +74,11 @@ python run_daily.py --categories cs.DB,cs.DC   # 选你要跟踪的分类（任�
 ```bash
 python run_daily.py --skip-fetch --skip-affil   # 改完画像/模板，秒级重算重渲染
 python server.py                                 # 只起服务，不重新抓取
+python run_daily.py --preset hengxin             # 想直接用一份现成设置（可选）
 ```
 
-Windows 可双击 `start_digest.bat`（自动找 Python，端口读 `config.json`）。
+Windows 可双击 `start_digest.bat`（自动找 Python，端口读 `config.json`）；
+想顺带导入数据包就 `start_digest.bat hengxin`。
 
 **下一步**：跟着 [快速开始](docs/getting-started/quickstart.md) 走一遍 10 分钟的完整闭环，
 或者先看 [安装](docs/getting-started/installation.md) 弄清初始化到底生成了什么。
@@ -89,7 +92,7 @@ Windows 可双击 `start_digest.bat`（自动找 Python，端口读 `config.json
 | 📖 分类详解 | 本期全部新增论文，按分类与日期排列 | 全部 |
 | 工具栏 | 已收藏 / 已下载 / 已 Downvote 筛选与搜索（作用于「分类详解」）、批量下载、重算推荐、往期回看 | — |
 | `/favorites` | 收藏清单，可一键导出 `favorites.md` | — |
-| `/profile` | 类别（联动下拉 + 可拖拽标签）、下载目录、兴趣来源、画像主来源、主题权重 | — |
+| `/profile` | 类别（联动下拉 + 可拖拽标签）、下载目录、兴趣来源、画像主来源、主题权重、📦 数据包导入 | — |
 | `/archive` | 每期快照，按日期回看 | — |
 
 ## 文档索引
@@ -109,7 +112,7 @@ Windows 可双击 `start_digest.bat`（自动找 Python，端口读 `config.json
 | --- | --- |
 | [日常使用](docs/guide/daily-workflow.md) | 三个板块怎么读、工具栏、五个按钮各自触发什么、收藏导出、往期回看、离线使用 |
 | [调优画像](docs/guide/profile-tuning.md) | 推荐不准怎么调：起步配置、主题与降权词、兴趣来源、行为强度、画像漂移修复 |
-| [预设](docs/guide/presets.md) | `tools/preset.py` 的 list / import / export，导入前必改项，分享前隐私检查 |
+| [预设 / 数据包](docs/guide/presets.md) | `tools/preset.py` 的 list / show / import / export / status，四个数据分组、覆盖与合并语义、`--preset` 启动参数、分享前隐私检查 |
 | [视频与投稿](docs/guide/video-pipeline.md) | 选片 → 口播稿 → TTS → Remotion 渲染 → A/V 闸门 → B 站投稿 → 归入合集 |
 
 ### 参考：精确取值
@@ -128,7 +131,8 @@ Windows 可双击 `start_digest.bat`（自动找 Python，端口读 `config.json
 | 文档 | 讲什么 |
 | --- | --- |
 | [架构总览](docs/architecture/overview.md) | 六阶段流水线、三层降级、本期新增判定、分层与依赖方向、扩展点 |
-| [模块职责](docs/architecture/modules.md) | 13 个模块的职责、依赖图、关键函数、"我要改什么"定位表 |
+| [模块职责](docs/architecture/modules.md) | 21 个模块的职责、依赖图、关键函数、"我要改什么"定位表 |
+| [私人数据隔离](docs/architecture/data-isolation.md) | 模板 / 数据包 / 运行态三层模型、JSON 包格式与清单、导入语义、界面只暴露"形状"的边界、备选方案取舍 |
 | [排序与学习算法](docs/architecture/ranking.md) | 打分公式逐项拆解、数值算例、阈值与兜底、行为更新式、负向学习故障复盘 |
 | [服务运行时](docs/architecture/server-runtime.md) | 两级锁、论文索引缓存、静态页 vs 动态页、CORS 与 `file://`、下载选路 |
 
@@ -137,7 +141,7 @@ Windows 可双击 `start_digest.bat`（自动找 Python，端口读 `config.json
 | 文档 | 用途 |
 | --- | --- |
 | [开发指南](docs/contributing/development.md) | 代码约定、改完什么必须重启、调试手法、提交前检查清单、加功能的推荐路径 |
-| [测试与回归](docs/contributing/testing.md) | 四层测试结构（666 用例）、覆盖范围、覆盖率与门槛、沙箱隔离、重构期等价性手段、如何新增 |
+| [测试与回归](docs/contributing/testing.md) | 四层测试结构（715 用例）、覆盖范围、覆盖率与门槛、沙箱隔离、重构期等价性手段、如何新增 |
 | [故障排查](docs/operations/troubleshooting.md) | 服务 / 抓取 / 推荐 / 下载 / 归档 / 摘要 / 视频 / 投稿 的"症状→诊断→修复" |
 
 ### 元信息
@@ -154,19 +158,19 @@ Windows 可双击 `start_digest.bat`（自动找 Python，端口读 `config.json
 
 ```text
 arXiv-digest/
-├─ 19 个主流程模块                # 抓取 / 打分 / 归档 / 渲染 / 服务 / 选路
+├─ 21 个主流程模块                # 抓取 / 打分 / 归档 / 渲染 / 服务 / 选路 / 数据包
 │  ├─ 基础  paths.py arxiv_cats.py paperutil.py netroute.py
 │  ├─ 领域  textscan.py fetchsrc.py profile.py archive.py
 │  ├─ 应用  customize.py scoring.py recommend.py fetch_*.py
 │  ├─ 渲染  build_report.py
-│  └─ 接口  service.py routes.py server.py
+│  └─ 接口  service.py routes.py server.py datapack.py
 ├─ templates/                    # 版面：style.css / app.js / 四个页面模板
 ├─ config.example.json          # 配置模板 → 首次运行生成 config.json（个人数据）
 ├─ interests.example.json       # 画像模板 → 首次运行生成 interests.json（个人数据）
 ├─ docs/                        # 文档（getting-started / guide / reference / architecture / …）
 ├─ tools/                       # 回归测试、数据维护、视频、投稿脚本
 ├─ tests/                       # pytest 套件：unit / integration / e2e（沙箱隔离）
-├─ presets/                     # 可选预设（默认不加载）
+├─ presets/<名字>/               # 数据包：一整套设置与使用数据（默认不加载）
 ├─ reel/                        # 可选视频工程（Remotion）
 └─ output/                      # 运行产物（.gitignore，含归档库与收藏记录）
 ```
@@ -186,16 +190,28 @@ arXiv-digest/
 日常维护不必手改 JSON。字段逐项说明见 [config.json](docs/reference/config.md) 与
 [interests.json](docs/reference/interests.md)。
 
+### 私人数据：三层分离
+
+| 层 | 位置 | 入库 | 谁看得见 |
+| --- | --- | --- | --- |
+| 模板 | `config.example.json`、`interests.example.json` | ✅ | 所有人；**内容全空** |
+| 数据包 | `presets/<名字>/`（`manifest.json` + `*.json`） | ✅ 仅画像与配置 | 只有**显式导入**后才进入你自己的运行态 |
+| 运行态 | `config.json`、`interests.json`、`output/` | ❌ | 只有你本机 |
+
+`presets/` 下的包**不会**在启动时被读取：界面只列出包名与文件清单，描述与内容要点进包里看
+或导入。完整规则（为什么这样分层、导入为什么默认不覆盖、哪些文件按路径忽略）见
+[私人数据隔离](docs/architecture/data-isolation.md)。
+
 **绝不入库**：`output/`（日报与收藏记录）、`.secrets/`（B 站 cookie）、各类 `*cookie*.json` / token。
 
 ## 质量闸门
 
-**主闸门是 pytest 套件**：666 个用例（单元 / 集成 / 端到端 / 浏览器），行覆盖率 90%，
+**主闸门是 pytest 套件**：720 个用例（单元 / 集成 / 端到端 / 浏览器），行覆盖率 90%，
 门槛 85%。它们全部在 `tmp_pytest/` 沙箱里跑，**不会碰你的真实数据**。
 
 ```bash
 python -m pip install -r requirements-dev.txt   # 只装测试工具，运行期仍然零依赖
-python -m pytest                 # 666 passed，约 67s
+python -m pytest                 # 720 passed
 python -m pytest -m unit         # 只跑单元，15s（改纯函数时用这个）
 python -m pytest --cov           # 覆盖率，低于 85% 直接失败
 ```
@@ -209,6 +225,7 @@ python tools/dv_unify_check.py                                 # 三处 Downvote
 python tools/owner_ui_check.py                                 # /profile 画像主来源增删改
 python tools/ui_file_check.py output/arxiv_digest_<日期>.html   # 本地 HTML 跨源交互
 python tools/dl_button_check.py                                # 真实点一次下载按钮
+python tools/fresh_clone_check.py                              # 首次克隆验收：首屏干净 + 一键导入
 ```
 
 分层说明、覆盖范围、沙箱设计与失败排查见[测试与回归](docs/contributing/testing.md)。
@@ -242,7 +259,7 @@ git commit -m "feat: ..." && git push
 - 主流程（抓取 / 推荐 / 归档 / 渲染 / 本地服务）稳定，日常在使用；
 - 视频与 B 站投稿是可选的实验性附加链路，接口可能随平台变化；
 - 有一个单机私有实例在长期运行（研究画像：数据库系统 / 分布式计算 / 形式化方法），
-  那份设置以 `presets/hengxin/` 形式公开；
+  那份设置以数据包 `presets/hengxin/` 形式公开，导入后才生效；
 - 采用 [MIT License](LICENSE) 开源，可自由复用与二次分发。
 
 ---

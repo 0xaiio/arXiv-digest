@@ -27,12 +27,17 @@ GET
   /archive/<YYYYMMDD>   某一期快照
   /files/<name>         output/ 下的静态文件
   /api/state /api/customize /api/profile /api/library
-  /api/archive/days /api/net_route /api/ping
+  /api/archive/days /api/net_route /api/ping /api/datapacks
 POST
   /api/favorite /api/unfavorite /api/downvote /api/undownvote /api/event
   /api/download /api/download_all
   /api/owner /api/category /api/config /api/source /api/rebuild
-  /api/open /api/open_folder
+  /api/open /api/open_folder /api/preset
+
+启动参数
+  --no-open            不自动打开浏览器
+  --preset <名字>       启动前先导入一份数据包（presets/<名字>/），失败不阻断启动
+  --preset-force       允许覆盖本机已有的 config.json / interests.json（先备份）
 
 并发模型
 --------
@@ -64,6 +69,7 @@ except Exception:
 import archive as AR  # noqa: E402
 import arxiv_cats as AC  # noqa: E402
 import customize as CZ  # noqa: E402
+import datapack as DP  # noqa: E402
 import netroute as NR  # noqa: E402
 import paperutil as pu  # noqa: E402
 import paths  # noqa: E402
@@ -145,7 +151,7 @@ class _Runtime:
     """
 
     ALLOWED = frozenset({
-        "OUT", "pu", "CZ", "NR", "AR", "PF", "AC", "LIB_LOCK",
+        "OUT", "pu", "CZ", "NR", "AR", "PF", "AC", "DP", "LIB_LOCK",
         "papers", "reset_papers", "dl_lock", "download_pdf", "download_many",
         "add_favorite", "record_download", "profile_snapshot", "learn",
         "rebuild_digest", "latest_digest", "ensure_dir", "service_open",
@@ -247,7 +253,40 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
 
 
+def argv_value(argv, flag):
+    """从 `--flag v` 或 `--flag=v` 取值；没出现返回 None。"""
+    for i, a in enumerate(argv):
+        if a == flag:
+            return argv[i + 1] if i + 1 < len(argv) else ""
+        if a.startswith(flag + "="):
+            return a[len(flag) + 1:]
+    return None
+
+
+def apply_preset_arg(argv):
+    """``--preset <名字>``：启动前先导入一份数据包。
+
+    失败**不阻断**启动：名字打错、或本机已有不同配置，都应该让服务起来，
+    这样用户能从 /profile 的数据包面板看到原因（与 run_daily.py 的策略一致）。
+    """
+    name = argv_value(argv, "--preset")
+    if not name:
+        return True
+    force = "--preset-force" in argv
+    ok, msg, report = DP.import_pack(name, force=force)
+    print("[preset] %s：%s" % (name, msg))
+    for r in report:
+        if r["action"] != "skipped":
+            print("         %-22s %-9s %s %s"
+                  % (r["file"], r["group"], r["action"], r["reason"]))
+    if not ok:
+        print("[preset] 提示：配置类文件默认不覆盖；确认要覆盖请加 --preset-force",
+              file=sys.stderr)
+    return ok
+
+
 def main():
+    apply_preset_arg(sys.argv[1:])
     cfg = pu.load_config()
     port = int(cfg.get("port", 8765))
     url = "http://127.0.0.1:%d" % port

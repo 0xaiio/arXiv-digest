@@ -26,20 +26,27 @@
 | `--no-serve` | 只产出文件，不启动/不检查本地服务 | CI、服务器上只生成 HTML |
 | `--serve` | 渲染完**前台**启动服务（阻塞） | 想让终端窗口承载服务进程 |
 | `--categories cs.DB,cs.DC` | 先把跟踪的分类设为这几个（写入 `config.json`），再走正常流程 | 无 GUI 的机器、定时任务一次配好分类 |
+| `--preset <名字>` | 先把 `presets/<名字>/` 这份数据包导入本机，再走正常流程 | 新机器恢复自己的设置，或试用别人公开的画像 |
+| `--preset-force` | 允许 `--preset` 覆盖本机已有的 `config.json` / `interests.json`（先备份） | 确认要用包里的配置替换本机配置 |
 
 组合示例：
 
 ```bash
 python run_daily.py --skip-fetch --skip-affil      # 只推荐 + 渲染，通常几秒
 python run_daily.py --no-serve                     # 只出文件
+python run_daily.py --preset hengxin               # 导入数据包后再抓取
+python run_daily.py --preset hengxin --categories cs.LG   # 用这份画像，但类别只看 cs.LG
 ```
+
+`--preset` 先于 `--categories` 生效，因此后者可以覆盖前者带来的分类。
+导入失败（名字不存在、本机已有不同配置）**不阻断**流水线，原因打印在终端。
 
 失败行为：抓取步骤若未产出有效数据，会保留上一期文件（坏输出另存 `*.bad_<时间戳>`）；
 若连历史数据都没有，则跳过推荐与渲染并直接返回，不会把已有日报清空。
 
 `categories` 为空（通用版首次运行）时**不抓取任何东西**：打印「尚未选择任何 arXiv 分类」
-与两条下一步（去 `/profile` 选，或用 `--categories`），并在未加 `--no-serve` 时把本地服务拉起来，
-好让引导页可访问。
+与三条下一步（去 `/profile` 选、用 `--categories`、用 `--preset` 导入一份现成设置），
+并在未加 `--no-serve` 时把本地服务拉起来，好让引导页可访问。
 
 ### 各阶段脚本（手动单独调用）
 
@@ -54,7 +61,7 @@ python run_daily.py --no-serve                     # 只出文件
 | `recommend.py` | 无 | `recommend.json` `expand.json` `papers_index.json` `issue_core.json` `issue_expand.json` `issue_stats.json` `scores.json` |
 | `fetch_affil.py` | `--force` 重抓已缓存；`--max N` 本期最多解析 N 篇；`--only cs.DB,cs.DC` 只处理指定分类 | `output/affiliations.json`（跨日累积） |
 | `build_report.py` | 无 | `arxiv_digest_<日期>.html/.md`、`favorites.html`、`archive.html`、`output/archive/<日期>.{html,md}`，并登记 `archive.db` |
-| `server.py` | `--no-open` 不自动开浏览器 | 启动 `http://127.0.0.1:<port>`（端口取 `config.json`） |
+| `server.py` | `--no-open` 不自动开浏览器；`--preset <名字>` 启动前先导入数据包；`--preset-force` 允许覆盖 | 启动 `http://127.0.0.1:<port>`（端口取 `config.json`） |
 | `profile.py` | 无 | 打印主题倍率、关键词两端极值、被 Downvote 的论文 |
 | `netroute.py` | `--forget` 清缓存重探；`--quick` 只列候选不探测 | 打印下载路由诊断结论 |
 | `arxiv_cats.py` | 无 | 打印 20 个 archive / 155 个分类的概览，并自检每个分类号是否符合格式规则 |
@@ -66,7 +73,8 @@ python run_daily.py --no-serve                     # 只出文件
 
 | 脚本 | 参数 | 说明 |
 | --- | --- | --- |
-| `preset.py` | `list` / `import <名字> [--force]` / `export <名字>` | 预设的查看、导入（默认拒绝覆盖，`--force` 先备份）、导出。`import hengxin` 会带进来那套 6 分类个人示例配置 |
+| `preset.py` | `list` / `show <名字>` / `import <名字>` / `export <名字>` / `status` | 数据包管理。`import` 默认导入 core + usage + notes，`--force` 才覆盖本机配置（先备份），`--with-learning` 加行为学习，`--dry-run` 只预演；`export` 默认只导出 core，`--with-usage/--with-learning/--with-notes` 扩展，`--keep-paths` 保留绝对路径。语义见 [数据包指南](../guide/presets.md) |
+| `python paths.py` | 无 | 列出全部数据文件路径（含 `presets/`）并标出是否已生成 |
 
 ### 内容补全
 
@@ -113,6 +121,7 @@ python run_daily.py --no-serve                     # 只出文件
 | `owner_ui_check.py` | 是（Edge CDP） | `/profile` 画像主来源的增删改（只用临时条目并清理） |
 | `ui_file_check.py` | 是（Edge CDP） | 日报 HTML 以 `file://` 打开时的跨源交互与链接改写 |
 | `dl_button_check.py` | 是（Edge CDP） | 真实点一次下载按钮，断言 toast 与按钮态 |
+| `fresh_clone_check.py` | 否（复制整棵源码树 + 真 HTTP，默认端口 8767） | **首次克隆验收**：引导页、空画像/空收藏、`/api/state` 全空、数据包视图只有形状、页面无私人痕迹、模板初值上一键导入成功 |
 | `ui_probe.py` / `ui_shots.py` / `ui_final_check.py` / `ui_check_v3.py` | 是 | 开发期探针与截图留档，不属于发布闸门 |
 
 跑法与结果解读见 [测试与回归](../contributing/testing.md)。

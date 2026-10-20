@@ -99,6 +99,15 @@ def interests_extra_path():
     return os.path.join(output_dir(), "interests_extra.json")
 
 
+def packs_dir():
+    """私人数据包的根目录：每个包是它的一个子目录（纯 JSON 文本）。
+
+    与运行态的区别见 docs/architecture/data-isolation.md：包只在显式导入时被读取，
+    运行期任何页面都不解析它的内容。
+    """
+    return under_root("presets")
+
+
 # ---------------------------------------------------------------- 兼容常量
 # 业务模块把各自的路径常量取自这里（``OUT = paths.OUT``）。保留模块级常量是
 # 为了兼容既有的 monkeypatch 重定向方式，语义与直接调上面的函数完全一致。
@@ -115,6 +124,7 @@ ARCHIVE_DIR = archive_dir()
 NETROUTE_CACHE_PATH = netroute_cache_path()
 AFFILIATIONS_PATH = affiliations_path()
 INTERESTS_EXTRA_PATH = interests_extra_path()
+PACKS = packs_dir()
 
 
 def snapshot():
@@ -123,7 +133,8 @@ def snapshot():
         "ROOT", "OUT", "CONFIG_PATH", "CONFIG_EXAMPLE",
         "INTERESTS", "INTERESTS_EXAMPLE", "LIB_PATH", "PROFILE_STATE_PATH",
         "BEHAVIOR_PATH", "ARCHIVE_DB_PATH", "ARCHIVE_DIR",
-        "NETROUTE_CACHE_PATH", "AFFILIATIONS_PATH", "INTERESTS_EXTRA_PATH")}
+        "NETROUTE_CACHE_PATH", "AFFILIATIONS_PATH", "INTERESTS_EXTRA_PATH",
+        "PACKS")}
 
 
 def main():

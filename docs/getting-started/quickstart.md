@@ -9,19 +9,21 @@
 
 ## 步骤 0 · 先选分类（通用版必做一步）
 
-本工具**不预设任何领域**。第一次克隆打开时 `categories` 是空的，你有两种选法：
+本工具**不预设任何领域**。第一次克隆打开时 `categories` 是空的，你有三种选法：
 
 ```bash
-python run_daily.py --categories cs.DB,cs.DC      # 命令行一次配好，然后自动开始抓取
+python run_daily.py --categories cs.DB,cs.DC      # ① 命令行一次配好，然后自动开始抓取
+python run_daily.py --preset hengxin              # ② 导入一份现成数据包（含类别 + 画像）
 ```
 
-或者跑一次 `python run_daily.py`，它会提示你还没选分类、并把服务拉起来，然后到
+③ 或者跑一次 `python run_daily.py`，它会提示你还没选分类、并把服务拉起来，然后到
 `http://127.0.0.1:8765/profile` →「🗂 arXiv 类别」：
 先选主类 `abc`（如 `cs`），再选子类 `def`（如 `DB`），两个下拉框都能搜索、都能多选；
 标签可拖拽排序、可删除。选好后再跑一次 `python run_daily.py`。
 
 > 想直接看一份现成的六分类配置（数据库 / 分布式 / 形式化方法）：
-> `python tools/preset.py import hengxin`，导入后同样要重跑一次。
+> 到 `/profile` →「📦 数据包」点「导入」，或 `python tools/preset.py import hengxin`；
+> 导入后同样要重跑一次。数据包**默认不加载**，所以你现在看到的是干净的界面。
 >
 > 分类的完整说明见 [arXiv 类别](../reference/categories.md)。
 
@@ -114,20 +116,32 @@ digest online: http://127.0.0.1:8765
 **检查点**：把某个主题的 `weight` 从 1.0 提到 2.0，重算后该主题论文应明显上浮；
 把某个无关热点词加进 `negative.keywords`，命中它的论文应下沉但**仍留在分类详解里**。
 
-## 步骤 5 · 用预设试跑（可选）
+## 步骤 5 · 用数据包试跑（可选）
 
 不想从零调画像，可以先导入一份调了半年的真实设置：
 
 ```bash
-python tools/preset.py list             # 看有哪些、各自包含什么
-python tools/preset.py import hengxin    # 导入作者那套（数据库/分布式/形式化）
+python tools/preset.py list              # 看有哪些、各自包含什么
+python run_daily.py --preset hengxin     # 导入 + 重跑（一条命令）
+```
+
+或者只导入、再看它跟本机差在哪：
+
+```bash
+python tools/preset.py show hengxin      # 逐文件：新增 / 一致 / 需 --force
+python tools/preset.py import hengxin    # 等价于 /profile →「📦 数据包」→ 导入
 python run_daily.py --skip-fetch --skip-affil
 ```
 
-导入会整体替换 `config.json` 与 `interests.json`，**先**把 `download_dir` 改成你自己的目录。
-详见 [预设](../guide/presets.md)。
+两条安全规则，避免"试一下就丢了原来的设置"：
 
-想退回自己原来的设置：`python tools/preset.py export myown` 事先备份，或删掉两个文件重跑。
+- 本机已经有 `config.json` / `interests.json` 且内容不同时，导入会**拒绝**，不加 `--force` 不会动你的文件；
+- 加 `--force` 会先备份到 `output/backup/<时间>/`，再覆盖。
+
+导入后**先**把 `download_dir` 改成你自己的目录（分享出来的包已中性化为 `papers/`）。
+详见 [数据包（预设）](../guide/presets.md)。
+
+想事先留一份自己的：`python tools/preset.py export myown --with-usage --with-notes`。
 
 ## 步骤 6 · 交付与日常
 

@@ -28,8 +28,8 @@
 
 <div class="wel-card">
 <h2>👋 还差一步：选择要跟踪的 arXiv 分类</h2>
-<p class="wel-d">本工具不再内置固定的分类（旧版的 cs.DB / cs.DC / cs.FL / cs.LO / cs.PL / cs.SE
-只是<b>一份个人示例配置</b>，默认不加载）。请先挑出你关心的分类，之后每天的日报就按它们抓取。</p>
+<p class="wel-d">本工具不再内置固定的分类（旧版内置的那套<b>只是一份个人示例配置</b>，默认不加载）。
+请先挑出你关心的分类，之后每天的日报就按它们抓取。</p>
 <ol class="wel-steps">
 <li><span class="wel-no">1</span><div>
 <div class="wel-t">打开「⚙ 画像与设置 → 🗂 arXiv 类别」</div>
@@ -39,8 +39,9 @@
 </div></li>
 <li><span class="wel-no">2</span><div>
 <div class="wel-t">回到命令行重新运行 <code>python run_daily.py</code></div>
-<div class="wel-d">新增分类要重新抓取才会出现论文。想先看一份现成的六分类示例：
-<code>python tools/preset.py import hengxin</code>（导入后同样要重跑）。</div>
+<div class="wel-d">新增分类要重新抓取才会出现论文。也可以先套用一份现成设置：
+<code>python run_daily.py --preset &lt;名字&gt;</code>，或在「📦 数据包」面板里一键导入
+（数据包默认<b>不加载</b>，所以你现在看到的界面是干净的）。</div>
 </div></li>
 </ol>
 <a class="wel-cta" href="/profile">前往选择类别 →</a>
@@ -48,7 +49,8 @@
 分类示例：<span class="wel-cats">%(samples)s</span></div>
 </div>
 
-<footer>选完类别后本页会自动被替换成当期日报。收藏 / 下载 / Downvote 记录保存在 output/library.json。</footer>
+<footer>选完类别后本页会自动被替换成当期日报。收藏 / 下载 / Downvote 记录保存在 output/library.json；
+别人的配置与使用数据以数据包（<code>presets/&lt;名字&gt;/</code>）形式单独存放，只有你显式导入才会生效。</footer>
 </div>
 <div id="toast"></div>
 </body></html>

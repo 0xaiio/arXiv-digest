@@ -125,3 +125,65 @@ def test_ensure_server_survives_spawn_failure(monkeypatch, sandbox):
 def test_port_of_reads_config(sandbox, monkeypatch):
     sandbox.set_config(port=9001)
     assert RD.port_of() == 9001
+
+
+# ------------------------------------------------------------------ --preset 启动参数
+
+def _pack(sandbox, name="demo", cats=("cs.DB",)):
+    sandbox.make_pack(name, {"config.json": {"categories": list(cats),
+                                             "download_dir": "papers"}})
+
+
+def test_apply_preset_arg_is_noop_without_flag(sandbox):
+    _pack(sandbox)
+    before = sandbox.config()
+    assert RD.apply_preset_arg(["--skip-fetch"]) is True
+    assert sandbox.config() == before
+
+
+def test_apply_preset_arg_imports_on_clean_machine(bare_sandbox):
+    _pack(bare_sandbox)
+    assert RD.apply_preset_arg(["--preset", "demo"]) is True
+    assert bare_sandbox.config()["categories"] == ["cs.DB"]
+
+
+def test_apply_preset_arg_replaces_pristine_template(bare_sandbox):
+    _pack(bare_sandbox)
+    assert RD.apply_preset_arg(["--preset", "demo"]) is True
+    assert bare_sandbox.config()["categories"] == ["cs.DB"]
+
+
+def test_apply_preset_arg_refuses_to_clobber_existing_config(sandbox, capsys):
+    """用户改过的配置不覆盖，且**不阻断**启动（返回 False 但继续跑）。"""
+    sandbox.set_config(categories=["cs.LG"])          # 不再是模板初值
+    _pack(sandbox, cats=("cs.PL",))
+    assert RD.apply_preset_arg(["--preset", "demo"]) is False
+    assert sandbox.config()["categories"] == ["cs.LG"]
+    assert "未完全导入" in capsys.readouterr().err
+
+
+def test_apply_preset_arg_force_overrides(sandbox):
+    sandbox.set_config(categories=["cs.LG"])
+    _pack(sandbox, cats=("cs.PL",))
+    assert RD.apply_preset_arg(["--preset", "demo", "--preset-force"]) is True
+    assert sandbox.config()["categories"] == ["cs.PL"]
+
+
+def test_preset_runs_before_categories_flag(sandbox):
+    """`--preset` 先导入、`--categories` 再覆盖：类别以命令行显式值为准。"""
+    _pack(sandbox, cats=("cs.DB",))
+    RD.apply_preset_arg(["--preset", "demo", "--preset-force"])
+    assert RD.apply_categories_arg(["--categories", "cs.LG,cs.DC"]) is True
+    assert sandbox.config()["categories"] == ["cs.LG", "cs.DC"]
+
+
+def test_server_apply_preset_arg_matches_run_daily(sandbox):
+    """服务与流水线必须用同一套导入语义（同一函数），只差参数名。"""
+    import server as S
+
+    _pack(sandbox, cats=("cs.PL",))
+    assert S.argv_value(["--preset", "demo"], "--preset") == "demo"
+    assert S.argv_value(["--preset=demo"], "--preset") == "demo"
+    assert S.argv_value(["--no-open"], "--preset") is None
+    assert S.apply_preset_arg(["--preset", "demo", "--preset-force"]) is True
+    assert sandbox.config()["categories"] == ["cs.PL"]

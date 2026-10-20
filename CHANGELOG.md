@@ -7,6 +7,57 @@
 
 ---
 
+## 2026-10-20（私人数据隔离：数据包与干净首启动）
+
+把"个人数据不进版本库"从**命名约定**升级为**有契约、有清单、有测试**的显式对象：
+模板 / 数据包 / 运行态三层分离，任何人的配置与使用数据都收在一个目录里，
+只能显式导入。设计文档见 [docs/architecture/data-isolation.md](docs/architecture/data-isolation.md)。
+
+### 新增
+
+- **`datapack.py`**：数据包业务层。包发现（`list_packs`）、本机状态（`state`，不返回绝对路径）、
+  导入（`import_pack`：覆盖 / 合并 / 拒绝 + 逐文件 `report`）、导出（`export_pack`：默认只导
+  `core`，绝对路径中性化，写含 `sha256` 的 `manifest.json`）、隐私自检（`scan_paths`）；
+- **四个数据分组**：`core`（配置与画像，整文件替换）· `usage`（收藏/下载/Downvote，只并集）·
+  `learning`（行为学习，默认不导入）· `notes`（摘要与笔记，只并集）——按隐私等级与跨机器语义划分；
+- **`--preset <名字>` 启动参数**：`run_daily.py`、`server.py`、`start_digest.bat` 均支持，
+  导入发生在其它动作之前，失败不阻断启动；`--preset-force` 才允许覆盖本机配置（先备份）；
+- **`POST /api/preset`**（`import` / `export`）与 **`GET /api/datapacks`**；
+- **`/profile` 的「📦 数据包」面板**：只显示包名、文件清单、体积与分组，
+  显示"本机现状（N 个类别 / M 个主题 / 收藏 K 篇）"，一个按钮导入；
+- **`tools/preset.py` 重写**：`list` / `show <名字>`（逐文件差异）/ `import` / `export` / `status`，
+  支持 `--groups`、`--with-usage`、`--with-learning`、`--with-notes`、`--dry-run`、`--keep-paths`；
+- **`presets/hengxin/manifest.json`**：清单化这份示例包（schema 1 + 逐文件 sha256）；
+- 新增 48 个用例（32 单元 + 14 集成 + 1 编排 + 1 e2e），总数 720。
+
+### 变更
+
+- **`core` 分组的"模板初值"例外**：本机 `config.json` / `interests.json` 若仍与
+  `*.example.json` 完全一致（用户还没改过），导入时直接替换、无需 `--force`——
+  否则新用户点「导入」永远报错，"一键"失去意义；只要改过任何一项就回到"默认拒绝"；
+- **导入 `config.json` 时保留本机 `port`**：端口是这台机器的基础设施，不该被别人的包改掉；
+  它也不参与"是否仍是模板初值"的判定；
+- **首屏示例文案去掉与作者分类重合的暗示**：欢迎页的示例分类改为跨学科的 8 个
+  （不再出现 cs.DB / cs.DC 等），类别输入框与提示改用 `cs.LG`；
+- **`interests.example.json` 的 `topics` 改为空数组**：模板不再带"示例主题"，
+  新用户首次打开画像页看到的是真正的空状态（原文的示例主题会进入打分并显示在主题列表里）；
+- **`paths.py` 新增 `packs_dir()` / `PACKS`**，并把数据包根目录纳入 `python paths.py` 的诊断输出；
+- **`.gitignore` 增加包内高敏文件的路径级排除**（`summaries/rec_notes/highlights`），
+  `library/behavior/profile_state` 由既有的文件名规则覆盖——同一个包里可以同时放
+  "可公开的画像"与"不该公开的阅读史"，而不靠人记得别提交；
+- `build_report.build_profile_page()` 增加 `packs` 占位符；`server._Runtime.ALLOWED` 放行 `DP`；
+- 数据包导入的拒绝返回 `400`，界面据 `ok` 弹出逐文件原因（不再静默）。
+
+### 文档
+
+- 新增 [私人数据隔离](docs/architecture/data-isolation.md)（现状审计 / 三层模型 / 格式选型 /
+  导入语义 / 边界 / 备选方案 / 验收标准 / 迁移）；
+- 重写 [预设（数据包）指南](docs/guide/presets.md)；更新 `README`、文档中心与 MkDocs 导航、
+  `reference/{cli,http-api,data-files,config,interests}`、`architecture/modules`、
+  `meta/{structure,faq}`、`getting-started/{installation,quickstart}`、`contributing/testing`。
+
+---
+
 ## 2026-10-20（通用化：类别不再限定 cs.*）
 
 从「arXiv cs.* 六分类摘要」扩展为**通用的 arXiv paper digest**：分类由用户自选，

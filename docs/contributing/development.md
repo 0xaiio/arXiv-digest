@@ -53,6 +53,8 @@ websocket-client），详见[测试与回归](testing.md)。
 | `build_report.py` 渲染逻辑 | `/favorites`、`/profile`、`/archive` 会 `reload` 该模块，**刷新即可**；日报需重跑 |
 | `config.json` 的 `port` | 重新生成页面即可（端口在渲染时替换）；服务自身要换端口仍需重启 |
 | `paperutil.py` / `customize.py` / `profile.py` | 重启服务 + 重跑相关阶段 |
+| `datapack.py` | 重启服务（它被 `server`/`routes` 导入）；CLI 直接生效 |
+| `presets/<名字>/` 里的文件 | **什么都不用做**：运行期不读它，只有显式导入才生效 |
 | `interests.json` / `config.json` | 点「↻ 重算推荐」或 `--skip-fetch --skip-affil` |
 
 一条命令完成"重算 + 重渲染"：

@@ -28,6 +28,7 @@ arXiv-digest/
 ├─ server.py                   # 本地 HTTP 服务（进程装配与分发）
 ├─ routes.py                   # HTTP 语义（路由表 / Reply / Request）
 ├─ service.py                  # 业务用例（收藏 / 下载 / 学习 / 重建）
+├─ datapack.py                 # 私人数据包：导入 / 导出 / 本机状态
 ├─ customize.py                # 可定制项读写（唯一入口）
 ├─ arxiv_cats.py               # arXiv 官方分类表 + 校验/检索/邻域（数据，不是逻辑）
 ├─ paperutil.py                # 配置 / 库文件 / 命名（基础层）
@@ -42,7 +43,7 @@ arXiv-digest/
 ├─ docs/                       # 全部文档（见 §3）
 ├─ tests/                      # pytest 套件：unit / integration / e2e（沙箱隔离）
 ├─ tools/                      # 辅助脚本：维护 / 回归验收 / 视频 / 投稿（见 §2）
-├─ presets/                    # 可选预设（默认不加载）
+├─ presets/<名字>/              # 数据包：一整套设置与使用数据（默认不加载，纯 JSON）
 ├─ reel/                       # 可选视频工程（Remotion）
 └─ output/                     # 运行产物（.gitignore，见文档 reference/data-files.md）
 ```
@@ -68,7 +69,7 @@ arXiv-digest/
 | **历史一次性脚本** | `restore_raw_20260916.py` `summaries_20260916.py` `summaries_20260918.py` `seed_notes_20260912.py` | 按日期命名的当期数据修复/补录脚本，保留作示例；新的一期不需要它们 |
 | **内容与数据维护** | `gen_pending.py` `merge_raw_pool.py` `rebuild_raw_from_index.py` `backfill_archive.py` | 补摘要、修池子、回填归档 |
 | **视频与投稿** | `gen_video_data.py` `gen_narration.py` `check_video_av.py` `bili_collection.py` `bili_tv_qr_login.py` `bili_qr_login.py` | 见[视频与投稿](../guide/video-pipeline.md) |
-| **配置管理** | `preset.py` | 预设导入导出 |
+| **配置管理** | `preset.py` | 数据包的命令行外壳（list / show / import / export / status），语义在 `datapack.py` |
 
 `bili_upload.py` 不在 `tools/`，而在 `.workbuddy/skills/bili-auto-upload/scripts/`——
 它是可复用的技能脚本，被多个项目共享。
@@ -128,7 +129,7 @@ Python 社区的 `src/<package>/` 布局适合"要发布到 PyPI、要被别人 
 └─ 否
    ├─ 它是给人看的说明？ → docs/<对应类别>/
    ├─ 它是一次性/维护脚本？ → tools/
-   ├─ 它是一整套配置？ → presets/<名字>/
+   ├─ 它是一整套设置/使用数据？ → presets/<名字>/（纯 JSON，见[数据隔离](../architecture/data-isolation.md)）
    ├─ 它是视频工程的一部分？ → reel/
    └─ 它是运行产物？ → output/（不要提交）
 ```

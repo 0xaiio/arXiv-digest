@@ -143,6 +143,20 @@
 .cat-valid.ok{color:var(--ok)}
 .cat-valid.err{color:var(--warn)}
 .cp-tip{font-size:12.2px;color:var(--tx3);margin:10px 0 0}
+/* ---- 数据包（可选）：只显示「形状」（包名 / 文件清单 / 体积），不显示内容 ---- */
+.pack-item{display:flex;gap:12px;align-items:center;padding:11px 0;border-top:1px dashed var(--bd)}
+.pack-item:first-child{border-top:none}
+.pk-main{flex:1;min-width:0}
+.pk-top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.pk-top b{font-size:14px;color:var(--ac)}
+.pk-size{font-size:11.8px;color:var(--tx3)}
+.pk-grp{font-size:11.8px;background:var(--acbg);color:var(--ac);border-radius:5px;
+ padding:1px 7px;font-weight:600}
+.pk-files{font-size:12.6px;color:var(--tx2);margin-top:3px;word-break:break-all}
+.pk-hint{font-size:12px;color:var(--tx3);margin-top:3px}
+.pk-hint code{background:#f1f3f6;padding:1px 5px;border-radius:4px;font-size:11.6px}
+.pk-state{font-size:12.6px;color:var(--tx2);margin-top:12px;padding-top:10px;
+ border-top:1px solid var(--bd);line-height:1.7}
 </style></head><body id="top"><div class="wrap">
 <header>
 <h1>⚙ 兴趣画像与设置</h1>
@@ -245,7 +259,7 @@
 <p class="cp-tip">⇅ <b>拖动标签可调整顺序</b>（顺序 = 摘要页分类小节的顺序，保存后点摘要页的「↻ 重算推荐」即刻生效）；点标签右侧 × 删除。</p>
 
 <div class="cat-tools">
-<input id="cat-value" class="cat-input" placeholder="也可直接输入：cs.DB / cond-mat.stat-mech / quant-ph" autocomplete="off">
+<input id="cat-value" class="cat-input" placeholder="也可直接输入：cs.LG / cond-mat.stat-mech / quant-ph" autocomplete="off">
 <button class="tb" id="cat-add">+ 添加</button>
 <span class="cat-valid" id="cat-valid" role="status"></span>
 </div>
@@ -260,8 +274,21 @@
 </div>
 <p class="p-note">修改后<b>立即生效</b>（下载接口每次都读 <code>config.json</code>）；摘要页顶部显示的路径在下次重建页面后同步。</p>
 </div>
+
+<h2 class="sec-h">📦 数据包（可选）</h2>
+<div class="panel">
+<p class="p-note">数据包 = 某位使用者分享的一整套设置（<code>presets/&lt;名字&gt;/</code>，纯 JSON 文本）。
+这里只列出包的<b>名称、文件清单与体积</b>——<b>导入前不会读取其内容</b>，所以新装的本工具界面永远是干净的。
+导入是「补齐 / 合并」：配置与画像在本机已有不同内容时<b>不会覆盖</b>（需命令行 <code>--force</code>），
+收藏 / 下载 / Downvote 只做<b>并集</b>，不会删掉你已有的记录。导入后请点工具栏 <b>↻ 重算推荐</b>。</p>
+<div id="packs">%(packs)s</div>
+<p class="pk-state" style="border-top:none;margin-top:6px;padding-top:0">命令行等价入口：
+<code>python tools/preset.py import &lt;名字&gt;</code> ｜ 启动时加载：
+<code>python run_daily.py --preset &lt;名字&gt;</code> ｜ 本机数据清单：<code>python tools/preset.py status</code></p>
+</div>
+
 <footer>画像：<code>interests.json</code> ｜ 来源增量：<code>output/interests_extra.json</code> ｜
-行为学习：<code>output/profile_state.json</code></footer>
+行为学习：<code>output/profile_state.json</code> ｜ 数据包：<code>presets/&lt;名字&gt;/</code></footer>
 </div>
 <button id="totop" type="button" aria-label="回到顶部" title="回到顶部">↑</button>
 <div id="toast"></div>
@@ -510,7 +537,7 @@ function checkCat(raw){
  if(LOWMAP[s.toLowerCase()]&&LOWMAP[s.toLowerCase()]!==s)
   return {ok:false,msg:'arXiv 分类区分大小写，正确写法是 '+LOWMAP[s.toLowerCase()]};
  if(!/^[a-z][a-z-]*(\.[A-Za-z][A-Za-z-]*)?$/.test(s))
-  return {ok:false,msg:'格式不合法：应为 abc.def（如 cs.DB、math.LO），或单段归档（如 quant-ph）'};
+  return {ok:false,msg:'格式不合法：应为 abc.def（如 cs.LG、math.LO），或单段归档（如 quant-ph）'};
  if(CATMAP[s])return {ok:true,cat:s,zh:CATMAP[s].zh};
  var abc=s.split('.')[0],ai=null;
  ARCHS.forEach(function(a){if(a.id===abc)ai=a;});
@@ -601,7 +628,7 @@ document.addEventListener('DOMContentLoaded',function(){
  if(ca)ca.addEventListener('click',function(){
   var inp=document.getElementById('cat-value');
   var c=inp?inp.value.trim():'';
-  if(!c){toast('请输入分类，如 cs.DB','err');return;}
+  if(!c){toast('请输入分类，如 cs.LG','err');return;}
   if(!validateCatInput()){toast('分类不合法，请看输入框下方的提示','err');return;}
   busy(ca,true,'添加中…');
   api('/api/category',{op:'add',cat:c}).then(function(r){
@@ -664,6 +691,17 @@ document.addEventListener('click',function(ev){
   api('/api/owner',{op:'remove',name:nm}).then(function(r){
    dob.disabled=false;toast(r.msg||'',r.ok?'ok':'err');
    if(r.ok){if(EDITING===nm){EDITING=null;ownForm({people_linked:true});}apply(r.state);}});return;}
+/* ---- 数据包导入：点击 → 确认 → POST → 成功后刷新（主来源卡片是服务端首屏渲染的） ---- */
+ var ip=ev.target.closest('[data-import-pack]');
+ if(ip){var pn=ip.dataset.importPack;
+  if(!window.confirm('导入数据包「'+pn+'」？\n'
+   +'· 配置与画像：本机已有不同内容时不会覆盖（需命令行 --force）\n'
+   +'· 收藏 / 下载 / Downvote：只做并集，不会删掉你已有的记录\n'
+   +'· 导入后需点「↻ 重算推荐」重排摘要页'))return;
+  busy(ip,true,'导入中…');
+  api('/api/preset',{op:'import',name:pn}).then(function(r){
+   busy(ip,false,'导入');toast(r.msg||'',r.ok?'ok':'err');
+   if(r.ok)setTimeout(function(){location.reload();},900);});return;}
  var k=ev.target.closest('.tp.kw');
  if(k){var kw=k.dataset.kw,off=!!BLOCKED[kw.toLowerCase()];
   api('/api/source',{op:off?'unblock':'block',kw:kw}).then(function(r){

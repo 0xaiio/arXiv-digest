@@ -75,6 +75,7 @@ nav:
       - 数据文件: reference/data-files.md
   - 概念:
       - 架构总览: architecture/overview.md
+      - 私人数据隔离: architecture/data-isolation.md
       - 模块职责: architecture/modules.md
       - 排序与学习算法: architecture/ranking.md
       - 服务运行时: architecture/server-runtime.md

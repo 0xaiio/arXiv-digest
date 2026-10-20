@@ -101,6 +101,7 @@ arXiv API 会出现 `429`（限流）与 `503`（维护），一条数据链路�
         ┌───────────────▼──────────────────────────────────────────────┐
  应用层 │ scoring.py（纯打分）    recommend.py（打分编排）               │
         │ customize.py（定制读写） profile.py（学习） archive.py（归档）  │
+        │ datapack.py（私人数据包：导入 / 导出）                          │
         └───────────────┬──────────────────────────────────────────────┘
         ┌───────────────▼──────────────────────────────────────────────┐
  领域层 │ textscan.py（文本→信号）  fetchsrc.py（来源取数适配）          │
@@ -122,17 +123,22 @@ arXiv API 会出现 `429`（限流）与 `503`（维护），一条数据链路�
 - `paths` 不做 IO、不缓存，只算字符串 —— 缓存会让「测试改了路径却拿到旧值」重新出现，
   而那正是它要消灭的问题。
 
-## 六、初始化与预设
+## 六、初始化与数据包
 
 ```
-首次运行（文件缺失）                    按需导入（显式命令）
-config.example.json  ──生成──▶ config.json   ◀──复制──  presets/<名字>/config.json
-interests.example.json ─生成─▶ interests.json ◀──复制──  presets/<名字>/interests.json
+首次运行（文件缺失）                       按需导入（显式命令 / 界面）
+config.example.json  ──生成──▶ config.json    ◀──合并/替换──  presets/<名字>/config.json
+interests.example.json ─生成─▶ interests.json ◀──合并/替换──  presets/<名字>/interests.json
+output/library.json（首次点击时创建）         ◀──并集──────  presets/<名字>/library.json
 ```
 
-设计意图：仓库只提交**模板**与**别人自愿公开的预设**；`config.json` / `interests.json`
-属于个人数据（含本机路径与画像），被 `.gitignore` 排除。别人 clone 下来是干净的，
-想参考一份真实画像时一条命令导入。细节见[预设](../guide/presets.md)。
+设计意图：仓库只提交**模板**与**别人自愿公开的数据包**；`config.json` / `interests.json` /
+`output/` 属于个人数据（含本机路径、画像、阅读史），被 `.gitignore` 排除。
+**任何页面都不在运行时读 `presets/`**：包的标题、描述、类别、画像只有在你
+`--preset`、`tools/preset.py import` 或点界面「导入」之后才会进入运行态；
+录入方向是单向的（包 → 运行态），不会反向自动同步。
+
+细节见[私人数据隔离](data-isolation.md)与[数据包（预设）](../guide/presets.md)。
 
 ## 七、渲染：为什么是单文件 HTML
 

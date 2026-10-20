@@ -601,8 +601,10 @@ def build_welcome():
     分类是这套工具唯一的必填项，而这个入参现在由用户自己给。
     """
     t = arxiv_cats.taxonomy()
-    samples = ["cs.DB", "cs.DC", "cs.LG", "math.LO", "stat.ML", "quant-ph",
-               "eess.AS", "q-bio.NC"]
+    # 示例分类刻意跨学科、且**不含**作者本人跟踪的那几个：首屏不该出现任何
+    # "像某人的研究方向"的暗示。这个列表只是「官方分类长什么样」的演示。
+    samples = ["cs.LG", "math.LO", "stat.ML", "quant-ph",
+               "eess.AS", "q-bio.NC", "econ.EM", "astro-ph.GA"]
     return WELCOME_PAGE % {
         "css": CSS,
         "total": t["total"],
@@ -697,7 +699,7 @@ def _owner_cards(prof):
 
 
 def build_profile_page():
-    """兴趣画像 + 定制项（类别 / 下载目录 / 来源）独立页面。"""
+    """兴趣画像 + 定制项（类别 / 下载目录 / 来源 / 数据包）独立页面。"""
     invalidate_cat_names()
     try:
         import customize as CZ
@@ -719,12 +721,80 @@ def build_profile_page():
     return PROFILE_PAGE % {
         "css": CSS, "js": render_js(), "summary": summary,
         "owners": _owner_cards({"owners": p.get("owners") or []}),
+        "packs": _pack_panel(),
         "customtopic": esc(_custom_topic_name()),
         "customw": _custom_topic_weight(),
         # 官方分类表随页面一起下发：两个联动下拉框的数据源，等价于
         # GET /api/arxiv_categories（同一份 arxiv_cats.taxonomy()）。
         "taxonomy": jssafe(json.dumps(arxiv_cats.taxonomy(), ensure_ascii=False)),
     }
+
+
+# 分组的中文标签（数据包面板用）。写成映射而不是散在拼接里，
+# 新增分组时只需在这里加一行。
+_PACK_GROUPS = {"core": "配置 / 画像", "usage": "收藏与下载",
+                "learning": "行为学习", "notes": "摘要与笔记"}
+
+
+def _pack_panel():
+    """画像页「📦 数据包」面板：**只渲染形状**（包名 / 文件清单 / 体积 / 分组）。
+
+    刻意不渲染 manifest 的 title 与 description —— 那句描述往往就是作者的类别选择
+    与研究方向，正是要隔离的内容。想了解包内容有两条正当路径：读
+    `presets/<名字>/README.md`，或导入。边界规则见
+    docs/architecture/data-isolation.md §六。
+    """
+    try:
+        import datapack as DP
+        packs = DP.list_packs()
+    except Exception as e:  # noqa
+        sys.stderr.write("datapack view failed: %s\n" % e)
+        return '<div class="p-empty">数据包模块不可用（datapack.py 缺失？）</div>'
+    if not packs:
+        return ('<div class="p-empty">没有可导入的数据包。把包放进 '
+                '<code>presets/&lt;名字&gt;/</code>，或用 '
+                '<code>python tools/preset.py export &lt;名字&gt;</code> 把当前设置存成一个包。</div>'
+                '<div class="pk-state">%s</div>' % _packs_state_note())
+    rows = []
+    for p in packs:
+        grp = "、".join(_PACK_GROUPS.get(g, g) for g in p["groups"])
+        size = ("%.1f KB" % (p["bytes"] / 1024.0)) if p["bytes"] >= 1024 else "%d B" % p["bytes"]
+        rows.append(
+            '<div class="pack-item">'
+            '<div class="pk-main">'
+            '<div class="pk-top"><b>%s</b><span class="pk-size">%d 个文件 · %s</span>'
+            '<span class="pk-grp">%s</span></div>'
+            '<div class="pk-files">%s</div>'
+            '<div class="pk-hint">导入前建议先读 <code>presets/%s/README.md</code></div>'
+            '</div>'
+            '<button class="tb primary" data-import-pack="%s">导入</button>'
+            '</div>'
+            % (esc(p["name"]), len(p["files"]), esc(size), esc(grp),
+               esc(" · ".join(p["files"])), esc(p["name"]), esc(p["name"])))
+
+    # 本机现状按**内容**统计，而不是按文件是否存在：首次打开页面就会生成空的
+    # config.json / interests.json，"文件存在"并不能说明用户已经开始积累数据。
+    return "".join(rows) + '<div class="pk-state">%s</div>' % _packs_state_note()
+
+
+def _packs_state_note():
+    """「本机现状」一句话：有数据就报数，没数据就明确说干净。"""
+    try:
+        import customize as CZ
+        n_cat = len(CZ.categories())
+        n_topic = len(CZ.effective_topics())
+    except Exception:  # noqa
+        n_cat = n_topic = 0
+    try:
+        n_fav = len(pu.load_library().get("favorites") or {})
+    except Exception:  # noqa
+        n_fav = 0
+    if n_cat or n_topic or n_fav:
+        return ('本机现状：<b>%d</b> 个类别 ｜ <b>%d</b> 个画像主题 ｜ 收藏 <b>%d</b> 篇。'
+                '配置类文件默认<b>不覆盖</b>，收藏与 Downvote 只做<b>并集</b>。'
+                % (n_cat, n_topic, n_fav))
+    return ('本机是<b>干净状态</b>（未选类别、未设画像、没有收藏）。'
+            '导入只会补齐，不会覆盖任何东西。')
 
 
 def _custom_topic_name():

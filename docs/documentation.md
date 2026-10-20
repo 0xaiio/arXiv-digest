@@ -15,7 +15,7 @@
 | 我想…… | 去哪一类 | 典型文档 |
 | --- | --- | --- |
 | 从头跑起来 | 教程（Tutorial） | [安装](getting-started/installation.md) · [快速开始](getting-started/quickstart.md) |
-| 完成一件具体的事 | 指南（How-to） | [日常使用](guide/daily-workflow.md) · [调画像](guide/profile-tuning.md) · [预设](guide/presets.md) · [视频与投稿](guide/video-pipeline.md) |
+| 完成一件具体的事 | 指南（How-to） | [日常使用](guide/daily-workflow.md) · [调画像](guide/profile-tuning.md) · [数据包（预设）](guide/presets.md) · [视频与投稿](guide/video-pipeline.md) |
 | 查一个字段/参数/接口 | 参考（Reference） | [命令行](reference/cli.md) · [HTTP API](reference/http-api.md) · [config.json](reference/config.md) · [arXiv 类别](reference/categories.md) · [interests.json](reference/interests.md) · [数据文件](reference/data-files.md) |
 | 理解为什么这样设计 | 概念（Explanation） | [架构总览](architecture/overview.md) · [模块职责](architecture/modules.md) · [排序算法](architecture/ranking.md) · [服务运行时](architecture/server-runtime.md) |
 | 出问题了 / 想改代码 | 运维与开发 | [故障排查](operations/troubleshooting.md) · [开发指南](contributing/development.md) · [测试与回归](contributing/testing.md) |
@@ -34,7 +34,7 @@
 | --- | --- |
 | [daily-workflow.md](guide/daily-workflow.md) | 每天怎么用：三个板块怎么读、工具栏筛选、批量下载、往期回看、导出 |
 | [profile-tuning.md](guide/profile-tuning.md) | 推荐不准怎么调：主题、熟悉作者、降权词、兴趣来源、反馈的边际效果 |
-| [presets.md](guide/presets.md) | 一整套设置怎么搬：`tools/preset.py` 的 list / import / export，以及分享前的隐私检查 |
+| [presets.md](guide/presets.md) | 一整套设置怎么搬：数据包的四个分组、`tools/preset.py` 的 list / show / import / export / status、`--preset` 启动参数、界面一键导入、分享前的隐私检查 |
 | [video-pipeline.md](guide/video-pipeline.md) | 可选模块：把当期日报渲染成带中文旁白的视频并投稿到 B 站 |
 
 ## 四、参考：精确取值
@@ -53,7 +53,8 @@
 | 文档 | 讲什么 |
 | --- | --- |
 | [overview.md](architecture/overview.md) | 端到端数据流：抓取 → 增量判定 → 打分 → 渲染 → 归档，以及每一步失败时的降级 |
-| [modules.md](architecture/modules.md) | 14 个 Python 模块的职责、依赖方向、谁调用谁（改代码前先看这里） |
+| [data-isolation.md](architecture/data-isolation.md) | 模板 / 数据包 / 运行态三层分离：为什么用 JSON 文本 + 一个目录、包清单与校验、导入为什么默认不覆盖、界面为什么只显示"形状"、备选方案取舍 |
+| [modules.md](architecture/modules.md) | 21 个 Python 模块的职责、依赖方向、谁调用谁（改代码前先看这里） |
 | [ranking.md](architecture/ranking.md) | 打分公式逐项拆解、行为学习更新式、为什么负向学习默认关闭 |
 | [server-runtime.md](architecture/server-runtime.md) | 两级锁、单篇下载锁、论文索引缓存、CORS、`file://` 兼容、下载选路 |
 
@@ -62,7 +63,7 @@
 | 文档 | 用途 |
 | --- | --- |
 | [development.md](contributing/development.md) | 本地开发约定、改完什么必须重启、调试手法、提交前检查 |
-| [testing.md](contributing/testing.md) | 四层测试结构（666 用例 / 90% 覆盖）、覆盖范围、运行方式、沙箱隔离、如何新增 |
+| [testing.md](contributing/testing.md) | 四层测试结构（720 用例 / 90% 覆盖）、覆盖范围、运行方式、沙箱隔离、如何新增 |
 | [troubleshooting.md](operations/troubleshooting.md) | 症状 → 诊断命令 → 根因 → 修复，覆盖抓取/推荐/下载/服务/视频/投稿 |
 
 ## 七、元信息

@@ -3,8 +3,10 @@
 把 arXiv 的每日新论文按**你自己的研究画像**排序，生成一份可交互的本地日报：收藏、下载 PDF、
 就地展开摘要、Downvote 反馈——全部离线可用，点一次就当场学会你的口味。
 
-> 默认初始化是干净的：clone 下来不带任何人的研究兴趣、分类偏好或本机路径。想看一份调了半年的
-> 真实画像，用 `python tools/preset.py import hengxin` 按需导入。
+> 默认初始化是干净的：clone 下来不带任何人的研究兴趣、分类偏好、收藏记录或本机路径。
+> 任何人的整套设置都以**数据包**（`presets/<名字>/`，纯 JSON）单独存放，
+> 用 `python run_daily.py --preset hengxin` 或到 `/profile` 一键导入才生效。
+> 为什么要这样分层，见[私人数据隔离](architecture/data-isolation.md)。
 
 <div class="grid cards" markdown>
 
@@ -80,16 +82,18 @@ python run_daily.py          # 首次运行自动生成干净的 config.json / i
 ```bash
 python run_daily.py --skip-fetch --skip-affil   # 改完画像/模板，秒级重算重渲染
 python server.py                                 # 只起服务，不重新抓取
+python run_daily.py --preset hengxin             # 导入一份现成数据包（可选）
 ```
 
-Windows 可双击 `start_digest.bat`。完整步骤见[快速开始](getting-started/quickstart.md)。
+Windows 可双击 `start_digest.bat`（带参数 `start_digest.bat hengxin` 则同时导入数据包）。
+完整步骤见[快速开始](getting-started/quickstart.md)。
 
 ## 文档导航
 
 - **教程**：[安装](getting-started/installation.md) · [快速开始](getting-started/quickstart.md)
-- **指南**：[日常使用](guide/daily-workflow.md) · [调优画像](guide/profile-tuning.md) · [预设](guide/presets.md) · [视频与投稿](guide/video-pipeline.md)
+- **指南**：[日常使用](guide/daily-workflow.md) · [调优画像](guide/profile-tuning.md) · [数据包（预设）](guide/presets.md) · [视频与投稿](guide/video-pipeline.md)
 - **参考**：[命令行](reference/cli.md) · [HTTP API](reference/http-api.md) · [config.json](reference/config.md) · [interests.json](reference/interests.md) · [数据文件](reference/data-files.md)
-- **概念**：[架构总览](architecture/overview.md) · [模块职责](architecture/modules.md) · [排序算法](architecture/ranking.md) · [服务运行时](architecture/server-runtime.md)
+- **概念**：[架构总览](architecture/overview.md) · [私人数据隔离](architecture/data-isolation.md) · [模块职责](architecture/modules.md) · [排序算法](architecture/ranking.md) · [服务运行时](architecture/server-runtime.md)
 - **开发与运维**：[开发指南](contributing/development.md) · [测试与回归](contributing/testing.md) · [故障排查](operations/troubleshooting.md)
 - **元信息**：[目录职责](meta/structure.md) · [FAQ](meta/faq.md) · [术语表](meta/glossary.md)
 

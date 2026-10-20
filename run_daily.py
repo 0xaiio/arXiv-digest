@@ -10,10 +10,13 @@
   python run_daily.py --serve          # 渲染完在前台启动本地服务（阻塞）
   python run_daily.py --categories cs.DB,cs.DC
                                        # 先把跟踪的类别设为这几个（覆盖 config.json），再抓取
+  python run_daily.py --preset hengxin # 先导入 presets/hengxin/ 这份数据包（配置+画像），再抓取
+  python run_daily.py --preset hengxin --preset-force
+                                       # 覆盖本机已有的 config.json / interests.json（先备份）
 
 首次运行（config.json 里的 categories 为空）不会抓取任何东西：脚本会提示去
 /profile 的「arXiv 类别」面板自选，并把本地服务拉起来。这是通用版的设计——
-默认不预设任何领域。
+默认不预设任何领域，也不会读取 presets/ 下的任何人的画像。
 """
 import json
 import os
@@ -164,6 +167,27 @@ def arg_value(args, name):
     return None
 
 
+def apply_preset_arg(args):
+    """`--preset <名字>`：在其它动作之前导入一份数据包。
+
+    顺序很关键：先 `--preset`（带进类别与画像），后 `--categories`（可以再覆盖类别），
+    这样 `--preset hengxin --categories cs.LG` 的语义是"用这份画像，但类别只看 cs.LG"。
+    导入失败只打印原因、继续跑：让服务起来，用户才能从界面排查。
+    """
+    name = arg_value(args, "--preset")
+    if not name:
+        return True
+    import datapack as DP
+    ok, msg, report = DP.import_pack(name, force="--preset-force" in args)
+    print(("[preset] " + msg) if ok else ("[preset] 未完全导入：" + msg),
+          file=sys.stdout if ok else sys.stderr)
+    for r in report:
+        if r["action"] != "skipped":
+            print("         %-22s %-9s %s %s"
+                  % (r["file"], r["group"], r["action"], r["reason"]))
+    return ok
+
+
 def apply_categories_arg(args):
     """`--categories cs.DB,cs.DC`：先写入 config.json，再走正常抓取流程。
 
@@ -184,6 +208,7 @@ def apply_categories_arg(args):
 def main():
     os.makedirs(OUT, exist_ok=True)
     args = sys.argv[1:]
+    apply_preset_arg(args)
     if not apply_categories_arg(args):
         raise SystemExit(2)
     import customize as CZ
@@ -192,8 +217,9 @@ def main():
         print("[init] 尚未选择任何 arXiv 分类。\n"
               "       1) 打开 http://127.0.0.1:%d/profile ，在「🗂 arXiv 类别」面板里\n"
               "          先选主类（abc）再选子类（def），可多选、可搜索、可拖拽排序；\n"
-              "          想看一份现成的六分类示例：python tools/preset.py import hengxin\n"
+              "          也可在「📦 数据包」里一键导入一份现成设置（可选，默认不加载）。\n"
               "       2) 或者直接：python run_daily.py --categories cs.DB,cs.DC,cs.FL\n"
+              "       3) 想直接套用一份现成设置：python run_daily.py --preset hengxin\n"
               "       选好后再运行一次本脚本即可抓取。" % port_of())
         if "--no-serve" not in args:
             url, _ = ensure_server()

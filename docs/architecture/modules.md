@@ -1,10 +1,11 @@
 # 模块职责
 
-18 个 Python 模块全部在项目根目录（为什么不做包化拆分，见[目录职责](../meta/structure.md)§4）。
+21 个 Python 模块全部在项目根目录（为什么不做包化拆分，见[目录职责](../meta/structure.md)§4）。
 本文是「改代码前的索引」：每个模块负责什么、对外暴露什么、依赖谁。
 渲染层的版面在 `templates/`，不在 `.py` 里。
 
-整体数据流见[架构总览](overview.md)，评分公式见[排序与学习](ranking.md)。
+整体数据流见[架构总览](overview.md)，评分公式见[排序与学习](ranking.md)，
+私人数据的分层与包格式见[私人数据隔离](data-isolation.md)。
 
 ---
 
@@ -21,16 +22,17 @@
 | 领域 | `profile.py` | ~260 | 行为学习：把点击折算成主题倍率/关键词权重/单篇惩罚 | `paperutil`、`paths` |
 | 领域 | `archive.py` | ~320 | SQLite 归档：判「本期新增」、期次索引、快照路径 | `paperutil`、`paths` |
 | 应用 | `customize.py` | ~710 | 可定制项读写：分类（校验/排序）、下载目录、兴趣来源、画像主来源、合并视图 | `paperutil` `paths` `arxiv_cats` `textscan` `fetchsrc` |
+| 应用 | `datapack.py` | ~470 | **私人数据包**：包发现、本机状态、导入（覆盖/合并/拒绝）、导出（中性化 + 清单） | `paths`、惰性 `paperutil`/`customize`/`profile` |
 | 应用 | `scoring.py` | ~100 | **纯打分函数**：特征拆解与合成分（无 IO、无全局状态） | `profile` |
 | 应用 | `recommend.py` | ~250 | 打分编排、阈值选取、本期隔离、前端索引 | `scoring` `paperutil` `profile` `archive` |
 | 应用 | `fetch_arxiv.py` | ~160 | 主分类抓取 → `raw.json` | `paperutil` |
 | 应用 | `fetch_expand.py` | ~195 | 扩展分类抓取 → `raw_expand.json`；扩展池留空时按 archive 推导 | `paperutil` `arxiv_cats` |
 | 应用 | `fetch_rss.py` | ~200 | 限流降级：分类 RSS 增量合并 | `paperutil` |
 | 应用 | `fetch_affil.py` | ~360 | 从 arXiv HTML/ar5iv 抽作者单位（跨日缓存） | `paperutil` `paths` |
-| 渲染 | `build_report.py` | ~870 | 渲染日报/收藏/画像/存档/引导页；**版面在 `templates/`** | `paperutil` `paths` `arxiv_cats`、惰性 `customize`/`archive` |
+| 渲染 | `build_report.py` | ~950 | 渲染日报/收藏/画像/存档/引导页（画像页含「📦 数据包」面板）；**版面在 `templates/`** | `paperutil` `paths` `arxiv_cats`、惰性 `customize`/`archive`/`datapack` |
 | 接口 | `service.py` | ~300 | 业务用例：收藏/下载/画像学习/重建（**不认识 HTTP**） | `paperutil` `profile` `netroute` `paths` |
 | 接口 | `routes.py` | ~520 | HTTP 语义：路由表 + `Reply`/`Request`（业务委托给 `api`） | 仅标准库 |
-| 接口 | `server.py` | ~265 | 进程装配：Handler 分发、写 socket、启动服务 | 以上全部 |
+| 接口 | `server.py` | ~290 | 进程装配：Handler 分发、写 socket、启动服务、`--preset` 导入 | 以上全部 |
 | 编排 | `run_daily.py` | ~240 | 六个阶段 + 确保服务在线；未选类别时给引导并只起服务 | 子进程调用其它脚本 |
 
 ## 二、依赖方向
@@ -80,6 +82,7 @@ server.py ──▶ routes.py ──▶ (api 命名空间) ──▶ service.py 
 | 根目录 | `ROOT` `under_root(*parts)` | 所有路径相对它解析 |
 | 目录 | `output_dir()` `archive_dir()` | 运行产物统一在 `output/`（一条 `.gitignore` 兜住） |
 | 个人配置 | `config_path()` `interests_path()` + `*_example()` | 放仓库根，用户直接编辑；缺文件时按 `*.example.json` 生成 |
+| 数据包 | `packs_dir()` `PACKS` | `presets/` 根目录：一整套设置的可迁移单元（默认不加载） |
 | 运行产物 | `library_path()` `profile_state_path()` `archive_db_path()` `netroute_cache_path()` `affiliations_path()` `interests_extra_path()` | 均在 `output/` 下 |
 | 诊断 | `snapshot()` `main()` | `python paths.py` 列出全部路径并标出是否已生成 |
 
@@ -198,6 +201,22 @@ server.py ──▶ routes.py ──▶ (api 命名空间) ──▶ service.py 
 （`parse_link` 把自己的 `_http_get` 传下去），所以
 `monkeypatch.setattr(customize, "_http_get", ...)` 这类历史用法继续有效。
 
+### `datapack.py`（私人数据包）
+
+| 能力 | 函数 | 说明 |
+| --- | --- | --- |
+| 包发现 | `valid_name()` `pack_path()` `list_packs()` `manifest()` | 包名白名单校验（拒绝 `/`、`..`、`.` 开头）；`meta.json` 旧格式兼容 |
+| 本机状态 | `targets()` `state()` | **调用时**从 `paperutil`/`customize`/`profile` 取路径，测试重定向自动生效；`state()` 不返回绝对路径 |
+| 导入 | `import_pack(name, groups, force, dry_run)` | `core` 覆盖需 `--force`（先备份）、`usage`/`notes` 只并集、`learning` 显式才写；返回逐文件 `report` |
+| 导出 | `export_pack(name, groups, sanitize)` | 默认只导 `core`；绝对下载路径中性化、`downloads[].path` 裁成文件名；写 `manifest.json`（含 sha256） |
+| 视图 | `public_view()` `compare_pack()` | 界面/接口只拿"形状"；`compare_pack()` 给 CLI 看逐文件差异 |
+| 自检 | `scan_paths()` | 导出前扫形似绝对路径的字符串 |
+
+**两条不变量**（都有测试盯着，见 `tests/unit/test_datapack.py`）：
+
+1. 运行期任何页面都不调用 `import_pack`；`presets/` 只在显式导入时被读取。
+2. `public_view()` 不含 `title` / `description` —— 那句描述往往就是作者的类别选择与研究方向。
+
 ### `scoring.py`（纯打分）
 
 | 能力 | 函数 | 说明 |
@@ -312,6 +331,8 @@ server.py ──▶ routes.py ──▶ (api 命名空间) ──▶ service.py 
 | 新增接口 | `routes.py`（装饰器 + handler）+ 前端 `api()` | 记得在 [http-api.md](../reference/http-api.md) 登记 |
 | 新增业务动作 | `service.py` + `routes.py` 里一行调用 | 不要在 routes 里写业务规则 |
 | 新增数据文件 | `paths.py` 一行 + `conftest._OUT_OWNERS`（如果是模块级常量） | 漏登记会让测试写坏真实数据 |
+| 数据包格式 / 导入语义 | `datapack.py` 的 `GROUPS` / `import_pack()` | 改合并规则要同步 `docs/guide/presets.md` 与单元测试；`public_view()` 不得加入包内容字段 |
+| 画像页「📦 数据包」面板 | `build_report._pack_panel()` + `templates/profile.html` | 面板只渲染形状；`PROFILE_PAGE` 是 `%` 格式化字符串，模板里的 `%` 要写 `%%` |
 | 抓取解析 | `fetch_arxiv.py` 的字段映射 | 保持 `papers[]` 字段契约，否则 `recommend` 会缺字段 |
 | 分类表 / 校验规则 | `arxiv_cats.py` 的 `_ARCHIVES` 与 `validate()` | 前端 `checkCat()` 是同一套规则的手写副本，改规则必须两边一起改（有浏览器用例盯着） |
 | 类别选择器 UI | `templates/profile.html` 的 `initPicker/renderSubList/moveCard` | 标签整块重渲染，事件必须委托到 document；拖拽落点算法在 `dropSide()` |

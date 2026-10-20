@@ -63,6 +63,20 @@ lsof -i :8765
 
 **修复**：`python build_report.py` 或点页面上的「↻ 重算推荐」。若连动态页都旧，重启服务。
 
+### 1.5 导入数据包被拒绝 / 画像页看不到包
+
+| 症状 | 根因 | 修复 |
+| --- | --- | --- |
+| `本机已有不同内容（加 --force 覆盖…）` | `core` 分组（`config.json` / `interests.json`）默认不覆盖 | 确认要用包里的设置：`python tools/preset.py import <名字> --force`（先备份到 `output/backup/<时间>/`）。只想用包的画像而不动配置：`--groups core` 前先 `export` 备份自己的 |
+| `找不到数据包` / 面板是空的 | 包目录不含任何已知文件，或包名不在 `presets/` 下 | `python tools/preset.py list` 看能发现哪些；确认目录里有 `config.json` 或 `interests.json` |
+| `与 manifest.json 记录的 sha256 不符` | 包被手改过，清单没更新 | 重新 `export`，或删掉该包的 `manifest.json`（放弃完整性校验） |
+| `清单版本是 2，高于本程序支持的 1` | 包来自更新的版本 | 升级程序；不要手改 `schema` |
+| 导入成功但摘要页没变 | 摘要是**静态文件** | 点「↻ 重算推荐」，或 `python run_daily.py --skip-fetch --skip-affil` |
+| 导入后下载报"文件不存在" | 包里的 `downloads[].path` 是别人的机器路径 | 重新下载即可；`library` 的收藏记录不受影响 |
+
+数据包的完整语义见[数据包（预设）](../guide/presets.md)，边界见
+[私人数据隔离](../architecture/data-isolation.md)。
+
 ---
 
 ## 二、抓取

@@ -23,14 +23,14 @@ EXPECTED_GET = {
     "/", "/index.html", "/digest", "/favorites", "/profile", "/archive",
     "/api/state", "/api/customize", "/api/profile", "/api/library",
     "/api/archive/days", "/api/net_route", "/api/ping",
-    "/api/arxiv_categories",
+    "/api/arxiv_categories", "/api/datapacks",
 }
 EXPECTED_PREFIX = {"/archive/", "/files/"}
 EXPECTED_POST = {
     "/api/favorite", "/api/unfavorite", "/api/downvote", "/api/undownvote",
     "/api/event", "/api/download", "/api/download_all", "/api/owner",
     "/api/category", "/api/config", "/api/source", "/api/rebuild",
-    "/api/open", "/api/open_folder",
+    "/api/open", "/api/open_folder", "/api/preset",
 }
 
 
