@@ -289,7 +289,8 @@ python tools/gen_pending.py --limit 20    # 导出缺摘要清单到 output/_pen
 | `-400 请求错误` | 用的是 Web 扫码 cookie，缺 App 接口的 `access_token` | 走 TV 通道扫码：`python tools/bili_tv_qr_login.py --wait 280` |
 | `code 601 您上传视频过快` | 账号侧临时频控 | 冷却几分钟，用**原命令**重投，不要改参数 |
 | 登录态失效 | cookie 过期 | 重新 TV 扫码；`biliup renew` 可验证 |
-| 合集里没有新视频 | 没跑 `sync` | `python tools/bili_collection.py sync --exec` |
+| 合集里没有新视频 | 没跑 `sync`，或稿件仍在审核（cid 未生成） | `python tools/bili_collection.py sync --exec`；等转码完成后重跑 |
+| `sync` 报 `code 20080 当前稿件已存在在合集中` | 刚刚已挂载成功，只是列表接口缓存导致本地判重没看到 | 属幂等成功，脚本已按成功处理；无需任何操作 |
 
 cookie 等同账号密码：只在 `.secrets/` 里，绝不进日志、提交或外发。
 

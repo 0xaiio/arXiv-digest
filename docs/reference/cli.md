@@ -86,7 +86,7 @@ python run_daily.py --no-serve                     # 只出文件
 | --- | --- | --- |
 | `bili_tv_qr_login.py` | `--wait <秒>` | TV 通道扫码登录，写 `.secrets/bili_cookies.json`（**推荐**） |
 | `bili_qr_login.py` | `--wait <秒>` | Web 通道扫码（拿不到 App `access_token`，仅排错用） |
-| `bili_collection.py` | `videos` / `collections`（只读）；`cover` / `create` / `add` / `sync`（默认 dry-run，需 `--exec`） | 管理合集 `arXiv-daily`；`sync` 幂等，只补未挂载 |
+| `bili_collection.py` | `videos` / `collections`（只读）；`cover` / `create` / `add` / `sync`（默认 dry-run，需 `--exec`） | 管理合集 `arXiv-daily`；`sync` 幂等，只补未挂载（`code 20080` 视为已挂载成功） |
 | `bili_upload.py` | 在 `.workbuddy/skills/bili-auto-upload/scripts/`；子命令 `check/meta/cover/upload/verify/comment`，`-d <期号>`，`--exec` 才真正执行 | 投稿与投稿后对账 |
 
 ### 数据修复

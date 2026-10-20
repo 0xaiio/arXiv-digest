@@ -235,6 +235,11 @@ def add_episodes(s: requests.Session, jar: dict, section_id: int, eps: list) -> 
                headers={"Content-Type": "application/json"},
                timeout=30)
     j = r.json()
+    if j.get("code") == 20080:  # 当前稿件已存在在合集中
+        # 合集列表接口有短暂缓存，刚挂载完立即重跑时本地判重可能看不到新条目；
+        # 服务端 20080 就是「已经挂上了」，按幂等成功处理，避免自动化误判失败。
+        info("视频已在合集中（20080，幂等跳过）")
+        return True
     if j.get("code") != 0:
         bad(f"挂载视频失败 code={j.get('code')} {j.get('message')}")
         return False
