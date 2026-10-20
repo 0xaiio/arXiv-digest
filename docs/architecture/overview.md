@@ -46,7 +46,7 @@
 | # | 阶段 | 脚本 | 输入 | 输出 | 失败时 |
 | --- | --- | --- | --- | --- | --- |
 | 1 | 主分类抓取 | `fetch_arxiv.py` | `config.categories`、`window_days` | `raw.json` | 保留上一期；坏输出另存 `*.bad_<时间戳>` |
-| 2 | 扩展抓取 | `fetch_expand.py` | `config.expand_categories` | `raw_expand.json` | 同上 |
+| 2 | 扩展抓取 | `fetch_expand.py` | `config.expand_categories`（留空 → `arxiv_cats.neighbors(categories)`） | `raw_expand.json` | 同上 |
 | 2b | 降级通道 | `fetch_rss.py` | 分类 RSS | 增量合并进上面两个池 | 静默失败，下游继续用旧池 |
 | 3 | 打分与选取 | `recommend.py` | 两个池 + `interests.json` + `profile_state.json` + `archive.db` | `recommend.json` / `expand.json` / `papers_index.json` / `issue_*.json` | 中止（无数据无法渲染） |
 | 4 | 作者单位 | `fetch_affil.py` | 本期推荐 + 扩展 | `affiliations.json` | 跳过该步，页面不显示单位 |
@@ -67,7 +67,7 @@ arXiv API 会出现 `429`（限流）与 `503`（维护），一条数据链路�
 | 3 | **保留旧池** | 新输出无效时不覆盖已有 `raw.json`，把坏输出另存供排查 |
 
 第 2 层的条件必须是 `not (ok1 and ok2)` 而不是 `not ok1 or not ok2` 的朴素写法——
-历史故障：六个分类里只有 `cs.SE` 成功，`ok1=True` 让降级没触发，累积池从 281 篇被覆盖成 58 篇，
+历史故障（当时跟踪的是六个 cs 分类）：六个里只有 `cs.SE` 成功，`ok1=True` 让降级没触发，累积池从 281 篇被覆盖成 58 篇，
 其余五个分类当天的论文直接丢失。**宁可多抓一次 RSS，也不能丢一天的论文。**
 
 `raw.json` / `raw_expand.json` 是**累积池**：RSS 合并按短号做并集，**只增不删**。
@@ -151,7 +151,7 @@ interests.example.json ─生成─▶ interests.json ◀──复制──  pre
 | 想做什么 | 改哪里 | 注意 |
 | --- | --- | --- |
 | 加一个画像信号（如"讨厌的系统名"） | `interests.json` 加字段 → `recommend.features()` 参与打分 → `/profile` 加渲染 | 同步更新 [interests.md](../reference/interests.md) |
-| 加一个分类 | `/profile` 或 `config.categories` | 需要重新抓取 |
+| 加一个分类 | `/profile` 的「🗂 arXiv 类别」或 `config.categories` | 需要重新抓取；分类合法性由 `arxiv_cats.validate()` 判定 |
 | 改 Downvote 的视觉 | `build_report.py` 里 `.rec-card.down` 那一组 CSS | 一处改，三个模块同时生效 |
 | 加一个页面 | `build_report.py` 的模板函数 + `server.py` 的 `do_GET` 路由 | 记得把路径加进 `docs` 与 `README` |
 | 换推荐规则 | `recommend.features()` / `score()` | 改完 `python recommend.py && python build_report.py` 验证 |

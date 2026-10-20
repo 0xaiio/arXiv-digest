@@ -38,7 +38,7 @@ output/
 
 | 文件 | 顶层结构 | 说明 |
 | --- | --- | --- |
-| `raw.json` | `{generated_at, newest_seen, cutoff, window_days, categories, total_before_filter, papers[]}` | 主分类 feed，**累积池**：只并集不删除 |
+| `raw.json` | `{generated_at, newest_seen, cutoff, window_days, categories, total_before_filter, papers[]}` | 主分类 feed，**累积池**：只并集不删除。注意 `categories` 是**抓取时的快照**；页面分类小节的顺序以 `config.json` 为准（`build_report` 渲染时重排） |
 | `raw_expand.json` | 同上，`categories` 为扩展分类 | 扩展 feed，体量通常远大于主池 |
 
 单篇论文对象的关键字段（`paper`）：

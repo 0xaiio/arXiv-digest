@@ -5,9 +5,9 @@
 
 ```bash
 python -m pip install -r requirements-dev.txt
-python -m pytest                 # 全量：551 passed，约 60s
-python -m pytest -m unit         # 只跑单元，约 25s
-python -m pytest --cov           # 覆盖率（门槛 85%，当前 89%）
+python -m pytest                 # 全量：666 passed，约 67s
+python -m pytest -m unit         # 只跑单元，约 15s
+python -m pytest --cov           # 覆盖率（门槛 85%，当前 90%）
 ```
 
 ## 分层速查
@@ -26,6 +26,7 @@ python -m pytest --cov           # 覆盖率（门槛 85%，当前 89%）
 | `unit/test_paths.py` | 各模块路径常量必须与 `paths.py` 一致 |
 | `unit/test_routes.py` | 路由表完整性 + 精确优先 + `Runtime` 白名单 + 桩化契约 |
 | `unit/test_service.py` | `PaperIndex` TTL/并发、注入点、批量保序、重建分支 |
+| `unit/test_arxiv_cats.py` | 官方分类表自洽（格式/唯一/归属）、校验七分支、纠错、邻域推导 |
 
 ## 约定
 
@@ -35,4 +36,5 @@ python -m pytest --cov           # 覆盖率（门槛 85%，当前 89%）
 - 新增模块若把 `OUT` 固化在模块级，必须登记到 `conftest._OUT_OWNERS`，
   否则 `test_sandbox_isolation.py` 会失败；
 - 浏览器层用 `dispatchEvent` 而不是 `element.click()`：headless Edge 下后者对
-  「被 data-limit 隐藏或刚被 DocumentFragment 重排过」的按钮有时不冒泡到 document。
+  「被 data-limit 隐藏或刚被 DocumentFragment 重排过」的按钮有时不冒泡到 document；
+- 两个浏览器用例文件共用 `e2e/cdp.py` 的导航/点击底座，别再各写一份。

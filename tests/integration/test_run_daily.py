@@ -16,8 +16,13 @@ pytestmark = pytest.mark.integration
 
 @pytest.fixture()
 def recorder(monkeypatch, sandbox):
-    """替换子进程封装；可选择让某一步失败，模拟 arXiv 限流。"""
+    """替换子进程封装；可选择让某一步失败，模拟 arXiv 限流。
+
+    这里把类别配好：本文件的主题是「编排顺序 / 开关语义 / 失败降级」，
+    而「没选类别」是另一条独立路径，由 test_no_categories_* 专门覆盖。
+    """
     state = {"calls": [], "fail": set(), "write_raw": True}
+    sandbox.set_config(categories=["cs.DB"])
 
     def fake_run(script, capture=None, keep_previous=False):
         state["calls"].append(script)
@@ -105,6 +110,53 @@ def test_ensure_server_reuses_online_instance(monkeypatch):
     monkeypatch.setattr(RD, "server_alive", lambda port, timeout=2.0: True)
     url, started = RD.ensure_server(port=8765)
     assert url.endswith(":8765") and started is False
+
+
+# ------------------------------------------------------------------ 通用版：没有类别
+
+def test_no_categories_skips_fetch_and_render(sandbox, recorder, monkeypatch, capsys):
+    """首次克隆（categories 为空）不抓任何东西，也不能报成功。"""
+    sandbox.set_config(categories=[])
+    _args(monkeypatch)
+    RD.main()
+    assert recorder["calls"] == [], "没选类别时一个抓取脚本都不该跑"
+    out = capsys.readouterr().out
+    assert "/profile" in out and "--categories" in out, "必须告诉用户下一步点哪里"
+
+
+def test_no_categories_still_starts_server(sandbox, recorder, monkeypatch):
+    """引导页要靠本地服务才能打开，所以这种情况下仍须把服务拉起来。"""
+    sandbox.set_config(categories=[])
+    called = []
+    monkeypatch.setattr(RD, "ensure_server",
+                        lambda *a, **k: (called.append(1), ("http://127.0.0.1:8765", False))[1])
+    _args(monkeypatch)
+    RD.main()
+    assert called == [1]
+
+
+def test_categories_cli_arg_sets_config(sandbox, recorder, monkeypatch):
+    sandbox.set_config(categories=[])
+    _args(monkeypatch, "--categories", "cs.DB, math.LO ,quant-ph")
+    RD.main()
+    assert sandbox.config()["categories"] == ["cs.DB", "math.LO", "quant-ph"]
+    assert recorder["calls"][0] == "fetch_arxiv.py"
+
+
+def test_categories_cli_arg_rejects_invalid(sandbox, recorder, monkeypatch, capsys):
+    sandbox.set_config(categories=[])
+    _args(monkeypatch, "--categories", "cs.ZZ")
+    with pytest.raises(SystemExit) as ei:
+        RD.main()
+    assert ei.value.code == 2
+    assert "设置失败" in capsys.readouterr().err
+    assert recorder["calls"] == []
+
+
+def test_arg_value_supports_both_forms():
+    assert RD.arg_value(["--categories", "cs.DB"], "--categories") == "cs.DB"
+    assert RD.arg_value(["--categories=cs.DB"], "--categories") == "cs.DB"
+    assert RD.arg_value(["--skip-fetch"], "--categories") is None
 
 
 def test_payload_validation():

@@ -8,6 +8,12 @@
   python run_daily.py --skip-affil     # 跳过作者单位抓取（较慢，约 3s/篇）
   python run_daily.py --no-serve       # 不自动启动本地服务
   python run_daily.py --serve          # 渲染完在前台启动本地服务（阻塞）
+  python run_daily.py --categories cs.DB,cs.DC
+                                       # 先把跟踪的类别设为这几个（覆盖 config.json），再抓取
+
+首次运行（config.json 里的 categories 为空）不会抓取任何东西：脚本会提示去
+/profile 的「arXiv 类别」面板自选，并把本地服务拉起来。这是通用版的设计——
+默认不预设任何领域。
 """
 import json
 import os
@@ -148,9 +154,51 @@ def ensure_server(port=None, wait=15.0):
     return url, False
 
 
+def arg_value(args, name):
+    """从 `--name v` 或 `--name=v` 里取值；没出现返回 None。"""
+    for i, a in enumerate(args):
+        if a == name:
+            return args[i + 1] if i + 1 < len(args) else ""
+        if a.startswith(name + "="):
+            return a[len(name) + 1:]
+    return None
+
+
+def apply_categories_arg(args):
+    """`--categories cs.DB,cs.DC`：先写入 config.json，再走正常抓取流程。
+
+    存在的理由：无 GUI 的机器（服务器、定时任务）也要能一次性配好类别，
+    不必先手动编辑一个 JSON。校验与 /profile 面板完全同源（arxiv_cats）。
+    """
+    raw = arg_value(args, "--categories")
+    if raw is None:
+        return True
+    cats = [c.strip() for c in raw.replace("，", ",").split(",") if c.strip()]
+    import customize as CZ
+    ok, msg, _ = CZ.set_categories(cats)
+    print(("[categories] " + msg) if ok else ("[categories] 设置失败：" + msg),
+          file=sys.stdout if ok else sys.stderr)
+    return ok
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     args = sys.argv[1:]
+    if not apply_categories_arg(args):
+        raise SystemExit(2)
+    import customize as CZ
+    if not CZ.categories():
+        # 通用版的首次运行：没有类别就什么都不抓，避免「抓了个空还报成功」。
+        print("[init] 尚未选择任何 arXiv 分类。\n"
+              "       1) 打开 http://127.0.0.1:%d/profile ，在「🗂 arXiv 类别」面板里\n"
+              "          先选主类（abc）再选子类（def），可多选、可搜索、可拖拽排序；\n"
+              "          想看一份现成的六分类示例：python tools/preset.py import hengxin\n"
+              "       2) 或者直接：python run_daily.py --categories cs.DB,cs.DC,cs.FL\n"
+              "       选好后再运行一次本脚本即可抓取。" % port_of())
+        if "--no-serve" not in args:
+            url, _ = ensure_server()
+            print("profile: %s/profile" % url)
+        return
     if "--skip-fetch" not in args:
         ok1 = run("fetch_arxiv.py", capture="raw.json", keep_previous=True)
         ok2 = run("fetch_expand.py", capture="raw_expand.json", keep_previous=True)

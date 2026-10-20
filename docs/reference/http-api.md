@@ -211,7 +211,7 @@ print(routes.table())      # {'get': [...], 'get_prefix': [...], 'post': [...]}
 | 接口 | 请求体 | 说明 |
 | --- | --- | --- |
 | `POST /api/owner` | `{"op":"add", "name":..., "label":..., "site":..., "affiliation":..., "interests":..., "signature_topics":[...], "link_person":true}`<br>`{"op":"update", "orig":"<原名>", ...}`<br>`{"op":"remove", "name":"..."}` | 画像主来源增删改。`update` 用 `orig` 定位、可改名；`link_person` 控制是否同步计入熟悉研究者 |
-| `POST /api/category` | `{"op":"add", "cat":"cs.PL", "name":"编程语言"}`<br>`{"op":"remove", "cat":"cs.PL"}` | 增删主分类。**新增分类需要重新抓取**才会出现该分类论文 |
+| `POST /api/category` | `{"op":"add", "cat":"cs.PL", "name":"可选"}`<br>`{"op":"add_many", "cats":["cs.LG","cs.IR"]}`<br>`{"op":"remove", "cat":"cs.PL"}`<br>`{"op":"reorder", "order":["cs.PL","cs.DB"]}`<br>`{"op":"set", "cats":[...], "allow_empty":false}` | 类别增删改排序（详见下方）。**新增分类需要重新抓取**才会出现该分类论文 |
 | `POST /api/config` | `{"download_dir": "D:/papers"}` | 修改下载目录（唯一真源）。相对路径解析到项目根 |
 | `POST /api/source` | `{"op":"add", "type":"link\|paper\|doc", "value":"...", "note":""}`<br>`{"op":"remove", "sid":"s1759..."}`<br>`{"op":"refresh"}`<br>`{"op":"block", "kw":"..."}` / `{"op":"unblock", "kw":"..."}` | 兴趣来源与来源关键词屏蔽。`refresh` 重解析全部来源 |
 
@@ -222,6 +222,59 @@ print(routes.table())      # {'get': [...], 'get_prefix': [...], 'post': [...]}
 ```
 
 前端拿到 `state` 后重画整块区域，不需要额外再发一次 GET。
+
+### `POST /api/category`
+
+类别是**有序列表**（顺序 = 摘要页分类小节顺序），因此除了增删还有排序与整体替换。
+
+| `op` | 请求体 | 行为 / 错误 |
+| --- | --- | --- |
+| `add` | `{"cat":"cs.PL","name":"可选中文名"}` | 校验 → 去重 → 追加到末尾。非法或重复返回 `ok:false` 与原因 |
+| `add_many` | `{"cats":["cs.LG","cs.IR"]}` | 多选下拉一次提交。**部分成功**：合法的照加，非法/重复的逐条回报（`info.added` / `info.duplicates` / `info.invalid`） |
+| `remove` | `{"cat":"cs.PL"}` | 删除一个；只剩一个时拒绝（`至少要保留一个分类`） |
+| `reorder` | `{"order":["cs.PL","cs.DB"]}` | 拖拽排序。`order` 必须是当前集合的**一个排列**，少一项/多一项/重名都会被拒绝且不改动配置 |
+| `set` | `{"cats":[...],"allow_empty":false}` | 整体替换（导入、清空重建）。默认不允许替换成空数组 |
+
+校验规则（大小写、点号、是否在官方表内、近邻纠错）见 [arXiv 类别](categories.md#validation)。
+响应同样带完整 `state`，其中 `state.category_meta` 是前端渲染标签用的有序元数据：
+
+```json
+{
+  "ok": true, "msg": "已添加 2 个分类：cs.LG、cs.IR",
+  "info": {"added": ["cs.LG", "cs.IR"], "duplicates": [], "invalid": []},
+  "state": {
+    "categories": ["cs.DB", "cs.LG", "cs.IR"],
+    "category_meta": [
+      {"cat": "cs.DB", "name": "数据库", "archive": "cs", "known": true},
+      {"cat": "cs.LEGACY", "name": "", "archive": "cs", "known": false}
+    ]
+  }
+}
+```
+
+`known:false` 表示该分类不在官方表内（手改过 `config.json`，或 arXiv 下线了它）——
+界面把标签标成警告色，但**不会**替你删掉。
+
+### `GET /api/arxiv_categories`
+
+arXiv 官方分类全表，是 `/profile` 两个联动下拉框的数据源（页面渲染时也会内嵌同一份 JSON，
+所以即使这个接口不可用，下拉框仍能工作）。
+
+```json
+{
+  "version": "2026-10",
+  "source": "https://arxiv.org/category_taxonomy",
+  "total": 155,
+  "archives": [
+    {"id": "cs", "en": "Computer Science", "zh": "计算机科学", "single": false,
+     "categories": [{"id": "cs.AI", "en": "Artificial Intelligence", "zh": "人工智能"}]},
+    {"id": "quant-ph", "en": "Quantum Physics", "zh": "量子物理", "single": true,
+     "categories": [{"id": "quant-ph", "en": "Quantum Physics", "zh": "量子物理"}]}
+  ]
+}
+```
+
+`single:true` 的 archive 只有唯一分类且无点号（`quant-ph` / `hep-th` / `gr-qc` 等 9 个）。
 
 ### `POST /api/rebuild`
 

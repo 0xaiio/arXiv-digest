@@ -25,13 +25,17 @@
 
 ### 能用于非计算机领域吗？
 
-可以——它是**通用关键词打分**，不依赖任何 cs 专属逻辑：
+可以——它是**通用关键词打分**，而且分类本身已经完全数据化（官方 155 个分类任选），
+不存在任何 cs 专属逻辑：
 
-1. `config.categories` 换成目标分类（如 `math.AC`、`q-bio.NC`、`econ.EM`）；
+1. `/profile` →「🗂 arXiv 类别」选目标分类（`math.AC`、`q-bio.NC`、`econ.EM` 都在官方表里）；
 2. `interests.topics` 写该领域的主题关键词；
-3. 若目标领域不在 `expand_categories` 覆盖范围内，替换成相邻分类。
+3. `expand_categories` **留空即可**：扩展池会自动取同 archive 的兄弟分类
+   （选 `math.AC` → 其余 `math.*`）。
 
-唯一的领域耦合是 `expand_categories` 的默认值（以 cs.* + `math.LO` 为主），改掉即可。
+历史版本里唯一写死领域的地方（`config.example.json` 的四个 cs 分类、`page.html` 的
+`arXiv cs.*` 标题、`fetch_expand.py` 的 cs 兜底列表）都已移除，见
+[arXiv 类别](../reference/categories.md)。
 
 ## 二、隐私与数据
 

@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Fetch recent arXiv submissions for a set of cs.* categories and dump to JSON."""
+"""Fetch recent arXiv submissions for the categories configured in config.json.
+
+分类不再限定 cs.*：`config.json` 的 `categories` 由用户在 /profile 里自选
+（官方 155 个分类，见 arxiv_cats.py）。留空时本脚本不做任何请求，直接输出
+可诊断的错误对象，由 run_daily.py 提示用户先去选类别。
+"""
+
 import json
 import ssl
 import sys
@@ -111,6 +117,12 @@ def merge_pool(fresh, prev):
 
 
 def main():
+    if not CATS:
+        print(json.dumps({"error": "no categories configured",
+                          "hint": "尚未选择任何 arXiv 分类：请在 /profile 的「类别」面板里自选，"
+                                  "或运行 python run_daily.py --categories cs.DB,cs.DC"},
+                         ensure_ascii=False))
+        return
     all_papers = {}
     for cat in CATS:
         sys.stderr.write("fetching %s ...\n" % cat)

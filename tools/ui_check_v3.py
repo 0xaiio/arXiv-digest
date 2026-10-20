@@ -7,6 +7,8 @@
      无「点击跳转」文案；hover 有抬升反馈；点击真的跳到对应分类锚点。
   2) 作者单位行（🏛）确实渲染在卡片上。
   3) /profile：主题条 / 来源 / 类别 / 下载目录 都在；能增删类别；能改下载目录。
+     类别选择器已改为「两级联动下拉 + 可拖拽标签」，本探针走**手动输入框**那条路径
+     （新增/删除），拖拽排序与联动下拉由 tests/e2e/test_category_picker_ui.py 覆盖。
   4) 回归：侧栏 rail、回到顶部、无 console 报错。
 
 沙箱里 python 子进程启动的 Edge 绑不上调试端口，故支持 EDGE_ATTACH_PORT 附加模式。
@@ -147,7 +149,7 @@ CHECK_PROFILE = r"""
     customThemes: document.querySelectorAll('#themes .theme-row.is-custom').length,
     barWidths: [...document.querySelectorAll('#themes .bar i')].slice(0,3)
                  .map(e => e.style.width),
-    cats: [...document.querySelectorAll('#cat-list .cat-code')].map(e => e.textContent.trim()),
+    cats: [...document.querySelectorAll('#cat-list .cat-tag .t-id')].map(e => e.textContent.trim()),
     srcItems: document.querySelectorAll('#src-list .src-item').length,
     srcEmpty: !!document.querySelector('#src-list .p-empty'),
     dldir: (document.getElementById('dldir') || {}).value,
@@ -162,14 +164,13 @@ CHECK_PROFILE = r"""
 ADD_CAT = r"""
 (async () => {
   const sleep = ms => new Promise(r => setTimeout(r, ms));
-  const before = document.querySelectorAll('#cat-list .cat-item').length;
+  const before = document.querySelectorAll('#cat-list .cat-tag').length;
   document.getElementById('cat-value').value = 'cs.LG';
-  document.getElementById('cat-name').value = '';
   document.getElementById('cat-add').click();
   for (let i = 0; i < 30; i++) { await sleep(300);
-    if (document.querySelectorAll('#cat-list .cat-item').length !== before) break; }
-  const codes = [...document.querySelectorAll('#cat-list .cat-code')].map(e => e.textContent.trim());
-  const topics = [...document.querySelectorAll('#cat-list .cat-topic')].map(e => e.textContent.trim());
+    if (document.querySelectorAll('#cat-list .cat-tag').length !== before) break; }
+  const codes = [...document.querySelectorAll('#cat-list .cat-tag .t-id')].map(e => e.textContent.trim());
+  const topics = [...document.querySelectorAll('#cat-list .cat-tag .t-zh')].map(e => e.textContent.trim());
   const idx = codes.indexOf('cs.LG');
   return {before, after: codes.length, added: idx >= 0,
           addedTopic: idx >= 0 ? topics[idx] : null};
@@ -180,14 +181,14 @@ DEL_CAT = r"""
 (async () => {
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   window.confirm = () => true;
-  const before = document.querySelectorAll('#cat-list .cat-item').length;
-  const el = [...document.querySelectorAll('#cat-list .cat-item')]
-    .find(e => e.querySelector('.cat-code').textContent.trim() === 'cs.LG');
+  const before = document.querySelectorAll('#cat-list .cat-tag').length;
+  const el = [...document.querySelectorAll('#cat-list .cat-tag')]
+    .find(e => e.querySelector('.t-id').textContent.trim() === 'cs.LG');
   if (!el) return {error: 'cs.LG not found'};
   el.querySelector('[data-del-cat]').click();
   for (let i = 0; i < 30; i++) { await sleep(300);
-    if (document.querySelectorAll('#cat-list .cat-item').length !== before) break; }
-  const codes = [...document.querySelectorAll('#cat-list .cat-code')].map(e => e.textContent.trim());
+    if (document.querySelectorAll('#cat-list .cat-tag').length !== before) break; }
+  const codes = [...document.querySelectorAll('#cat-list .cat-tag .t-id')].map(e => e.textContent.trim());
   return {before, after: codes.length, removed: codes.indexOf('cs.LG') < 0, cats: codes};
 })()
 """

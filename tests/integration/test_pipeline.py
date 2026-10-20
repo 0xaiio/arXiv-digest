@@ -206,3 +206,63 @@ def test_build_report_is_resilient_to_missing_editorial_files(seeded):
         assert not seeded.exists(name), "前置条件：这些文件本来就不存在"
     _run_pipeline()
     assert seeded.exists("arxiv_digest_20261015.html")
+
+
+# ---------------------------------------------------------------- 通用分类：顺序契约
+
+def test_digest_sections_follow_config_category_order(seeded, make_paper):
+    """拖拽排序的效果必须落到页面上：分类小节的顺序 = config.json 的顺序。
+
+    页面的数据来自 raw.json 的抓取快照，顺序来自 config —— 两者不一致时，
+    用户拖完顺序会以为「没生效」。这里就是钉住这条链路（config → 页面）。
+    """
+    core = [make_paper("2609.20001", "DB paper", "isolation level", primary="cs.DB"),
+            make_paper("2609.20002", "PL paper", "refinement types", primary="cs.PL")]
+    seeded.write("raw.json", {"generated_at": "2026-10-15T08:00:00+08:00",
+                              "newest_seen": "2026-10-15", "window_days": 3,
+                              "categories": ["cs.DB", "cs.PL"], "papers": core})
+    seeded.write("raw_expand.json", {"generated_at": "2026-10-15T08:00:00+08:00",
+                                     "newest_seen": "2026-10-15", "window_days": 3,
+                                     "categories": [], "papers": []})
+    seeded.set_config(categories=["cs.PL", "cs.DB"])
+    _run_pipeline()
+
+    html = (seeded.out / "arxiv_digest_20261015.html").read_text(encoding="utf-8")
+    assert html.index('id="cat-cs.PL"') < html.index('id="cat-cs.DB"'), \
+        "分类小节顺序应与 config.json 一致"
+
+    seeded.set_config(categories=["cs.DB", "cs.PL"])
+    _run_pipeline()
+    html = (seeded.out / "arxiv_digest_20261015.html").read_text(encoding="utf-8")
+    assert html.index('id="cat-cs.DB"') < html.index('id="cat-cs.PL"')
+
+
+def test_ordered_categories_keeps_snapshot_extras(monkeypatch):
+    """config 里没有、但快照里有的分类不能被丢掉（手改过 raw.json 的场景）。"""
+    import customize as CZ
+    monkeypatch.setattr(CZ, "categories", lambda: ["cs.PL"])
+    assert B.ordered_categories(["cs.DB", "cs.PL", "math.LO"]) == \
+        ["cs.PL", "cs.DB", "math.LO"]
+
+
+def test_ordered_categories_without_config_keeps_snapshot_order(monkeypatch):
+    import customize as CZ
+    monkeypatch.setattr(CZ, "categories", lambda: [])
+    assert B.ordered_categories(["cs.DB", "cs.PL"]) == ["cs.DB", "cs.PL"]
+    assert B.ordered_categories(None) == []
+
+
+def test_fresh_install_renders_profile_and_welcome(bare_sandbox):
+    """全新克隆（没有任何 config / output）时，引导页与画像页都必须能渲染。
+
+    这是通用版的第一个用户触点：分类为空 → `/` 是引导页 → 点进 `/profile` 选类别。
+    任何一步抛异常，新用户看到的都是 500。
+    """
+    welcome = B.build_welcome()
+    assert "/profile" in welcome and "选择要跟踪的 arXiv 分类" in welcome
+
+    html = B.build_profile_page()
+    assert "arXiv 类别" in html
+    assert 'id="taxdata"' in html, "分类表要内嵌到页面（离线也能开下拉框）"
+    assert "cp-arch-btn" in html and "cp-add" in html
+    assert bare_sandbox.cfg.exists(), "渲染画像页会顺手把 config.json 初始化出来"

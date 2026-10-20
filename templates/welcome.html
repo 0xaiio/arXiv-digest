@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>arXiv 论文日报 · 先选类别</title>
+<link rel="icon" href="data:,">
+<style>%(css)s
+.wel-card{background:var(--card);border:1px solid var(--bd);border-radius:14px;
+ padding:30px 34px;margin:26px 0 18px}
+.wel-card h2{margin:0 0 10px;font-size:19px}
+.wel-steps{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:14px}
+.wel-steps li{display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start}
+.wel-no{width:26px;height:26px;border-radius:50%%;background:var(--acbg);color:var(--ac);
+ font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+.wel-t{font-size:14.5px;font-weight:700;margin-bottom:2px}
+.wel-d{font-size:13.4px;color:var(--tx2);line-height:1.75}
+.wel-d code{background:#f1f3f6;padding:1px 5px;border-radius:4px;font-size:12.4px}
+.wel-cta{display:inline-block;margin-top:16px;background:var(--ac);color:#fff;
+ border-radius:9px;padding:9px 18px;font-size:14px;font-weight:600;text-decoration:none}
+.wel-cta:hover{background:#2560d4}
+.wel-note{margin-top:18px;font-size:12.6px;color:var(--tx3);line-height:1.7}
+.wel-cats{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.wel-cats span{font-size:12px;color:var(--tx2);background:#f1f3f6;border-radius:6px;padding:2px 8px}
+</style></head><body id="top"><div class="wrap">
+<header>
+<h1>arXiv 论文日报</h1>
+<div class="sub">通用版：抓哪些分类由你决定，默认不预设任何研究领域。</div>
+</header>
+
+<div class="wel-card">
+<h2>👋 还差一步：选择要跟踪的 arXiv 分类</h2>
+<p class="wel-d">本工具不再内置固定的分类（旧版的 cs.DB / cs.DC / cs.FL / cs.LO / cs.PL / cs.SE
+只是<b>一份个人示例配置</b>，默认不加载）。请先挑出你关心的分类，之后每天的日报就按它们抓取。</p>
+<ol class="wel-steps">
+<li><span class="wel-no">1</span><div>
+<div class="wel-t">打开「⚙ 画像与设置 → 🗂 arXiv 类别」</div>
+<div class="wel-d">两个联动下拉框：先选主类（abc，如 <code>cs</code>），再选子类（def，如 <code>DB</code>）；
+都支持搜索与多选。选好的分类以标签形式排列，<b>可拖拽排序</b>（顺序 = 摘要页分类小节的顺序），
+点标签上的 × 删除。</div>
+</div></li>
+<li><span class="wel-no">2</span><div>
+<div class="wel-t">回到命令行重新运行 <code>python run_daily.py</code></div>
+<div class="wel-d">新增分类要重新抓取才会出现论文。想先看一份现成的六分类示例：
+<code>python tools/preset.py import hengxin</code>（导入后同样要重跑）。</div>
+</div></li>
+</ol>
+<a class="wel-cta" href="/profile">前往选择类别 →</a>
+<div class="wel-note">共收录 <b>%(total)d</b> 个官方分类，来自 <a href="%(source)s" target="_blank" rel="noopener">arxiv.org/category_taxonomy</a>（%(version)s）。
+分类示例：<span class="wel-cats">%(samples)s</span></div>
+</div>
+
+<footer>选完类别后本页会自动被替换成当期日报。收藏 / 下载 / Downvote 记录保存在 output/library.json。</footer>
+</div>
+<div id="toast"></div>
+</body></html>

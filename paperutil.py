@@ -17,9 +17,10 @@ CONFIG_EXAMPLE = paths.CONFIG_EXAMPLE
 
 # 最后兜底（config.example.json 也缺失时才用）。刻意不含任何本机路径与个人分类：
 # 新用户拿到的是「干净默认」，个人设置走 presets/ 或自己改 config.json。
+# categories 为空 = 通用版：用户首次打开在 /profile 里自选 arXiv 分类（155 个官方分类可选）。
 DEFAULT_CONFIG = {
     "download_dir": "papers",
-    "categories": ["cs.AI", "cs.CL", "cs.LG", "cs.SE"],
+    "categories": [],
     "window_days": 3,
     "max_results_per_cat": 80,
     "top_recommend": 14,
@@ -62,13 +63,17 @@ def load_config():
         seed_from_example(
             CONFIG_PATH, CONFIG_EXAMPLE, DEFAULT_CONFIG,
             notice="[init] 已按 config.example.json 生成 config.json。"
-                   "请按需修改 categories（跟踪的分类）与 download_dir（PDF 保存目录）。")
+                   "categories 默认为空：请在 /profile 的「arXiv 类别」面板里自选，"
+                   "或 `python run_daily.py --categories cs.DB,cs.DC` 指定；"
+                   "download_dir（PDF 保存目录）也可在那里改。")
     cfg = dict(DEFAULT_CONFIG)
     if os.path.exists(CONFIG_PATH):
         try:
             cfg.update(json.load(open(CONFIG_PATH, encoding="utf-8")))
         except Exception:
             pass
+    if not isinstance(cfg.get("categories"), list):
+        cfg["categories"] = []
     return cfg
 
 

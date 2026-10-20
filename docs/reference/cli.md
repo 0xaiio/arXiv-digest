@@ -25,6 +25,7 @@
 | `--skip-affil` | 跳过作者单位抓取（约 3 秒/篇，是最慢的一步） | 赶时间、或不需要单位信息 |
 | `--no-serve` | 只产出文件，不启动/不检查本地服务 | CI、服务器上只生成 HTML |
 | `--serve` | 渲染完**前台**启动服务（阻塞） | 想让终端窗口承载服务进程 |
+| `--categories cs.DB,cs.DC` | 先把跟踪的分类设为这几个（写入 `config.json`），再走正常流程 | 无 GUI 的机器、定时任务一次配好分类 |
 
 组合示例：
 
@@ -36,6 +37,10 @@ python run_daily.py --no-serve                     # 只出文件
 失败行为：抓取步骤若未产出有效数据，会保留上一期文件（坏输出另存 `*.bad_<时间戳>`）；
 若连历史数据都没有，则跳过推荐与渲染并直接返回，不会把已有日报清空。
 
+`categories` 为空（通用版首次运行）时**不抓取任何东西**：打印「尚未选择任何 arXiv 分类」
+与两条下一步（去 `/profile` 选，或用 `--categories`），并在未加 `--no-serve` 时把本地服务拉起来，
+好让引导页可访问。
+
 ### 各阶段脚本（手动单独调用）
 
 这些脚本一般由 `run_daily.py` 调用，但你也可以单独跑。**抓取类脚本把 JSON 打到 stdout**，
@@ -44,7 +49,7 @@ python run_daily.py --no-serve                     # 只出文件
 | 脚本 | 参数 | 产物 / 行为 |
 | --- | --- | --- |
 | `fetch_arxiv.py` | 无 | stdout 输出主分类 feed JSON → 通常 `> output/raw.json` |
-| `fetch_expand.py` | 无 | stdout 输出扩展分类 feed → `> output/raw_expand.json` |
+| `fetch_expand.py` | 无 | stdout 输出扩展分类 feed → `> output/raw_expand.json`；`expand_categories` 留空时按同 archive 兄弟分类推导 |
 | `fetch_rss.py` | `--dry` 只打印不写 | API 限流时的降级通道：抓分类 RSS，**按短号增量合并**进既有池 |
 | `recommend.py` | 无 | `recommend.json` `expand.json` `papers_index.json` `issue_core.json` `issue_expand.json` `issue_stats.json` `scores.json` |
 | `fetch_affil.py` | `--force` 重抓已缓存；`--max N` 本期最多解析 N 篇；`--only cs.DB,cs.DC` 只处理指定分类 | `output/affiliations.json`（跨日累积） |
@@ -52,6 +57,8 @@ python run_daily.py --no-serve                     # 只出文件
 | `server.py` | `--no-open` 不自动开浏览器 | 启动 `http://127.0.0.1:<port>`（端口取 `config.json`） |
 | `profile.py` | 无 | 打印主题倍率、关键词两端极值、被 Downvote 的论文 |
 | `netroute.py` | `--forget` 清缓存重探；`--quick` 只列候选不探测 | 打印下载路由诊断结论 |
+| `arxiv_cats.py` | 无 | 打印 20 个 archive / 155 个分类的概览，并自检每个分类号是否符合格式规则 |
+| `paths.py` | 无 | 列出全部数据文件路径并标出是否已生成 |
 
 ## 二、维护与工具脚本（`tools/`）
 
@@ -59,7 +66,7 @@ python run_daily.py --no-serve                     # 只出文件
 
 | 脚本 | 参数 | 说明 |
 | --- | --- | --- |
-| `preset.py` | `list` / `import <名字> [--force]` / `export <名字>` | 预设的查看、导入（默认拒绝覆盖，`--force` 先备份）、导出 |
+| `preset.py` | `list` / `import <名字> [--force]` / `export <名字>` | 预设的查看、导入（默认拒绝覆盖，`--force` 先备份）、导出。`import hengxin` 会带进来那套 6 分类个人示例配置 |
 
 ### 内容补全
 

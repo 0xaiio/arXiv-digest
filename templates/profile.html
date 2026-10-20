@@ -43,13 +43,11 @@
  font-family:inherit;color:var(--tx);background:#fff;min-width:0}
 .form #src-value{flex:1;min-width:240px}
 .form #src-note{width:150px}
-.form #cat-value{width:160px}
-.form #cat-name{flex:1;min-width:180px}
 .form #dldir{flex:1;min-width:240px}
 .tb.primary{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:600}
 .tb.primary:hover{background:#2560d4;border-color:#2560d4;color:#fff}
-.src-item,.cat-item{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-top:1px dashed var(--bd)}
-.src-item:first-child,.cat-item:first-child{border-top:none}
+.src-item{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-top:1px dashed var(--bd)}
+.src-item:first-child{border-top:none}
 .si-main{flex:1;min-width:0}
 .si-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .si-type{font-size:11px;border-radius:5px;padding:2px 7px;background:var(--acbg);color:var(--ac);font-weight:600}
@@ -63,15 +61,88 @@
 .tp.kw:hover{background:#dfe9ff;box-shadow:inset 0 0 0 1px var(--ac)}
 .tp.kw.blk{background:#f1f3f6;color:var(--tx3);text-decoration:line-through;opacity:.65}
 .tp.kw.blk:hover{background:#e6e9ee;box-shadow:inset 0 0 0 1px var(--tx3)}
-.cat-item{align-items:center}
-.cat-code{font-weight:800;color:var(--ac);font-size:14.5px;min-width:76px}
-.cat-topic{flex:1;font-size:13.4px}
 .cat-n{font-size:12.5px;color:var(--tx3);font-variant-numeric:tabular-nums}
 .btn-x{background:#fff;border:1px solid var(--bd);color:var(--tx3);border-radius:7px;padding:3px 9px;
  font-size:12px;cursor:pointer;font-family:inherit}
 .btn-x:hover{border-color:var(--warn);color:var(--warn)}
 .chips.neg .chip{background:#fdecec;color:var(--warn)}
 .p-empty{color:var(--tx3);font-size:13px;padding:8px 0}
+/* ---- arXiv 类别：两级联动下拉（可搜索 / 多选） + 可拖拽排序的标签 ---- */
+.cp-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.cp-field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.cp-field.w-arch{flex:0 0 200px}
+.cp-field.w-sub{flex:1 1 320px}
+.cp-lbl{font-size:12.2px;color:var(--tx3);font-weight:700}
+.cp{position:relative}
+.cp-btn{display:flex;align-items:center;gap:8px;width:100%%;background:#fff;border:1px solid var(--bd);
+ border-radius:8px;padding:7px 11px;font-size:13.4px;font-family:inherit;color:var(--tx);
+ cursor:pointer;text-align:left}
+.cp-btn:hover{border-color:var(--ac)}
+.cp-btn[aria-expanded=true]{border-color:var(--ac);box-shadow:0 0 0 3px var(--acbg)}
+.cp-val{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cp-val.dim{color:var(--tx3)}
+.cp-caret{color:var(--tx3);font-size:11px}
+.cp-pop{position:absolute;z-index:40;top:calc(100%% + 5px);left:0;width:max(100%%,400px);
+ background:#fff;border:1px solid var(--bd);border-radius:10px;padding:8px;
+ box-shadow:0 12px 30px rgba(24,40,72,.16)}
+.cp-q{width:100%%;border:1px solid var(--bd);border-radius:7px;padding:6px 10px;font-size:13px;
+ font-family:inherit;color:var(--tx);margin:0 0 6px}
+.cp-list{max-height:272px;overflow:auto}
+.cp-grp{font-size:11.5px;color:var(--tx3);font-weight:700;padding:6px 6px 3px;
+ position:sticky;top:0;background:#fff}
+.cp-opt{display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:7px;
+ cursor:pointer;font-size:13.2px}
+.cp-opt:hover{background:#f2f6ff}
+.cp-opt.on{background:#f7faff}
+.cp-opt.dis{opacity:.5;cursor:default}
+.cp-opt.dis:hover{background:none}
+.o-box{width:14px;height:14px;flex:0 0 14px;border:1px solid var(--bd);border-radius:4px;
+ font-size:10px;line-height:12px;text-align:center;color:transparent;background:#fff}
+.cp-opt.on .o-box{background:var(--ac);border-color:var(--ac);color:#fff}
+.cp-opt.dis .o-box{background:#eef1f5;border-color:#eef1f5;color:var(--tx3)}
+.o-id{font-weight:700;color:var(--ac);min-width:108px}
+.cp-opt.on .o-id{color:var(--exp)}
+.o-zh{color:var(--tx2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.o-tag{font-size:11px;color:var(--tx3);flex:0 0 auto}
+.cp-empty{padding:10px 8px;font-size:12.8px;color:var(--tx3)}
+.cp-hint{font-size:12.6px;color:var(--tx2);min-height:18px;margin:12px 0 14px}
+.cp-hint b{color:var(--ac)}
+.cat-tags{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border:1px dashed var(--bd);
+ border-radius:10px;background:#fbfcfe;min-height:58px;align-content:flex-start}
+.cat-tag{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--bd);
+ border-radius:8px;padding:5px 7px 5px 8px;font-size:13px;cursor:grab;user-select:none;
+ box-shadow:0 1px 2px rgba(24,40,72,.05);
+ transition:box-shadow .12s ease,border-color .12s ease,transform .12s ease}
+.cat-tag:hover{border-color:var(--ac);box-shadow:0 3px 10px rgba(47,111,237,.14)}
+.cat-tag:active{cursor:grabbing}
+.cat-tag.dragging{opacity:.32;transform:scale(.97)}
+/* 落点指示：内嵌 3px 竖条（比外阴影更容易看见，也不受相邻标签间隙影响） */
+.cat-tag.drop-l{box-shadow:inset 3px 0 0 0 var(--ac),0 3px 10px rgba(47,111,237,.18);
+ border-color:var(--ac)}
+.cat-tag.drop-r{box-shadow:inset -3px 0 0 0 var(--ac),0 3px 10px rgba(47,111,237,.18);
+ border-color:var(--ac)}
+.cat-tag.unknown{border-color:#e7c07a;background:#fffaf0}
+.cat-tag.unknown .t-id{color:#a15c00}
+/* 拖柄：用 CSS 画 2×3 圆点，不依赖字体里有没有 ⠿ */
+.cat-tag .grip{width:9px;height:14px;flex:0 0 9px;cursor:grab;opacity:.6;
+ background-image:radial-gradient(circle,var(--tx3) 1px,transparent 1.3px);
+ background-size:4.5px 4.5px;background-repeat:repeat;background-position:1px 1px}
+.cat-tag:hover .grip{opacity:1}
+.cat-tag .t-id{font-weight:800;color:var(--ac);font-variant-numeric:tabular-nums}
+.cat-tag .t-zh{color:var(--tx2);font-size:12.4px}
+.cat-tag .t-x{border:none;background:none;color:var(--tx3);font-size:15px;line-height:1;
+ cursor:pointer;padding:0 2px;font-family:inherit}
+.cat-tag .t-x:hover{color:var(--warn)}
+.cat-empty{font-size:13px;color:var(--tx3);padding:2px 0 10px}
+.cat-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.cat-input{flex:1;min-width:220px;border:1px solid var(--bd);border-radius:8px;padding:7px 11px;
+ font-size:13.2px;font-family:inherit;color:var(--tx);background:#fff}
+.cat-input.bad{border-color:var(--warn);box-shadow:0 0 0 3px #fdecec}
+.cat-input.good{border-color:var(--ok);box-shadow:0 0 0 3px #e9f8f1}
+.cat-valid{font-size:12.4px;min-height:17px;color:var(--tx2)}
+.cat-valid.ok{color:var(--ok)}
+.cat-valid.err{color:var(--warn)}
+.cp-tip{font-size:12.2px;color:var(--tx3);margin:10px 0 0}
 </style></head><body id="top"><div class="wrap">
 <header>
 <h1>⚙ 兴趣画像与设置</h1>
@@ -137,14 +208,47 @@
 
 <h2 class="sec-h">🗂 arXiv 类别</h2>
 <div class="panel">
-<p class="p-note">增删会写入 <code>config.json</code>。<b>新增</b>类别后需重新抓取（重跑 <code>run_daily.py</code>）
-才会出现该类别的论文；<b>删除</b>只影响下一次抓取。</p>
-<div class="form">
-<input id="cat-value" placeholder="如 cs.LG / math.CO / stat.ML">
-<input id="cat-name" placeholder="主题名（可选，留空自动匹配内置中文名）">
-<button class="tb primary" id="cat-add">+ 添加类别</button>
+<p class="p-note">这里决定「抓哪些分类」，也决定摘要页分类小节的顺序。默认<b>为空</b>——本工具不预设任何研究领域。
+用两个<b>联动下拉框</b>挑：先选主类 <code>abc</code>（如 <code>cs</code>），再选子类 <code>def</code>（如 <code>DB</code>）；
+两个框都支持<b>搜索</b>与<b>多选</b>，勾完点「+ 加入类别列表」。下方标签可<b>拖拽排序</b>、可删除。
+<b>新增</b>类别后需重新抓取（<code>run_daily.py</code>）才会出现该类别的论文；<b>删除</b>只影响下一次抓取。</p>
+
+<div class="cp-row">
+<div class="cp-field w-arch">
+<label class="cp-lbl" for="cp-arch-btn">① 主类 abc</label>
+<div class="cp">
+<button type="button" class="cp-btn" id="cp-arch-btn" aria-haspopup="listbox" aria-expanded="false">
+<span class="cp-val dim" id="cp-arch-val">全部主类</span><span class="cp-caret">▾</span></button>
+<div class="cp-pop" id="cp-arch-pop" hidden>
+<input class="cp-q" id="cp-arch-q" placeholder="搜索主类：cs / 数学 / physics…" autocomplete="off">
+<div class="cp-list" id="cp-arch-list" role="listbox" aria-multiselectable="true"></div>
 </div>
-<div id="cat-list"></div>
+</div>
+</div>
+<div class="cp-field w-sub">
+<label class="cp-lbl" for="cp-sub-btn">② 子类 def</label>
+<div class="cp">
+<button type="button" class="cp-btn" id="cp-sub-btn" aria-haspopup="listbox" aria-expanded="false">
+<span class="cp-val dim" id="cp-sub-val">选择子类…</span><span class="cp-caret">▾</span></button>
+<div class="cp-pop" id="cp-sub-pop" hidden>
+<input class="cp-q" id="cp-sub-q" placeholder="搜索分类号 / 英文名 / 中文名…" autocomplete="off">
+<div class="cp-list" id="cp-sub-list" role="listbox" aria-multiselectable="true"></div>
+</div>
+</div>
+</div>
+<button class="tb primary" id="cp-add">+ 加入类别列表</button>
+</div>
+<div class="cp-hint" id="cp-hint" role="status"></div>
+
+<div class="cat-tags" id="cat-list" aria-label="已选类别（可拖拽排序）"></div>
+<div class="cat-empty" id="cat-empty">还没有选择任何类别：先用上方的两个下拉框挑几个。</div>
+<p class="cp-tip">⇅ <b>拖动标签可调整顺序</b>（顺序 = 摘要页分类小节的顺序，保存后点摘要页的「↻ 重算推荐」即刻生效）；点标签右侧 × 删除。</p>
+
+<div class="cat-tools">
+<input id="cat-value" class="cat-input" placeholder="也可直接输入：cs.DB / cond-mat.stat-mech / quant-ph" autocomplete="off">
+<button class="tb" id="cat-add">+ 添加</button>
+<span class="cat-valid" id="cat-valid" role="status"></span>
+</div>
 </div>
 
 <h2 class="sec-h">📁 下载目录</h2>
@@ -161,6 +265,7 @@
 </div>
 <button id="totop" type="button" aria-label="回到顶部" title="回到顶部">↑</button>
 <div id="toast"></div>
+<script id="taxdata" type="application/json">%(taxonomy)s</script>
 <script>%(js)s</script>
 <script>
 function esc2(s){var d=document.createElement('div');d.textContent=(s==null?'':String(s));return d.innerHTML;}
@@ -253,13 +358,205 @@ function startEditOwner(name){
  var f=document.getElementById('own-form');
  if(f&&f.scrollIntoView)f.scrollIntoView({behavior:'smooth',block:'center'});
  var n=document.getElementById('own-name');if(n)n.focus();}
-function renderCats(cats,names){
- document.getElementById('cat-list').innerHTML=
-  (cats||[]).map(function(c){
-   return '<div class="cat-item"><span class="cat-code">'+esc2(c)+'</span>'
-    +'<span class="cat-topic">'+esc2((names||{})[c]||'（未命名主题）')+'</span>'
-    +'<button class="btn-x" data-del-cat="'+esc2(c)+'">删除</button></div>';}).join('')
-  ||'<div class="p-empty">至少要保留一个类别</div>';}
+/* ---- arXiv 类别：两级联动下拉（可搜索 / 多选） + 标签拖拽排序 ----
+   数据源是页面内嵌的官方分类表（build_report 注入，等价于 GET /api/arxiv_categories）。
+   校验以前端即时提示为主、服务端 arxiv_cats.validate 为最终判定：
+   两边规则一致（格式 / 大小写 / 是否在官方表内），但前端不回写 config，避免出现两份真源。 */
+var TAX=null,ARCHS=[],CATMAP={},LOWMAP={},PICK_ARCH={},PICK_SUB={},CARDS=[],DRAG=null;
+function catEl(id){return document.getElementById(id);}
+function curQ(id){var e=catEl(id);return e?e.value.trim().toLowerCase():'';}
+function archById(aid){for(var i=0;i<ARCHS.length;i++){if(ARCHS[i].id===aid)return ARCHS[i];}return null;}
+function initPicker(){
+ var box=catEl('taxdata');if(!box)return;
+ try{TAX=JSON.parse(box.textContent||'{}');}catch(e){TAX=null;}
+ if(!TAX||!TAX.archives){catEl('cp-hint').innerHTML='<span style="color:var(--warn)">分类表加载失败，只能手动输入分类号</span>';return;}
+ ARCHS=TAX.archives;
+ ARCHS.forEach(function(a){(a.categories||[]).forEach(function(c){
+  CATMAP[c.id]=c;LOWMAP[c.id.toLowerCase()]=c.id;});});
+ renderArchList('');renderSubList('');updateHint();
+}
+function archScope(){
+ var sel=[];for(var k in PICK_ARCH){if(PICK_ARCH[k])sel.push(k);}
+ if(sel.length)return sel;
+ return ARCHS.map(function(a){return a.id;});
+}
+function renderArchList(q){
+ var box=catEl('cp-arch-list');if(!box||!TAX)return;
+ var hit=ARCHS.filter(function(a){
+  if(!q)return true;
+  return (a.id+' '+a.zh+' '+a.en).toLowerCase().indexOf(q)>=0;});
+ box.innerHTML=hit.map(function(a){
+  var on=!!PICK_ARCH[a.id];
+  return '<div class="cp-opt'+(on?' on':'')+'" role="option" aria-selected="'+(on?'true':'false')+'"'
+   +' data-arch="'+a.id+'" title="'+esc2(a.en)+'">'
+   +'<span class="o-box">✓</span><span class="o-id">'+a.id+'</span>'
+   +'<span class="o-zh">'+esc2(a.zh)+'</span>'
+   +'<span class="o-tag">'+(a.categories||[]).length+'</span></div>';}).join('')
+  ||'<div class="cp-empty">没有匹配的主类（可试 cs / math / physics / stat）</div>';
+ var val=catEl('cp-arch-val'),n=0;
+ for(var k in PICK_ARCH){if(PICK_ARCH[k])n++;}
+ if(val){val.textContent=n?('已选 '+n+' 个主类'):'全部主类';
+  val.className='cp-val'+(n?'':' dim');}
+}
+function subRow(c){
+ var dis=CARDS.some(function(x){return x.cat===c.id;});
+ var on=!!PICK_SUB[c.id]&&!dis;
+ return '<div class="cp-opt'+(on?' on':'')+(dis?' dis':'')+'" role="option" aria-selected="'
+  +(on?'true':'false')+'"'+(dis?' aria-disabled="true"':' data-sub="'+c.id+'"')
+  +' title="'+esc2(c.en)+'">'
+  +'<span class="o-box">'+(dis?'✓':(on?'✓':''))+'</span>'
+  +'<span class="o-id">'+c.id+'</span><span class="o-zh">'+esc2(c.zh)+'</span>'
+  +(dis?'<span class="o-tag">已在列表</span>':'')+'</div>';
+}
+function renderSubList(q){
+ var box=catEl('cp-sub-list');if(!box||!TAX)return;
+ var scope=archScope(),html='';
+ if(q){
+  var hits=[];
+  scope.forEach(function(aid){var a=archById(aid);if(!a)return;
+   (a.categories||[]).forEach(function(c){
+    if((c.id+' '+c.zh+' '+c.en).toLowerCase().indexOf(q)>=0)hits.push(c);});});
+  html=hits.map(subRow).join('');
+ }else{
+  var multi=scope.length>1;
+  scope.forEach(function(aid){var a=archById(aid);if(!a)return;
+   if(multi)html+='<div class="cp-grp">'+a.id+' · '+esc2(a.zh)+'</div>';
+   html+=(a.categories||[]).map(subRow).join('');});
+ }
+ box.innerHTML=html||'<div class="cp-empty">没有匹配的分类</div>';
+ var val=catEl('cp-sub-val'),n=0;
+ for(var k in PICK_SUB){if(PICK_SUB[k])n++;}
+ if(val){val.textContent=n?('已勾选 '+n+' 个子类'):'选择子类…';
+  val.className='cp-val'+(n?'':' dim');}
+}
+function updateHint(){
+ var el=catEl('cp-hint');if(!el)return;
+ var ns=0,na=0,k;
+ for(k in PICK_SUB){if(PICK_SUB[k])ns++;}
+ for(k in PICK_ARCH){if(PICK_ARCH[k])na++;}
+ var span=archScope();
+ var txt=na?('主类：<b>'+span.join('、')+'</b>'):'主类：全部（未限定，可先在 ① 里勾选以缩小范围）';
+ txt+=' ｜ 已勾选 <b>'+ns+'</b> 个子类';
+ if(ns)txt+='：'+Object.keys(PICK_SUB).filter(function(x){return PICK_SUB[x];}).join('、');
+ el.innerHTML=txt;
+}
+function toggleArch(aid){
+ if(PICK_ARCH[aid])delete PICK_ARCH[aid];else PICK_ARCH[aid]=1;
+ var keep={};archScope().forEach(function(a){keep[a]=1;});
+ Object.keys(PICK_SUB).forEach(function(c){
+  var a=CATMAP[c]?CATMAP[c].archive:c.split('.')[0];
+  if(!keep[a])delete PICK_SUB[c];});
+ renderArchList(curQ('cp-arch-q'));renderSubList(curQ('cp-sub-q'));updateHint();
+}
+function toggleSub(cid){
+ if(!CATMAP[cid])return;
+ if(CARDS.some(function(x){return x.cat===cid;}))return;
+ if(PICK_SUB[cid])delete PICK_SUB[cid];else PICK_SUB[cid]=1;
+ renderSubList(curQ('cp-sub-q'));updateHint();
+}
+function openPop(which,open){
+ var pop=catEl('cp-'+which+'-pop'),btn=catEl('cp-'+which+'-btn');
+ if(!pop||!btn)return;
+ pop.hidden=!open;btn.setAttribute('aria-expanded',open?'true':'false');
+ if(open){var q=catEl('cp-'+which+'-q');if(q)setTimeout(function(){q.focus();},10);}
+}
+function closePops(){openPop('arch',false);openPop('sub',false);}
+function pickerAdd(btn){
+ var sel=Object.keys(PICK_SUB).filter(function(x){return PICK_SUB[x];});
+ if(!sel.length){toast('请先在「② 子类 def」里勾选至少一个分类','err');return;}
+ busy(btn,true,'添加中…');
+ api('/api/category',{op:'add_many',cats:sel}).then(function(r){
+  busy(btn,false,'+ 加入类别列表');
+  toast(r.msg||'',r.ok?'ok':'err');
+  /* 只清掉「确实加进去的」勾选：部分失败时保留没成功的那几个，
+     用户改完再点一次即可，不用重新勾一遍。 */
+  ((r.info&&r.info.added)||[]).forEach(function(c){delete PICK_SUB[c];});
+  apply(r.state);});
+}
+/* ---- 标签：渲染 / 拖拽排序 / 删除 ---- */
+function renderCats(meta){
+ CARDS=(meta||[]).map(function(x){
+  return {cat:x.cat,name:x.name||'',known:x.known!==false};});
+ var el=catEl('cat-list');if(!el)return;
+ el.innerHTML=CARDS.map(function(x){
+  var tip=(x.known?'拖动排序：':'⚠ 不在 arXiv 官方分类表中（手改过配置，或该分类已下线）：')
+   +x.cat+(x.name?' · '+x.name:'');
+  return '<span class="cat-tag'+(x.known?'':' unknown')+'" draggable="true"'
+   +' data-cat="'+esc2(x.cat)+'" tabindex="0" title="'+esc2(tip)+'">'
+   +'<span class="grip" aria-hidden="true"></span>'
+   +'<span class="t-id">'+esc2(x.cat)+'</span>'
+   +(x.name?'<span class="t-zh">'+esc2(x.name)+'</span>':'')
+   +'<button type="button" class="t-x" data-del-cat="'+esc2(x.cat)+'"'
+   +' aria-label="删除 '+esc2(x.cat)+'" title="删除">×</button></span>';}).join('');
+ var empty=catEl('cat-empty');if(empty)empty.style.display=CARDS.length?'none':'';
+}
+function dropSide(tag,ev){var r=tag.getBoundingClientRect();
+ return (ev.clientX-r.left)>r.width/2?'drop-r':'drop-l';}
+function moveCard(src,dst,after){
+ var ids=CARDS.map(function(x){return x.cat;});
+ if(src===dst||ids.indexOf(src)<0||ids.indexOf(dst)<0)return;
+ var cards=CARDS.slice(),from=ids.indexOf(src),moved=cards.splice(from,1)[0];
+ var to=cards.map(function(x){return x.cat;}).indexOf(dst);
+ cards.splice(after?to+1:to,0,moved);
+ CARDS=cards;renderCats(CARDS);          /* 乐观更新：拖完立刻看到新顺序 */
+ api('/api/category',{op:'reorder',order:CARDS.map(function(x){return x.cat;})})
+  .then(function(r){toast(r.msg||'',r.ok?'ok':'err');apply(r.state);});
+}
+function checkCat(raw){
+ var s=(raw||'').replace(/\s+/g,'');
+ if(!s)return {ok:false,msg:'分类不能为空'};
+ /* 顺序与服务端 arxiv_cats.validate 一致：先判大小写错（最常见的手输错误），
+    再判格式，最后判是否在官方表内 —— 否则「CS.DB」只会得到笼统的格式错误。 */
+ if(LOWMAP[s.toLowerCase()]&&LOWMAP[s.toLowerCase()]!==s)
+  return {ok:false,msg:'arXiv 分类区分大小写，正确写法是 '+LOWMAP[s.toLowerCase()]};
+ if(!/^[a-z][a-z-]*(\.[A-Za-z][A-Za-z-]*)?$/.test(s))
+  return {ok:false,msg:'格式不合法：应为 abc.def（如 cs.DB、math.LO），或单段归档（如 quant-ph）'};
+ if(CATMAP[s])return {ok:true,cat:s,zh:CATMAP[s].zh};
+ var abc=s.split('.')[0],ai=null;
+ ARCHS.forEach(function(a){if(a.id===abc)ai=a;});
+ if(ai&&s.indexOf('.')<0)
+  return {ok:false,msg:abc+' 是主类（archive），还需要选择子类，例如 '+ai.categories[0].id};
+ var near=nearCat(s);
+ return {ok:false,msg:'不是 arXiv 官方分类：'+s+(near.length?('，你是不是指 '+near.join('、')+'？'):'')};
+}
+/* 拼写纠错：同 archive 内按**后缀段**的二元组 Dice 相似度取前 3 个。
+   只比后缀而不是整个 ID：cs. 这一段所有候选都一样，比整串会让 cs.ZZ 与
+   cs.SY 也算「五成相似」，给出的建议纯属噪音。 */
+function bigrams(s){
+ var o={},i,g;
+ for(i=0;i<s.length-1;i++){g=s.substr(i,2);o[g]=(o[g]||0)+1;}
+ return o;
+}
+function simDice(a,b){
+ var A=bigrams(a),B=bigrams(b),inter=0,k;
+ for(k in A){if(B[k])inter+=Math.min(A[k],B[k]);}
+ var n=Math.max(0,a.length-1)+Math.max(0,b.length-1);
+ return n?(2*inter/n):0;
+}
+function defOf(id){return id.indexOf('.')>=0?id.split('.').slice(1).join('.'):id;}
+function nearCat(s){
+ var abc=s.split('.')[0],x=defOf(s).toLowerCase(),scored=[];
+ ARCHS.forEach(function(a){(a.categories||[]).forEach(function(c){
+  if(c.id.split('.')[0]!==abc)return;
+  var v=simDice(x,defOf(c.id).toLowerCase());
+  if(v>=0.5)scored.push({id:c.id,v:v});});});
+ scored.sort(function(p,q){return q.v-p.v;});
+ return scored.slice(0,3).map(function(o){return o.id;});
+}
+function validateCatInput(){
+ var inp=catEl('cat-value'),box=catEl('cat-valid');
+ if(!inp||!box)return;
+ inp.classList.remove('bad','good');box.className='cat-valid';
+ var v=inp.value.trim();
+ if(!v){box.textContent='';return false;}
+ var r=checkCat(v);
+ if(r.ok){
+  inp.classList.add('good');box.classList.add('ok');
+  box.textContent='✓ '+r.cat+(r.zh?' · '+r.zh:'')
+   +(CARDS.some(function(x){return x.cat===r.cat;})?'（已在列表中）':'');
+ }else{inp.classList.add('bad');box.classList.add('err');box.textContent='✗ '+r.msg;}
+ return r.ok;
+}
 function apply(d){if(!d)return;
  var p=d.profile||{};
  BLOCKED={};((d.blocked_keywords)||[]).forEach(function(k){BLOCKED[String(k).toLowerCase()]=1;});
@@ -270,7 +567,9 @@ function apply(d){if(!d)return;
  renderChips('systems',p.systems);
  renderChips('negkw',p.negative);
  renderSources(d.sources||[]);
- renderCats(d.categories||[],d.category_names||{});
+ renderCats(d.category_meta||[]);
+ /* 类别集合变了 → 下拉里的「已在列表」状态与提示也要跟着变（增/删/排序都走这里）。 */
+ if(TAX){renderArchList(curQ('cp-arch-q'));renderSubList(curQ('cp-sub-q'));updateHint();}
  var de=document.getElementById('dldir');
  if(de&&document.activeElement!==de)de.value=d.download_dir||'';}
 function busy(btn,on,txt){if(!btn)return;btn.disabled=!!on;if(txt)btn.textContent=txt;}
@@ -300,13 +599,19 @@ document.addEventListener('DOMContentLoaded',function(){
 
  var ca=document.getElementById('cat-add');
  if(ca)ca.addEventListener('click',function(){
-  var c=document.getElementById('cat-value').value.trim();
-  var nm=document.getElementById('cat-name').value.trim();
-  if(!c){toast('请输入分类，如 cs.LG','err');return;}
+  var inp=document.getElementById('cat-value');
+  var c=inp?inp.value.trim():'';
+  if(!c){toast('请输入分类，如 cs.DB','err');return;}
+  if(!validateCatInput()){toast('分类不合法，请看输入框下方的提示','err');return;}
   busy(ca,true,'添加中…');
-  api('/api/category',{op:'add',cat:c,name:nm}).then(function(r){
-   busy(ca,false,'+ 添加类别');toast(r.msg||'',r.ok?'ok':'err');
-   if(r.ok){document.getElementById('cat-value').value='';document.getElementById('cat-name').value='';apply(r.state);}});});
+  api('/api/category',{op:'add',cat:c}).then(function(r){
+   busy(ca,false,'+ 添加');toast(r.msg||'',r.ok?'ok':'err');
+   if(r.ok){inp.value='';document.getElementById('cat-valid').className='cat-valid';
+    document.getElementById('cat-valid').textContent='';inp.classList.remove('good','bad');}
+   apply(r.state);});});
+ var cv=document.getElementById('cat-value');
+ if(cv)cv.addEventListener('input',function(){validateCatInput();});
+ if(cv)cv.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();if(ca)ca.click();}});
 
  var ds=document.getElementById('dldir-save');
  if(ds)ds.addEventListener('click',function(){
@@ -326,10 +631,30 @@ document.addEventListener('DOMContentLoaded',function(){
   api('/api/rebuild',{}).then(function(r){
    busy(rb,false,'↻ 重算推荐');toast(r.msg||'',r.ok?'ok':'err');if(r.ok)apply(r.state);});});
 
+ initPicker();
+ ['cp-arch-q','cp-sub-q'].forEach(function(qid){
+  var e=document.getElementById(qid);if(!e)return;
+  e.addEventListener('input',function(){
+   var v=this.value.trim().toLowerCase();
+   if(qid==='cp-arch-q')renderArchList(v);else renderSubList(v);});});
+ document.addEventListener('keydown',function(e){if(e.key==='Escape')closePops();});
+
  fetch(APIBASE+'/api/customize').then(function(r){return r.json();}).then(apply)
   .catch(function(){toast('本地服务未运行：无法读取画像与设置','err');});
 });
 document.addEventListener('click',function(ev){
+ var ab=ev.target.closest('#cp-arch-btn');
+ if(ab){var open=document.getElementById('cp-arch-pop').hidden;closePops();openPop('arch',open);return;}
+ var sb=ev.target.closest('#cp-sub-btn');
+ if(sb){var open2=document.getElementById('cp-sub-pop').hidden;closePops();openPop('sub',open2);return;}
+ var ao=ev.target.closest('[data-arch]');
+ if(ao){toggleArch(ao.dataset.arch);return;}
+ var so=ev.target.closest('[data-sub]');
+ if(so){toggleSub(so.dataset.sub);return;}
+ var ad=ev.target.closest('#cp-add');
+ if(ad){pickerAdd(ad);return;}
+ /* 点在下拉面板内部不关闭；点到别处才收起 */
+ if(!ev.target.closest('#cp-arch')&&!ev.target.closest('#cp-sub'))closePops();
  var eo=ev.target.closest('[data-edit-owner]');
  if(eo){startEditOwner(eo.dataset.editOwner);return;}
  var dob=ev.target.closest('[data-del-owner]');
@@ -352,6 +677,46 @@ document.addEventListener('click',function(ev){
   if(!window.confirm('删除类别 '+cat+' ？（下一次抓取后生效）'))return;
   api('/api/category',{op:'remove',cat:cat}).then(function(r){
    toast(r.msg||'',r.ok?'ok':'err');if(r.ok)apply(r.state);});}
+});
+
+/* ---- 标签拖拽排序（HTML5 drag & drop，事件委托到 document）----
+   为什么用委托：标签是整块重渲染的（每次 apply 都重建 DOM），逐个绑定会随
+   重渲染失效；委托到 document 只绑一次。拖动过程中的视觉反馈有两种——
+   `.dragging`（被拖的那块变淡）与 `.drop-l/.drop-r`（落点竖线），
+   这就是「UI 明确体现可排序」的部分，缺了它用户只会以为标签能点。 */
+document.addEventListener('dragstart',function(ev){
+ var t=ev.target.closest?ev.target.closest('.cat-tag'):null;
+ if(!t)return;
+ DRAG=t.dataset.cat;t.classList.add('dragging');
+ try{ev.dataTransfer.effectAllowed='move';ev.dataTransfer.setData('text/plain',DRAG);}catch(e){}
+});
+document.addEventListener('dragover',function(ev){
+ if(!DRAG)return;
+ var t=ev.target.closest?ev.target.closest('.cat-tag'):null;
+ if(!t||t.dataset.cat===DRAG)return;
+ ev.preventDefault();
+ var side=dropSide(t,ev);
+ Array.prototype.forEach.call(document.querySelectorAll('.cat-tag'),function(x){
+  x.classList.remove('drop-l','drop-r');});
+ t.classList.add(side);
+ try{ev.dataTransfer.dropEffect='move';}catch(e){}
+});
+document.addEventListener('drop',function(ev){
+ if(!DRAG)return;
+ var t=ev.target.closest?ev.target.closest('.cat-tag'):null;
+ if(!t||t.dataset.cat===DRAG)return;
+ ev.preventDefault();
+ var after=dropSide(t,ev)==='drop-r';
+ var src=DRAG;
+ Array.prototype.forEach.call(document.querySelectorAll('.cat-tag'),function(x){
+  x.classList.remove('drop-l','drop-r');});
+ moveCard(src,t.dataset.cat,after);
+ DRAG=null;
+});
+document.addEventListener('dragend',function(){
+ DRAG=null;
+ Array.prototype.forEach.call(document.querySelectorAll('.cat-tag'),function(x){
+  x.classList.remove('dragging','drop-l','drop-r');});
 });
 </script>
 </body></html>

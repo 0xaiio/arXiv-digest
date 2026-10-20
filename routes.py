@@ -148,12 +148,26 @@ def table():
 @get("/index.html")
 @get("/digest")
 def digest_page(req):
-    """当期日报。``?f=<文件名>`` 可指定其它期；默认取日期最新的一份。"""
+    """当期日报。``?f=<文件名>`` 可指定其它期；默认取日期最新的一份。
+
+    尚无日报时不算错误：通用版首次运行还没选分类，这里给「去选类别」的引导页；
+    已选分类但还没抓取，才提示去跑 run_daily.py。
+    """
     f = req.q("f")
     target = os.path.join(req.api.OUT, f) if f else req.api.latest_digest()
-    if not target or not os.path.exists(target):
-        return Reply.text("尚无摘要页，请先运行 run_daily.py", 404)
-    return Reply.file(target)
+    if target and os.path.exists(target):
+        return Reply.file(target)
+    try:
+        cats = req.api.CZ.categories()
+    except Exception:  # noqa
+        cats = None
+    if cats == []:
+        # 通用版首次运行：还没选分类 → 引导页（比一句 404 文本有用得多）
+        try:
+            return Reply.html(req.api.digest_module().build_welcome())
+        except Exception:  # noqa
+            pass
+    return Reply.text("尚无摘要页，请先运行 run_daily.py", 404)
 
 
 @get("/favorites")
@@ -252,6 +266,16 @@ def state(req):
 @get("/api/customize")
 def customize_state(req):
     return Reply.json(req.api.CZ.view())
+
+
+@get("/api/arxiv_categories")
+def arxiv_categories(req):
+    """arXiv 官方分类全表（两个联动下拉框的数据源）。
+
+    单独成接口而不是写死在前端：分类表是**数据**，随 arXiv 增删而变；
+    前端只负责展示与搜索，避免一份 JSON 在 JS 与 Python 里各存一份、互相漂移。
+    """
+    return Reply.json(req.api.AC.taxonomy())
 
 
 @get("/api/profile")
@@ -408,13 +432,42 @@ def owner(req):
     return Reply.json({"ok": ok, "msg": msg, "info": info, "state": api.CZ.view()})
 
 
+def _as_list(v):
+    """把请求体里的「列表」字段收敛成 list。
+
+    前端正常发的是数组，但手写 curl / 老客户端可能传字符串。直接迭代字符串会
+    逐字符当成分类号，错误信息会变成一串莫名其妙的单字 —— 这里一句归一化掉。
+    """
+    if v is None or v == "":
+        return []
+    if isinstance(v, str):
+        return [x.strip() for x in v.replace("，", ",").split(",") if x.strip()]
+    return list(v) if isinstance(v, (list, tuple)) else [v]
+
+
 @post("/api/category")
 def category(req):
+    """类别增删改排序。
+
+    op:
+      add       单个添加（cat / name）
+      add_many  批量添加（cats[]）—— 界面多选下拉一次提交
+      remove    删除单个（cat）
+      reorder   拖拽排序（order[]，必须是当前集合的一个排列）
+      set       整体替换（cats[]，空数组表示清空）—— 导入预设 / 重建列表
+    """
     api, op = req.api, req.op()
     if op == "add":
         ok, msg, info = api.CZ.add_category(req.arg("cat", ""), req.arg("name", ""))
+    elif op == "add_many":
+        ok, msg, info = api.CZ.add_categories(_as_list(req.arg("cats")))
     elif op == "remove":
         ok, msg, info = api.CZ.remove_category(req.arg("cat", ""))
+    elif op == "reorder":
+        ok, msg, info = api.CZ.reorder_categories(_as_list(req.arg("order")))
+    elif op == "set":
+        ok, msg, info = api.CZ.set_categories(_as_list(req.arg("cats")),
+                                             allow_empty=bool(req.arg("allow_empty")))
     else:
         ok, msg, info = False, "未知操作 %s" % op, None
     return Reply.json({"ok": ok, "msg": msg, "info": info, "state": api.CZ.view()})

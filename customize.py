@@ -4,6 +4,9 @@
 
 四类定制
   1) arXiv 类别   -> config.json 的 categories + category_names
+       类别**不预设任何值**：首次运行得到空列表，用户在 /profile 的
+       「arXiv 类别」面板里从官方分类表（arxiv_cats.py，155 个分类）自选，
+       顺序即摘要页分类小节顺序（可拖拽排序）。校验统一走 arxiv_cats.validate。
   2) 下载目录     -> config.json 的 download_dir
   3) 兴趣来源     -> output/interests_extra.json
        type=link   个人主页 / 项目页 / 任何网页
@@ -26,7 +29,6 @@
 """
 import json
 import os
-import re
 import ssl
 import sys
 import time
@@ -38,6 +40,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import paperutil as pu  # noqa: E402
 import paths  # noqa: E402
+import arxiv_cats  # noqa: E402
 
 HERE = paths.ROOT
 INTERESTS = paths.INTERESTS
@@ -52,28 +55,7 @@ CUSTOM_TOPIC = "我的来源关注"
 CUSTOM_TOPIC_WEIGHT = 0.6
 CUSTOM_TOPIC_KW_CAP = 60
 
-CAT_RE = re.compile(r"^[a-z][a-z\-]*\.[A-Za-z][A-Za-z\-]*$")
-
-# 常见 arXiv 分类的中文主题（新增类别时自动带出，用户可覆盖）
-CS_TOPIC_DICT = {
-    "cs.DB": "数据库", "cs.DC": "分布式 / 并行 / 集群计算", "cs.FL": "形式语言与自动机",
-    "cs.LO": "计算逻辑", "cs.PL": "程序设计语言", "cs.SE": "软件工程",
-    "cs.AR": "体系结构", "cs.CR": "密码学与安全", "cs.CC": "计算复杂性",
-    "cs.DS": "数据结构与算法", "cs.NI": "网络与互联网", "cs.OS": "操作系统",
-    "cs.SY": "系统与控制", "cs.GT": "博弈论与机制设计", "cs.IT": "信息论",
-    "cs.MA": "多智能体系统", "cs.AI": "人工智能", "cs.LG": "机器学习",
-    "cs.CL": "计算语言学", "cs.IR": "信息检索", "cs.HC": "人机交互",
-    "cs.SC": "符号计算", "cs.ET": "新兴技术", "cs.CY": "计算与社会",
-    "cs.DL": "数字图书馆", "cs.GL": "综合", "cs.MS": "数学软件",
-    "cs.NA": "数值分析", "cs.NE": "神经与进化计算", "cs.PF": "性能",
-    "cs.RO": "机器人学", "cs.SD": "声音", "cs.CV": "计算机视觉",
-    "cs.GR": "图形学", "cs.MM": "多媒体", "cs.SI": "社会与信息网络",
-    "cs.CE": "计算工程 / 金融 / 科学", "cs.DM": "离散数学",
-    "math.LO": "数理逻辑", "math.CO": "组合数学", "math.DS": "动力系统",
-    "math.IT": "信息论（数学）", "math.PR": "概率论", "math.ST": "统计理论",
-    "stat.ML": "统计机器学习", "stat.ME": "统计方法论",
-    "quant-ph": "量子物理", "eess.SY": "系统与控制（EESS）",
-}
+CAT_RE = arxiv_cats.CAT_RE   # 兼容旧引用；真正的校验走 arxiv_cats.validate
 
 # 文本信号抽取与来源取数各自独立成层（见 textscan.py / fetchsrc.py）。
 # 这里 re-export，保证 `customize.strip_html` / `customize.parse_link` 等既有
@@ -128,19 +110,48 @@ def load_interests():
 # ------------------------------------------------------------------ 类别 & 目录
 
 def category_names():
-    """{cat: 中文主题}；config 里的优先，其次内置表，最后退回分类号本身。"""
+    """{cat: 中文主题}；config 里的优先，其次官方表，最后退回分类号本身。
+
+    官方表的 155 个分类都带中文名（见 arxiv_cats.py），因此 config 的
+    ``category_names`` 只用于「我想自己起名」的少数场景。
+    """
+    names = {c: v["zh"] for c, v in arxiv_cats.CATEGORIES.items()}
     cfg = pu.load_config()
-    names = dict(CS_TOPIC_DICT)
     names.update(cfg.get("category_names") or {})
     return names
 
 
 def categories():
-    return list(pu.load_config().get("categories") or [])
+    """当前跟踪的分类，**顺序即摘要页分类小节的顺序**（可拖拽排序）。"""
+    return [c for c in (pu.load_config().get("categories") or []) if isinstance(c, str) and c]
 
 
 def category_label(cat):
     return category_names().get(cat) or "（未命名主题）"
+
+
+def validate_category(cat):
+    """分类合法性校验（唯一入口，规则见 arxiv_cats.validate）。"""
+    return arxiv_cats.validate(cat)
+
+
+def categories_view():
+    """前端渲染用：带中文名 / archive / 是否仍在官方表内的有序列表。
+
+    ``known=False`` 只可能来自「手工改过 config.json」或「arXiv 下线了该分类」，
+    界面据此把标签标成警告色 —— 不静默丢弃用户的历史配置。
+    """
+    names = category_names()      # 只取一次：内部会合并 155 条官方中文名
+    out = []
+    for c in categories():
+        v = arxiv_cats.CATEGORIES.get(c)
+        out.append({
+            "cat": c,
+            "name": (names.get(c) or ""),
+            "archive": arxiv_cats.archive_of(c),
+            "known": bool(v),
+        })
+    return out
 
 
 def _save_cfg_patch(patch):
@@ -155,21 +166,55 @@ def _save_cfg_patch(patch):
 
 
 def add_category(cat, name=""):
-    cat = (cat or "").strip()
-    if not CAT_RE.match(cat):
-        return False, "分类格式不合法，应形如 cs.DB / math.LO（小写主类 + 大写子类）", None
+    """追加一个分类（校验 → 去重 → 落盘）。返回 (ok, msg, info)。"""
+    ok, norm, msg = arxiv_cats.validate(cat)
+    if not ok:
+        return False, msg, None
     cfg = pu.load_config()
     cats = list(cfg.get("categories") or [])
-    if cat in cats:
-        return False, "分类 %s 已存在" % cat, None
-    cats.append(cat)
+    if norm in cats:
+        return False, "分类 %s 已存在" % norm, None
+    cats.append(norm)
+    nm = (name or "").strip() or arxiv_cats.label(norm)
     names = dict(cfg.get("category_names") or {})
-    nm = (name or "").strip() or CS_TOPIC_DICT.get(cat, "")
-    if nm:
-        names[cat] = nm
+    # 官方表已有中文名时不再冗余写入 config，保持配置文件干净
+    if (name or "").strip():
+        names[norm] = nm
     _save_cfg_patch({"categories": cats, "category_names": names})
     return True, ("已添加 %s（主题：%s）。需重新抓取（run_daily.py）才会出现该类别的论文。"
-                  % (cat, nm or "未命名")), {"cat": cat, "name": nm or cat}
+                  % (norm, nm)), {"cat": norm, "name": nm}
+
+
+def add_categories(cats):
+    """批量追加（界面上的多选下拉一次提交多个）。返回 (ok, msg, info)。
+
+    部分成功是可接受的：合法的照加，非法的逐条回报原因 —— 批量操作里
+    「一个错就全不做」会让用户反复试错。
+    """
+    added, dup, bad = [], [], []
+    cfg = pu.load_config()
+    cur = list(cfg.get("categories") or [])
+    for raw in (cats or []):
+        ok, norm, msg = arxiv_cats.validate(raw)
+        if not ok:
+            bad.append({"cat": (raw or "").strip(), "msg": msg})
+            continue
+        if norm in cur:
+            dup.append(norm)
+            continue
+        cur.append(norm)
+        added.append(norm)
+    if added:
+        _save_cfg_patch({"categories": cur})
+    if bad:
+        return False, "有 %d 个分类未通过校验：%s" % (
+            len(bad), "；".join("%s（%s）" % (b["cat"], b["msg"]) for b in bad[:3])), \
+            {"added": added, "duplicates": dup, "invalid": bad}
+    if not added:
+        return False, "所选的分类都已在列表中", {"added": [], "duplicates": dup, "invalid": []}
+    return True, ("已添加 %d 个分类：%s。需重新抓取（run_daily.py）才会出现这些类别的论文。"
+                  % (len(added), "、".join(added))), \
+        {"added": added, "duplicates": dup, "invalid": []}
 
 
 def remove_category(cat):
@@ -185,6 +230,52 @@ def remove_category(cat):
     names.pop(cat, None)
     _save_cfg_patch({"categories": cats, "category_names": names})
     return True, "已移除 %s（已抓取的旧数据会在下次 run_daily.py 后消失）" % cat, {"cat": cat}
+
+
+def reorder_categories(order):
+    """按给定顺序重写分类列表（拖拽排序落盘）。返回 (ok, msg, info)。
+
+    必须是**当前集合的一个排列**：多一个、少一个、重名都会被拒绝，
+    否则一次失败的拖拽就能悄悄删掉用户辛苦配好的类别。
+    """
+    cur = categories()
+    want = [str(x).strip() for x in (order or [])]
+    if sorted(want) != sorted(cur) or len(set(want)) != len(want):
+        return False, ("排序结果与当前类别集合不一致（当前 %d 个、收到 %d 个），已取消本次排序"
+                       % (len(cur), len(want))), None
+    if want == cur:
+        return True, "顺序未变化", {"categories": want}
+    _save_cfg_patch({"categories": want})
+    return True, "类别顺序已保存（摘要页分类小节的顺序同步更新）", {"categories": want}
+
+
+def set_categories(cats, allow_empty=False):
+    """整体替换分类列表（导入 / 命令行 --categories / 清空重建）。
+
+    与 ``reorder_categories`` 的分工：这里允许增删（集合可变），因此入口更少、
+    限制更严：所有项必须合法，且不允许非空 → 空（除非显式 allow_empty）。
+    """
+    norm, bad = [], []
+    for raw in (cats or []):
+        ok, c, msg = arxiv_cats.validate(raw)
+        if not ok:
+            bad.append({"cat": (raw or "").strip(), "msg": msg})
+        elif c not in norm:
+            norm.append(c)
+    if bad:
+        return False, "有 %d 个分类未通过校验：%s" % (
+            len(bad), "；".join("%s（%s）" % (b["cat"], b["msg"]) for b in bad[:3])), \
+            {"invalid": bad}
+    if not norm and not allow_empty:
+        return False, "至少要保留一个分类", None
+    prev = categories()
+    names = dict(pu.load_config().get("category_names") or {})
+    for c in prev:
+        if c not in norm:
+            names.pop(c, None)
+    _save_cfg_patch({"categories": norm, "category_names": names})
+    return True, ("已设置 %d 个分类：%s" % (len(norm), "、".join(norm) or "（空）")), \
+        {"categories": norm}
 
 
 def download_dir():
@@ -566,9 +657,12 @@ def sources_view():
 def snapshot():
     """定制项总览（给 /api/state 与画像页用）。"""
     extra = load_extra()
+    names = category_names()          # 只取一次，避免每分类重建 155 条字典
+    cats = categories()
     return {
-        "categories": categories(),
-        "category_names": {c: category_label(c) for c in categories()},
+        "categories": cats,
+        "category_names": {c: (names.get(c) or "（未命名主题）") for c in cats},
+        "category_meta": categories_view(),
         "download_dir": download_dir(),
         "sources": sources_view(),
         "derived": extra.get("_derived") or {},

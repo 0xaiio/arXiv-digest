@@ -21,7 +21,8 @@
 生成时会打印一行提示：
 
 ```
-[init] 已按 config.example.json 生成 config.json。请按需修改 categories（跟踪的分类）与 download_dir（PDF 保存目录）。
+[init] 已按 config.example.json 生成 config.json。categories 默认为空：请在 /profile 的「arXiv 类别」面板里自选，
+       或 `python run_daily.py --categories cs.DB,cs.DC` 指定；download_dir（PDF 保存目录）也可在那里改。
 ```
 
 ## 二、字段
@@ -29,13 +30,13 @@
 | 字段 | 类型 | 模板默认 | 说明 |
 | --- | --- | --- | --- |
 | `download_dir` | string | `"papers"` | PDF 保存目录。**唯一真源**——页面显示、下载、`/api/open` 都读它。相对路径相对项目根，绝对路径原样使用；不存在会自动创建 |
-| `categories` | string[] | `["cs.AI","cs.CL","cs.LG","cs.SE"]` | **主分类**：每日必抓，「为你推荐」与「分类详解」都来自这里 |
-| `category_names` | object | 见模板 | 分类中文名，只影响显示。未命中时 `customize` 内置词典兜底，仍无则显示分类号 |
+| `categories` | string[] | `[]` | **主分类**：每日必抓，「为你推荐」与「分类详解」都来自这里。默认**空**——本工具不预设任何领域，由用户在 `/profile` 里从官方分类表中自选（见 [arXiv 类别](categories.md)）。**数组顺序 = 摘要页分类小节的顺序**（可拖拽排序） |
+| `category_names` | object | `{}` | 分类中文名的**自定义覆盖**。官方表（`arxiv_cats.py`）的 155 个分类都自带中文名，只有想自己起名时才需要写这里 |
 | `window_days` | int | `3` | 抓最近几天的公告。arXiv 每工作日 20:00 ET 公告一次，3 天可覆盖周末 |
 | `max_results_per_cat` | int | `80` | 每个主分类单次最多抓多少条 |
 | `top_recommend` | int | `14` | 「为你推荐」显示条数（同时也是候选池上限） |
 | `top_expand` | int | `10` | 「兴趣扩展」显示条数 |
-| `expand_categories` | string[] | 15 个（见模板） | **扩展分类池**：只用于「兴趣扩展」区，不进入主推荐 |
+| `expand_categories` | string[] | `[]` | **扩展分类池**：只用于「兴趣扩展」区，不进入主推荐。**留空 = 自动取所选分类的同 archive 兄弟分类**（选 `cs.DB` → 其余 `cs.*`；选 `math.LO` → 其余 `math.*`）。填了就完全以你填的为准 |
 | `expand_window_days` | int | `3` | 扩展抓取的时间窗 |
 | `expand_max_results` | int | `600` | 扩展抓取的全局上限（所有扩展分类合计，防止请求过大） |
 | `affil_targets` | int | `60` | 每期最多解析多少篇的作者单位（约 3 秒/篇，很慢；`--skip-affil` 可整步跳过） |
@@ -44,12 +45,14 @@
 > 注：代码内 `DEFAULT_CONFIG` 只包含最小集（`download_dir`/`categories`/`window_days`/
 > `max_results_per_cat`/`top_recommend`/`port`），其余字段由模板提供。**以模板为准**；
 > 若你手写了一个只含部分字段的 `config.json`，缺失项走代码默认值。
+> `categories` 若不是数组（手写坏了），读出来会被强制成 `[]`，不会让下游崩掉。
 
 ## 三、两类分类的分工
 
 ```
 config.categories          → fetch_arxiv.py  → raw.json        → 「🎯 为你推荐」+「📖 分类详解」
 config.expand_categories   → fetch_expand.py → raw_expand.json → 「🌱 兴趣扩展」
+   ↑ 留空时由 arxiv_cats.neighbors(categories) 自动推导（同 archive 的兄弟分类）
 ```
 
 两条链路在 `recommend.py` 里按**短号严格去重**：出现在主分类 feed 里的论文不会再进扩展区。
@@ -59,9 +62,12 @@ config.expand_categories   → fetch_expand.py → raw_expand.json → 「🌱 �
 
 | 你的情况 | `categories` | `expand_categories` |
 | --- | --- | --- |
-| 只盯 1–2 个方向 | 就填这 1–2 个 | 留空或填几个相邻分类 |
-| 主方向 + 邻域视野 | 主方向 2–4 个 | 邻域 10–20 个（默认 15 个就够） |
-| 跨领域（如 ML + 系统） | 两边各取 2–3 个 | 其余作为第三层扩展 |
+| 只盯 1–2 个方向 | 就填这 1–2 个 | 留空（自动取同域兄弟分类） |
+| 主方向 + 邻域视野 | 主方向 2–4 个 | 留空，或手填 10–20 个相邻分类 |
+| 跨领域（如 ML + 系统） | 两边各取 2–3 个 | 留空会取两个 archive 的兄弟分类并集，通常够用 |
+
+> 单类 archive（`quant-ph`、`hep-th`、`gr-qc` 等 9 个）没有兄弟分类，扩展池会是空的 ——
+> 此时「🌱 兴趣扩展」本轮为空，属正常现象；想有内容就手填几个相邻分类。
 
 ## 四、改配置之后会发生什么
 
@@ -69,6 +75,7 @@ config.expand_categories   → fetch_expand.py → raw_expand.json → 「🌱 �
 | --- | --- | --- |
 | `categories` 新增分类 | **重新抓取**（`python run_daily.py`） | 本地没有该分类的历史数据 |
 | `categories` 删除分类 | 下次抓取生效 | 已抓到的数据仍留在 `output/` 里，本期页面不会立刻变化 |
+| `categories` 只调顺序（拖拽排序） | 点摘要页的「↻ 重算推荐」 | 顺序直接决定分类小节的顺序，渲染时按 config 重排 |
 | `expand_categories` 任意改 | 重新抓取 | 扩展池来自独立抓取 |
 | `top_recommend` / `top_expand` | 重渲染（`--skip-fetch --skip-affil`） | 只是显示条数 |
 | `download_dir` | 立即生效 | 每次下载都重新读配置 |
@@ -76,18 +83,21 @@ config.expand_categories   → fetch_expand.py → raw_expand.json → 「🌱 �
 | `window_days` | 重新抓取 | 影响抓取窗口 |
 | `affil_targets` | 重新抓取单位（`fetch_affil.py`） | 每期解析上限 |
 
+> 分类的增删改排序都可以在 `/profile` 的「🗂 arXiv 类别」面板里做（两个联动下拉框 + 可拖拽标签），
+> 不必手改 JSON。校验规则见 [arXiv 类别](categories.md)。
+
 ## 五、手工编辑示例
 
 ```jsonc
 {
   "download_dir": "D:/papers/arxiv",     // 绝对路径；相对路径写 "papers"
-  "categories": ["cs.PL", "cs.LO", "cs.SE"],
-  "category_names": { "cs.PL": "编程语言", "cs.LO": "逻辑" },
+  "categories": ["cs.PL", "cs.LO", "cs.SE"],   // 顺序 = 页面分类小节顺序
+  "category_names": { "cs.PL": "编程语言" },   // 可选：只覆盖想改名的
   "window_days": 3,
   "max_results_per_cat": 80,
   "top_recommend": 12,
   "top_expand": 8,
-  "expand_categories": ["cs.DB", "cs.DC", "cs.FL", "cs.DS", "math.LO"],
+  "expand_categories": [],               // 留空 = 自动取 cs.* 里其余的 37 个
   "expand_window_days": 3,
   "expand_max_results": 400,
   "affil_targets": 40,
@@ -107,5 +117,5 @@ config.expand_categories   → fetch_expand.py → raw_expand.json → 「🌱 �
 
 ---
 
-相关：[interests.json](interests.md) · [数据文件](data-files.md) · [预设](../guide/presets.md) ·
-[命令行](cli.md)
+相关：[arXiv 类别](categories.md) · [interests.json](interests.md) · [数据文件](data-files.md) ·
+[预设](../guide/presets.md) · [命令行](cli.md)

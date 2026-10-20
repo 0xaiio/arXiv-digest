@@ -8,7 +8,7 @@
 
 | 文件 | 内容 |
 | --- | --- |
-| `config.json` | 6 个主分类（cs.DB / cs.DC / cs.FL / cs.LO / cs.PL / cs.SE）+ 18 个扩展分类 + 推荐条数等 |
+| `config.json` | 6 个主分类（cs.DB / cs.DC / cs.FL / cs.LO / cs.PL / cs.SE）+ 18 个扩展分类 + 推荐条数等。**这是「个人示例配置」的样板**：仓库默认的 `config.example.json` 里分类是空数组，不会展示任何人的偏好 |
 | `interests.json` | 4 位画像主来源（本人 / Alexey Gotsman / Hagit Attiya / Constantin Enea）、14 个研究主题（含关键词）、61 位熟悉研究者、22 个代表系统、降权词 |
 | `legacy/` | 当年一次性用过的迁移/种子脚本（把论文摘要与看点写进 `output/*.json`）。**正常运行不需要**，留作参考 |
 
@@ -31,7 +31,9 @@ python server.py                                # 重启服务，页面才会读
 
 1. `config.json` 的 `download_dir`：预设里给的是中性的 `papers/`，**改成你自己的目录**，
    也可以在 `/profile` 页的「下载目录」里改。
-2. `config.json` 的 `categories`：作者只追数据库 / 分布式 / 形式化，别的方向请替换成自己的。
+2. `config.json` 的 `categories`：作者只追数据库 / 分布式 / 形式化，别的方向请替换成自己的——
+   到 `/profile` →「🗂 arXiv 类别」用两个联动下拉框重选（可搜索、可多选、标签可拖拽排序），
+   或直接改 `categories` 数组（顺序即摘要页分类小节顺序）。
 3. 导入是**整体覆盖**：你之前调好的主题与行为学习（`output/profile_state.json`）不会被重置，
    但 `interests.json` 里的主题关键词会被这份预设替换。想保留现状就先
    `python tools/preset.py export myown` 存一份。

@@ -4,6 +4,7 @@
 没有 HTTP socket 参与 —— 这正是不把业务写在 Handler 里的收益：
 路由处理器的分支可以用普通断言覆盖。
 """
+import json
 import threading
 import types
 
@@ -22,6 +23,7 @@ EXPECTED_GET = {
     "/", "/index.html", "/digest", "/favorites", "/profile", "/archive",
     "/api/state", "/api/customize", "/api/profile", "/api/library",
     "/api/archive/days", "/api/net_route", "/api/ping",
+    "/api/arxiv_categories",
 }
 EXPECTED_PREFIX = {"/archive/", "/files/"}
 EXPECTED_POST = {
@@ -212,10 +214,85 @@ def test_source_ops_table_covers_all_documented_operations():
     assert set(RT._SOURCE_OPS) == {"add", "remove", "refresh", "block", "unblock"}
 
 
+# ------------------------------------------------------------------ 分类接口
+
+def test_arxiv_categories_endpoint_returns_full_taxonomy():
+    """分类表要能被前端完整取到（两个联动下拉框的数据源）。"""
+    r = RT.arxiv_categories(_req(api=S._Runtime(S)))
+    d = json.loads(r.body)
+    assert d["total"] >= 150
+    assert {a["id"] for a in d["archives"]} >= {"cs", "math", "stat", "quant-ph"}
+    assert d["version"] and d["source"].startswith("https://arxiv.org")
+    # 单类 archive 也必须给出可选项，否则下拉框的第二级是空的
+    for a in d["archives"]:
+        assert a["categories"], a["id"]
+
+
+@pytest.mark.parametrize("op", ["add", "add_many", "remove", "reorder", "set", "explode"])
+def test_category_route_handles_every_op(sandbox, op):
+    sandbox.set_config(categories=["cs.DB", "cs.PL"])
+    body = {
+        "add": {"op": "add", "cat": "cs.LG"},
+        "add_many": {"op": "add_many", "cats": ["cs.CV", "cs.IR"]},
+        "remove": {"op": "remove", "cat": "cs.PL"},
+        "reorder": {"op": "reorder", "order": ["cs.PL", "cs.DB"]},
+        "set": {"op": "set", "cats": ["math.LO", "math.CO"], "allow_empty": True},
+        "explode": {"op": "explode"},
+    }[op]
+    r = RT.category(_req(body, api=S._Runtime(S)))
+    d = json.loads(r.body)
+    assert r.status == 200
+    if op == "explode":
+        assert d["ok"] is False and "未知操作" in d["msg"]
+    else:
+        assert d["ok"] is True, d["msg"]
+        assert "category_meta" in d["state"]
+
+
+def test_category_reorder_rejects_non_permutation(sandbox):
+    sandbox.set_config(categories=["cs.DB", "cs.PL"])
+    r = RT.category(_req({"op": "reorder", "order": ["cs.DB"]}, api=S._Runtime(S)))
+    d = json.loads(r.body)
+    assert d["ok"] is False and "不一致" in d["msg"]
+    assert d["state"]["categories"] == ["cs.DB", "cs.PL"], "失败的排序不能改动配置"
+
+
+def test_category_list_fields_accept_comma_string(sandbox):
+    """手写 curl 传 "cs.LG,cs.IR" 也要能用，不能被逐字符当成分类号。"""
+    sandbox.set_config(categories=["cs.DB"])
+    r = RT.category(_req({"op": "add_many", "cats": "cs.LG,cs.IR"}, api=S._Runtime(S)))
+    assert json.loads(r.body)["ok"] is True
+    assert sandbox.config()["categories"] == ["cs.DB", "cs.LG", "cs.IR"]
+
+
+def test_as_list_normalises():
+    assert RT._as_list(None) == []
+    assert RT._as_list("") == []
+    assert RT._as_list("cs.DB, cs.LG") == ["cs.DB", "cs.LG"]
+    assert RT._as_list("cs.DB，cs.LG") == ["cs.DB", "cs.LG"]
+    assert RT._as_list(["cs.DB"]) == ["cs.DB"]
+
+
 def test_digest_page_404s_without_any_digest(sandbox):
     r = RT.digest_page(_req(api=types.SimpleNamespace(
         OUT=str(sandbox.out), latest_digest=lambda: None)))
     assert r.status == 404
+
+
+def test_digest_page_renders_welcome_when_no_categories(sandbox):
+    """通用版首次运行：没有分类 = 引导页（200），而不是一句 404 文本。"""
+    sandbox.set_config(categories=[])
+    r = RT.digest_page(_req(api=S._Runtime(S)))
+    assert r.status == 200
+    assert "选择要跟踪的 arXiv 分类" in r.body
+    assert r.ctype.startswith("text/html")
+
+
+def test_digest_page_still_404s_when_categories_chosen(sandbox):
+    """已选分类但还没抓取：保留原来的 404 文案（提示去跑 run_daily.py）。"""
+    sandbox.set_config(categories=["cs.DB"])
+    r = RT.digest_page(_req(api=S._Runtime(S)))
+    assert r.status == 404 and "run_daily.py" in r.body
 
 
 def test_digest_page_returns_file_reply(sandbox):

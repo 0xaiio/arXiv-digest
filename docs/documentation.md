@@ -16,7 +16,7 @@
 | --- | --- | --- |
 | 从头跑起来 | 教程（Tutorial） | [安装](getting-started/installation.md) · [快速开始](getting-started/quickstart.md) |
 | 完成一件具体的事 | 指南（How-to） | [日常使用](guide/daily-workflow.md) · [调画像](guide/profile-tuning.md) · [预设](guide/presets.md) · [视频与投稿](guide/video-pipeline.md) |
-| 查一个字段/参数/接口 | 参考（Reference） | [命令行](reference/cli.md) · [HTTP API](reference/http-api.md) · [config.json](reference/config.md) · [interests.json](reference/interests.md) · [数据文件](reference/data-files.md) |
+| 查一个字段/参数/接口 | 参考（Reference） | [命令行](reference/cli.md) · [HTTP API](reference/http-api.md) · [config.json](reference/config.md) · [arXiv 类别](reference/categories.md) · [interests.json](reference/interests.md) · [数据文件](reference/data-files.md) |
 | 理解为什么这样设计 | 概念（Explanation） | [架构总览](architecture/overview.md) · [模块职责](architecture/modules.md) · [排序算法](architecture/ranking.md) · [服务运行时](architecture/server-runtime.md) |
 | 出问题了 / 想改代码 | 运维与开发 | [故障排查](operations/troubleshooting.md) · [开发指南](contributing/development.md) · [测试与回归](contributing/testing.md) |
 | 名词看不懂 | 元信息 | [术语表](meta/glossary.md) · [FAQ](meta/faq.md) · [目录职责](meta/structure.md) |
@@ -44,6 +44,7 @@
 | [cli.md](reference/cli.md) | 所有可执行入口（根目录 6 个脚本 + `tools/` 常用脚本）的参数、默认值、产物 |
 | [http-api.md](reference/http-api.md) | 本地服务的全部页面路由与 JSON 接口，含请求体、响应字段、错误约定 |
 | [config.md](reference/config.md) | `config.json` 每个字段的含义、默认值、影响范围 |
+| [categories.md](reference/categories.md) | 官方分类表（20 个主类 / 155 个分类）从哪来、两级联动下拉怎么用、校验规则、顺序如何影响页面 |
 | [interests.md](reference/interests.md) | `interests.json` 的结构：主来源、主题、熟悉作者、代表系统、降权词、行为超参 |
 | [data-files.md](reference/data-files.md) | `output/` 下每个文件的用途与结构，`archive.db` 的三张表，`library.json` 的字段 |
 
@@ -52,7 +53,7 @@
 | 文档 | 讲什么 |
 | --- | --- |
 | [overview.md](architecture/overview.md) | 端到端数据流：抓取 → 增量判定 → 打分 → 渲染 → 归档，以及每一步失败时的降级 |
-| [modules.md](architecture/modules.md) | 13 个 Python 模块的职责、依赖方向、谁调用谁（改代码前先看这里） |
+| [modules.md](architecture/modules.md) | 14 个 Python 模块的职责、依赖方向、谁调用谁（改代码前先看这里） |
 | [ranking.md](architecture/ranking.md) | 打分公式逐项拆解、行为学习更新式、为什么负向学习默认关闭 |
 | [server-runtime.md](architecture/server-runtime.md) | 两级锁、单篇下载锁、论文索引缓存、CORS、`file://` 兼容、下载选路 |
 
@@ -61,7 +62,7 @@
 | 文档 | 用途 |
 | --- | --- |
 | [development.md](contributing/development.md) | 本地开发约定、改完什么必须重启、调试手法、提交前检查 |
-| [testing.md](contributing/testing.md) | 四层测试结构（305 用例 / 87% 覆盖）、覆盖范围、运行方式、沙箱隔离、如何新增 |
+| [testing.md](contributing/testing.md) | 四层测试结构（666 用例 / 90% 覆盖）、覆盖范围、运行方式、沙箱隔离、如何新增 |
 | [troubleshooting.md](operations/troubleshooting.md) | 症状 → 诊断命令 → 根因 → 修复，覆盖抓取/推荐/下载/服务/视频/投稿 |
 
 ## 七、元信息
@@ -70,7 +71,7 @@
 | --- | --- |
 | [structure.md](meta/structure.md) | 每个目录与顶层文件为什么在那里，以及为什么没有采用 `src/` 布局 |
 | [faq.md](meta/faq.md) | 概念型问题（和故障排查互补：这里回答"该不该/为什么"，那里回答"报错了怎么办"） |
-| [glossary.md](meta/glossary.md) | 本期新增、画像、种子权重、倍率、短号等术语的准确定义 |
+| [glossary.md](meta/glossary.md) | 本期新增、画像、种子权重、倍率、短号、主类/子类等术语的准确定义 |
 
 ---
 

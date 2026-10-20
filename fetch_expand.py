@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""抓取「兴趣扩展」候选：六个核心分类之外的相邻 cs.xx / math.LO 新论文。
+"""抓取「兴趣扩展」候选：用户主分类之外的相邻分类新论文。
+
+「相邻」的定义不再写死成一串 cs.xx（那会让选了 math / q-bio 的用户拿到完全不相干
+的扩展池）。默认取**同一 archive 内的兄弟分类**（见 arxiv_cats.neighbors）：
+选 cs.DB → 扩展池是其余 cs.*；选 math.LO → 扩展池是其余 math.*。
+config.json 的 `expand_categories` 非空时以它为准（显式覆盖优先）。
 
 一次组合查询拿全部分类，写入 output/raw_expand.json（结构与 raw.json 一致，
 但 queried_cat 记为 "expand"，primary 保留 arXiv 给出的主分类）。
@@ -17,14 +22,24 @@ from datetime import datetime, timedelta, timezone
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+import arxiv_cats  # noqa: E402
 import paperutil as pu  # noqa: E402
 
+
+def expand_pool(cfg):
+    """扩展候选分类：显式配置优先，否则按 archive 推导兄弟分类。
+
+    抽成函数而不是只留常量，是为了让「推导规则」可被单测直接验证，
+    也避免 import 期就读一次配置（测试重定向配置路径后才生效）。
+    """
+    explicit = [c for c in (cfg.get("expand_categories") or []) if c]
+    if explicit:
+        return explicit
+    return arxiv_cats.neighbors([c for c in (cfg.get("categories") or []) if c])
+
+
 _cfg = pu.load_config()
-EXPAND_CATS = _cfg.get("expand_categories") or [
-    "cs.AR", "cs.CR", "cs.CC", "cs.DS", "cs.NI", "cs.OS", "cs.SY",
-    "cs.GT", "cs.IT", "cs.MA", "cs.AI", "cs.LG", "cs.CL", "cs.IR",
-    "cs.HC", "cs.SC", "cs.ET", "math.LO",
-]
+EXPAND_CATS = expand_pool(_cfg)
 CORE_CATS = set(_cfg["categories"])
 API = "http://export.arxiv.org/api/query"
 NS = {"a": "http://www.w3.org/2005/Atom", "arxiv": "http://arxiv.org/schemas/atom"}
@@ -153,7 +168,7 @@ def main():
     base = anchor or newest
     cutoff = base - timedelta(days=WINDOW_DAYS)
     recent = [p for p in papers if dt(p["published"]) >= cutoff]
-    # 剔除主分类落在核心六类中的（那些已经在主报告里了）
+    # 剔除主分类落在用户已跟踪分类里的（那些已经在主报告里了）
     recent = [p for p in recent if p["primary"] not in CORE_CATS]
     recent.sort(key=lambda p: dt(p["published"]), reverse=True)
 

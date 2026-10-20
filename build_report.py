@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""渲染 arXiv cs.* 论文摘要（v3）。
+"""渲染 arXiv 论文摘要页（v4，通用分类版）。
+
+v4 变更
+  - 不再假定 cs.* 六分类：分类完全由 config.json 决定（用户在 /profile 里自选），
+    页面标题、分类小节、统计卡片、Markdown 标题都随之变化；
+  - 分类小节的顺序 = config.json 里 categories 的顺序（支持界面拖拽排序）；
+  - categories 为空时渲染「欢迎 / 选择类别」引导页，而不是报错。
 
 v3 能力
-  - 🎯 为你推荐（六分类 feed 内） 与  🌱 兴趣扩展（六分类之外的 cs.xx / 其他）
+  - 🎯 为你推荐（主分类 feed 内） 与  🌱 兴趣扩展（主分类之外的邻域分类）
   - 每篇论文：收藏 / 下载 / Abstract（内联展开折叠）/ PDF / Downvote
   - Downvote 在「为你推荐 / 兴趣扩展 / 分类详解」三处表现统一：变灰 + 标题删除线，
     卡片保留原位、不消失，可再点一次撤销（三处共用同一组 CSS 规则与同一段 JS）
@@ -26,6 +32,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import paperutil as pu  # noqa: E402
 import paths  # noqa: E402
+import arxiv_cats  # noqa: E402
 
 OUT = pu.OUT
 
@@ -76,6 +83,25 @@ def cat_name(c):
 def invalidate_cat_names():
     global _CAT_NAMES
     _CAT_NAMES = None
+
+
+def ordered_categories(cats):
+    """按 config.json 的 categories 顺序排列抓取快照里的分类。
+
+    为什么需要这一步：分类顺序是用户可以拖拽调整的（/profile → arXiv 类别），
+    但页面数据来自 `raw.json` 的抓取快照。不重新排序的话，拖完顺序要点「↻ 重算推荐」
+    也看不到变化（快照里的顺序没变）。这里以「配置顺序优先、快照里多出来的追加在后」
+    的规则合并，既尊重用户排序，也不会让手改过的快照丢分类。
+    """
+    cats = [c for c in (cats or []) if c]
+    try:
+        import customize as CZ
+        want = [c for c in CZ.categories() if c in cats]
+    except Exception:  # noqa
+        want = []
+    if not want:
+        return cats
+    return want + [c for c in cats if c not in want]
 
 # 推荐 / 扩展 卡片池大小（用于前端实时重排时"替补上位"）
 POOL_CORE = 24
@@ -150,6 +176,8 @@ def load():
             raise SystemExit("output/raw.json 缺失或为空，请先运行 fetch_arxiv.py")
     load_affiliations()
     invalidate_cat_names()
+    if d.get("categories"):
+        d["categories"] = ordered_categories(d["categories"])
     lib = pu.load_library()
     summaries = jload("summaries.json", {})
     rec = jload("recommend.json", [])
@@ -381,7 +409,11 @@ def build_html(d, groups, by_sid, recs, exps, themes, idx):
                      '可在 config.json 的 expand_categories 中增加分类，或放宽评分阈值。</div>')
 
     th, secs = build_sections(d, groups, themes, by_sid)
-    excats = "、".join((cfg.get("expand_categories") or [])[:8])
+    expand_cats = [c for c in (cfg.get("expand_categories") or []) if c]
+    if not expand_cats:
+        # 与 fetch_expand.py 的推导保持一致：未显式配置时取同 archive 的兄弟分类
+        expand_cats = arxiv_cats.neighbors([c for c in cats if c])
+    excats = "、".join(expand_cats[:8]) or "同领域的其它分类"
 
     # 本期无新增时的提示（arXiv 周末不公告、或本期抓取到的类别都没有新投稿）
     notice = ""
@@ -517,9 +549,9 @@ def build_pool_list(idx, chosen, pool, size):
 
 
 def build_md(d, groups, recs, exps):
-    L = ["# arXiv cs.* 新论文摘要\n",
+    L = ["# arXiv 新论文摘要\n",
          "覆盖范围：%s ｜ 共 %d 篇 ｜ 生成于 %s\n"
-         % ("、".join(d.get("categories", [])), len(d["papers"]),
+         % ("、".join(d.get("categories", [])) or "（未选择分类）", len(d["papers"]),
             d.get("generated_at", "").replace("T", " "))]
     L.append("\n## 🎯 个性化推荐\n")
     for i, r in enumerate(recs, 1):
@@ -555,6 +587,29 @@ def build_md(d, groups, recs, exps):
                 L.append("  - **看点：** %s" % p["_hl"])
         L.append("")
     return "\n".join(L)
+
+
+# ---------------------------------------------------------------- 首次引导页
+
+WELCOME_PAGE = read_template("welcome.html")
+
+
+def build_welcome():
+    """「还没有选任何分类」时的引导页（通用版首次 clone 打开 / 的情形）。
+
+    与其在 `/` 上抛一句 404 文本，不如把「下一步点哪里」直接摆在用户面前：
+    分类是这套工具唯一的必填项，而这个入参现在由用户自己给。
+    """
+    t = arxiv_cats.taxonomy()
+    samples = ["cs.DB", "cs.DC", "cs.LG", "math.LO", "stat.ML", "quant-ph",
+               "eess.AS", "q-bio.NC"]
+    return WELCOME_PAGE % {
+        "css": CSS,
+        "total": t["total"],
+        "source": t["source"],
+        "version": t["version"],
+        "samples": "".join("<span>%s</span>" % esc(s) for s in samples),
+    }
 
 
 # ---------------------------------------------------------------- 收藏页
@@ -666,6 +721,9 @@ def build_profile_page():
         "owners": _owner_cards({"owners": p.get("owners") or []}),
         "customtopic": esc(_custom_topic_name()),
         "customw": _custom_topic_weight(),
+        # 官方分类表随页面一起下发：两个联动下拉框的数据源，等价于
+        # GET /api/arxiv_categories（同一份 arxiv_cats.taxonomy()）。
+        "taxonomy": jssafe(json.dumps(arxiv_cats.taxonomy(), ensure_ascii=False)),
     }
 
 

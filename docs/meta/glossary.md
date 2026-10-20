@@ -9,7 +9,10 @@
 | 术语 | 定义 |
 | --- | --- |
 | **短号** | arXiv 论文的不带版本、不带前缀的编号，如 `2609.09742`。项目内**所有 JSON 的 key、所有接口的 `id`** 都用它。`paperutil.short_id()` 负责把 `arXiv:2609.09742v2`、PDF 链接等统一成短号 |
-| **主分类**（`categories`） | 每日必抓的分类，「为你推荐」与「分类详解」的来源。见 [config.json](../reference/config.md) |
+| **主分类**（`categories`） | 每日必抓的分类，「为你推荐」与「分类详解」的来源。**默认空**（不预设领域），在 `/profile` 里自选。见 [config.json](../reference/config.md) |
+| **主类 / 子类**（`abc` / `def`） | 分类号的两段：`cs.DB` 的主类是 `cs`、子类是 `DB`。界面上两个联动下拉框分别对应这两段。9 个 archive（`quant-ph`、`hep-th`…）只有一段、没有点号。见 [arXiv 类别](../reference/categories.md) |
+| **官方分类表** | `arxiv_cats.py` 里固化的 arXiv 分类快照（20 个 archive / 155 个分类），是校验、检索与扩展池推导的**唯一真源** |
+| **拖拽排序** | `/profile` 里拖动类别标签改变 `config.json` 的 `categories` 顺序；该顺序 = 摘要页分类小节的顺序 |
 | **扩展分类**（`expand_categories`） | 只用于「🌱 兴趣扩展」的邻域分类池。与主分类按短号**严格去重** |
 | **累积池** | `raw.json` / `raw_expand.json`。RSS 降级时按短号并集合并，**只增不删**，所以会混着多个批次 |
 | **本期新增** | 首次出现在本期的论文，由 `archive.db` 的 `seen(sid, first_date)` 判定。日报只渲染它 |

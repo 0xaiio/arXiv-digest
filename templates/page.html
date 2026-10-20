@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>arXiv cs.* 论文摘要 · %(span)s</title>
+<title>arXiv 论文摘要 · %(span)s</title>
 <link rel="icon" href="data:,">
 <style>%(css)s</style></head><body id="top">
 <div class="wrap">
 <header>
-<h1>arXiv cs.* 新论文摘要</h1>
-<div class="sub">覆盖 %(cats)s ｜ 提交时间 %(span)s（UTC）｜ 本期新增 <b>%(total)d</b> 篇 ｜ 生成于 %(gen)s ｜
+<h1>arXiv 新论文摘要</h1>
+<div class="sub">涵盖 %(cats)s ｜ 提交时间 %(span)s（UTC）｜ 本期新增 <b>%(total)d</b> 篇 ｜ 生成于 %(gen)s ｜
 下载目录 <code class="dldir">%(dldir)s</code></div>
 </header>
 
@@ -41,8 +41,8 @@
 </div>
 
 <div class="exp-box" id="sec-exp">
-<div class="rec-h">🌱 兴趣扩展<span class="cnt">来自六分类之外的 %(excats)s 等，用于打破知识茧房</span></div>
-<p class="rec-sub">这些论文不在你日常追踪的六个分类里，但主题上与你的研究方向相邻。
+<div class="rec-h">🌱 兴趣扩展<span class="cnt">来自你跟踪类别之外的 %(excats)s 等，用于打破知识茧房</span></div>
+<p class="rec-sub">这些论文不在你日常追踪的类别里，但主题上与你的研究方向相邻。
 它们同样支持收藏 / 下载 / Abstract / Downvote；如果觉得不相关，直接 Downvote，画像会自动降权该类主题。
 Downvote 的表现与「为你推荐」「分类详解」完全一致：变灰 + 删除线，卡片不消失，可随时再点一次撤销。</p>
 <div id="exp-list" data-limit="%(topexp)d">%(exps)s</div>

@@ -2,9 +2,9 @@
 
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![Runtime deps](https://img.shields.io/badge/runtime-stdlib--only-brightgreen)](#环境与依赖)
-[![Docs](https://img.shields.io/badge/docs-23%20pages-informational)](docs/documentation.md)
-[![Tests](https://img.shields.io/badge/tests-551%20passed-success)](docs/contributing/testing.md)
-[![Coverage](https://img.shields.io/badge/coverage-89%25-brightgreen)](docs/contributing/testing.md#三覆盖率)
+[![Docs](https://img.shields.io/badge/docs-24%20pages-informational)](docs/documentation.md)
+[![Tests](https://img.shields.io/badge/tests-666%20passed-success)](docs/contributing/testing.md)
+[![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)](docs/contributing/testing.md#三覆盖率)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Docs site](https://img.shields.io/badge/docs-site-0xaiio.github.io%2FarXiv--digest-informational)](https://0xaiio.github.io/arXiv-digest/)
 [![Status](https://img.shields.io/badge/status-active-success)](#项目状态)
@@ -12,8 +12,13 @@
 把 arXiv 的每日新论文按**你自己的研究画像**排序，生成一份可交互的本地日报：
 收藏、下载 PDF、就地展开摘要、Downvote 反馈——全部离线可用，点一次就当场学会你的口味。
 
-> **默认初始化是干净的**：clone 下来不带任何人的研究兴趣、分类偏好或本机路径。
-> 想看一份调了半年的真实画像，用 `python tools/preset.py import hengxin` 按需导入。
+**任何 arXiv 分类都能用**：官方 155 个分类（20 个 archive）任选，两级联动下拉框 + 可搜索多选 +
+拖拽排序的标签，不限于 `cs.*`。
+
+> **默认初始化是干净的**：clone 下来不带任何人的研究兴趣、分类偏好或本机路径——
+> 分类列表默认是**空的**，第一次打开会引导你先选几个分类。
+> 想看一份调了半年的真实画像（含 cs.DB / cs.DC / cs.FL / cs.LO / cs.PL / cs.SE 六个分类），
+> 用 `python tools/preset.py import hengxin` 按需导入。
 
 ```text
 抓取 arXiv  →  打分排序  →  渲染单文件 HTML  →  本地服务提供交互
@@ -39,6 +44,7 @@
 
 | 特性 | 说明 |
 | --- | --- |
+| **分类自由选** | 官方分类表内置（20 个 archive / 155 个分类）：两级联动下拉、搜索、多选、标签拖拽排序；拼错会告诉你正确写法（[说明](docs/reference/categories.md)） |
 | **两层推荐** | 「🎯 为你推荐」（主分类，阈值 ≥7）与「🌱 兴趣扩展」（邻域分类，阈值 ≥9）互不重叠，前者求准、后者破茧 |
 | **只呈现本期新增** | SQLite `seen` 表判定首次出现期次，往期进 `/archive` 按日期回看，不会天天重播旧论文 |
 | **可解释的打分** | 主题命中 / 熟悉作者 / 代表系统 / 降权词 / 关键词权重逐项可拆，公式与算例见[排序算法](docs/architecture/ranking.md) |
@@ -48,15 +54,19 @@
 | **零运行期依赖** | 只用 Python 标准库，`clone` 即跑，不需要 `pip install` |
 | **可选视频链路** | Remotion 代码渲染 + Edge TTS 中文旁白 + A/V 质量闸门 + B 站投稿（[指南](docs/guide/video-pipeline.md)） |
 | **可导入的预设** | 一整套 `config.json` + `interests.json`，一条命令搬过来，分享前有隐私检查清单 |
-| **测试兜底** | 551 个用例分四层（单元 / 集成 / 端到端 / 浏览器），行覆盖率 89%，全部在沙箱里跑，不碰真实数据 |
+| **测试兜底** | 666 个用例分四层（单元 / 集成 / 端到端 / 浏览器），行覆盖率 90%，全部在沙箱里跑，不碰真实数据 |
 
 ## 快速开始
 
 ```bash
 git clone git@github.com:0xaiio/arXiv-digest.git
 cd arXiv-digest
-python run_daily.py          # 首次运行自动生成干净的 config.json / interests.json
+python run_daily.py --categories cs.DB,cs.DC   # 选你要跟踪的分类（任意 arXiv 分类）
 ```
+
+第一次运行会生成干净的 `config.json` / `interests.json` 并按你给的分类抓取。
+不加 `--categories` 也可以：脚本会提示你先去 `/profile` 的「🗂 arXiv 类别」面板选
+（两个联动下拉框，可搜索、可多选、标签可拖拽排序）。
 
 跑完浏览器会打开 `http://127.0.0.1:8765/`。之后：
 
@@ -79,7 +89,7 @@ Windows 可双击 `start_digest.bat`（自动找 Python，端口读 `config.json
 | 📖 分类详解 | 本期全部新增论文，按分类与日期排列 | 全部 |
 | 工具栏 | 已收藏 / 已下载 / 已 Downvote 筛选与搜索（作用于「分类详解」）、批量下载、重算推荐、往期回看 | — |
 | `/favorites` | 收藏清单，可一键导出 `favorites.md` | — |
-| `/profile` | 类别、下载目录、兴趣来源、画像主来源、主题权重 | — |
+| `/profile` | 类别（联动下拉 + 可拖拽标签）、下载目录、兴趣来源、画像主来源、主题权重 | — |
 | `/archive` | 每期快照，按日期回看 | — |
 
 ## 文档索引
@@ -109,6 +119,7 @@ Windows 可双击 `start_digest.bat`（自动找 Python，端口读 `config.json
 | [命令行](docs/reference/cli.md) | 所有入口脚本与 `tools/` 脚本的参数、默认值、产物、调度示例 |
 | [HTTP API](docs/reference/http-api.md) | 页面路由 + 全部 JSON 接口，含请求体、响应字段、错误约定、调用示例 |
 | [config.json](docs/reference/config.md) | 抓取、显示、端口等 13 个字段的默认值与影响范围 |
+| [arXiv 类别](docs/reference/categories.md) | 官方分类表（20 主类 / 155 分类）、两级联动下拉、校验规则、顺序如何影响页面 |
 | [interests.json](docs/reference/interests.md) | 画像结构：主来源、主题、熟悉作者、代表系统、降权词、行为超参 |
 | [数据文件](docs/reference/data-files.md) | `output/` 每个文件的用途与结构、`archive.db` 三张表、`library.json` 字段 |
 
@@ -126,7 +137,7 @@ Windows 可双击 `start_digest.bat`（自动找 Python，端口读 `config.json
 | 文档 | 用途 |
 | --- | --- |
 | [开发指南](docs/contributing/development.md) | 代码约定、改完什么必须重启、调试手法、提交前检查清单、加功能的推荐路径 |
-| [测试与回归](docs/contributing/testing.md) | 四层测试结构（551 用例）、覆盖范围、覆盖率与门槛、沙箱隔离、重构期等价性手段、如何新增 |
+| [测试与回归](docs/contributing/testing.md) | 四层测试结构（666 用例）、覆盖范围、覆盖率与门槛、沙箱隔离、重构期等价性手段、如何新增 |
 | [故障排查](docs/operations/troubleshooting.md) | 服务 / 抓取 / 推荐 / 下载 / 归档 / 摘要 / 视频 / 投稿 的"症状→诊断→修复" |
 
 ### 元信息
@@ -143,8 +154,8 @@ Windows 可双击 `start_digest.bat`（自动找 Python，端口读 `config.json
 
 ```text
 arXiv-digest/
-├─ 18 个主流程模块                # 抓取 / 打分 / 归档 / 渲染 / 服务 / 选路
-│  ├─ 基础  paths.py paperutil.py netroute.py
+├─ 19 个主流程模块                # 抓取 / 打分 / 归档 / 渲染 / 服务 / 选路
+│  ├─ 基础  paths.py arxiv_cats.py paperutil.py netroute.py
 │  ├─ 领域  textscan.py fetchsrc.py profile.py archive.py
 │  ├─ 应用  customize.py scoring.py recommend.py fetch_*.py
 │  ├─ 渲染  build_report.py
@@ -169,7 +180,7 @@ arXiv-digest/
 
 | 文件 | 管什么 | 页面上改 |
 | --- | --- | --- |
-| `config.json` | 抓哪些分类、PDF 存哪、每期几条、端口 | `/profile` → 类别 / 下载目录 |
+| `config.json` | 抓哪些分类（默认空）、PDF 存哪、每期几条、端口 | `/profile` → 类别 / 下载目录 |
 | `interests.json` | 主题、熟悉作者、代表系统、降权词、画像主来源 | `/profile` 各区块 |
 
 日常维护不必手改 JSON。字段逐项说明见 [config.json](docs/reference/config.md) 与
@@ -179,13 +190,13 @@ arXiv-digest/
 
 ## 质量闸门
 
-**主闸门是 pytest 套件**：551 个用例（单元 / 集成 / 端到端 / 浏览器），行覆盖率 89%，
+**主闸门是 pytest 套件**：666 个用例（单元 / 集成 / 端到端 / 浏览器），行覆盖率 90%，
 门槛 85%。它们全部在 `tmp_pytest/` 沙箱里跑，**不会碰你的真实数据**。
 
 ```bash
 python -m pip install -r requirements-dev.txt   # 只装测试工具，运行期仍然零依赖
-python -m pytest                 # 551 passed，约 60s
-python -m pytest -m unit         # 只跑单元，13s（改纯函数时用这个）
+python -m pytest                 # 666 passed，约 67s
+python -m pytest -m unit         # 只跑单元，15s（改纯函数时用这个）
 python -m pytest --cov           # 覆盖率，低于 85% 直接失败
 ```
 

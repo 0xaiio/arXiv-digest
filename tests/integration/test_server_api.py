@@ -34,7 +34,15 @@ def test_ping(http):
     assert code == 200 and body == {"ok": True}
 
 
-def test_home_is_404_before_first_pipeline(sandbox, http):
+def test_home_renders_welcome_before_choosing_categories(sandbox, http):
+    """通用版首次打开：没有分类 → 引导页（200），而不是 404。"""
+    code, body = http.get("/")
+    assert code == 200
+    assert "选择要跟踪的 arXiv 分类" in body
+
+
+def test_home_is_404_when_categories_chosen_but_not_fetched(sandbox, http):
+    sandbox.set_config(categories=["cs.DB"])
     code, body = http.get("/")
     assert code == 404
     assert "尚无摘要页" in body
@@ -289,6 +297,40 @@ def test_category_add_remove_over_http(seeded, http):
 
     code, d = http.post("/api/category", {"op": "remove", "cat": "cs.PL"})
     assert d["ok"] and "cs.PL" not in d["state"]["categories"]
+
+
+def test_category_bulk_add_over_http(seeded, http):
+    """界面上两个联动下拉框一次提交多个分类，走 add_many。"""
+    code, d = http.post("/api/category", {"op": "add_many",
+                                          "cats": ["math.LO", "quant-ph", "cs.DB"]})
+    assert d["ok"], d["msg"]
+    assert d["state"]["categories"] == ["cs.DB", "math.LO", "quant-ph"]
+    assert d["info"]["duplicates"] == ["cs.DB"]
+    meta = {m["cat"]: m for m in d["state"]["category_meta"]}
+    assert meta["quant-ph"]["known"] is True and meta["quant-ph"]["name"] == "量子物理"
+
+
+def test_category_bulk_add_reports_invalid(seeded, http):
+    code, d = http.post("/api/category", {"op": "add_many", "cats": ["cs.ZZ"]})
+    assert d["ok"] is False and "未通过校验" in d["msg"]
+    assert d["state"]["categories"] == ["cs.DB"], "非法的不能被写进去"
+
+
+def test_category_reorder_over_http(seeded, http):
+    http.post("/api/category", {"op": "add_many", "cats": ["cs.PL", "cs.LG"]})
+    code, d = http.post("/api/category", {"op": "reorder",
+                                          "order": ["cs.LG", "cs.DB", "cs.PL"]})
+    assert d["ok"], d["msg"]
+    assert d["state"]["categories"] == ["cs.LG", "cs.DB", "cs.PL"]
+    assert [m["cat"] for m in d["state"]["category_meta"]] == ["cs.LG", "cs.DB", "cs.PL"]
+
+
+def test_arxiv_categories_endpoint_over_http(sandbox, http):
+    code, d = http.get_json("/api/arxiv_categories")
+    assert code == 200
+    assert d["total"] >= 150
+    cs = [a for a in d["archives"] if a["id"] == "cs"][0]
+    assert {"id": "cs.DB", "en": "Databases", "zh": "数据库"} in cs["categories"]
 
 
 def test_config_endpoint_sets_download_dir(seeded, http):

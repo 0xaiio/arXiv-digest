@@ -68,9 +68,28 @@ def test_config_is_seeded_from_example_on_first_use(bare_sandbox):
     cfg = pu.load_config()
     assert bare_sandbox.cfg.exists(), "首次读取应生成 config.json"
     assert cfg["download_dir"] == "papers"
-    assert isinstance(cfg["categories"], list) and cfg["categories"]
+    # 通用版：默认**不预设任何类别**，由用户在 /profile 里自选
+    assert cfg["categories"] == []
+    assert cfg["expand_categories"] == [], "留空 = 自动取同 archive 的兄弟分类"
     # 模板里的可选字段也应带上
     assert cfg["top_expand"] == 10
+
+
+def test_shipped_example_has_no_personal_categories():
+    """仓库里的模板不得夹带任何人的分类偏好（六分类示例只存在于 presets/）。"""
+    import json as _json
+    import os
+
+    import paths
+    with open(os.path.join(paths.ROOT, "config.example.json"), encoding="utf-8") as f:
+        d = _json.load(f)
+    assert d["categories"] == []
+    assert d["category_names"] == {}
+
+
+def test_categories_key_is_coerced_to_list(sandbox):
+    sandbox.cfg.write_text(json.dumps({"categories": "cs.DB"}), encoding="utf-8")
+    assert pu.load_config()["categories"] == [], "手改坏的类型不能让下游炸掉"
 
 
 def test_existing_config_wins_and_missing_keys_fall_back(sandbox):

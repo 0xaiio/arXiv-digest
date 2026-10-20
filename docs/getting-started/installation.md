@@ -42,7 +42,7 @@ git clone https://github.com/0xaiio/arXiv-digest.git
 
 | 不存在的东西 | 从哪来 |
 | --- | --- |
-| `config.json`（你的分类、下载目录） | 首次运行按 `config.example.json` 自动生成 |
+| `config.json`（你的分类、下载目录） | 首次运行按 `config.example.json` 自动生成（**分类默认为空**，要你自己选） |
 | `interests.json`（你的画像） | 首次运行按 `interests.example.json` 自动生成 |
 | `output/`（日报、归档库、收藏、行为记录） | 首次运行流水线时创建 |
 | `.secrets/`（B 站 cookie 等凭据） | 只有你要用投稿功能时才需要自己准备 |
@@ -63,9 +63,13 @@ python run_daily.py
 1. `paperutil.load_config()` 发现没有 `config.json`，从 `config.example.json` 复制一份，并打印
    `[init] 已按 config.example.json 生成 config.json…`；
 2. `customize.load_interests()` 同样从 `interests.example.json` 生成 `interests.json`；
-3. 抓取主分类与扩展分类，写入 `output/raw.json` 与 `output/raw_expand.json`；
-4. 打分、抓作者单位（较慢）、渲染日报，并把当期快照写进 `output/archive/` 与 `output/archive.db`；
-5. 检查 `http://127.0.0.1:<port>/api/ping`，服务没在线就在后台拉起 `server.py`。
+3. **检查是否已选分类**：`categories` 默认为空（本工具不预设任何领域），此时脚本会提示
+   「尚未选择任何 arXiv 分类」并只把本地服务拉起来，不会抓取任何东西。
+   去 `http://127.0.0.1:8765/profile` 的「🗂 arXiv 类别」面板选好（或在命令里加
+   `--categories cs.DB,cs.DC`），再跑一次即可。详见 [arXiv 类别](../reference/categories.md)；
+4. 抓取主分类与扩展分类，写入 `output/raw.json` 与 `output/raw_expand.json`；
+5. 打分、抓作者单位（较慢）、渲染日报，并把当期快照写进 `output/archive/` 与 `output/archive.db`；
+6. 检查 `http://127.0.0.1:<port>/api/ping`，服务没在线就在后台拉起 `server.py`。
 
 生成的两个文件从此属于**你的个人数据**，不会被提交（见 [config.md](../reference/config.md) 与
 [interests.md](../reference/interests.md)）。
@@ -86,7 +90,8 @@ ls output/arxiv_digest_*.html | tail -1
 python -c "import archive; print(archive.stats())"
 ```
 
-浏览器打开 `http://127.0.0.1:8765/`，应看到三个板块：🎯 为你推荐、🌱 兴趣扩展、📖 分类详解。
+浏览器打开 `http://127.0.0.1:8765/`：已选分类并抓取过 → 三个板块（🎯 为你推荐、🌱 兴趣扩展、📖 分类详解）；
+还没选分类 → 一张「选择要跟踪的 arXiv 分类」的引导页，点按钮直达 `/profile`。
 若页面提示"尚无摘要页"，说明流水线还没成功跑完，按 [故障排查](../operations/troubleshooting.md) 第 1 节处理。
 
 ## 五、日常启动方式

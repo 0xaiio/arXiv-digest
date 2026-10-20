@@ -7,6 +7,59 @@
 
 ---
 
+## 2026-10-20（通用化：类别不再限定 cs.*）
+
+从「arXiv cs.* 六分类摘要」扩展为**通用的 arXiv paper digest**：分类由用户自选，
+支持官方全部 155 个分类。数据文件与既有接口保持兼容（`categories` 仍是字符串数组），
+新增能力全部向下兼容。
+
+### 新增
+
+- **`arxiv_cats.py`**：arXiv 官方分类表（20 个 archive / 155 个分类，含中英文名），
+  以及 `validate()` / `suggest()` / `search()` / `taxonomy()` / `neighbors()`。
+  分类从「散落在三处硬编码」变为一份数据；`python arxiv_cats.py` 可自检；
+- **`/profile` 的「🗂 arXiv 类别」选择器**：两个**联动**下拉框（先主类 `abc` 再子类 `def`），
+  都支持搜索（分类号 / 英文名 / 中文名）与多选；选中的分类以标签呈现，**可拖拽排序**（带拖柄、
+  落点竖线与 grab 光标）、可删除；另有手动输入框做**即时合法性校验**（变绿显示中文名 / 变红说明原因）；
+- **`GET /api/arxiv_categories`**：分类表接口（页面同时内嵌同一份 JSON）；
+- **`POST /api/category` 新增 `add_many` / `reorder` / `set`** 三个 op（批量添加、拖拽排序、整体替换）；
+- **`run_daily.py --categories cs.DB,cs.DC`**：命令行一次配好分类（无 GUI 环境用）；
+- **`templates/welcome.html`** + `build_report.build_welcome()`：未选分类时的引导页（替代原来的 404 文本）；
+- 新增 115 个用例（666 总数），其中 `tests/unit/test_arxiv_cats.py`（54）与
+  `tests/e2e/test_category_picker_ui.py`（15，真实 Edge + CDP，含拖拽）。
+
+### 变更
+
+- `config.example.json` 的 `categories` 改为**空数组**：本工具不再预设任何研究领域。
+  首次 clone 打开 `/` 看到的是「先选分类」引导页，`/profile` 里没有任何分类标签；
+  六个 cs 分类（cs.DB / cs.DC / cs.FL / cs.LO / cs.PL / cs.SE）保留在 `presets/hengxin/`
+  作为**个人示例配置**，供 `tools/preset.py import hengxin` 按需导入；
+- 分类合法性校验统一收敛到 `arxiv_cats.validate()`：格式（`abc.def` 或单段 `quant-ph`）、
+  大小写（`CS.DB` → 提示正确写法）、是否在官方表内（`cs.ZZ` → 近邻纠错）、
+  只写主类（`physics` → 提示需要子类）。`customize.add_category` 改用同一入口，
+  并新增 `add_categories()` / `reorder_categories()` / `set_categories()` / `categories_view()`；
+- `expand_categories` 留空时**自动推导**：取所选分类同 archive 的兄弟分类
+  （选 `cs.DB` → 其余 `cs.*`；选 `math.LO` → 其余 `math.*`），不再写死一串 cs.xx；
+- 摘要页与 Markdown 标题从 `arXiv cs.* 新论文摘要` 改为 `arXiv 新论文摘要`；
+  「兴趣扩展」的说明文案从「六分类之外」改为「你跟踪的类别之外」；
+- 分类小节的顺序 = `config.json` 里 `categories` 的顺序（拖拽排序后点「↻ 重算推荐」即生效）；
+- `run_daily.py` 在 `categories` 为空时不抓取、只给引导并确保服务在线（不再静默跑空）；
+- `tests/e2e/cdp.py`：浏览器用例的 Edge+CDP 底座从 `test_ui_browser.py` 抽出共用。
+
+### 文档
+
+- 新增 [arXiv 类别](docs/reference/categories.md)：分类表来源、界面交互、校验规则、顺序语义；
+- 更新 README（特性/快速开始/界面一览/项目结构）、
+  [config.json](docs/reference/config.md)、[HTTP API](docs/reference/http-api.md)、
+  [快速开始](docs/getting-started/quickstart.md)、[安装](docs/getting-started/installation.md)、
+  [模块职责](docs/architecture/modules.md)、[架构总览](docs/architecture/overview.md)、
+  [FAQ](docs/meta/faq.md)、[术语表](docs/meta/glossary.md)、[目录职责](docs/meta/structure.md)、
+  [预设](docs/guide/presets.md)、[测试与回归](docs/contributing/testing.md)、
+  [文档中心](docs/documentation.md)；
+- 覆盖率表按实测更新为 666 用例 / 90%，新增 `arxiv_cats.py`（99%）一行。
+
+---
+
 ## 2026-10-17（全方位重构）
 
 对外行为与接口**无破坏性变更**：全部 HTTP 路由、CLI 参数、数据文件格式保持不变。

@@ -29,6 +29,7 @@ arXiv-digest/
 ├─ routes.py                   # HTTP 语义（路由表 / Reply / Request）
 ├─ service.py                  # 业务用例（收藏 / 下载 / 学习 / 重建）
 ├─ customize.py                # 可定制项读写（唯一入口）
+├─ arxiv_cats.py               # arXiv 官方分类表 + 校验/检索/邻域（数据，不是逻辑）
 ├─ paperutil.py                # 配置 / 库文件 / 命名（基础层）
 ├─ netroute.py                 # 下载选路
 ├─ paths.py                    # 路径唯一来源（+ `python paths.py` 诊断）

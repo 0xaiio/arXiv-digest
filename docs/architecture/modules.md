@@ -13,24 +13,25 @@
 | 层 | 模块 | 行数 | 一句话职责 | 依赖 |
 | --- | --- | --- | --- | --- |
 | 基础 | `paths.py` | ~150 | **路径的唯一权威定义** + `python paths.py` 诊断 | 仅标准库 |
-| 基础 | `paperutil.py` | ~170 | 配置读写、库文件、短号与文件名、论文索引 | `paths` |
+| 基础 | `arxiv_cats.py` | ~460 | **arXiv 官方分类表**（20 主类 / 155 分类）+ 校验/检索/纠错/邻域推导 | 仅标准库 |
+| 基础 | `paperutil.py` | ~175 | 配置读写、库文件、短号与文件名、论文索引 | `paths` |
 | 基础 | `netroute.py` | ~400 | 下载取数选路（直连/环境代理/本机代理）与失败摘要 | `paths` |
 | 领域 | `textscan.py` | ~175 | 纯文本信号：去标签、人名、专业实词、主题命中 | `profile` |
 | 领域 | `fetchsrc.py` | ~170 | 来源取数适配：arXiv / 网页 / 本地文档 → `(meta, err)` | `paperutil`、`textscan` |
 | 领域 | `profile.py` | ~260 | 行为学习：把点击折算成主题倍率/关键词权重/单篇惩罚 | `paperutil`、`paths` |
 | 领域 | `archive.py` | ~320 | SQLite 归档：判「本期新增」、期次索引、快照路径 | `paperutil`、`paths` |
-| 应用 | `customize.py` | ~620 | 可定制项读写：分类、下载目录、兴趣来源、画像主来源、合并视图 | `paperutil` `paths` `textscan` `fetchsrc` |
+| 应用 | `customize.py` | ~710 | 可定制项读写：分类（校验/排序）、下载目录、兴趣来源、画像主来源、合并视图 | `paperutil` `paths` `arxiv_cats` `textscan` `fetchsrc` |
 | 应用 | `scoring.py` | ~100 | **纯打分函数**：特征拆解与合成分（无 IO、无全局状态） | `profile` |
 | 应用 | `recommend.py` | ~250 | 打分编排、阈值选取、本期隔离、前端索引 | `scoring` `paperutil` `profile` `archive` |
 | 应用 | `fetch_arxiv.py` | ~160 | 主分类抓取 → `raw.json` | `paperutil` |
-| 应用 | `fetch_expand.py` | ~180 | 扩展分类抓取 → `raw_expand.json` | `paperutil` |
+| 应用 | `fetch_expand.py` | ~195 | 扩展分类抓取 → `raw_expand.json`；扩展池留空时按 archive 推导 | `paperutil` `arxiv_cats` |
 | 应用 | `fetch_rss.py` | ~200 | 限流降级：分类 RSS 增量合并 | `paperutil` |
 | 应用 | `fetch_affil.py` | ~360 | 从 arXiv HTML/ar5iv 抽作者单位（跨日缓存） | `paperutil` `paths` |
-| 渲染 | `build_report.py` | ~800 | 渲染日报/收藏/画像/存档页；**版面在 `templates/`** | `paperutil` `paths`、惰性 `customize`/`archive` |
+| 渲染 | `build_report.py` | ~870 | 渲染日报/收藏/画像/存档/引导页；**版面在 `templates/`** | `paperutil` `paths` `arxiv_cats`、惰性 `customize`/`archive` |
 | 接口 | `service.py` | ~300 | 业务用例：收藏/下载/画像学习/重建（**不认识 HTTP**） | `paperutil` `profile` `netroute` `paths` |
-| 接口 | `routes.py` | ~440 | HTTP 语义：路由表 + `Reply`/`Request`（业务委托给 `api`） | 仅标准库 |
-| 接口 | `server.py` | ~250 | 进程装配：Handler 分发、写 socket、启动服务 | 以上全部 |
-| 编排 | `run_daily.py` | ~195 | 六个阶段 + 确保服务在线 | 子进程调用其它脚本 |
+| 接口 | `routes.py` | ~520 | HTTP 语义：路由表 + `Reply`/`Request`（业务委托给 `api`） | 仅标准库 |
+| 接口 | `server.py` | ~265 | 进程装配：Handler 分发、写 socket、启动服务 | 以上全部 |
+| 编排 | `run_daily.py` | ~240 | 六个阶段 + 确保服务在线；未选类别时给引导并只起服务 | 子进程调用其它脚本 |
 
 ## 二、依赖方向
 
@@ -89,6 +90,22 @@ server.py ──▶ routes.py ──▶ (api 命名空间) ──▶ service.py 
 
 各模块仍保留同名常量（`OUT`、`CONFIG_PATH`…）**但从这里取值**，
 所以「按模块属性 monkeypatch 重定向」的测试约定照旧可用。
+
+### `arxiv_cats.py`（arXiv 官方分类表）
+
+| 能力 | 关键函数 / 常量 | 说明 |
+| --- | --- | --- |
+| 数据 | `ARCHIVES` `CATEGORIES` `TOTAL` `TAXONOMY_VERSION` | 20 个 archive / 155 个分类，含中英文名；单类 archive 用 `single=True` 标记 |
+| 结构 | `split()` `archive_of()` `archive_info()` `archive_label()` | `cs.DB` → `("cs","DB")`；`quant-ph` → `("quant-ph","")` |
+| 校验 | `validate(raw)` `CAT_RE` | **全项目唯一的分类校验入口**，返回 `(ok, 归一化分类, 中文原因)` |
+| 纠错 | `suggest(raw)` | 按**后缀段**相似度给近邻，避免 `cs.ZZ` 被硬凑成 `cs.SY` |
+| 检索 | `search(q, archive)` `taxonomy()` | 两个联动下拉框的数据源（ID / 英文名 / 中文名） |
+| 邻域 | `neighbors(cats)` | 「兴趣扩展」默认池：同 archive 的兄弟分类 |
+
+**为什么要单独一层**：改造前分类硬编码在三处（`config.example.json`、`page.html` 的
+`arXiv cs.*` 标题、`fetch_expand.py` 的兜底列表），加一个非 cs 的领域就要改三个文件，
+而且「这个分类号拼错了吗」没有任何地方能回答。现在分类是数据，校验、界面、扩展池推导
+共用同一份表；arXiv 增删分类时只改 `_ARCHIVES`。
 
 ### `paperutil.py`
 
@@ -164,7 +181,7 @@ server.py ──▶ routes.py ──▶ (api 命名空间) ──▶ service.py 
 
 | 分组 | 函数 |
 | --- | --- |
-| 分类 | `categories()` `category_names()` `category_label()` `add_category()` `remove_category()` |
+| 分类 | `categories()` `category_names()` `category_label()` `categories_view()` `validate_category()` `add_category()` `add_categories()` `remove_category()` `reorder_categories()` `set_categories()` |
 | 下载目录 | `download_dir()` `set_download_dir()` |
 | 兴趣来源 | `add_source()` `remove_source()` `refresh_all()` `block_keyword()` `derive()` `rebuild()` |
 | 画像主来源 | `owners()` `add_owner()` `update_owner()` `remove_owner()` `owners_view()` |
@@ -296,6 +313,8 @@ server.py ──▶ routes.py ──▶ (api 命名空间) ──▶ service.py 
 | 新增业务动作 | `service.py` + `routes.py` 里一行调用 | 不要在 routes 里写业务规则 |
 | 新增数据文件 | `paths.py` 一行 + `conftest._OUT_OWNERS`（如果是模块级常量） | 漏登记会让测试写坏真实数据 |
 | 抓取解析 | `fetch_arxiv.py` 的字段映射 | 保持 `papers[]` 字段契约，否则 `recommend` 会缺字段 |
+| 分类表 / 校验规则 | `arxiv_cats.py` 的 `_ARCHIVES` 与 `validate()` | 前端 `checkCat()` 是同一套规则的手写副本，改规则必须两边一起改（有浏览器用例盯着） |
+| 类别选择器 UI | `templates/profile.html` 的 `initPicker/renderSubList/moveCard` | 标签整块重渲染，事件必须委托到 document；拖拽落点算法在 `dropSide()` |
 | 兴趣来源解析 | `fetchsrc.py`（取数）+ `textscan.py`（抽词） | 两者都可脱离网络/文件单测 |
 | 下载失败 | `netroute.py` | 先 `python netroute.py` 再改代码 |
 | 归档漏判/重复 | `archive.py` 的 `filter_issues()` | 不要手工删 `seen` 行 |

@@ -70,6 +70,7 @@ nav:
       - 命令行: reference/cli.md
       - HTTP API: reference/http-api.md
       - config.json: reference/config.md
+      - arXiv 类别: reference/categories.md
       - interests.json: reference/interests.md
       - 数据文件: reference/data-files.md
   - 概念:

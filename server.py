@@ -62,6 +62,7 @@ except Exception:
     pass
 
 import archive as AR  # noqa: E402
+import arxiv_cats as AC  # noqa: E402
 import customize as CZ  # noqa: E402
 import netroute as NR  # noqa: E402
 import paperutil as pu  # noqa: E402
@@ -144,7 +145,7 @@ class _Runtime:
     """
 
     ALLOWED = frozenset({
-        "OUT", "pu", "CZ", "NR", "AR", "PF", "LIB_LOCK",
+        "OUT", "pu", "CZ", "NR", "AR", "PF", "AC", "LIB_LOCK",
         "papers", "reset_papers", "dl_lock", "download_pdf", "download_many",
         "add_favorite", "record_download", "profile_snapshot", "learn",
         "rebuild_digest", "latest_digest", "ensure_dir", "service_open",

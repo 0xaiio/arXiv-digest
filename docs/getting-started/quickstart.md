@@ -7,18 +7,38 @@
 
 ---
 
+## 步骤 0 · 先选分类（通用版必做一步）
+
+本工具**不预设任何领域**。第一次克隆打开时 `categories` 是空的，你有两种选法：
+
+```bash
+python run_daily.py --categories cs.DB,cs.DC      # 命令行一次配好，然后自动开始抓取
+```
+
+或者跑一次 `python run_daily.py`，它会提示你还没选分类、并把服务拉起来，然后到
+`http://127.0.0.1:8765/profile` →「🗂 arXiv 类别」：
+先选主类 `abc`（如 `cs`），再选子类 `def`（如 `DB`），两个下拉框都能搜索、都能多选；
+标签可拖拽排序、可删除。选好后再跑一次 `python run_daily.py`。
+
+> 想直接看一份现成的六分类配置（数据库 / 分布式 / 形式化方法）：
+> `python tools/preset.py import hengxin`，导入后同样要重跑一次。
+>
+> 分类的完整说明见 [arXiv 类别](../reference/categories.md)。
+
 ## 步骤 1 · 跑第一次流水线（约 1–3 分钟）
 
 ```bash
 python run_daily.py
 ```
 
-首次运行会做三件事：生成干净的 `config.json` / `interests.json`，抓取并打分，最后把服务拉起来。
+首次运行会生成干净的 `config.json` / `interests.json`，按你选的分类抓取并打分，最后把服务拉起来。
 
 预期输出（节选，顺序可能略有不同）：
 
 ```
-[init] 已按 config.example.json 生成 config.json。请按需修改 categories（跟踪的分类）与 download_dir（PDF 保存目录）。
+[categories] 已设置 2 个分类：cs.DB、cs.DC
+[init] 已按 config.example.json 生成 config.json。categories 默认为空：请在 /profile 的「arXiv 类别」面板里自选，
+       或 `python run_daily.py --categories cs.DB,cs.DC` 指定；download_dir（PDF 保存目录）也可在那里改。
 $ .../fetch_arxiv.py
 [ok] fetch_arxiv.py -> raw.json (1834221 bytes)
 $ .../fetch_expand.py
@@ -79,7 +99,8 @@ digest online: http://127.0.0.1:8765
 
 打开 `http://127.0.0.1:8765/profile`（工具栏的 ⚙ 也能进）：
 
-1. **arXiv 类别**：把 `categories` 换成你真正每天要看的 2–6 个（例如 `cs.PL`、`cs.LO`）。
+1. **arXiv 类别**：两个联动下拉框（先主类 `abc` 再子类 `def`，可搜索、可多选），选好的分类以标签呈现，
+   **拖动标签即可调整顺序**（顺序 = 摘要页分类小节的顺序），点 × 删除。建议只留真正每天要看的 2–6 个。
    新增后需要重抓才会出现该分类的论文；
 2. **画像主来源**：点"新增"，填姓名、主页、机构、研究方向。勾选"同时计入熟悉研究者"时，
    该作者的论文每篇 +10 分；

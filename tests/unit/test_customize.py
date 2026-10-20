@@ -27,12 +27,31 @@ def test_categories_and_labels(sandbox):
     assert CZ.category_label("cs.ZZ") == "（未命名主题）"
 
 
-# "cs.db" 是合法的（arXiv 有 cond-mat.stat-mech 这类小写子类），故不在坏例里
-@pytest.mark.parametrize("bad", ["", "csdb", "CS.DB", "cs.", "not a cat", "cs.DB.x"])
-def test_add_category_rejects_bad_format(sandbox, bad):
+# "cs.db" 与 "cond-mat.stat-mech" 都是合法写法，故不在坏例里。
+# 每种坏输入都必须给出**可据此修正**的具体原因，而不是笼统的「格式不合法」：
+# 这是通用版的核心交互——用户手敲分类号时唯一能自救的线索。
+@pytest.mark.parametrize("bad,expect", [
+    ("", "不能为空"),
+    ("csdb", "主类"),               # 没有点号、主类也不存在
+    ("CS.DB", "大小写"),            # 主类段必须小写
+    ("cs.", "格式"),
+    ("not a cat", "官方分类"),      # 去掉空白后是合法单段形式，但不在官方表里
+    ("cs.DB.x", "格式"),
+    ("cs.ZZ", "官方分类"),          # 格式对但不存在
+    ("physics", "主类"),            # 只写 archive：提示缺子类
+])
+def test_add_category_rejects_bad_format(sandbox, bad, expect):
     ok, msg, _ = CZ.add_category(bad)
-    assert not ok and "格式" in msg
+    assert not ok and expect in msg
     assert CZ.categories() == json.loads(sandbox.cfg.read_text("utf-8"))["categories"]
+
+
+def test_add_category_accepts_single_part_and_hyphenated(sandbox):
+    """quant-ph 这类「没有 def」的分类，与 cond-mat.stat-mech 这类小写子类都要能加。"""
+    assert CZ.add_category("quant-ph")[0]
+    assert CZ.add_category("cond-mat.stat-mech")[0]
+    assert CZ.categories()[-2:] == ["quant-ph", "cond-mat.stat-mech"]
+    assert CZ.category_label("cond-mat.stat-mech") == "统计力学"
 
 
 def test_add_category_appends_and_names(sandbox):
@@ -45,9 +64,81 @@ def test_add_category_appends_and_names(sandbox):
 
 
 def test_add_category_rejects_duplicate(sandbox):
-    cat = CZ.categories()[0]
-    ok, msg, _ = CZ.add_category(cat)
+    CZ.add_category("cs.DB")
+    ok, msg, _ = CZ.add_category("cs.DB")
     assert not ok and "已存在" in msg
+
+
+def test_add_category_does_not_pollute_config_with_builtin_names(sandbox):
+    """官方表已有中文名，就不该再往 config 里冗余写一份（配置文件要干净）。"""
+    CZ.add_category("cs.LG")
+    assert "cs.LG" not in sandbox.config().get("category_names", {})
+
+
+def test_add_categories_bulk_partial_success(sandbox):
+    ok, msg, info = CZ.add_categories(["cs.DB", "cs.DC", "cs.ZZ", "cs.DB"])
+    assert not ok and "未通过校验" in msg
+    assert info["added"] == ["cs.DB", "cs.DC"]
+    assert [b["cat"] for b in info["invalid"]] == ["cs.ZZ"]
+    assert CZ.categories() == ["cs.DB", "cs.DC"], "合法的照加，非法的逐条回报"
+
+
+def test_add_categories_all_duplicates(sandbox):
+    sandbox.set_config(categories=["cs.DB"])
+    ok, msg, info = CZ.add_categories(["cs.DB"])
+    assert not ok and "都已在列表中" in msg and info["duplicates"] == ["cs.DB"]
+
+
+def test_reorder_categories_rewrites_order(sandbox):
+    sandbox.set_config(categories=["cs.DB", "cs.PL", "cs.LG"])
+    ok, msg, info = CZ.reorder_categories(["cs.LG", "cs.DB", "cs.PL"])
+    assert ok and CZ.categories() == ["cs.LG", "cs.DB", "cs.PL"]
+    assert info["categories"] == ["cs.LG", "cs.DB", "cs.PL"]
+    assert "顺序" in msg
+
+
+def test_reorder_rejects_missing_extra_and_duplicate(sandbox):
+    sandbox.set_config(categories=["cs.DB", "cs.PL"])
+    for bad in (["cs.DB"], ["cs.DB", "cs.PL", "cs.LG"], ["cs.DB", "cs.DB"]):
+        ok, msg, _ = CZ.reorder_categories(bad)
+        assert not ok and "不一致" in msg, bad
+    assert CZ.categories() == ["cs.DB", "cs.PL"]
+
+
+def test_reorder_noop_is_ok(sandbox):
+    sandbox.set_config(categories=["cs.DB", "cs.PL"])
+    ok, msg, _ = CZ.reorder_categories(["cs.DB", "cs.PL"])
+    assert ok and "未变化" in msg
+
+
+def test_set_categories_replaces_and_cleans_names(sandbox):
+    sandbox.set_config(categories=["cs.DB", "cs.PL"], category_names={"cs.PL": "编程语言"})
+    ok, _, _ = CZ.set_categories(["math.LO", "quant-ph"])
+    assert ok and CZ.categories() == ["math.LO", "quant-ph"]
+    assert "cs.PL" not in sandbox.config()["category_names"], "被移除类别的自定义名也要清掉"
+
+
+def test_set_categories_can_clear_only_when_allowed(sandbox):
+    sandbox.set_config(categories=["cs.DB"])
+    ok, msg, _ = CZ.set_categories([])
+    assert not ok and "至少要保留" in msg
+    ok, _, _ = CZ.set_categories([], allow_empty=True)
+    assert ok and CZ.categories() == []
+
+
+def test_categories_view_reports_known_flag_and_order(sandbox):
+    sandbox.set_config(categories=["cs.DB", "cs.NOPE"])
+    view = CZ.categories_view()
+    assert [v["cat"] for v in view] == ["cs.DB", "cs.NOPE"]
+    assert view[0]["known"] is True and view[0]["name"] == "数据库"
+    assert view[0]["archive"] == "cs"
+    assert view[1]["known"] is False, "手改过的未知分类要能标出来，而不是静默丢弃"
+
+
+def test_validate_category_is_the_single_rule_source(sandbox):
+    assert CZ.validate_category("cs.DB")[0] is True
+    ok, cat, msg = CZ.validate_category(" CS.DB ")
+    assert not ok and "大小写" in msg and cat == "CS.DB"
 
 
 def test_remove_category_keeps_at_least_one(sandbox):

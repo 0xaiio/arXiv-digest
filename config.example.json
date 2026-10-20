@@ -1,21 +1,13 @@
 {
-  "_comment": "arXiv-digest 的默认配置模板。首次运行 run_daily.py / server.py 时若发现 config.json 不存在，会按本文件生成一份；之后请改 config.json（本文件保持干净，勿改）。categories = 每日必抓的主分类；expand_categories = 「兴趣扩展」的邻域分类池；download_dir 支持相对路径（相对项目根，默认 papers/）或绝对路径。",
+  "_comment": "arXiv-digest 的默认配置模板。首次运行 run_daily.py / server.py 时若发现 config.json 不存在，会按本文件生成一份；之后请改 config.json（本文件保持干净，勿改）。categories = 每日必抓的 arXiv 分类（顺序即摘要页分类小节顺序）；默认**留空**，请在 /profile 的「arXiv 类别」面板里自选，或 `python run_daily.py --categories cs.DB,cs.DC`。expand_categories = 「兴趣扩展」的邻域分类池，留空表示自动取同 archive 的兄弟分类。download_dir 支持相对路径（相对项目根，默认 papers/）或绝对路径。",
   "download_dir": "papers",
-  "categories": ["cs.AI", "cs.CL", "cs.LG", "cs.SE"],
-  "category_names": {
-    "cs.AI": "人工智能",
-    "cs.CL": "自然语言处理",
-    "cs.LG": "机器学习",
-    "cs.SE": "软件工程"
-  },
+  "categories": [],
+  "category_names": {},
   "window_days": 3,
   "max_results_per_cat": 80,
   "top_recommend": 14,
   "top_expand": 10,
-  "expand_categories": [
-    "cs.DC", "cs.DB", "cs.FL", "cs.DS", "cs.CR", "cs.IR", "cs.CV", "cs.RO",
-    "cs.HC", "cs.MA", "cs.NI", "cs.PL", "stat.ML", "math.OC", "math.LO"
-  ],
+  "expand_categories": [],
   "expand_window_days": 3,
   "expand_max_results": 600,
   "affil_targets": 60,
