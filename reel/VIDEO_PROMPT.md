@@ -145,7 +145,7 @@ python -X utf8 tools/gen_narration.py
 - **转场**：相邻段落 18 帧交叉淡入淡出，**禁止硬切**；片头/片尾同样与正文交叉淡入淡出。
 - **片尾 5s（150f）**：`关注获取更多`（112px/900）呼吸动画
   `scale = 1 + 0.032·sin(2π·t/2.4)`、光晕 `20 + 12·sin(2π·t/2.4)`，周期 2.4s；
-  下方给出更新节奏（每周二 / 周五 23:10）与本片 **10 个 arXiv 号（按 `SID_PER_ROW = 5` 折成两行）**。
+  下方给出更新节奏（每周一、三、五 23:10）与本片 **10 个 arXiv 号（按 `SID_PER_ROW = 5` 折成两行）**。
 - **实现禁令**：禁用 CSS `transition` / `animation`，一律 `useCurrentFrame()` + `interpolate` / `spring`
   并带 `extrapolateLeft/Right: "clamp"`。
 

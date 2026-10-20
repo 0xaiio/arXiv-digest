@@ -610,7 +610,7 @@ const Outro: React.FC = () => {
         关注获取更多
       </div>
       <div style={{ ...in2, fontSize: 32, color: SUB, marginTop: 30 }}>
-        本片由 arXiv-daily 自动生成 · 每周二 / 周五 23:10 更新
+        本片由 arXiv-daily 自动生成 · 每周一、三、五 23:10 更新
       </div>
       <div
         style={{
