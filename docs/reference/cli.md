@@ -80,10 +80,16 @@ python run_daily.py --preset hengxin --categories cs.LG   # 用这份画像，�
 
 | 脚本 | 参数 | 说明 |
 | --- | --- | --- |
-| `gen_pending.py` | `--limit N` 只取前 N 条；`--all` 不按本期过滤；`--len N` 摘要截取长度（默认 620） | 导出「缺中文摘要」清单到 `output/_pending.txt`，格式 `sid\|分类\|标题\|摘要片段`，按分数倒序 |
+| `gen_pending.py` | `--limit N` 只取前 N 条；`--all` 不按本期过滤；`--len N` 摘要截取长度（默认 620，`--abs` 时 1200）；`--en` 改查「缺英文简介」；`--abs` 改查「缺中文摘要译文」 | 导出待补写清单到 `output/_pending.txt`，格式 `sid\|分类\|标题\|摘要片段`，按分数倒序 |
 
-补充的中文摘要写回 `output/summaries.json`（key 为 arXiv 短号，value 是**纯字符串**），
-然后重跑 `recommend.py` 与 `build_report.py`。
+补写规则（key 一律 arXiv 短号），写完重跑 `recommend.py` 与 `build_report.py`：
+
+- **简介**（`summaries.json`）：value 写 `{"en": "...", "zh": "..."}` —— 英文优先复用
+  摘要里的原始句子（可适度微调），中文是它的对应译文；只写中文也没问题（英文缺失时
+  页面会用摘要开头若干完整句子兜底）。旧的纯字符串 value 仍然可读：含汉字算中文、
+  否则算英文。
+- **摘要译文**（`abstracts_zh.json`）：value 是纯字符串，即英文完整摘要对应的中文译文，
+  由「Abstract (CH)」按钮展示。
 
 ### 视频
 

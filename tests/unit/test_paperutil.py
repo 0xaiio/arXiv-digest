@@ -37,6 +37,56 @@ def test_short_id_of_garbage_is_stable():
     assert pu.short_id("not-an-id") == "not-an-id"
 
 
+# ------------------------------------------------------------------ 双语简介
+# 简介（summaries.json）历史上既有纯中文也有纯英文，归一化必须让两种形态各自
+# 落在正确的位置，而不是要求先迁移文件。
+
+def test_split_bilingual_reads_both_keys():
+    assert pu.split_bilingual({"en": "We study X", "zh": "我们研究 X"}) == \
+        ("We study X", "我们研究 X")
+
+
+def test_split_bilingual_classifies_legacy_string_by_script():
+    """单语字符串按是否含汉字归位 —— 这是「历史文件无需迁移」的依据。"""
+    assert pu.split_bilingual("我们研究 X") == ("", "我们研究 X")
+    assert pu.split_bilingual("We study X") == ("We study X", "")
+
+
+def test_split_bilingual_tolerates_garbage():
+    assert pu.split_bilingual("") == ("", "")
+    assert pu.split_bilingual(None) == ("", "")
+    assert pu.split_bilingual({"title": "x"}) == ("", ""), \
+        "写成了别的对象形状时等于没写，而不是抛异常"
+    assert pu.split_bilingual(42) == ("42", ""), "非字符串按无汉字处理（落到英文行）"
+
+
+def test_en_excerpt_keeps_whole_sentences():
+    text = ("We study isolation levels in transactional storage engines. "
+            "We prove a lower bound on the round complexity of achieving serializability. "
+            "We also revisit linearizability under partitions and message reordering. "
+            "Finally we evaluate the protocol on a cluster of eight machines.")
+    got = pu.en_excerpt(text)
+    assert got.endswith("…"), "摘录（不是全文）要有省略号"
+    assert "lower bound" in got
+    assert "revisit" not in got, "取到一半长度就停，不把全文塞进去"
+    assert not got.rstrip("…").endswith("."), "截断处不应留下半句"
+
+
+def test_en_excerpt_does_not_cut_after_abbreviation():
+    """`et al.` 里的点不是句末：在此处断句会得到半句话。"""
+    text = ("We build on the lower bound of Smith et al. We then prove a matching upper bound "
+            "for read committed workloads under partial partitions and message reordering, "
+            "and we evaluate the resulting protocol on a cluster of eight machines. "
+            "The evaluation covers YCSB workloads A, B and C with eight client threads.")
+    got = pu.en_excerpt(text)
+    assert "Smith et al. We then prove" in got, "缩写后的句点不能当句末"
+
+
+def test_en_excerpt_returns_short_text_as_is():
+    assert pu.en_excerpt("We study X.") == "We study X."
+    assert pu.en_excerpt("") == ""
+
+
 # ------------------------------------------------------------------ 文件名
 
 def test_build_filename_layout():

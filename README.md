@@ -3,7 +3,7 @@
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![Runtime deps](https://img.shields.io/badge/runtime-stdlib--only-brightgreen)](#环境与依赖)
 [![Docs](https://img.shields.io/badge/docs-25%20pages-informational)](docs/documentation.md)
-[![Tests](https://img.shields.io/badge/tests-825%20passed-success)](docs/contributing/testing.md)
+[![Tests](https://img.shields.io/badge/tests-838%20passed-success)](docs/contributing/testing.md)
 [![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)](docs/contributing/testing.md#三覆盖率)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Docs site](https://img.shields.io/badge/docs-site-0xaiio.github.io%2FarXiv--digest-informational)](https://0xaiio.github.io/arXiv-digest/)
@@ -47,6 +47,7 @@
 | --- | --- |
 | **分类自由选** | 官方分类表内置（20 个 archive / 155 个分类）：两级联动下拉、搜索、多选、标签拖拽排序；拼错会告诉你正确写法（[说明](docs/reference/categories.md)） |
 | **两层推荐** | 「🎯 为你推荐」（主分类，阈值 ≥7）与「🌱 兴趣扩展」（邻域分类，阈值 ≥9）互不重叠，前者求准、后者破茧 |
+| **简介双语 / 摘要双语** | 每篇的简介是**摘要核心内容**的双语版（上行英文、下行中文，英文复用摘要原句）；摘要则有 `Abstract (EN)`（原文）与 `Abstract (CH)`（中文译文）两个按钮，互斥展开（[数据文件](docs/reference/data-files.md#四编辑性内容可手工补)） |
 | **只呈现本期新增** | SQLite `seen` 表判定首次出现期次，往期进 `/archive` 按日期回看，不会天天重播旧论文 |
 | **可解释的打分** | 主题命中 / 熟悉作者 / 代表系统 / 降权词 / 关键词权重逐项可拆，公式与算例见[排序算法](docs/architecture/ranking.md) |
 | **会学习的画像** | 收藏 +1.0、下载 +1.3、展开摘要 +0.3、Downvote 单篇 -12；主题倍率与关键词权重实时更新 |
@@ -56,7 +57,7 @@
 | **可选视频链路** | Remotion 代码渲染 + Edge TTS 中文旁白 + A/V 质量闸门 + B 站投稿（[指南](docs/guide/video-pipeline.md)） |
 | **可导入的数据包** | 某人的一整套设置与使用数据（配置 / 画像 / 收藏 / 行为学习 / 笔记）收在一个目录里，纯 JSON 可 diff；启动参数 `--preset` 或界面一键导入，**默认不加载**（[设计与边界](docs/architecture/data-isolation.md)） |
 | **启动不挑端口** | 默认 `127.0.0.1:8765`；被别的软件占着就自动向后顺延（8765 → 8766 → …）并在日志里报出实际地址，页面端口同步改写；启动成功后自动开浏览器，`--no-open` / `open_browser: false` 可关（[服务运行时](docs/architecture/server-runtime.md)） |
-| **测试兜底** | 825 个用例分四层（单元 / 集成 / 端到端 / 浏览器），行覆盖率 91%，全部在沙箱里跑，不碰真实数据 |
+| **测试兜底** | 838 个用例分四层（单元 / 集成 / 端到端 / 浏览器），行覆盖率 91%，全部在沙箱里跑，不碰真实数据 |
 
 ## 快速开始
 
@@ -211,12 +212,12 @@ arXiv-digest/
 
 ## 质量闸门
 
-**主闸门是 pytest 套件**：825 个用例（单元 / 集成 / 端到端 / 浏览器），行覆盖率 91%，
+**主闸门是 pytest 套件**：838 个用例（单元 / 集成 / 端到端 / 浏览器），行覆盖率 91%，
 门槛 85%。它们全部在 `tmp_pytest/` 沙箱里跑，**不会碰你的真实数据**。
 
 ```bash
 python -m pip install -r requirements-dev.txt   # 只装测试工具，运行期仍然零依赖
-python -m pytest                 # 825 passed
+python -m pytest                 # 838 passed
 python -m pytest -m unit         # 只跑单元，15s（改纯函数时用这个）
 python -m pytest --cov           # 覆盖率，低于 85% 直接失败
 ```

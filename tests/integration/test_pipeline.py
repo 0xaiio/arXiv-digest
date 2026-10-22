@@ -200,6 +200,67 @@ def test_issue_stats_counts(seeded):
     assert stats["new_core"] == 3 and stats["new_expand"] == 2
 
 
+# ---------------------------------------------------------------- 双语：简介 / 摘要
+
+def test_card_renders_summary_in_two_languages(seeded):
+    """简介的契约：英文在上、中文在下，两行都在。"""
+    seeded.write("summaries.json",
+                 {"2609.10001": {"en": "We study isolation levels.",
+                                 "zh": "研究事务的隔离级别。"}})
+    _run_pipeline()
+    html = (seeded.out / "arxiv_digest_20261015.html").read_text(encoding="utf-8")
+    assert 'class="s-en"' in html and 'class="s-zh"' in html
+    assert html.index("We study isolation levels.") < html.index("研究事务的隔离级别。"), \
+        "英文必须在中文之上"
+
+
+def test_legacy_chinese_only_summary_is_treated_as_chinese(seeded):
+    """历史单语文件（含汉字）不该被当成英文，也不该要求先迁移。"""
+    seeded.write("summaries.json", {"2609.10001": "研究事务的隔离级别。"})
+    _run_pipeline()
+    html = (seeded.out / "arxiv_digest_20261015.html").read_text(encoding="utf-8")
+    assert 'class="s-zh"' in html
+    # 英文行缺失时用摘要开头兜底，而不是留空
+    assert "We study isolation level and serializability" in html
+
+
+def test_abstract_is_split_into_en_and_ch_versions(seeded):
+    """两个 Abstract 按钮对应两个折叠块：EN 是原文，CH 是中文译文。"""
+    seeded.write("abstracts_zh.json", {"2609.10001": "我们研究了事务数据库中的隔离级别。"})
+    _run_pipeline()
+    html = (seeded.out / "arxiv_digest_20261015.html").read_text(encoding="utf-8")
+    assert "Abstract (EN)" in html and "Abstract (CH)" in html
+    assert 'id="ab-2609.10001"' in html and 'id="abz-2609.10001"' in html
+    assert "我们研究了事务数据库中的隔离级别。" in html
+
+
+def test_missing_chinese_abstract_shows_a_hint_instead_of_hiding_button(seeded):
+    """译文缺失时不隐藏按钮：写明去哪里补，比让按钮消失更可自愈。"""
+    _run_pipeline()
+    html = (seeded.out / "arxiv_digest_20261015.html").read_text(encoding="utf-8")
+    assert 'data-act="abszh"' in html
+    assert "abstracts_zh.json" in html
+
+
+def test_markdown_export_is_bilingual(seeded):
+    seeded.write("summaries.json",
+                 {"2609.10001": {"en": "We study isolation levels.",
+                                 "zh": "研究事务的隔离级别。"}})
+    _run_pipeline()
+    md = (seeded.out / "arxiv_digest_20261015.md").read_text(encoding="utf-8")
+    assert "- EN We study isolation levels." in md
+    assert "- 中 研究事务的隔离级别。" in md
+
+
+def test_papers_index_carries_english_summary(seeded):
+    seeded.write("summaries.json",
+                 {"2609.10001": {"en": "We study isolation levels.", "zh": "研究事务的隔离级别。"}})
+    R.main()
+    item = {p["id"]: p for p in seeded.read("papers_index.json")["papers"]}["2609.10001"]
+    assert item["summary"] == "研究事务的隔离级别。"
+    assert item["summary_en"] == "We study isolation levels."
+
+
 def test_build_report_is_resilient_to_missing_editorial_files(seeded):
     """summaries / rec_notes / highlights / themes 都是可选编辑内容，缺了也必须能渲染。"""
     for name in ("summaries.json", "rec_notes.json", "highlights.json", "themes.json"):

@@ -79,7 +79,9 @@
 | **画像状态**（`profile_state.json`） | 学习到的聚合结果：`topic_mult` / `kw` / `paper_bonus` / `counts` |
 | **行为流水**（`behavior.json`） | 最近 2000 条点击记录，仅用于审计与离线分析 |
 | **前端索引**（`papers_index.json`） | 让浏览器用同一套公式重排分数所需的最小数据：`base` / `tv` / `toks` / `pen` / `weights` |
-| **编辑性内容** | `summaries.json`（中文摘要）、`rec_notes.json`（推荐理由）、`highlights.json`（看点）、`themes.json`（主题归纳）。key 一律短号，可手工补 |
+| **简介**（summary） | 论文摘要的**核心内容**（不是完整摘要），页面上双语呈现：`summaries.json` 的 `en` 在上、`zh` 在下。英文默认取摘要开头若干完整句子 |
+| **摘要译文** | 英文完整摘要对应的中文译文，存 `abstracts_zh.json`，由「Abstract (CH)」按钮展示。与「简介」是两个层次：一个是要点、一个是全文 |
+| **编辑性内容** | `summaries.json`（双语简介）、`abstracts_zh.json`（摘要中文译文）、`rec_notes.json`（推荐理由）、`highlights.json`（看点）、`themes.json`（主题归纳）。key 一律短号，可手工补 |
 | **数据包**（data pack） | 一整套设置与使用数据的可迁移单元：`presets/<名字>/` 下的纯 JSON，**默认不加载**，用 `--preset` 或界面「导入」才生效。旧称"预设" |
 | **包清单**（`manifest.json`） | 包的元信息与完整性凭据：`schema` 版本、分组、逐文件 `bytes` 与 `sha256`。导入时据此拒绝未来版本与被手改坏的文件 |
 | **数据分组** | 包的四个分区：`core`（配置/画像，整文件替换）· `usage`（收藏/下载/Downvote，只并集）· `learning`（行为学习，默认不导入）· `notes`（摘要与笔记，只并集）。分组决定导入冲突怎么处理 |

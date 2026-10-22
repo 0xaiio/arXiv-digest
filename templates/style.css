@@ -92,6 +92,12 @@ input.search{border:1px solid var(--bd);border-radius:8px;padding:6px 11px;font-
 .abst-in{background:#f7f9fc;border:1px solid var(--bd);border-left:3px solid var(--ac);
  border-radius:0 8px 8px 0;padding:10px 13px;font-size:13.2px;color:#3d4753;line-height:1.75;
  white-space:pre-wrap}
+/* ---- 简介与摘要的双语：EN 用蓝系（accent），CH 用绿系（exp），互斥展开 ---- */
+.s-en,.s-zh{display:block}
+.s-en{color:#3d4753;margin-bottom:2px}
+.s-zh{color:var(--tx2)}
+.abst.zh .abst-in{border-left-color:var(--exp);background:#f6fdfa}
+.btn.ab.abz.open{border-color:var(--exp);color:var(--exp);background:var(--expbg)}
 .cat{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:20px 24px 24px;margin-bottom:18px}
 .cat h2{font-size:18px;margin:0 0 12px;display:flex;align-items:center;gap:9px}
 .hl-box{background:#fbfcfe;border:1px solid var(--bd);border-radius:10px;padding:4px 18px 12px;margin-bottom:16px}

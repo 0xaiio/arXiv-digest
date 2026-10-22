@@ -30,6 +30,7 @@
 
 | 元素 | 含义 |
 | --- | --- |
+| 简介（两行） | 上行英文、下行中文，取自**摘要的核心内容**（不是完整摘要）。英文优先复用摘要里的原句，中文是它的对应译文；`summaries.json` 里只写了一半时，就只显示那一行 |
 | 编号 `01` `02` | 当前位置（重排后会重新编号，不是论文 ID） |
 | 评分 | 打分结果，保留一位小数；分数构成可在 [排序算法](../architecture/ranking.md) 里对上 |
 | 命中主题 | 这篇命中了画像里的哪几个主题（最多显示 4 个） |
@@ -59,7 +60,8 @@
 | 收藏 | `POST /api/favorite` | 写入 `library.json`；若该篇被 Downvote 过则自动撤销；正向学习（1.0） |
 | 已收藏（再点） | `POST /api/unfavorite` | 移出收藏；反向学习（-0.7，较弱） |
 | 下载 | `POST /api/download` | PDF 存入 `download_dir`，**自动收藏**；正向学习（1.3，最强） |
-| Abstract | `POST /api/event` `action=abstract` | 就地展开摘要；弱正向（0.3） |
+| Abstract (EN) | `POST /api/event` `action=abstract` | 就地展开英文原文摘要；弱正向（0.3） |
+| Abstract (CH) | `POST /api/event` `action=abstract` | 就地展开英文摘要的**中文译文**（与 EN 互斥展开，译文来自 `output/abstracts_zh.json`）；弱正向（0.3） |
 | PDF | `POST /api/event` `action=pdf` | 新窗口打开 arXiv PDF；中弱正向（0.55） |
 | Downvote | `POST /api/downvote` | 该篇固定 -12 分并变灰划线；**不改写全局主题权重** |
 | 已 Downvote（再点） | `POST /api/undownvote` | 撤销 -12，恢复排序 |

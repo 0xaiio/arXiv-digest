@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""渲染 arXiv 论文摘要页（v4，通用分类版）。
+"""渲染 arXiv 论文摘要页（v5，双语简介 + 双语摘要）。
+
+v5 变更
+  - 论文**简介**统一为双语：上方英文（优先复用摘要原句）、下方对应中文；
+    历史单语条目按是否含汉字自动归位，缺失的一侧用摘要开头兜底；
+  - 论文**摘要**拆成英文与中文两版：`Abstract (EN)` 与 `Abstract (CH)` 两个按钮，
+    中文译文来自 `output/abstracts_zh.json`，互斥展开；
+  - Markdown 导出同步为双语（`- EN …` / `- 中 …`）。
 
 v4 变更
   - 不再假定 cs.* 六分类：分类完全由 config.json 决定（用户在 /profile 里自选），
@@ -10,7 +17,7 @@ v4 变更
 
 v3 能力
   - 🎯 为你推荐（主分类 feed 内） 与  🌱 兴趣扩展（主分类之外的邻域分类）
-  - 每篇论文：收藏 / 下载 / Abstract（内联展开折叠）/ PDF / Downvote
+  - 每篇论文：收藏 / 下载 / Abstract (EN) / Abstract (CH)（内联展开折叠）/ PDF / Downvote
   - Downvote 在「为你推荐 / 兴趣扩展 / 分类详解」三处表现统一：变灰 + 标题删除线，
     卡片保留原位、不消失，可再点一次撤销（三处共用同一组 CSS 规则与同一段 JS）
   - 所有交互行为都会回传本地服务，实时更新兴趣画像；按钮乐观更新，重排合并执行
@@ -18,7 +25,8 @@ v3 能力
 
 输入（output/ 下）
   raw.json  raw_expand.json  papers_index.json  recommend.json  expand.json
-  summaries.json  rec_notes.json  themes.json  highlights.json  library.json
+  summaries.json  abstracts_zh.json  rec_notes.json  themes.json  highlights.json
+  library.json
 输出
   output/arxiv_digest_<YYYYMMDD>.html / .md     output/favorites.html
 """
@@ -143,6 +151,16 @@ def pdf_url(sid):
 # 只能从 arXiv HTML 版 / ar5iv 解析，拿不到就不渲染该行。
 AFF = {}
 
+# 英文摘要的**中文译文**（output/abstracts_zh.json，短号 -> 译文）。
+# 与 AFF 同样按请求加载一次：它是可选编辑内容，缺失时页面退化成只给英文摘要，
+# 而不是报错（新用户 clone 下来没有这个文件）。
+ABS_ZH = {}
+
+
+def load_abstracts_zh():
+    global ABS_ZH
+    ABS_ZH = jload("abstracts_zh.json", {}) or {}
+
 
 def load_affiliations():
     global AFF
@@ -175,6 +193,7 @@ def load():
         if not d or not d.get("papers"):
             raise SystemExit("output/raw.json 缺失或为空，请先运行 fetch_arxiv.py")
     load_affiliations()
+    load_abstracts_zh()
     invalidate_cat_names()
     if d.get("categories"):
         d["categories"] = ordered_categories(d["categories"])
@@ -212,7 +231,12 @@ def load():
         for i, p in enumerate(groups.get(cat, []), 1):
             key = "%s#%d" % (cat, i)
             p["_key"] = key
-            p["_summary"] = (summaries.get(key) or summaries.get(pu.short_id(p)) or "").strip()
+            # 简介按「英文在上、中文在下」双语呈现：value 可以是 {"en","zh"}，
+            # 也可以是历史单语字符串（按是否含汉字归位）。见 pu.split_bilingual。
+            en, zh = pu.split_bilingual(
+                summaries.get(key) or summaries.get(pu.short_id(p)) or "")
+            p["_summary"] = zh
+            p["_summary_en"] = en
             p["_hl"] = (highs.get(key) or highs.get(pu.short_id(p)) or "").strip()
             by_sid[pu.short_id(p)] = p
     return d, groups, by_sid, rec, exp, themes, lib, idx
@@ -220,13 +244,17 @@ def load():
 
 # ---------------------------------------------------------------- 组件
 
+# 摘要拆成两个按钮：EN 是 arXiv 原文，CH 是它的中文译文（来自 abstracts_zh.json）。
+# 两者互斥展开（见 app.js 的 toggleAbs），同时展开会把卡片撑成两倍高。
 ACTS = ('<div class="acts">'
         '<button class="btn fav" data-act="fav" data-sid="{sid}">'
         '<span class="ico">☆</span><span class="lb">收藏</span></button>'
         '<button class="btn dl" data-act="dl" data-sid="{sid}">'
         '<span class="ico">⬇</span><span class="lb">下载</span></button>'
         '<button class="btn ab" data-act="abs" data-sid="{sid}">'
-        '<span class="ico">▸</span><span class="lb">Abstract</span></button>'
+        '<span class="ico">▸</span><span class="lb">Abstract (EN)</span></button>'
+        '<button class="btn ab abz" data-act="abszh" data-sid="{sid}">'
+        '<span class="ico">▸</span><span class="lb">Abstract (CH)</span></button>'
         '<a class="btn ghost pdf" data-sid="{sid}" href="{pdf}" target="_blank" rel="noopener">PDF</a>'
         '<button class="btn dv" data-act="dv" data-sid="{sid}" title="不感兴趣：以后减少推荐">'
         '<span class="ico">👎</span><span class="lb">Downvote</span></button>'
@@ -238,8 +266,36 @@ def acts(sid):
 
 
 def abst_block(sid, abstract):
+    """英文摘要 + 中文译文两个折叠块（互斥展开，由 app.js 控制）。
+
+    中文译文缺时不隐藏按钮，而是展开后给一句可操作的提示：按钮消失会让人以为
+    这篇没有中文版；写明去哪里补，才是可自愈的。
+    """
+    zh = (ABS_ZH.get(pu.short_id(sid)) or "").strip()
+    hint = "（本篇还没有中文摘要译文：可在 output/abstracts_zh.json 里按短号补写）"
     return ('<div class="abst" id="ab-%s"><div class="abst-in">%s</div></div>'
-            % (esc(sid), esc(abstract or "(无摘要)")))
+            '<div class="abst zh" id="abz-%s"><div class="abst-in">%s</div></div>'
+            % (esc(sid), esc((abstract or "").strip() or "(无摘要)"),
+               esc(sid), esc(zh or hint)))
+
+
+def summ_lines(en, zh, abstract=""):
+    """简介的双语两行：上英文、下中文。
+
+    英文优先复用摘要里的原始句子（`summaries.json` 没写 `en` 时，用
+    `pu.en_excerpt` 取摘要开头若干完整句子兜底），中文是它的对应译文。
+    只有一侧有内容时就只渲染那一行——双语是目标，但缺一半不该显示空行。
+    """
+    en = (en or "").strip() or pu.en_excerpt(abstract)
+    zh = (zh or "").strip()
+    if not en and not zh:
+        return ""
+    if not zh:
+        return '<span class="s-en">%s</span>' % esc(en)
+    if not en:
+        return '<span class="s-zh">%s</span>' % esc(zh)
+    return ('<span class="s-en">%s</span><span class="s-zh">%s</span>'
+            % (esc(en), esc(zh)))
 
 
 def tier_cls(tier):
@@ -251,11 +307,8 @@ def build_card(item, i, note_default=""):
     sid = item["id"]
     topics = "".join('<span class="tp">%s</span>' % esc(t) for t in item.get("topics", [])[:4])
     fam = "".join('<span class="tp au">%s</span>' % esc(a) for a in item.get("familiar_authors", [])[:3])
-    summ = (item.get("summary") or "").strip()
-    if not summ:
-        summ = (item.get("abstract") or "")[:220].strip()
-        if len(item.get("abstract") or "") > 220:
-            summ += "…"
+    # 双语简介（英文在上 / 中文在下）；两侧都没有时用摘要开头兜底成英文一行。
+    summ = summ_lines(item.get("summary_en"), item.get("summary"), item.get("abstract", ""))
     why = (item.get("note") or note_default or "").strip()
     return (
         '<div class="rec-card" data-sid="%s" data-score="%.2f">'
@@ -275,7 +328,7 @@ def build_card(item, i, note_default=""):
            esc(item.get("tier") or "推荐"), item.get("score", 0),
            esc(item.get("primary") or ""), esc(item.get("published") or ""),
            esc(pdf_url(sid)), esc(item.get("title") or ""),
-           esc(short_authors(item)), esc(sid), aff_line(sid), esc(summ), esc(why),
+           esc(short_authors(item)), esc(sid), aff_line(sid), summ, esc(why),
            topics, fam, acts(sid), abst_block(sid, item.get("abstract", "")))
     )
 
@@ -308,7 +361,8 @@ def build_sections(d, groups, themes, by_sid):
                    esc(p.get("pdf") or pdf_url(p["_sid"])), esc(p["title"]),
                    esc(p.get("published", "")[:10]), esc(short_authors(p)), esc(p["_sid"]),
                    aff_line(p["_sid"]),
-                   esc(p["_summary"]), esc(p["_hl"]), acts(p["_sid"]),
+                   summ_lines(p["_summary_en"], p["_summary"], p.get("abstract", "")),
+                   esc(p["_hl"]), acts(p["_sid"]),
                    abst_block(p["_sid"], p.get("abstract", "")))
                 for p in hi)
             hl = '<div class="hl-box"><div class="hl-h">重点论文</div>%s</div>' % items
@@ -323,7 +377,7 @@ def build_sections(d, groups, themes, by_sid):
                esc(p.get("pdf") or pdf_url(p["_sid"])), esc(p["title"]),
                esc(p.get("published", "")[:10]), esc(short_authors(p)), esc(p["_sid"]),
                aff_line(p["_sid"], "r-u"),
-               esc(p["_summary"] or ((p.get("abstract") or "")[:180] + "…")),
+               summ_lines(p["_summary_en"], p["_summary"], p.get("abstract", "")),
                acts(p["_sid"]), abst_block(p["_sid"], p.get("abstract", "")))
             for p in ps)
         secs.append(
@@ -450,7 +504,7 @@ def build_html(d, groups, by_sid, recs, exps, themes, idx):
             "expand_ids": idx.get("expand_ids", []),
             "papers": [{k: p.get(k) for k in (
                 "id", "title", "authors", "primary", "published", "abstract",
-                "summary", "tv", "base", "toks", "pen", "topics",
+                "summary", "summary_en", "tv", "base", "toks", "pen", "topics",
                 "familiar_authors", "systems")} for p in idx.get("papers", [])],
         }
 
@@ -550,6 +604,18 @@ def build_pool_list(idx, chosen, pool, size):
     return out
 
 
+def md_summ_lines(en, zh, abstract="", indent="   "):
+    """Markdown 版双语简介：与页面同一顺序（英文在前、中文在后）。"""
+    en = (en or "").strip() or pu.en_excerpt(abstract)
+    zh = (zh or "").strip()
+    out = []
+    if en:
+        out.append("%s- EN %s" % (indent, en))
+    if zh:
+        out.append("%s- 中 %s" % (indent, zh))
+    return out
+
+
 def build_md(d, groups, recs, exps):
     L = ["# arXiv 新论文摘要\n",
          "覆盖范围：%s ｜ 共 %d 篇 ｜ 生成于 %s\n"
@@ -560,8 +626,7 @@ def build_md(d, groups, recs, exps):
         L.append("%d. **[%s](%s)** `%s` · %s · %s · %.1f 分"
                  % (i, r.get("title", ""), pdf_url(r["id"]), r["id"],
                     r.get("primary", ""), r.get("published", ""), r.get("score", 0)))
-        if r.get("summary"):
-            L.append("   - %s" % r["summary"])
+        L += md_summ_lines(r.get("summary_en"), r.get("summary"), r.get("abstract", ""))
         L.append("   - **推荐理由：** %s" % (r.get("note") or ""))
     if exps:
         L.append("\n## 🌱 兴趣扩展\n")
@@ -569,8 +634,7 @@ def build_md(d, groups, recs, exps):
             L.append("%d. **[%s](%s)** `%s` · %s · %s"
                      % (i, r.get("title", ""), pdf_url(r["id"]), r["id"],
                         r.get("primary", ""), r.get("published", "")))
-            if r.get("summary"):
-                L.append("   - %s" % r["summary"])
+            L += md_summ_lines(r.get("summary_en"), r.get("summary"), r.get("abstract", ""))
             L.append("   - **推荐理由：** %s" % (r.get("note") or ""))
     L.append("\n| 分类 | 方向 | 篇数 |\n|---|---|---|")
     for c in d.get("categories", []):
@@ -583,8 +647,8 @@ def build_md(d, groups, recs, exps):
             L.append("- `%s` **[%s](%s)** — %s · %s"
                      % (p["_sid"], p["title"], p.get("pdf") or pdf_url(p["_sid"]),
                         p.get("published", "")[:10], short_authors(p)))
-            if p.get("_summary"):
-                L.append("  - %s" % p["_summary"])
+            L += md_summ_lines(p.get("_summary_en"), p.get("_summary"),
+                               p.get("abstract", ""), indent="  ")
             if p.get("_hl"):
                 L.append("  - **看点：** %s" % p["_hl"])
         L.append("")
@@ -623,6 +687,7 @@ FAV_PAGE = read_template("favorites.html")
 
 def build_favorites(lib):
     load_affiliations()
+    load_abstracts_zh()
     invalidate_cat_names()
     cfg = pu.load_config()
     favs = lib.get("favorites", {})
@@ -643,7 +708,8 @@ def build_favorites(lib):
             '<div class="acts">'
             '<button class="btn fav on" data-act="fav" data-sid="%s"><span class="ico">★</span><span class="lb">已收藏</span></button>'
             '<button class="btn dl %s" data-act="dl" data-sid="%s"><span class="ico">⬇</span><span class="lb">%s</span></button>'
-            '<button class="btn ab" data-act="abs" data-sid="%s"><span class="ico">▸</span><span class="lb">Abstract</span></button>'
+            '<button class="btn ab" data-act="abs" data-sid="%s"><span class="ico">▸</span><span class="lb">Abstract (EN)</span></button>'
+            '<button class="btn ab abz" data-act="abszh" data-sid="%s"><span class="ico">▸</span><span class="lb">Abstract (CH)</span></button>'
             '%s'
             '<a class="btn ghost pdf" data-sid="%s" href="%s" target="_blank" rel="noopener">PDF</a>'
             '<button class="btn dv" data-act="dv" data-sid="%s"><span class="ico">👎</span><span class="lb">Downvote</span></button>'
@@ -655,7 +721,7 @@ def build_favorites(lib):
                aff_line(sid),
                esc(dlp or "尚未下载到本地"),
                esc(sid), "done" if dlp else "", esc(sid), "已下载" if dlp else "下载",
-               esc(sid),
+               esc(sid), esc(sid),
                ('<button class="btn" data-open="%s">打开</button>' % esc(sid)) if dlp else "",
                esc(sid), esc(pdf_url(sid)), esc(sid),
                abst_block(sid, f.get("abstract", ""))))

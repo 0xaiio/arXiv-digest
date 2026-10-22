@@ -190,7 +190,8 @@ print(routes.table())      # {'get': [...], 'get_prefix': [...], 'post': [...]}
 
 ### `POST /api/event`
 
-记录非写库的弱信号（页面上的 Abstract / PDF / 打开）。
+记录非写库的弱信号（页面上的 Abstract (EN) / Abstract (CH) / PDF / 打开）。
+两个摘要按钮共用 `action=abstract`：服务端不区分看的是哪个版本。
 
 ```json
 { "id": "2609.09742", "action": "abstract" }

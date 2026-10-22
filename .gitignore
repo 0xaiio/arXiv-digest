@@ -32,6 +32,7 @@ htmlcov/
 /config.json
 /interests.json
 /presets/*/summaries.json
+/presets/*/abstracts_zh.json
 /presets/*/rec_notes.json
 /presets/*/highlights.json
 

@@ -50,7 +50,7 @@
 | 2b | 降级通道 | `fetch_rss.py` | 分类 RSS | 增量合并进上面两个池 | 静默失败，下游继续用旧池 |
 | 3 | 打分与选取 | `recommend.py` | 两个池 + `interests.json` + `profile_state.json` + `archive.db` | `recommend.json` / `expand.json` / `papers_index.json` / `issue_*.json` | 中止（无数据无法渲染） |
 | 4 | 作者单位 | `fetch_affil.py` | 本期推荐 + 扩展 | `affiliations.json` | 跳过该步，页面不显示单位 |
-| 5 | 渲染 | `build_report.py` | 上面全部 + `summaries.json` 等 | 当期 HTML/MD + 收藏页 + 存档页 + 归档 | 记录异常，不回滚已生成文件 |
+| 5 | 渲染 | `build_report.py` | 上面全部 + `summaries.json` / `abstracts_zh.json` 等 | 当期 HTML/MD + 收藏页 + 存档页 + 归档 | 记录异常，不回滚已生成文件 |
 | 6 | 确保服务 | `ensure_server()` | `config.port` | 后台进程 | 打印 URL，不阻塞 |
 
 关键设计：**阶段间只通过文件通信**。没有内存中的长生命周期对象，因此任何一步都可以单独重跑，

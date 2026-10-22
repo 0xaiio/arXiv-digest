@@ -91,7 +91,7 @@
 | `core` | `config.json`、`interests.json` | 类别选择、下载目录、推荐参数、画像 | 中（画像即研究方向） | 强（可直接用） |
 | `usage` | `library.json` | 收藏 / 下载记录 / Downvote | 高（阅读史 + 本机绝对路径） | 弱（路径失效，清单有价值） |
 | `learning` | `profile_state.json`、`behavior.json` | 行为学习聚合与流水 | 高（逐条点击行为） | 弱（是本机训练的产物） |
-| `notes` | `summaries.json`、`rec_notes.json`、`highlights.json` | 中文摘要、推荐理由、看点 | 中（编辑性内容） | 中（按 arXiv 短号，可直接用） |
+| `notes` | `summaries.json`、`abstracts_zh.json`、`rec_notes.json`、`highlights.json` | 双语简介、摘要的中文译文、推荐理由、看点 | 中（编辑性内容） | 中（按 arXiv 短号，可直接用） |
 
 分组不只是为了"选择性导出"，更是**导入语义的分界线**：`usage` / `notes` 是并集合并，
 `core` 是整文件替换，`learning` 是唯一"覆盖本机学习结果"的动作，因此默认不导入。
@@ -136,7 +136,8 @@ presets/
    ├─ library.json         # usage（可选；.gitignore 已排除，不会误提交）
    ├─ profile_state.json   # learning（可选，同上）
    ├─ behavior.json        # learning（可选，同上）
-   ├─ summaries.json       # notes（可选，同上）
+   ├─ summaries.json       # notes（可选，同上）：双语简介
+   ├─ abstracts_zh.json    # notes（可选，同上）：摘要的中文译文
    ├─ README.md            # 人读说明
    └─ legacy/              # 该包配套的一次性脚本（可选，不参与导入）
 ```

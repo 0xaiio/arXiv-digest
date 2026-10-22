@@ -295,23 +295,32 @@ python tools/backfill_archive.py
 
 ---
 
-## 六、中文摘要缺失
+## 六、简介 / 摘要译文缺失
 
-**症状**：卡片没有中文摘要，或显示英文原文。
+**症状**：卡片简介只有一行（说明双语里缺了一半）；点「Abstract (CH)」展开后看到
+"还没有中文摘要译文"的提示。
 
 **诊断**
 
 ```bash
-python tools/gen_pending.py --limit 20    # 导出缺摘要清单到 output/_pending.txt
+python tools/gen_pending.py --limit 20        # 缺中文简介
+python tools/gen_pending.py --en --limit 20   # 缺英文简介
+python tools/gen_pending.py --abs --limit 20  # 缺中文摘要译文
 ```
 
-**修复**：按清单补写 `output/summaries.json`：
+**修复**：按清单补写对应文件（key 一律 arXiv 短号）：
 
 ```jsonc
-{ "2609.09742": "一段中文摘要（value 必须是纯字符串）" }
+// summaries.json：双语简介，英文优先复用摘要里的原始句子
+{ "2609.09742": { "en": "We study isolation level ...", "zh": "研究事务的隔离级别……" } }
+
+// abstracts_zh.json：英文完整摘要对应的中文译文
+{ "2609.09742": "我们研究了……（完整摘要的译文）" }
 ```
 
-写错成对象（`{"title": "...", "summary": "..."}`）会让渲染端抛 `AttributeError`。
+三种写法都合法：双语对象、只写 `zh`、或旧的单语字符串（含汉字算中文、否则算英文）。
+只有**写成了别的对象形状**（如 `{"title": "...", "summary": "..."}`）才会取不到内容——
+`en` / `zh` 两个键都取不到时就等于没写。
 补完重跑 `python recommend.py && python build_report.py`。
 
 ---

@@ -22,7 +22,7 @@ output/
 ├─ papers_index.json                 # 前端重排用的索引（含每篇 base/tv/toks/pen）
 ├─ scores.json                       # 全池打分（排查用）
 ├─ affiliations.json                 # 作者单位（跨日累积）
-├─ summaries.json / rec_notes.json / highlights.json / themes.json
+├─ summaries.json / abstracts_zh.json / rec_notes.json / highlights.json / themes.json
 ├─ library.json                      # 收藏 / 下载 / Downvote
 ├─ profile_state.json                # 行为学习状态
 ├─ behavior.json                     # 行为流水（最近 2000 条）
@@ -87,8 +87,9 @@ output/
   "primary": "cs.DB",
   "cats": ["cs.DB", "cs.LO"],
   "published": "2026-09-09",
-  "abstract": "...",             // ≤1400 字符
-  "summary": "中文摘要（若已补）",
+  "abstract": "...",             // ≤1400 字符，英文原文
+  "summary": "中文简介（若已补）",
+  "summary_en": "英文简介（若已补；缺失时页面用摘要开头兜底）",
   "score": 23.4,
   "topics": ["事务与隔离级别"],   // 命中的主题名，最多 4 个
   "topic_detail": [ { "topic": "...", "raw": 12.0, "title_hits": 2, "abstract_hits": 5 } ],
@@ -106,7 +107,8 @@ output/
 
 | 文件 | 结构 | 说明 |
 | --- | --- | --- |
-| `summaries.json` | `{"<短号>": "中文摘要"}` | **value 必须是纯字符串**。写成对象会让渲染端报 `AttributeError` |
+| `summaries.json` | `{"<短号>": {"en": "...", "zh": "..."}}` | **双语简介**：`en` 在上、`zh` 在下。`en` 优先复用摘要里的原始英文句子（可适度微调），`zh` 是它的中文对应。也接受旧的单语字符串——含汉字算中文、否则算英文，因此**历史文件无需迁移** |
+| `abstracts_zh.json` | `{"<短号>": "英文摘要的中文译文"}` | 点「Abstract (CH)」时展示的**完整摘要中文译文**（不是简介）。缺失时该按钮展开后给出补写提示，不隐藏按钮 |
 | `rec_notes.json` | `{"<短号>": "推荐理由"}` | 覆盖默认的"命中：xxx"文案 |
 | `highlights.json` | `{"<短号>": "一句话看点"}` | 重点论文块用 |
 | `themes.json` | 数组 | 当期主题归纳 |
@@ -114,6 +116,11 @@ output/
 
 这些文件的 key **一律用 arXiv 短号**（不带版本、不带分类前缀）。补完后要重跑
 `recommend.py`（重新读它们）与 `build_report.py`（重新渲染）。
+
+> 简介是**摘要的核心内容**（非完整摘要），摘要才是全文：两者分开放、分别可补。
+> `summaries.json` 只写一半也是合法的——缺 `en` 时页面用摘要开头若干完整句子兜底，
+> 缺 `zh` 时该篇只显示英文一行。要批量找缺口：`python tools/gen_pending.py`（中文简介）、
+> `--en`（英文简介）、`--abs`（中文摘要译文）。
 
 ## 五、`library.json`
 
@@ -216,7 +223,7 @@ output/
 | `__pycache__/` | Python 字节码 |
 
 **不要**删：`raw*.json`（累积池）、`library.json`、`archive.db`、`archive/`、
-`profile_state.json`、`summaries.json`、`rec_notes.json`。
+`profile_state.json`、`summaries.json`、`abstracts_zh.json`、`rec_notes.json`。
 
 ## 十一、PDF 文件的命名
 
@@ -243,7 +250,7 @@ arXiv<年> <短号> <去标点标题>.pdf
 | `library.json` | usage | 同第五节的 `library.json` | 收藏 / 下载记录 / Downvote |
 | `profile_state.json` | learning | `{topic_mult, kw, paper_bonus, counts, updated_at}` | 行为学习聚合 |
 | `behavior.json` | learning | 数组，最近 2000 条 | 行为流水 |
-| `summaries.json` / `rec_notes.json` / `highlights.json` | notes | 见第四节的编辑性内容 | 编辑性内容 |
+| `summaries.json` / `abstracts_zh.json` / `rec_notes.json` / `highlights.json` | notes | 见第四节的编辑性内容 | 编辑性内容 |
 | `meta.json` | — | `{title, description, exported_at}` | 旧版清单，仍可读；导出时会补出 `manifest.json` |
 | `README.md` / `legacy/` | — | — | 人读说明与一次性脚本，不参与导入 |
 

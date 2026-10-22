@@ -103,7 +103,10 @@ def main():
         sid = short_id(p)
         f = features(p, topics, neg_w, neg_rx, people, systems, kwmap)
         s = score(f, topics, kwmap, pens.get(sid, 0.0))
-        summ = summaries.get(sid) or summaries.get("%s#%s" % (key_prefix, "")) or ""
+        # 简介是双语的：en 走 `summary_en`，zh 走 `summary`（历史单语文件按
+        # 是否含汉字自动归位，见 paperutil.split_bilingual）。
+        summ_en, summ_zh = pu.split_bilingual(
+            summaries.get(sid) or summaries.get("%s#%s" % (key_prefix, "")) or "")
         return {
             "id": sid,
             "title": p.get("title", ""),
@@ -112,7 +115,8 @@ def main():
             "cats": p.get("cats", []),
             "published": (p.get("published") or "")[:10],
             "abstract": (p.get("abstract") or "")[:1400],
-            "summary": summ,
+            "summary": summ_zh,
+            "summary_en": summ_en,
             "score": round(s, 1),
             "topics": [d["topic"] for d in f["detail"][:4]],
             "topic_detail": f["detail"][:4],
@@ -264,7 +268,8 @@ def main():
         "pens": {k: v for k, v in pens.items() if v},
         "papers": [{k: v for k, v in s.items()
                     if k in ("id", "title", "authors", "primary", "cats", "published",
-                             "abstract", "summary", "tv", "base", "toks", "pen", "pdf",
+                             "abstract", "summary", "summary_en", "tv", "base", "toks",
+                             "pen", "pdf",
                              "topics", "familiar_authors", "systems")}
                    for s in scored + expand_all[:80]],
         "expand_ids": [s["id"] for s in expand_all[:80]],

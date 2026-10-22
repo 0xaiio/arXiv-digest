@@ -7,6 +7,50 @@
 
 ---
 
+## 2026-10-22（简介双语 + 摘要拆成 EN / CH 两个版本）
+
+此前「简介」的写法不统一：有的纯中文、有的纯英文，混在一屏里读起来要不断切换语感。
+本次把它定成一条规则：**简介 = 摘要核心内容（非完整摘要）的双语版，英文在上、中文在下**，
+英文优先复用摘要里的原始句子；**摘要**则拆成英文原文与中文译文两版，
+`Abstract` 按钮改为 `Abstract (EN)`，右侧新增 `Abstract (CH)`。
+
+### 新增
+
+- **`abstracts_zh.json`**（`output/`，`{短号: 中文译文}`）：英文完整摘要对应的中文译文，
+  由 `Abstract (CH)` 展示。属于 `notes` 分组（与简介同为编辑性内容，导入只做并集），
+  `.gitignore` 按路径排除。
+- **`summary_en`**：`recommend.json` / `papers_index.json` 的推荐项新增该字段；
+  `summaries.json` 的 value 支持 `{"en": ..., "zh": ...}`，未写 `en` 时用
+  `paperutil.en_excerpt()` 取摘要开头若干**完整句子**兜底（按 `.!?` 切句并避开 `et al.` 之类缩写）。
+- **`paperutil.split_bilingual()` / `has_cjk()`**：单语 value 按是否含汉字自动归位，
+  因此**历史单语文件不需要迁移**——含汉字算中文、否则算英文。
+- **`tools/gen_pending.py` 的三个缺口模式**：默认缺中文简介、`--en` 缺英文简介、
+  `--abs` 缺中文摘要译文（`--abs` 的摘要截取默认放宽到 1200 字符，因为要译全文）。
+
+### 变更
+
+- **两个摘要按钮互斥展开**（`app.js` 的 `toggleAbs`）：同时展开会把卡片撑成两倍高。
+  选元素改用 `[id="ab-<短号>"]` 属性匹配——短号里的点会被 `#id` 选择器当成类选择器，
+  旧实现用 `getElementById` 才没暴露这个问题；同时改为展开**全部**同名块
+  （同一篇会同时出现在推荐卡 / 分类条目 / 高亮块）。
+- **Markdown 导出同步双语**：`- EN …` 与 `- 中 …` 两行，顺序与页面一致。
+- 页面说明（推荐区副标题、页脚）与收藏页 / 存档页文案同步为新按钮名。
+
+### 文档
+
+- `docs/reference/data-files.md`：目录一览、`recommend.json` 字段、第四节编辑性内容
+  （双语结构 + 缺一侧的兜底行为）、不可删清单、包文件表；
+- `docs/guide/daily-workflow.md`：卡片元素表新增「简介（两行）」，按钮表拆成 EN / CH 两行；
+- `docs/getting-started/quickstart.md`、`docs/guide/profile-tuning.md`：按钮名与动作说明；
+- `docs/reference/cli.md`：`gen_pending.py` 三个模式 + 补写规则（含旧单语写法仍可读）；
+- `docs/operations/troleshooting.md`：第六节改为「简介 / 摘要译文缺失」，含三种缺口的诊断命令；
+- `docs/meta/glossary.md`：新增「简介」「摘要译文」两个术语；
+- `docs/meta/faq.md`、`docs/architecture/overview.md`、`docs/guide/presets.md`、
+  `docs/architecture/data-isolation.md`：手工补写的原因、渲染输入、notes 分组文件清单；
+- `.gitignore`：`/presets/*/abstracts_zh.json` 与简介一样按路径排除。
+
+---
+
 ## 2026-10-22（合集挂载：20080 不是整批成功，判重改看稿件详情）
 
 本期视频 `BV1yQn16oEb3` 的合集挂载一路报成功，实际**从未挂上**：

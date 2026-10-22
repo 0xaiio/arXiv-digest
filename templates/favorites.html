@@ -57,7 +57,7 @@ document.addEventListener('click',function(ev){
  var b=ev.target.closest('button[data-act]');
  if(b){ev.preventDefault();var a=b.dataset.act,sid=b.dataset.sid;
   if(a==='fav')toggleFav(sid);else if(a==='dl')doDl(sid,b);
-  else if(a==='abs')toggleAbs(sid,b);else if(a==='dv')toggleDv(sid,b);return;}
+  else if(a==='abs'||a==='abszh')toggleAbs(sid,a);else if(a==='dv')toggleDv(sid,b);return;}
  var o=ev.target.closest('button[data-open]');if(o){openPaper(o.dataset.open);return;}
  var p=ev.target.closest('a.pdf[data-sid]');if(p){track(p.dataset.sid,'pdf');}});
 </script>

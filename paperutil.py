@@ -118,6 +118,75 @@ def short_id(p):
     return re.sub(r"v\d+$", "", s)
 
 
+# ---------------------------------------------------------------- 双语简介
+# 简介（summaries.json）与摘要（abstract）现在都是双语：页面上「英文在上、中文在下」。
+# 归一化放在这里而不是渲染层，是因为 recommend.py（打包进 papers_index）与
+# build_report.py（渲染）读的是同一份 summaries.json，两处必须得到同一个结果。
+_CJK_RE = re.compile(r"[㐀-䶿一-鿿豈-﫿]")
+
+# 句子切分要避开的缩写：否则 "et al." 后面会被当成一句的结束，
+# 英文简介会在半句处被截断。
+_ABBREV = ("et al.", "e.g.", "i.e.", "cf.", "vs.", "fig.", "approx.", "etc.")
+
+
+def has_cjk(text):
+    """字符串里是否含汉字（判断一段人工简介是中文还是英文）。"""
+    return bool(_CJK_RE.search(str(text or "")))
+
+
+def split_bilingual(v):
+    """把 `summaries.json` 的一个 value 归一成 `(en, zh)`。
+
+    两种形态都接受，因此历史文件**不需要迁移**：
+
+      - `{"en": "...", "zh": "..."}` —— 双语（新格式，推荐）
+      - `"..."` —— 单语，按是否含汉字归位（含汉字算中文，否则算英文）
+
+    兼容单语是硬要求：早期一批简介是纯中文、一批是纯英文，格式统一之前
+    必须先让它们各自落在正确的位置上，而不是全部塞进中文行。
+    """
+    if isinstance(v, dict):
+        return (str(v.get("en") or "").strip(), str(v.get("zh") or "").strip())
+    s = str(v or "").strip()
+    return ("", s) if has_cjk(s) else (s, "")
+
+
+def _sentences(text):
+    parts = re.split(r"(?<=[.!?])\s+(?=[A-Z0-9\"'(])", text)
+    out = []
+    for p in parts:
+        if out and out[-1].lower().endswith(_ABBREV):
+            out[-1] = out[-1] + " " + p        # 缩写后的 "句点" 不是句末
+        else:
+            out.append(p)
+    return out
+
+
+def en_excerpt(abstract, max_chars=260):
+    """从英文摘要开头取若干**完整句子**，作为英文简介的兜底。
+
+    只在 `summaries.json` 没写 `en` 时用：摘要原句就是「摘要核心内容的英文版」，
+    用它兜底可以让双语版面从第一天起就成立，而不必先翻译全部历史条目。
+    宁可短也不截断在半句：取到一半长度就停，超长再硬截并补省略号。
+    """
+    text = " ".join(str(abstract or "").split())
+    if not text:
+        return ""
+    if len(text) <= max_chars:
+        return text
+    out = []
+    for p in _sentences(text):
+        out.append(p)
+        if len(" ".join(out)) >= max_chars * 0.5:
+            break
+    joined = " ".join(out).rstrip(" .,")
+    if len(joined) > max_chars:
+        joined = joined[:max_chars].rstrip(" .,")
+    if joined and not joined.endswith("…"):
+        joined += "…"
+    return joined
+
+
 _ILLEGAL = r'<>:"/\|?*'
 _KEEP_SOFT = "-_."
 

@@ -85,10 +85,22 @@ function toggleDv(sid){
   applyProfile(r.profile);
   toast(on?'已 Downvote：'+sid+'（变灰划线，再点一次可撤销）':'已撤销 Downvote：'+sid,'ok');
   queueResort();});}
-function toggleAbs(sid,btn){var box=document.getElementById('ab-'+sid);if(!box)return;
- var open=!box.classList.contains('open');box.classList.toggle('open',open);
- document.querySelectorAll('[data-act="abs"][data-sid="'+sid+'"]').forEach(function(b){
-  b.classList.toggle('open',open);var ic=b.querySelector('.ico');if(ic)ic.textContent=open?'▾':'▸';});
+/* 摘要有两个版本：EN（arXiv 原文）与 CH（中文译文），两个按钮互斥展开 ——
+   同时展开会把卡片撑成两倍高，读的人要在两段之间来回找。
+   注意不能用 '#ab-2609.10001' 这类选择器：短号里的点会被解析成类选择器，
+   必须用按 id 属性精确匹配的形式。同一篇可能出现在推荐卡 / 分类条目 / 高亮块，
+   所以取的是**全部**同 id 的块，而不只是第一个。 */
+function absId(sid,zh){return (zh?'abz-':'ab-')+sid;}
+function toggleAbs(sid,act){
+ var zh=act==='abszh', mine=absId(sid,zh), other=absId(sid,!zh);
+ var boxes=document.querySelectorAll('[id="'+mine+'"]');if(!boxes.length)return;
+ var open=!boxes[0].classList.contains('open');
+ document.querySelectorAll('[id="'+other+'"]').forEach(function(b){b.classList.remove('open');});
+ boxes.forEach(function(b){b.classList.toggle('open',open);});
+ document.querySelectorAll('[data-sid="'+sid+'"]').forEach(function(b){
+  if(b.dataset.act!=='abs'&&b.dataset.act!=='abszh')return;
+  var on=open&&((b.dataset.act==='abszh')===zh);
+  b.classList.toggle('open',on);var ic=b.querySelector('.ico');if(ic)ic.textContent=on?'▾':'▸';});
  if(open)track(sid,'abstract');}
 async function dlAll(){var ids=[];document.querySelectorAll('#rec-list .rec-card:not(.hidden):not(.down),#exp-list .rec-card:not(.hidden):not(.down)').forEach(function(e){ids.push(e.dataset.sid);});
  if(!ids.length){toast('没有可下载的推荐','err');return;}
@@ -189,7 +201,7 @@ document.addEventListener('click',function(ev){
  var b=ev.target.closest('button[data-act]');
  if(b){ev.preventDefault();var sid=b.dataset.sid,a=b.dataset.act;
   if(a==='fav')toggleFav(sid);else if(a==='dl')doDl(sid,b);
-  else if(a==='abs')toggleAbs(sid,b);else if(a==='dv')toggleDv(sid,b);return;}
+  else if(a==='abs'||a==='abszh')toggleAbs(sid,a);else if(a==='dv')toggleDv(sid,b);return;}
  var p=ev.target.closest('a.pdf[data-sid]');if(p){track(p.dataset.sid,'pdf');return;}
  var o=ev.target.closest('button[data-open]');if(o){openPaper(o.dataset.open);}});
 document.addEventListener('DOMContentLoaded',function(){

@@ -19,7 +19,8 @@ presets/
    ├─ library.json         # usage（可选）：收藏 / 下载记录 / Downvote
    ├─ profile_state.json   # learning（可选）：行为学习的聚合结果
    ├─ behavior.json        # learning（可选）：行为流水
-   ├─ summaries.json       # notes（可选）：中文摘要
+   ├─ summaries.json       # notes（可选）：双语简介（en / zh）
+   ├─ abstracts_zh.json    # notes（可选）：摘要的中文译文
    ├─ rec_notes.json       # notes（可选）：推荐理由
    ├─ highlights.json      # notes（可选）：看点
    ├─ README.md            # 人读的说明（界面刻意不渲染包内容，这里是唯一入口）
@@ -35,7 +36,7 @@ presets/
 | --- | --- | --- | --- |
 | `core` | `config.json`、`interests.json` | 整文件替换；**本机已有不同内容时拒绝**，需 `--force` | ✅ |
 | `usage` | `library.json` | **并集**，同名条目保留本机（本机路径才有效） | ✅ |
-| `notes` | `summaries.json`、`rec_notes.json`、`highlights.json` | **并集**，同名条目保留本机 | ✅ |
+| `notes` | `summaries.json`、`abstracts_zh.json`、`rec_notes.json`、`highlights.json` | **并集**，同名条目保留本机 | ✅ |
 | `learning` | `profile_state.json`、`behavior.json` | 覆盖（先备份）；它是本机训练出来的结果 | ❌ |
 
 ## 二、三个入口，同一套语义
@@ -151,7 +152,7 @@ python tools/preset.py export myown --keep-paths       # 保留绝对路径（�
 | `config.json` 的 `download_dir` | 常含本机绝对路径与用户名；`export` 默认已改成 `papers` |
 | `library.json` 的 `downloads[].path` | 同上；默认只在 `--with-usage` 时导出，且裁剪为文件名 |
 | `interests.json` 的 `owners[].site` / `affiliation` | 公开主页可以，但要确认你愿意公开 |
-| `summaries.json` / `rec_notes.json` | 你的读书笔记，可能含内部项目名或未发表想法 |
+| `summaries.json` / `abstracts_zh.json` / `rec_notes.json` | 你的读书笔记，可能含内部项目名或未发表想法 |
 | 任何 `output/` 内容 | 已整体被忽略，不要 `git add -f` 强加 |
 | `.secrets/`、`*cookie*.json` | 登录凭据，永不入库 |
 

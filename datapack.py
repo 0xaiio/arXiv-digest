@@ -37,7 +37,8 @@ import paths
 CORE = ("config.json", "interests.json")
 USAGE = ("library.json",)
 LEARNING = ("profile_state.json", "behavior.json")
-NOTES = ("summaries.json", "rec_notes.json", "highlights.json")
+# 摘要的中文译文与简介同属「编辑性内容」：都是人写/人校对的文字，导入只做并集。
+NOTES = ("summaries.json", "abstracts_zh.json", "rec_notes.json", "highlights.json")
 GROUPS = {"core": CORE, "usage": USAGE, "learning": LEARNING, "notes": NOTES}
 GROUP_ORDER = ("core", "usage", "learning", "notes")
 ALL_FILES = tuple(f for g in GROUP_ORDER for f in GROUPS[g])

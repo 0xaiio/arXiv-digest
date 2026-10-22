@@ -68,6 +68,45 @@ def test_no_javascript_errors_on_load(seeded, http, browser):
     assert errors == []
 
 
+def test_abstract_en_and_ch_are_mutually_exclusive(seeded, http, browser):
+    """两个摘要按钮：点 EN 只开 EN，点 CH 只开 CH，再点收起。
+
+    这一条只能在浏览器里验：短号里的点会让 `#ab-<sid>` 选择器被解析成「id + 类」，
+    静态检查看不出来，只有真点一次才知道选中的元素对不对。
+    """
+    import build_report as B
+    import recommend as R
+
+    seeded.write("abstracts_zh.json", {"2609.10001": "中文译文：研究事务的隔离级别。"})
+    seeded.write("summaries.json",
+                 {"2609.10001": {"en": "We study isolation levels.",
+                                 "zh": "研究事务的隔离级别。"}})
+    R.main()
+    B.main()
+    browser.goto(http.base + "/")
+
+    def opened(which):
+        return browser.evaluate(
+            "!!document.querySelector('[id=\"%s2609.10001\"]').classList.contains('open')"
+            % ("abz-" if which == "ch" else "ab-"))
+
+    assert not opened("en") and not opened("ch"), "初始都收起"
+
+    click(browser, "[data-sid='2609.10001']", "abs")
+    time.sleep(0.4)
+    assert opened("en") and not opened("ch")
+
+    click(browser, "[data-sid='2609.10001']", "abszh")
+    time.sleep(0.4)
+    assert opened("ch") and not opened("en"), "两个版本互斥，不能同时展开"
+    assert "中文译文" in browser.evaluate(
+        "document.querySelector('[id=\"abz-2609.10001\"]').textContent")
+
+    click(browser, "[data-sid='2609.10001']", "abszh")
+    time.sleep(0.4)
+    assert not opened("ch"), "再点一次收起"
+
+
 def test_favorite_button_roundtrip_in_browser(seeded, http, browser):
     """点收藏 → 按钮变「已收藏」；再点 → 取消。"""
     import build_report as B
