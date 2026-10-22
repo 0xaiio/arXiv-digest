@@ -299,7 +299,7 @@ FAILED tests/unit/test_x.py::test_y - AssertionError: 权重翻倍后分数必�
 
 ## 十一、保持全绿
 
-红线：**主分支上 `python -m pytest` 必须始终 720 passed、覆盖率 ≥ 85%。**
+红线：**主分支上 `python -m pytest` 必须始终 825 passed、覆盖率 ≥ 85%。**
 
 改代码时的最小自查表：
 
