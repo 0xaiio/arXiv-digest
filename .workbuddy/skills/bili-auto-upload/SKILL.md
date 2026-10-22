@@ -109,14 +109,19 @@ python tools/bili_collection.py sync --exec   # 建合集(若不存在)+ 挂载�
 
 `create` / `add` / `sync` 默认 dry-run，**必须 `--exec` 才真正写 B站**。脚本幂等：`sync` 只补未挂载的视频，已挂载的自动跳过，可每次投稿后无脑重跑。
 
-**已建合集（2026-10-17）**：`season_id=9343347`，默认小节「正片」`section_id=10455435`，封面 `https://archive.biliimg.com/bfs/archive/acbddc1265c5c8ddac0c07d53545fd4fede505b8.jpg`。已挂载 4 期（20261002/1006/1009/1014）。
+**已建合集（2026-10-17）**：`season_id=9343347`，默认小节「正片」`section_id=10455435`，封面 `https://archive.biliimg.com/bfs/archive/acbddc1265c5c8ddac0c07d53545fd4fede505b8.jpg`。截至 2026-10-22 已挂 6 期（20261002/1006/1009/1014/1020/1022）。
+
+**判重与校验（2026-10-22 修正，务必照此）**：
+- **真值看稿件详情**：`x/web-interface/view?aid=<aid>` 的 `data.season_id`（或 `data.ugc_season.id`）等于 `9343347` 才算已挂载。member 的 `seasons` 列表是 CDN 缓存快照，会漏新条目。
+- **`code 20080` 是整批级拒绝**：批次里只要有一条已在合集，服务端就回 20080 且**整批都不挂**。批量时不能当成功，要逐条重投（脚本已实现）。曾因此静默丢稿：`sync` 报成功但 `BV1yQn16oEb3` 的 `season_id` 一直是 `None`。
+- **挂完必须回读校验**：`view` 接口也有缓存（数十秒），所以重试 5 次×3s；仍不归属就非零退出。
 
 **两个接口坑（2026-10-17 实测）**：
 - 封面上传 `POST /x/vu/web/cover/up`：**不是 multipart**，必须 `Content-Type: application/x-www-form-urlencoded`，正文 `csrf` + `cover=data:image/jpeg;base64,<bytes>`（带 data URI 前缀），URL 带 `ts=毫秒时间戳`。用 multipart 的 `file` 字段会报 `-400 请求错误`。
 - 建合集 `POST /x2/creative/web/season/add` 必填 `cover`（图床 URL）、`csrf`，且**触发人工审核**（state -6，通常很快过）；默认自动生成「正片」小节。
 - 加视频 `POST /x2/creative/web/season/section/episodes/add?csrf=...` 需 `sectionId` + 每集 `aid`/`cid`（cid 取自 `x/web-interface/view?aid=`）。
 
-**未来自动投稿**：自动化 `af055043`（prompt v8）在 `bili_upload.py verify` 成功后追加 `python tools/bili_collection.py sync --exec`，把新视频挂进合集。
+**未来自动投稿**：自动化 `af055043`（prompt v9）在 `bili_upload.py verify` 成功后追加 `python tools/bili_collection.py sync --exec`，把新视频挂进合集。
 
 ## 已知坑
 

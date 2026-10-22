@@ -1,5 +1,6 @@
 [run]
-# 只统计 13 个主流程模块（测试自身、tmp 沙箱、output 产物都不应计入分母）
+# 只统计项目自身的应用代码（测试自身、tmp 沙箱、output 产物、CLI 工具、数据包、
+# 以及 .workbuddy/ 下的技能脚本都不应计入分母）
 source = .
 omit =
     tests/*
@@ -7,9 +8,10 @@ omit =
     output/*
     tools/*
     presets/*
+    .workbuddy/*
 
 [report]
-# 门槛：整体行覆盖率不得低于 85%。当前实测 87%（见 docs/contributing/testing.md）
+# 门槛：整体行覆盖率不得低于 85%。当前实测 91%（见 docs/contributing/testing.md）
 fail_under = 85
 show_missing = True
 skip_covered = False

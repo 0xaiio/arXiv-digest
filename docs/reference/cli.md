@@ -101,7 +101,7 @@ python run_daily.py --preset hengxin --categories cs.LG   # 用这份画像，�
 | --- | --- | --- |
 | `bili_tv_qr_login.py` | `--wait <秒>` | TV 通道扫码登录，写 `.secrets/bili_cookies.json`（**推荐**） |
 | `bili_qr_login.py` | `--wait <秒>` | Web 通道扫码（拿不到 App `access_token`，仅排错用） |
-| `bili_collection.py` | `videos` / `collections`（只读）；`cover` / `create` / `add` / `sync`（默认 dry-run，需 `--exec`） | 管理合集 `arXiv-daily`；`sync` 幂等，只补未挂载（`code 20080` 视为已挂载成功） |
+| `bili_collection.py` | `videos` / `collections`（只读）；`cover` / `create` / `add` / `sync`（默认 dry-run，需 `--exec`） | 管理合集 `arXiv-daily`；`sync` 幂等，只补未挂载。判据用稿件详情的 `season_id`（绕过合集列表缓存），挂完回读校验。`code 20080` 是**整批级**拒绝，收到后逐条重投，不当整批成功 |
 | `bili_upload.py` | 在 `.workbuddy/skills/bili-auto-upload/scripts/`；子命令 `check/meta/cover/upload/verify/comment`，`-d <期号>`，`--exec` 才真正执行；`--line <线路>` 指定上传线路（默认自动探测） | 投稿与投稿后对账。标题/标签由当期入选论文的分类推出（不再写死领域名） |
 
 ### 数据修复

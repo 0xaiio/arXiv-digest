@@ -7,6 +7,55 @@
 
 ---
 
+## 2026-10-22（合集挂载：20080 不是整批成功，判重改看稿件详情）
+
+本期视频 `BV1yQn16oEb3` 的合集挂载一路报成功，实际**从未挂上**：
+`tools/bili_collection.py sync --exec` 每轮把 20261020 与 20261022 一起作为「待挂载」提交，
+服务端因 20261020 已在合集中返回 `code 20080`，脚本把这条当「幂等成功」直接 `return True`，
+于是整批（含真正缺的 20261022）被静默丢弃。判据是稿件详情：
+`x/web-interface/view?aid=117482807430140` 的 `season_id` 一直是 `None`，
+而 20261020 的老稿是 `9343347`——**20080 是整批级拒绝，不是逐条报告**。
+
+### 修复
+
+- **`add_episodes()` 收到 20080 不再当整批成功**：仅在单条重投时视为幂等成功；
+  批量时降级为**逐条重投**，已在的跳过、缺的补上，任一真错误（如 `-400`）即整体失败；
+- **判重改看稿件详情**：新增 `season_of()` / `view_info()`，用 `data.season_id`
+  （或 `data.ugc_season.id`）判断归属，绕过 member `seasons` 列表的缓存快照——
+  这是「每轮重复重投同一批」的根因；
+- **挂完回读校验**：新增 `verify_membership()` / `verify_membership_settled()`，
+  `_finish_add()` 挂载后重新读每个 aid 的 `season_id`，仍不归属则打印
+  `[FAIL] 仍不在合集 season … 内` 并以非零码退出，让自动化下一轮继续补；
+  因稿件详情接口也有 CDN 缓存，校验重试 `VERIFY_ATTEMPTS=5` × `VERIFY_DELAY_SEC=3s`；
+- **`plan_episodes()` 合并成一次请求**：原先 `season_of` 与 `get_cid` 各发一次
+  `view` 请求，现在取一次 `view_info` 同时得到 `cid` 与归属；顺手删掉 `cmd_sync` 里
+  从未使用的 `created_now`；
+- **覆盖率分母收窄**：`tests/unit/test_bili_meta.py` 用 `importlib` 加载
+  `.workbuddy/skills/bili-auto-upload/scripts/bili_upload.py` 之后，`source = .` 把这支
+  438 行的技能脚本也纳入了统计（覆盖率 17%），整体从 91% 拖到 83.58%、`fail_under=85`
+  直接失败。`.coveragerc` 的 `omit` 补上 `.workbuddy/*`——技能脚本不是应用代码。
+
+### 变更
+
+- 合集挂载现状（2026-10-22 核对）：`season_id=9343347` 内共 **6/6** 期，
+  含本期 `BV1yQn16oEb3`（20261022）。
+
+### 文档
+
+- `docs/reference/cli.md`：`bili_collection.py` 一行改写——判重看 `season_id`、
+  20080 是整批级拒绝、挂完回读校验；
+- `docs/guide/video-pipeline.md`：第八节补「两个接口都不能只信自己的缓存/返回码」
+  三条判据与本次踩坑记录；
+- `docs/operations/troubleshooting.md`：B 站小节新增「回读 FAIL 但页面能看到」一行
+  （手工核对用 `data.season_id`），并改正 20080 的旧解释；
+- `.workbuddy/skills/bili-auto-upload/SKILL.md`：判重与校验规则、合集已挂 6 期；
+- 用例数 795 → **825**，覆盖率 90.57%（`--cov` 实测）：`README.md`、`docs/index.md`、
+  `docs/contributing/testing.md` 的数字同步；`docs/contributing/testing.md` 与
+  `docs/meta/faq.md` 里过时的沙箱路径 `tmp_pytest/<tag>-<pid>-<seq>/` 改成
+  `<tag>-<随机后缀>/`（`_fresh_dir()` 已改用 `mkdtemp`，pid 复用会继承残留目录）。
+
+---
+
 ## 2026-10-22（语音合成的出网路由：能换路、会记住、失败可补跑）
 
 定时任务在这一轮 TTS 上连撞两次硬失败：12 段旁白合成到第 3 段整轮 traceback，

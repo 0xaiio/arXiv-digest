@@ -127,7 +127,8 @@ python run_daily.py --preset myown
 
 ### 跑测试会动到我自己的数据吗？
 
-不会。每个用例都在 `tmp_pytest/<tag>-<pid>-<seq>/` 下的独立沙箱里跑，
+不会。每个用例都在 `tmp_pytest/<tag>-<随机后缀>/` 下的独立沙箱里跑（`tempfile.mkdtemp` 建目录、
+从不删除——本机沙箱会拦截删除），
 `tests/conftest.py` 把 10 个模块的路径常量全部重定向过去，并**断言**没有任何一个还指向
 真实目录；另有一条测试专门扫描源码，防止新模块绕过这层隔离。
 

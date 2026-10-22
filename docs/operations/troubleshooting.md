@@ -338,7 +338,8 @@ python tools/gen_pending.py --limit 20    # 导出缺摘要清单到 output/_pen
 | `code 601 您上传视频过快` | 账号侧临时频控 | 冷却几分钟，用**原命令**重投，不要改参数 |
 | 登录态失效 | cookie 过期 | 重新 TV 扫码；`biliup renew` 可验证 |
 | 合集里没有新视频 | 没跑 `sync`，或稿件仍在审核（cid 未生成） | `python tools/bili_collection.py sync --exec`；等转码完成后重跑 |
-| `sync` 报 `code 20080 当前稿件已存在在合集中` | 刚刚已挂载成功，只是列表接口缓存导致本地判重没看到 | 属幂等成功，脚本已按成功处理；无需任何操作 |
+| `sync` 报 `code 20080 当前稿件已存在在合集中` | 20080 是**整批级**拒绝：批次里只要有一条已在合集，整批都不挂（不是「整批都已挂好」） | 脚本已自动改为逐条重投，并在挂完后用稿件详情回读校验；仍报 `[FAIL] 仍不在合集` 就重跑 `sync --exec`（本轮真没挂上） |
+| `sync` 报 `[FAIL] 仍不在合集 season ... 内` 但页面里能看到 | 稿件详情接口有 CDN 缓存，刚挂完数十秒内可能还读不到归属 | 脚本会重试 5 次×3s；要手工确认就看 `season_id`：`GET api.bilibili.com/x/web-interface/view?aid=<aid>` 的 `data.season_id` 等于 `9343347` 即为已挂载（`ugc_season` 同理） |
 | 上传报 `error sending request ... tls handshake eof` | 上传线路（upos CDN）的 TLS 握手被出口拦断，**不是账号问题**，也未产生稿件 | 换一条线路重投：`--line bda2`（可选 `bda2/ws/qn/bldsa/tx/txa/bda/alia`），不会重复投稿 |
 
 cookie 等同账号密码：只在 `.secrets/` 里，绝不进日志、提交或外发。

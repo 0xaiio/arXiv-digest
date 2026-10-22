@@ -1,13 +1,13 @@
 # 测试与回归
 
-项目有一套 **pytest 测试套件**：795 个用例，覆盖单元 / 集成 / 端到端 / 浏览器四层，
+项目有一套 **pytest 测试套件**：825 个用例，覆盖单元 / 集成 / 端到端 / 浏览器四层，
 行覆盖率 **91%**（门槛 85%），全量跑完约 80 秒（本机实测）。
 
 运行期仍然**零第三方依赖**——测试依赖只在 `requirements-dev.txt` 里。
 
 ```bash
 python -m pip install -r requirements-dev.txt
-python -m pytest                 # 795 passed
+python -m pytest                 # 825 passed
 python -m pytest --cov           # 附带覆盖率，低于 85% 直接失败
 ```
 
@@ -200,8 +200,9 @@ python -m pytest --cov --cov-report=html   # 另出 output/coverage/index.html
 
 ## 五、沙箱：为什么测试不会碰你的真实数据
 
-每个用例都在 `tmp_pytest/<tag>-<pid>-<seq>/` 下工作，`conftest.py` 把 **10 个模块**的
-路径常量逐个重定向过去：
+每个用例都在 `tmp_pytest/<tag>-<随机后缀>/` 下工作（`_fresh_dir()` 用 `tempfile.mkdtemp`，
+**不能用 `tag-pid-序号`**：沙箱禁删、目录会跨轮次累积，pid 一旦复用就会继承上一轮的残留），
+`conftest.py` 把 **10 个模块**的路径常量逐个重定向过去：
 
 ```
 paperutil.OUT / CONFIG_PATH / LIB_PATH      customize.INTERESTS / EXTRA_PATH
