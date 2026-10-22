@@ -7,6 +7,7 @@ import re
 import time
 
 import paths
+import serveport
 
 HERE = paths.ROOT
 # 路径取值统一来自 paths.py（唯一权威定义）。这里保留同名模块级常量，
@@ -25,7 +26,34 @@ DEFAULT_CONFIG = {
     "max_results_per_cat": 80,
     "top_recommend": 14,
     "port": 8765,
+    "open_browser": True,
 }
+
+# ---------------------------------------------------------------- 运行期端口
+# 服务实际监听的端口可能与 config.port 不同（默认端口被占用时会自动顺延，
+# 见 serveport.find_free_port）。页面里的 APIBASE 必须指向**实际**端口，否则
+# 顺延之后收藏/下载/Downvote 会打到旧端口，表现为「点了没反应」。
+#
+# 为什么放在本模块：build_report 会在每个请求里被 importlib.reload（代码改动即时
+# 生效），模块级变量会被重置；paperutil 只被导入、不会被 reload，这个值才留得住。
+RUNTIME_PORT = None
+
+
+def set_runtime_port(port):
+    """记录本进程实际监听的端口（None = 不知道，按 config.port 走）。"""
+    global RUNTIME_PORT
+    RUNTIME_PORT = serveport.valid_port(port)
+    return RUNTIME_PORT
+
+
+def effective_port(cfg=None):
+    """页面应该指向的端口：运行期实际端口 > config.port > 默认 8765。
+
+    非法配置（手写坏了、字符串、超范围）一律回落默认值，不让下游崩掉。
+    """
+    if RUNTIME_PORT:
+        return RUNTIME_PORT
+    return serveport.configured_port(cfg if isinstance(cfg, dict) else load_config())
 
 
 def seed_from_example(target, example, fallback=None, notice=""):

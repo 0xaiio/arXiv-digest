@@ -40,10 +40,11 @@
 | `expand_window_days` | int | `3` | 扩展抓取的时间窗 |
 | `expand_max_results` | int | `600` | 扩展抓取的全局上限（所有扩展分类合计，防止请求过大） |
 | `affil_targets` | int | `60` | 每期最多解析多少篇的作者单位（约 3 秒/篇，很慢；`--skip-affil` 可整步跳过） |
-| `port` | int | `8765` | 本地服务端口。`server.py`、`start_digest.bat`、`run_daily.py` 都读这里 |
+| `port` | int | `8765` | 本地服务端口（**起始端口**）。`server.py`、`start_digest.bat`、`run_daily.py` 都读这里。被别的进程占用时自动向后顺延（最多 20 个，见 `serveport.SCAN_LIMIT`），实际端口打印在启动日志并写入 `output/server.json`。非法值（非数字、0、>65535）回落到 8765，不会让服务起不来 |
+| `open_browser` | bool | `true` | 服务启动成功后是否自动用默认浏览器打开实际地址。关掉它（`false`）适合服务器 / 定时任务 / 无桌面环境；命令行 `--no-open`（关）、`--open`（开）优先级高于本项。无论开不开，浏览器失败都不会影响服务启动 |
 
 > 注：代码内 `DEFAULT_CONFIG` 只包含最小集（`download_dir`/`categories`/`window_days`/
-> `max_results_per_cat`/`top_recommend`/`port`），其余字段由模板提供。**以模板为准**；
+> `max_results_per_cat`/`top_recommend`/`port`/`open_browser`），其余字段由模板提供。**以模板为准**；
 > 若你手写了一个只含部分字段的 `config.json`，缺失项走代码默认值。
 > `categories` 若不是数组（手写坏了），读出来会被强制成 `[]`，不会让下游崩掉。
 
@@ -79,7 +80,8 @@ config.expand_categories   → fetch_expand.py → raw_expand.json → 「🌱 �
 | `expand_categories` 任意改 | 重新抓取 | 扩展池来自独立抓取 |
 | `top_recommend` / `top_expand` | 重渲染（`--skip-fetch --skip-affil`） | 只是显示条数 |
 | `download_dir` | 立即生效 | 每次下载都重新读配置 |
-| `port` | 重启服务 | 端口在进程启动时绑定 |
+| `port` | 重启服务 | 端口在进程启动时绑定；被占用会自动顺延，所以「启动失败」不再由它引起 |
+| `open_browser` | 重启服务 | 开关只在启动那一刻读取（`--no-open` / `--open` 可临时覆盖） |
 | `window_days` | 重新抓取 | 影响抓取窗口 |
 | `affil_targets` | 重新抓取单位（`fetch_affil.py`） | 每期解析上限 |
 
@@ -101,7 +103,8 @@ config.expand_categories   → fetch_expand.py → raw_expand.json → 「🌱 �
   "expand_window_days": 3,
   "expand_max_results": 400,
   "affil_targets": 40,
-  "port": 8765
+  "port": 8765,                          // 起始端口；被占用会自动顺延
+  "open_browser": true                   // false = 启动后不自动开浏览器
 }
 ```
 

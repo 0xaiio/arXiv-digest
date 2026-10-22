@@ -36,6 +36,14 @@ Edge TTS（Microsoft Edge 的在线朗读服务，免费、中文自然度高）
     python tools/gen_narration.py                 # 生成全部段落
     python tools/gen_narration.py --voice zh-CN-XiaoxiaoNeural
     python tools/gen_narration.py --no-tts        # 只生成稿件，不合成（离线自检用）
+    python tools/gen_narration.py --proxy http://127.0.0.1:7890   # 指定出网代理
+
+出网路由
+--------
+Edge TTS 端点（`speech.platform.bing.com:443`）在本机经常**直连被拦、经本机代理才通**，
+表现为 `ClientConnectorError: Cannot connect to host ...`。此时重试同一路由没有意义，
+必须换路由：`run_synth` 会按 `netroute.candidates()`（直连 → 环境代理 → 本机代理端口）
+逐条尝试，并记住成功的那条供后续段落复用。`--proxy` 可跳过自动探测直接指定。
 """
 import argparse
 import asyncio
@@ -46,6 +54,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "output")
@@ -240,38 +249,111 @@ def outro_script():
 # ------------------------------------------------------------------- Edge TTS
 
 TTS_TIMEOUT_SEC = 45
+# 单个候选路由最多试几次：NoAudioReceived 是服务端瞬时抽风，重试同一路由通常就好；
+# 建连失败（host 不可达 / 被拦）则是路由问题，重试同一路由没意义，直接换下一条。
+TTS_ATTEMPTS_PER_ROUTE = 3
+# 一轮 12 段，单段最坏要试完所有候选路由；给整段一个总预算，避免无人值守任务无限等待。
+TTS_ROUTE_BUDGET_SEC = 90
+# 最多试几条候选路由。`netroute.candidates()` 末尾会追加「本机在监听的其它端口」，
+# 这些多半是普通服务（返回 405/400、或直接断开），对 TTS 毫无意义；
+# 2026-10-22 实测试到第 8 条以后纯属空转（单段白等 5 分钟）。
+TTS_MAX_ROUTES = 6
+# 整轮补跑次数。端点抽风是**请求级**的（实测单请求失败率约 1/3，且与稿件无关），
+# 12 段里总会有 1~3 段撞上；跑 3 轮后仍未补齐的概率约 0.3³，可忽略。
+TTS_SEGMENT_ROUNDS = 3
+# 上一次成功的路由。Edge TTS 端点在本机经常「直连被拦、经本机代理才通」，
+# 且直连失败要先等 connect_timeout（10s）——记住成功的路由后，后续 11 段直接命中。
+_ROUTE = {"proxy": "__unset__", "label": ""}
 
 
-async def synth(text, voice, rate, path):
+def tts_proxy_candidates(proxy=None):
+    """产出 (proxy_or_None, label)，按「显式指定 > 上次成功 > 直连 > 环境代理 > 本机代理端口」排序。
+
+    复用 `netroute.candidates()`：同一个出口在「下载 PDF」和「在线 TTS」上是同一件事，
+    各写一份候选顺序必然漂移（一处直连优先、一处代理优先，用户看到的就是「下载好了但语音失败」）。
+    本模块不 import 业务代码，`netroute` 是最底层的出网工具，依赖方向仍然单向。
+    """
+    if proxy:
+        return [(proxy, "指定 %s" % proxy)]
+    try:
+        if ROOT not in sys.path:
+            sys.path.insert(0, ROOT)
+        import netroute  # 延迟导入：--no-tts / 单元测试无需出网依赖
+    except Exception:  # noqa: BLE001 - 拿不到候选表就退回「直连」
+        return [(None, "直连")]
+    prefer = None if _ROUTE["proxy"] == "__unset__" else _ROUTE["proxy"]
+    cands = netroute.candidates(prefer=prefer)
+    return cands[:TTS_MAX_ROUTES]
+
+
+def _looks_like_route_error(exc):
+    """建连类错误（不是「服务端抽风」）：换路由才有意义，重试同一路由只是白等。"""
+    name = type(exc).__name__
+    if "Connector" in name or "Connection" in name or "SSL" in name:
+        return True
+    msg = str(exc)
+    return "Cannot connect" in msg or "Timeout" in msg or "timed out" in msg
+
+
+def _sleep(seconds):
+    """重试间隔。抽成函数是为了让单元测试能替换成空实现，不必真等。"""
+    time.sleep(seconds)
+
+
+async def synth(text, voice, rate, path, proxy=None):
     import edge_tts  # 延迟导入，缺依赖时报错更友好
-    comm = edge_tts.Communicate(text, voice, rate=rate)
+    comm = edge_tts.Communicate(text, voice, rate=rate, proxy=proxy)
     await comm.save(path)
 
 
-def run_synth(text, voice, rate, path):
+def run_synth(text, voice, rate, path, proxy=None):
     """
-    Edge TTS 会偶发 NoAudioReceived（服务端瞬时抽风，与稿件内容无关）。
-    篇数从 5 提到 10 后单轮要打 12 次接口，命中概率明显上升，
-    无人值守的定时任务一旦撞上就会整轮失败 —— 故在这里就地重试。
+    合成一段语音，失败时**先重试、再换路由**。
+
+    两类故障要分开处理（2026-10-22 实测）：
+    * `NoAudioReceived` —— 服务端瞬时抽风，与稿件内容无关；篇数从 5 提到 10 后单轮要打 12 次接口，
+      命中概率明显上升，无人值守的定时任务撞上就会整轮失败，故就地重试；
+    * `ClientConnectorError: Cannot connect to host speech.platform.bing.com` —— 本机直连被拦，
+      只有经本机代理才能通。这种情况重试同一路由毫无意义，必须换路由（`tts_proxy_candidates`）。
+
+    另用 `wait_for` 兜住「连接建好但流永不结束」的挂死（实测卡住 15+ 分钟无输出）。
     """
-    import time
+    t0 = time.time()
     last = None
-    for attempt in range(3):
-        try:
-            # wait_for：Edge TTS 偶发「连接建好但流永不结束」的挂死（实测卡住 15+ 分钟无输出），
-            # 没有超时会让无人值守的定时任务整轮白等。超时计入重试，最多 3 次。
-            asyncio.run(asyncio.wait_for(synth(text, voice, rate, path), timeout=TTS_TIMEOUT_SEC))
-            return
-        except asyncio.TimeoutError:
-            last = TimeoutError("Edge TTS 超时（%ds 未返回音频）" % TTS_TIMEOUT_SEC)
-            if attempt < 2:
-                print("       [retry %d/2] %s" % (attempt + 1, last))
-                time.sleep(1.5 * (attempt + 1))
-        except Exception as exc:  # noqa: BLE001 - 只重试瞬时错误，三次仍失败才抛出
-            last = exc
-            if attempt < 2:
-                print("       [retry %d/2] Edge TTS 瞬时错误：%s" % (attempt + 1, exc))
-                time.sleep(1.5 * (attempt + 1))
+    for cand, label in tts_proxy_candidates(proxy):
+        route_fail = 0
+        for attempt in range(TTS_ATTEMPTS_PER_ROUTE):
+            if time.time() - t0 > TTS_ROUTE_BUDGET_SEC:
+                raise last or TimeoutError("Edge TTS 路由预算耗尽（%ds）" % TTS_ROUTE_BUDGET_SEC)
+            try:
+                asyncio.run(
+                    asyncio.wait_for(
+                        synth(text, voice, rate, path, proxy=cand), timeout=TTS_TIMEOUT_SEC
+                    )
+                )
+                if _ROUTE["proxy"] != cand:
+                    _ROUTE.update(proxy=cand, label=label)
+                    print("       [tts] 走 %s" % label)
+                return
+            except asyncio.TimeoutError:
+                last = TimeoutError("Edge TTS 超时（%ds 未返回音频）" % TTS_TIMEOUT_SEC)
+                print("       [retry %d/%d] %s" % (attempt + 1, TTS_ATTEMPTS_PER_ROUTE, last))
+                _sleep(1.5 * (attempt + 1))
+            except Exception as exc:  # noqa: BLE001 - 只重试瞬时错误，全部路由失败才抛出
+                last = exc
+                print("       [retry %d/%d] %s：%s" % (
+                    attempt + 1, TTS_ATTEMPTS_PER_ROUTE,
+                    label, str(exc).splitlines()[0][:110]))
+                if _looks_like_route_error(exc):
+                    # 同一条路由**连续**两次建连失败才换：实测可用代理也会偶发抽风
+                    # （一轮 12 段里约 1/3 次失败，随即重试即成功），一次失败就换路
+                    # 会把好路由丢掉，反而落到「本机端口 :8000」这类无关服务上。
+                    route_fail += 1
+                    if route_fail >= 2:
+                        break
+                    _sleep(2.0)
+                else:
+                    _sleep(1.5 * (attempt + 1))
     raise last
 
 
@@ -280,7 +362,7 @@ def fmt_rate(pct):
     return "%+d%%" % round(pct)
 
 
-def synthesize(text, voice, budget, target, path, ff, no_tts=False):
+def synthesize(text, voice, budget, target, path, ff, no_tts=False, proxy=None):
     """
     先以 +0% 合成一次测出基准时长，再**解析地**算出把语速贴到 target 所需的百分比，
     只在必要区间内调整（RATE_MIN..RATE_MAX）；若仍超预算才沿阶梯继续加速。
@@ -292,7 +374,7 @@ def synthesize(text, voice, budget, target, path, ff, no_tts=False):
         est = text_len(text) / 3.6
         return (est, "+0%", max(0.0, est - budget))
 
-    run_synth(text, voice, "+0%", path)
+    run_synth(text, voice, "+0%", path, proxy=proxy)
     sec0 = media_duration(path, ff)
     if sec0 is None or not (os.path.exists(path) and os.path.getsize(path) > 0):
         return (None, "+0%", 0.0)
@@ -303,7 +385,7 @@ def synthesize(text, voice, budget, target, path, ff, no_tts=False):
     rate_s, sec = "+0%", sec0
     if abs(want) >= 2:
         rate_s = fmt_rate(want)
-        run_synth(text, voice, rate_s, path)
+        run_synth(text, voice, rate_s, path, proxy=proxy)
         sec = media_duration(path, ff) or sec0
 
     pct = want
@@ -314,7 +396,7 @@ def synthesize(text, voice, budget, target, path, ff, no_tts=False):
             break
         tried.add(pct)
         rate_s = fmt_rate(pct)
-        run_synth(text, voice, rate_s, path)
+        run_synth(text, voice, rate_s, path, proxy=proxy)
         sec = media_duration(path, ff) or sec
 
     normalize_loudness(ff, path)
@@ -339,6 +421,8 @@ def main(argv=None):
     ap.add_argument("--outdir", default=PUB_AUDIO)
     ap.add_argument("--audio-json", default=os.path.join(REEL, "src", "audio.json"))
     ap.add_argument("--no-tts", action="store_true", help="只生成稿件，不调用 TTS")
+    ap.add_argument("--proxy", default=None,
+                    help="TTS 出网代理（默认自动：直连→环境代理→本机代理端口）")
     args = ap.parse_args(argv)
 
     data = load(args.papers, {})
@@ -373,8 +457,8 @@ def main(argv=None):
         plan.append(("paper%d" % i, "p%d" % i, script, sid))
     plan.append(("outro", "outro", outro_ok or outro_script(), None))
 
-    ok = True
-    for seg_id, fname, script, sid in plan:
+    def _one(seg_id, fname, script, sid):
+        """合成一段；成功返回 segment 记录，失败返回 None（不抛，交由上层补跑）。"""
         budget = SEGMENT_BUDGET_SEC["paper"] if seg_id.startswith("paper") else (
             SEGMENT_BUDGET_SEC["intro"] if seg_id == "intro" else SEGMENT_BUDGET_SEC["outro"]
         )
@@ -383,31 +467,56 @@ def main(argv=None):
         )
         text_map.append((seg_id, len(script), script))
         dst = os.path.join(args.outdir, fname + ".mp3")
-        sec, rate, over = synthesize(script, args.voice, budget, target, dst, ff, args.no_tts)
+        try:
+            sec, rate, over = synthesize(
+                script, args.voice, budget, target, dst, ff, args.no_tts, proxy=args.proxy
+            )
+        except Exception as exc:  # noqa: BLE001 —— 单段失败不拖垮整轮，交给补跑
+            print("[err] %-7s 合成失败：%s" % (seg_id, str(exc).splitlines()[0][:140]))
+            return None
         if sec is None:
-            ok = False
             print("[err] %-7s 合成失败" % seg_id)
-            continue
-        segments.append(
-            {
-                "id": seg_id,
-                "file": "audio/%s.mp3" % fname,
-                "seconds": round(sec, 2),
-                "rate": rate,
-                "chars": len(script),
-                "mean_db": None if args.no_tts else (
-                    round(mv, 1) if (mv := mean_volume(dst, ff)) is not None else None
-                ),
-                "sid": sid,
-            }
-        )
+            return None
+        mv_now = None if args.no_tts else mean_volume(dst, ff)
         flag = "[ok]  " if over <= 0.05 else "[warn]"
         print("%s %-7s %5.2fs/%4.1fs(目标%4.1f)  %s  %3d字  mean %s dB  %s" % (
             flag, seg_id, sec, budget, target, rate, len(script),
-            ("%.1f" % mv) if (mv := mean_volume(dst, ff)) is not None else "?", os.path.basename(dst)
+            ("%.1f" % mv_now) if mv_now is not None else "?", os.path.basename(dst)
         ))
         if over > 0.05:
             print("         ↑ 超出 %.2fs，请精简口播稿或放长该段" % over)
+        return {
+            "id": seg_id,
+            "file": "audio/%s.mp3" % fname,
+            "seconds": round(sec, 2),
+            "rate": rate,
+            "chars": len(script),
+            "mean_db": None if mv_now is None else round(mv_now, 1),
+            "sid": sid,
+        }
+
+    # 两轮：第一轮逐段合成，把失败的挑出来再补一轮。TTS 端点会**请求级**抽风
+    # （实测一轮 12 段里 2~3 段随机失败，同一代理下一次就成功），
+    # 一次失败就整轮报 enabled=false 会让渲染白等一轮。
+    done = {}
+    pending = list(plan)
+    failed = []
+    for round_no in range(1, TTS_SEGMENT_ROUNDS + 1):
+        failed = []
+        for seg in pending:
+            got = _one(*seg)
+            if got is None:
+                failed.append(seg)
+            else:
+                done[got["id"]] = got
+        if not failed:
+            break
+        pending = failed
+        if round_no < TTS_SEGMENT_ROUNDS:
+            print("[retry-pass] %d 段失败，补跑第 %d 轮：%s"
+                  % (len(failed), round_no + 1, ", ".join(s[0] for s in failed)))
+    ok = not failed          # 以「最后一轮」的失败为准，补跑成功即整体成功
+    segments = [done[s[0]] for s in plan if s[0] in done]
 
     manifest = {
         "enabled": ok and not args.no_tts,

@@ -90,7 +90,12 @@ python tools/gen_narration.py --voice zh-CN-YunxiNeural
 - **渲染前必须确认 `reel/src/audio.json` 的 `enabled` 为 `true`**。该文件入库基线是 `false`
   （否则新克隆的仓库渲染会因找不到 mp3 而 404 失败），生成音频后脚本会自动置 `true`；
 - 若 TTS 报 `403 WSServerHandshakeError`：先升级 `edge-tts`（旧版本签名被服务端拒绝），
-  再怀疑网络。
+  再怀疑网络；
+- 若 TTS 报 `ClientConnectorError: Cannot connect to host speech.platform.bing.com`：
+  这是**出网路由**问题（该域名常被解析到 `198.18.0.104` 这类假 IP，TCP 通、TLS 被掐），
+  与稿件无关。脚本会按「直连 → 环境代理 → 本机代理端口」逐条回退，并记住成功的那条供
+  后续段落复用；也可用 `--proxy http://127.0.0.1:7890` 直接指定。
+  `NoAudioReceived` 才是服务端抽风，脚本会在同一路由内重试。
 
 ## 五、渲染
 

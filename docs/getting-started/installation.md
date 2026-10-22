@@ -96,7 +96,8 @@ ls output/arxiv_digest_*.html | tail -1
 python -c "import archive; print(archive.stats())"
 ```
 
-浏览器打开 `http://127.0.0.1:8765/`：已选分类并抓取过 → 三个板块（🎯 为你推荐、🌱 兴趣扩展、📖 分类详解）；
+浏览器打开 `http://127.0.0.1:8765/`（默认端口；若被占用，服务会顺延，实际地址见启动日志或
+`output/server.json` 的 `port`）：已选分类并抓取过 → 三个板块（🎯 为你推荐、🌱 兴趣扩展、📖 分类详解）；
 还没选分类 → 一张「选择要跟踪的 arXiv 分类」的引导页，点按钮直达 `/profile`。
 若页面提示"尚无摘要页"，说明流水线还没成功跑完，按 [故障排查](../operations/troubleshooting.md) 第 1 节处理。
 
@@ -104,14 +105,18 @@ python -c "import archive; print(archive.stats())"
 
 | 方式 | 命令 | 适用 |
 | --- | --- | --- |
-| 完整流水线 | `python run_daily.py` | 每天一次（或交给定时任务） |
+| 完整流水线 | `python run_daily.py` | 每天一次（或交给定时任务）；只打印地址，不开浏览器 |
 | 只重算+重渲染 | `python run_daily.py --skip-fetch --skip-affil` | 改了画像/分类，想立刻看到结果（秒级） |
-| 只起服务 | `python server.py` | 补看昨天的日报，不重新抓取 |
+| 只起服务 | `python server.py` | 补看昨天的日报，不重新抓取；启动后自动开浏览器 |
+| 起服务但不开浏览器 | `python server.py --no-open` | 定时任务 / 无桌面环境；等价于 `config.json` 里 `"open_browser": false` |
+| 指定起始端口 | `python server.py --port 9000` | 想避开某段端口；仍被占用时会继续顺延 |
 | 带数据包启动 | `python run_daily.py --preset <名字>` / `python server.py --preset <名字>` | 先把 `presets/<名字>/` 导入本机，再跑/再起 |
-| Windows 双击 | `start_digest.bat`（加参数 `hengxin` 则同时导入数据包） | 自动找 `python`/`py -3`，端口读 `config.json` |
+| Windows 双击 | `start_digest.bat`（加参数 `hengxin` 则同时导入数据包） | 自动找 `python`/`py -3`，端口读 `config.json`，启动后自动开浏览器 |
 
-端口冲突时改 `config.json` 的 `port`，或先确认没有旧进程占着（见
-[故障排查](../operations/troubleshooting.md) 第 5 节）。
+**端口不需要手工避让**：默认 8765，被占用会自动向后顺延（最多 20 个），启动日志里会打印
+`serving http://127.0.0.1:<实际端口>`，同时写入 `output/server.json`。要把服务固定在某个端口，
+改 `config.json` 的 `port` 或加 `--port`；确实没有可用端口时进程以退出码 2 明确报错，不会半启动。
+细节见[服务运行时](../architecture/server-runtime.md)。
 
 ## 六、卸载与重置
 

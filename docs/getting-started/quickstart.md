@@ -56,11 +56,16 @@ $ .../build_report.py
 digest online: http://127.0.0.1:8765
 ```
 
+> **地址以打印结果为准**：默认端口 8765，若它已被别的程序占用，服务会自动向后顺延
+> （8766、8767…）并在这个位置打印实际地址；页面里的接口端口会一起改写，无需手工干预。
+> 想固定在某个端口，改 `config.json` 的 `port` 或启动时加 `--port`。
+
 **检查点**
 
 | 检查项 | 命令 / 位置 | 期望 |
 | --- | --- | --- |
-| 服务在线 | `curl --noproxy '*' http://127.0.0.1:8765/api/ping` | `{"ok": true}` |
+| 服务在线 | `curl --noproxy '*' http://127.0.0.1:8765/api/ping` | `{"ok": true}`（端口若被顺延，换成实际端口） |
+| 实际端口 | `output/server.json` 的 `port` 字段 | 与启动日志里 `serving ...` 那一行一致 |
 | 日报落盘 | `ls output/arxiv_digest_*.html` | 有一个 `arxiv_digest_<今天>.html` |
 | 归档登记 | 打开 `/archive` | 今天这一期在列表里 |
 

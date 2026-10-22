@@ -35,9 +35,18 @@ POST
   /api/open /api/open_folder /api/preset
 
 启动参数
-  --no-open            不自动打开浏览器
+  --port <端口>         指定起始端口（覆盖 config.json 的 port）；被占用时仍会自动顺延
+  --no-open            不自动打开浏览器（定时任务 / 服务器上用）
+  --open               强制自动打开浏览器（配置里关掉了也能临时打开）
   --preset <名字>       启动前先导入一份数据包（presets/<名字>/），失败不阻断启动
   --preset-force       允许覆盖本机已有的 config.json / interests.json（先备份）
+
+端口顺延
+--------
+绑定从「config.json 的 port」开始；若该端口已被别的进程占用（或 bind 失败），
+就向后逐个尝试（8765 → 8766 → … 最多 serveport.SCAN_LIMIT 个），成功后在日志里
+打印**实际**地址，并把结果写进 ``output/server.json`` 供 run_daily 等后台调用方对账。
+全部不可用时以退出码 2 明确报错，不会留下半启动的进程。
 
 并发模型
 --------
@@ -54,7 +63,6 @@ import threading
 import time
 import urllib.parse
 import urllib.request
-import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -75,6 +83,7 @@ import paperutil as pu  # noqa: E402
 import paths  # noqa: E402
 import profile as PF  # noqa: E402
 import routes  # noqa: E402
+import serveport as SP  # noqa: E402
 import service  # noqa: E402
 
 OUT = pu.OUT
@@ -285,21 +294,100 @@ def apply_preset_arg(argv):
     return ok
 
 
-def main():
-    apply_preset_arg(sys.argv[1:])
+class PortUnavailable(RuntimeError):
+    """起始端口起连续若干端口都不可用（或已越过 65535）。"""
+
+
+def bind_server(start, attempts=2, host=SP.HOST):
+    """从 `start` 起找一个可用端口并完成绑定，返回 ``(srv, port, tried)``。
+
+    为什么不是「探测一次 → bind 一次」：探测与 bind 之间仍有窗口，可能被别的进程
+    抢走。所以失败再重来一轮（起点顺延到刚才那个端口之后），而不是直接报错退出。
+    两轮都失败基本只剩「这段端口真的都不能用」，交给调用方明确报错。
+    """
+    want = start
+    tried = []
+    for _ in range(max(1, attempts)):
+        port, round_tried = SP.find_free_port(want)
+        tried += round_tried
+        if not port:
+            break
+        try:
+            return ThreadingHTTPServer((host, port), Handler), port, tried
+        except OSError as e:
+            print("[port] %d 绑定失败（%s），继续向后找" % (port, e), file=sys.stderr)
+            want = port + 1
+    raise PortUnavailable(
+        "从 %d 起连续 %d 个端口都不可用（尝试过 %s）"
+        % (want, len(tried) or 1,
+           ("%d–%d" % (tried[0], tried[-1])) if tried else "（无）"))
+
+
+def announce(port, want, tried, cfg):
+    """启动日志：**明确**给出最终地址，顺延时说明原因与尝试范围。
+
+    这行日志是排障的第一入口（run_daily 的 server.log、双击 bat 的窗口都看它），
+    所以地址用固定前缀 `serving`，便于脚本 grep。
+    """
+    url = SP.url_for(port)
+    print("serving %s  (download_dir=%s)" % (url, cfg.get("download_dir", "")))
+    if port == want:
+        print("port: %d（config.json / --port 的期望值，未被占用）" % port)
+    else:
+        print("port: %d（%d 已被占用，已向后顺延；尝试过 %s%s）"
+              % (port, want,
+                 ("%d–%d" % (tried[0], tried[-1])) if tried else "（无）",
+                 ("，共 %d 个" % len(tried)) if tried else ""))
+
+
+def run(argv=None):
+    """启动服务的完整流程；返回进程退出码（0 正常，2 端口不可用）。
+
+    顺序刻意如此：先定端口 → 再打日志 → 再落盘 server.json → 最后才开浏览器。
+    这样"日志里的地址"、"页面里的端口"、"server.json 里的端口"永远是同一个值。
+    """
+    argv = list(sys.argv[1:] if argv is None else argv)
+    apply_preset_arg(argv)
     cfg = pu.load_config()
-    port = int(cfg.get("port", 8765))
-    url = "http://127.0.0.1:%d" % port
-    srv = ThreadingHTTPServer(("127.0.0.1", port), Handler)
-    print("serving %s  (download_dir=%s)" % (url, cfg["download_dir"]))
+    want = SP.valid_port(argv_value(argv, "--port")) or SP.configured_port(cfg)
+    try:
+        srv, port, tried = bind_server(want)
+    except PortUnavailable as e:
+        print("[port] %s" % e, file=sys.stderr)
+        print("[port] 请把 config.json 的 port 改成空闲端口，或用 --port 指定",
+              file=sys.stderr)
+        return 2
+
+    pu.set_runtime_port(port)      # 让日志、server.json 与页面里的端口是同一个值
+    url = SP.url_for(port)
+    announce(port, want, tried, cfg)
     print("digest:", latest_digest())
-    if "--no-open" not in sys.argv:
-        threading.Timer(0.8, lambda: webbrowser.open(url)).start()
+    if SP.write_runtime_info(os.path.join(OUT, "server.json"), port) is None:
+        print("[warn] 无法写 output/server.json（不影响服务）", file=sys.stderr)
+
+    if SP.browser_enabled(argv, cfg):
+        try:
+            SP.open_browser(url)
+        except Exception as e:  # noqa: BLE001 —— 开浏览器只是便利功能
+            print("[browser] 自动打开失败（%s），请手动访问 %s" % (e, url))
+    else:
+        print("[browser] 已关闭自动打开（--no-open / config.open_browser=false）")
+
     try:
         srv.serve_forever()
     except KeyboardInterrupt:
         print("\nbye")
+    finally:
+        try:
+            srv.server_close()
+        except Exception:  # noqa: BLE001
+            pass
+    return 0
+
+
+def main():
+    return run()
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

@@ -31,6 +31,8 @@ PY = sys.executable
 
 sys.path.insert(0, HERE)
 
+import serveport  # noqa: E402  —— 端口选择与 server.py 共用同一份实现
+
 
 def _payload_ok(text):
     """抓取脚本的 stdout 是否是「可用的」论文数据。
@@ -116,6 +118,10 @@ def server_alive(port, timeout=2.0):
         return False
 
 
+def _runtime_info_path():
+    return os.path.join(OUT, "server.json")
+
+
 def ensure_server(port=None, wait=15.0):
     """服务已在线则复用；否则后台拉起 server.py --no-open 并等待就绪。
 
@@ -126,17 +132,33 @@ def ensure_server(port=None, wait=15.0):
     子进程会拿到上层 shell 的工作目录——项目搬到新目录后，服务仍以旧目录为 cwd，
     继续读写旧 output/。故必须用 `start /d <dir>` 显式指定启动目录，
     并给 server.py 传绝对路径（双保险）。
+
+    **端口（2026-10-20）**：config 里的端口可能被别的软件占着。这里先用与
+    server.py 同一份 `serveport.find_free_port` 选一个空闲端口，再用 `--port`
+    传下去，保证「轮询的端口」与「实际绑定的端口」一致；否则服务顺延到 8766
+    而本函数还在等 8765，就会误报「服务没起来」。极少数情况下（选完到绑定之间
+    被抢）服务会再顺延一次，此时以它落盘的 output/server.json 为准。
     """
     port = port or port_of()
-    url = "http://127.0.0.1:%d" % port
     if server_alive(port):
-        print("server already online: %s" % url)
-        return url, False
+        print("server already online: %s" % serveport.url_for(port))
+        return serveport.url_for(port), False
+
+    free, tried = serveport.find_free_port(port)
+    if free is None:
+        print("端口 %d 起连续 %d 个都不可用（%s），服务未启动；请改 config.json 的 port"
+              % (port, len(tried), ("%d–%d" % (tried[0], tried[-1])) if tried else "-"),
+              file=sys.stderr)
+        return serveport.url_for(port), False
+    if free != port:
+        print("[port] %d 已被占用，改用 %d" % (port, free))
+    url = serveport.url_for(free)
 
     logpath = os.path.join(OUT, "server.log")
     try:
         log = open(logpath, "ab")
-        cmd = [PY, os.path.join(HERE, "server.py"), "--no-open"]
+        cmd = [PY, os.path.join(HERE, "server.py"), "--no-open",
+               "--port", str(free)]
         if os.name == "nt":
             cmd = ["cmd", "/c", "start", "", "/d", HERE, "/b"] + cmd
         subprocess.Popen(cmd, cwd=HERE, stdin=subprocess.DEVNULL,
@@ -148,9 +170,14 @@ def ensure_server(port=None, wait=15.0):
 
     deadline = time.time() + wait
     while time.time() < deadline:
-        if server_alive(port, timeout=1.0):
+        if server_alive(free, timeout=1.0):
             print("server ready: %s" % url)
             return url, True
+        info = serveport.read_runtime_info(_runtime_info_path())
+        if info and info["port"] != free and server_alive(info["port"], timeout=0.5):
+            # 服务在探测与绑定之间又被抢了一次，自己顺延到了别的端口
+            print("server ready: %s（端口顺延，取自 %s）" % (info["url"], _runtime_info_path()))
+            return info["url"], True
         time.sleep(0.3)
     print("server did not become ready in %.0fs, 可手动运行 start_digest.bat" % wait,
           file=sys.stderr)

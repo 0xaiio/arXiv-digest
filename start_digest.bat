@@ -1,6 +1,8 @@
 @echo off
 rem 启动本地服务并打开摘要页（Windows 双击即可）。需要 PATH 里有 Python 3.9+。
 rem 端口与下载目录取自 config.json；首次运行会自动按 config.example.json 生成。
+rem 端口被占用时 server.py 会自动向后顺延（8765 -> 8766 -> ...），实际地址由它
+rem 打印并自动在浏览器打开，所以这里不再自己拼 URL（否则会开到被占用的旧端口）。
 rem
 rem 用法：
 rem   start_digest.bat                 干净启动（不加载任何人的画像）
@@ -23,10 +25,7 @@ set "PRESET="
 if not "%~1"=="" set "PRESET=--preset %~1"
 if /I "%~2"=="force" set "PRESET=%PRESET% --preset-force"
 
-set "PORT=8765"
-for /f "usebackq delims=" %%p in (`%PY% -c "import json,os;p='config.json';print(json.load(open(p,encoding='utf-8')).get('port',8765) if os.path.exists(p) else 8765)" 2^>nul`) do set "PORT=%%p"
-
-echo Starting local paper server on http://127.0.0.1:%PORT% ...
-start "" http://127.0.0.1:%PORT%
-%PY% server.py --no-open %PRESET%
+rem 端口取 config.json（默认 8765）；被占用自动顺延，浏览器由 server.py 打开。
+echo Starting local paper server (port from config.json; auto-increment if busy) ...
+%PY% server.py %PRESET%
 pause

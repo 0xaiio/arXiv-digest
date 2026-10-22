@@ -66,8 +66,9 @@
 | **交互零等待** | 乐观更新 + 30ms 合并重排；下载期间其它论文的反馈照常响应 |
 | **离线单文件 HTML** | 内联 CSS/JS、无 CDN、无构建步骤；`file://` 双击也能读 |
 | **零运行期依赖** | 只用 Python 标准库，`clone` 即跑 |
+| **启动不挑端口** | 默认 `127.0.0.1:8765`，被占用自动顺延并在日志里报出实际地址；启动后自动开浏览器，可开关 |
 | **可选视频链路** | Remotion 代码渲染 + Edge TTS 中文旁白 + A/V 质量闸门 + B 站投稿 |
-| **测试兜底** | 551 个用例分四层，行覆盖率 89%，全部在沙箱里跑 |
+| **测试兜底** | 795 个用例分四层，行覆盖率 91%，全部在沙箱里跑 |
 
 ## 快速上手
 
@@ -77,11 +78,13 @@ cd arXiv-digest
 python run_daily.py          # 首次运行自动生成干净的 config.json / interests.json
 ```
 
-跑完浏览器会打开 `http://127.0.0.1:8765/`。之后：
+跑完终端会打印 `digest online: http://127.0.0.1:8765`（默认端口被占用时自动顺延，
+以打印的地址为准；`run_daily.py` 只打印不开浏览器）。之后：
 
 ```bash
 python run_daily.py --skip-fetch --skip-affil   # 改完画像/模板，秒级重算重渲染
-python server.py                                 # 只起服务，不重新抓取
+python server.py                                 # 只起服务，不重新抓取（会开浏览器）
+python server.py --no-open                        # 起服务但不开浏览器
 python run_daily.py --preset hengxin             # 导入一份现成数据包（可选）
 ```
 

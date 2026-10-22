@@ -1,10 +1,10 @@
 {
-  "issue": "20261020",
-  "range": "2026-10-19 · 回溯 3 天公告批次",
-  "generated": "2026-10-20T09:22:40+08:00",
+  "issue": "20261022",
+  "range": "2026-10-21 · 回溯 3 天公告批次",
+  "generated": "2026-10-22T12:11:44+08:00",
   "stats": {
-    "core": 97,
-    "expand": 1177,
+    "core": 80,
+    "expand": 881,
     "rec": 14,
     "exp": 10
   },
@@ -12,324 +12,325 @@
     {
       "rank": 1,
       "lane": "推荐",
-      "sid": "2601.19747",
-      "cat": "cs.AR",
-      "score": 41.6,
-      "title_en": "Veri-Sure: Multi-Agent RTL Code Generation with Temporal Tracing, Slicing and Formal Verification",
+      "sid": "2610.29145",
+      "cat": "math.OC",
+      "score": 30.4,
+      "title_en": "ORSMT: Unleashing the Potential of Satisfiability Modulo Theories for Semantic Verification and Repair in LLM-Based Optimization",
       "kw": [
-        "Veri-Sure",
-        "RTL",
-        "形式验证"
+        "SMT",
+        "可行域",
+        "匹配率"
       ],
-      "authors": "Jiale Liu, Taiyu Zhou, Tianqi Jiang",
+      "authors": "Rui Zhang, Chenyu Zhou, Jianghao Lin 等 6 人",
       "units": [
-        "School of Physics and Astronomy, The University of…",
-        "State Key Laboratory of Analog and Mixed-Signal VLSI…",
-        "等 3 家单位"
+        "Shanghai Jiao Tong University",
+        "Eindhoven University of Technology"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "LLM 生成 RTL 代码受困于：仿真评估反馈稀疏、调试时整文件重生成引入回归与修复幻觉、意图漂移。"
+          "text": "LLM 自动优化建模同时产出数学描述、求解器代码与报告，三者语义是否一致无法靠文本比对校验。"
         },
         {
           "tag": "方法",
-          "text": "Veri-Sure 采用多智能体流程，结合时序追踪、代码切片与形式验证，为修复提供精确可检验的反馈。"
+          "text": "ORSMT 用类型化语义接口与精确 SMT 关系查询，对齐可观测决策、投影辅助变量、证成或反驳可行域与目标关系。"
         },
         {
           "tag": "结果",
-          "text": "缓解回归与修复幻觉，使 RTL 生成与调试更有针对性。"
+          "text": "3034 个问题、6 种生成器规模下 72 组匹配率全部提升；受保护选择把总匹配率从 43.2% 提到 88.2%。"
         }
       ],
-      "link": "arxiv.org/abs/2601.19747"
+      "link": "arxiv.org/abs/2610.29145"
     },
     {
       "rank": 2,
       "lane": "推荐",
-      "sid": "2610.23241",
+      "sid": "2610.27826",
       "cat": "cs.SE",
-      "score": 31.1,
-      "title_en": "Towards Agentic Proof Harness Engineering",
+      "score": 23.5,
+      "title_en": "MIMOS-Tools: An Integrated Toolchain for Model-Based Design of Embedded Systems",
       "kw": [
-        "harness",
-        "验证智能体",
-        "符号输入"
+        "MIMOS",
+        "确定性",
+        "形式验证"
       ],
-      "authors": "Rohith Kumar Shanmuganathan, Cedric Richter, Heike Wehrheim",
+      "authors": "Wang Yi, Chengzi Huang, Behnam Khodabandeloo 等 4 人",
       "units": [
-        "Carl von Ossietzky Universität Oldenburg",
-        "Humbold-Universität zu Berlin"
+        "Department of Information Technology"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "真实项目形式验证人工成本高：从写规约到搭建验证基础设施都需要专家投入。"
+          "text": "嵌入式实时系统的方法与工具发展数十年，仍缺少覆盖建模到代码生成全生命周期的集成环境。"
         },
         {
           "tag": "方法",
-          "text": "聚焦证明 harness 工程：为函数或模块提供符号输入、初始化代码与依赖模型，构建隔离验证环境。"
+          "text": "MIMOS-Tools 以单一确定性计算模型（含形式操作语义、可证功能与时间确定性）贯通建模、仿真、形式验证与异构多核代码生成。"
         },
         {
           "tag": "结果",
-          "text": "论证该任务是自动化验证助手的基础切入点，并讨论其自动化路径。"
+          "text": "支持时间触发异步通信与灵活实时调度，增改组件无需重算全局调度；模型层验证的性质可保持到生成实现。"
         }
       ],
-      "link": "arxiv.org/abs/2610.23241"
+      "link": "arxiv.org/abs/2610.27826"
     },
     {
       "rank": 3,
       "lane": "推荐",
-      "sid": "2610.23463",
-      "cat": "cs.FL",
-      "score": 24.8,
-      "title_en": "Model Checking for Noisy Toric Words",
+      "sid": "2610.29147",
+      "cat": "cs.SE",
+      "score": 21.9,
+      "title_en": "VERDICT: Multi-Agent Parallel Modular Verification",
       "kw": [
-        "toric",
-        "噪声",
-        "omega 正则语言"
+        "VERDICT",
+        "模块化",
+        "X.509"
       ],
-      "authors": "Mihir Vahanwala",
-      "units": [],
+      "authors": "Tengjie Lin, Zhongyi Wang, Haokun Li 等 5 人",
+      "units": [
+        "Zhejiang University",
+        "Peking University"
+      ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "toric words 可建模线性循环等动力系统；需判断 toric 模型何时足够精确以判定轨迹属于 omega-正则语言。"
+          "text": "演绎验证靠模块化合约扩展，瓶颈是规格合成；现有 LLM 方法自底向上，限制并行且难消解跨调用链不一致。"
         },
         {
           "tag": "方法",
-          "text": "用拓扑方法定义噪声鲁棒动力系统与噪声轨迹集合，证明噪声轨迹几乎周期且回归因子集合相同。"
+          "text": "VERDICT 为每个函数配一个 agent，先以假设合约并行合成，再沿调用图双向协调冲突直至合约收敛。"
         },
         {
           "tag": "结果",
-          "text": "将抽象技术应用于具体系统，为噪声下的模型检验提供依据。"
+          "text": "规格质量更高、验证耗时大降，首次扩展到 2 万行 X.509 解析器，数小时内排除几乎所有潜在运行时错误。"
         }
       ],
-      "link": "arxiv.org/abs/2610.23463"
+      "link": "arxiv.org/abs/2610.29147"
     },
     {
       "rank": 4,
       "lane": "推荐",
-      "sid": "2610.23014",
-      "cat": "cs.DC",
-      "score": 21.1,
-      "title_en": "QuarkShard: Decomposing Cross-Shard Requests into Single-Input Transactions",
+      "sid": "2610.29143",
+      "cat": "cs.SE",
+      "score": 19.6,
+      "title_en": "VeeReview: Measuring Build-Verify Pairs in Agent-Authored Pull Requests from a V-Model Perspective",
       "kw": [
-        "QuarkShard",
-        "跨片",
-        "单输入交易"
+        "VeeReview",
+        "V 模型",
+        "合并请求"
       ],
-      "authors": "Changyu Duan (Tsinghua University), Zhixuan Fang (Tsinghua University)",
-      "units": [],
+      "authors": "Gabriel Dautovi, Jie JW Wu",
+      "units": [
+        "Department of Computer Science, Michigan Technological…"
+      ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "分片区块链把跨分片请求当单体执行以保原子性，带来分片内 BFT 与跨分片通信的双重开销。"
+          "text": "审 PR 需要针对改动的验证证据，但编码 agent 基准与 PR 结果研究并不直接度量这层关系。"
         },
         {
           "tag": "方法",
-          "text": "QuarkShard 将跨分片请求分解为单输入交易，改变传统单体处理范式。"
+          "text": "VeeReview 用仓库信号加语言模型判定 V 模型的四类「构建-验证」配对，比较 741 个仓库的 1454 对 agent 与人类 PR。"
         },
         {
           "tag": "结果",
-          "text": "降低片内执行与跨片通信开销，提升分片系统可扩展性。"
+          "text": "agent PR 的「仅构建」率在四类配对上都更低（与预注册假设相反）；但工具校准未达标（一致率 4%–60%，要求 80%，kappa 0.154）。"
         }
       ],
-      "link": "arxiv.org/abs/2610.23014"
+      "link": "arxiv.org/abs/2610.29143"
     },
     {
       "rank": 5,
       "lane": "推荐",
-      "sid": "2505.02761",
-      "cat": "cs.DC",
-      "score": 21.0,
-      "title_en": "Optimistic, Signature-Free Reliable Broadcast and Its Applications",
+      "sid": "2610.29767",
+      "cat": "cs.CL",
+      "score": 18.7,
+      "title_en": "ALIAS: Evaluating Performance and Memorization in LLM-Written TLA+ Specifications",
       "kw": [
-        "可靠广播",
-        "乐观",
-        "两步"
+        "TLA+",
+        "重命名",
+        "记忆"
       ],
-      "authors": "Nibesh Shrestha, Qianyu Yu, Aniket Kate 等 6 人",
+      "authors": "Arslan Bisharat, Mujtaba Nazari, Khushboo Bhadauria 等 6 人",
       "units": [
-        "The Hong Kong University of Science and Technology",
-        "Purdue University/Supra Research",
+        "Loyola University Chicago"
+      ],
+      "bullets": [
+        {
+          "tag": "背景",
+          "text": "一致标识符重命名（CIR）被用来检测 LLM 记忆：改名后分数下降即视为背下了答案。"
+        },
+        {
+          "tag": "方法",
+          "text": "ALIAS 在 TLA+ 上用模型检查器作 oracle 验证重命名是否保持原行为，再对比按名字与按行为两种判分。"
+        },
+        {
+          "tag": "结果",
+          "text": "重命名令 Opus 4.8 正确率 28%→18%、GPT-5 9%→7%；改按行为判分后降幅仅约 3 个百分点与 0。"
+        }
+      ],
+      "link": "arxiv.org/abs/2610.29767"
+    },
+    {
+      "rank": 6,
+      "lane": "推荐",
+      "sid": "2610.27828",
+      "cat": "cs.SE",
+      "score": 17.2,
+      "title_en": "Raise or Check? Predicting the Necessity of Additional Fuzzing for Continuous Fuzzing",
+      "kw": [
+        "RAISE",
+        "模糊测试",
+        "覆盖率"
+      ],
+      "authors": "Riku Kato, Tatsuya Shirai, Olivier Nourry 等 6 人",
+      "units": [
+        "Nara Institute of Science and Technology",
+        "The University of Osaka",
         "等 3 家单位"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "无签名可靠广播（RBC）计算高效，是容错分布式系统关键原语；f<n/3 下已有协议最优需 3 步。"
+          "text": "持续模糊测试存在「漏洞引入到被检出」的暴露窗口，而追加模糊测试的算力成本很高。"
         },
         {
           "tag": "方法",
-          "text": "提出乐观 RBC，在乐观条件下仅 2 步终止，同时保持 f<n/3 拜占庭容错。"
+          "text": "RAISE 在「项目-天」粒度做二分类，预测当天是否引入漏洞，据此决定是否为该高风险日追加模糊测试。"
         },
         {
           "tag": "结果",
-          "text": "给出该原语在共识与状态机复制等场景中的应用。"
+          "text": "15 个 C/C++ 项目、15210 个项目-天；随机森林 ROC-AUC 0.74，覆盖率特征最重要；每检出漏洞多花 91.6 次会话。"
         }
       ],
-      "link": "arxiv.org/abs/2505.02761"
-    },
-    {
-      "rank": 6,
-      "lane": "推荐",
-      "sid": "2610.23822",
-      "cat": "cs.LO",
-      "score": 20.5,
-      "title_en": "A generalised and modular proof-theoretic semantics for sequent systems",
-      "kw": [
-        "序列演算",
-        "左引入规则",
-        "可靠性与完备性"
-      ],
-      "authors": "Victor Barroso-Nascimento, Arghya Chakrabarty, Elaine Pimentel",
-      "units": [
-        "Department of Computer Science, University College London"
-      ],
-      "bullets": [
-        {
-          "tag": "背景",
-          "text": "基础扩展语义以原子系统可推导性解释后承，跨逻辑推广需谨慎控制结构规则与上下文。"
-        },
-        {
-          "tag": "方法",
-          "text": "模块化序列框架：以原子资源多重集索引，连接词语义由左引入规则引导，分离加性与乘性。"
-        },
-        {
-          "tag": "结果",
-          "text": "证明经典与直觉主义命题逻辑的可靠性与完备性。"
-        }
-      ],
-      "link": "arxiv.org/abs/2610.23822"
+      "link": "arxiv.org/abs/2610.27828"
     },
     {
       "rank": 7,
       "lane": "推荐",
-      "sid": "2610.23837",
-      "cat": "eess.SY",
-      "score": 18.9,
-      "title_en": "SparseMax-dSTL: Sound Robustness with Horizon-Independent Gradient Allocation for Temporal Logic Trajectory Optimization",
+      "sid": "2610.27325",
+      "cat": "cs.SE",
+      "score": 16.1,
+      "title_en": "XRust: Detecting Logical Races in Rust Linux Drivers",
       "kw": [
-        "STL",
-        "可靠",
-        "梯度"
+        "Rust",
+        "逻辑竞态",
+        "Linux"
       ],
-      "authors": "Sai Sandeep Damera, Ryan Matheu, John S. Baras 等 4 人",
+      "authors": "Qingxiao Xu, Ze Sheng, Zhicheng Chen 等 5 人",
       "units": [
-        "The authors are with the University of Maryland, College…"
+        "Texas A&M University"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "STL 轨迹优化的光滑鲁棒性近似必须可靠（仅在满足规范时非负），且梯度权重不随时域增长消失。"
+          "text": "Rust 保证内存安全，但不阻止逻辑竞态：各自同步的操作交错后仍可能违反更高层的不变量。"
         },
         {
           "tag": "方法",
-          "text": "现有 log-sum-exp、其可靠变体与广义均值鲁棒性不能同时满足；本文提出 SparseMax-dSTL。"
+          "text": "XRust 用逻辑 happens-before 分析定位与逻辑定序相关的共享状态访问，自动构造操作对 harness，以串行差分 oracle 检测。"
         },
         {
           "tag": "结果",
-          "text": "同时具备可靠性与时域无关的梯度分配。"
+          "text": "Linux 7.3-rc2 的 10 个 Rust 驱动里构造 1654 个 harness，发现 2 个未知逻辑竞态，其中 rnull 的修复已被接收。"
         }
       ],
-      "link": "arxiv.org/abs/2610.23837"
+      "link": "arxiv.org/abs/2610.27325"
     },
     {
       "rank": 8,
       "lane": "推荐",
-      "sid": "2607.11611",
-      "cat": "cs.PL",
-      "score": 18.1,
-      "title_en": "Mizzle: A Complete Concurrent Incorrectness Logic with Applications to Agentic Bug Certification",
+      "sid": "2610.29549",
+      "cat": "cs.SE",
+      "score": 14.6,
+      "title_en": "On the Effectiveness of Snapshot Testing: An Empirical Study",
       "kw": [
-        "Mizzle",
-        "不正确性逻辑",
-        "欠近似"
+        "快照测试",
+        "覆盖率",
+        "变异"
       ],
-      "authors": "Alexandre Moine, Sam Westrick, Joseph Tassarotti",
+      "authors": "Shun Fujita, Satoru Tomizawa, Yutaro Kashiwa 等 5 人",
       "units": [
-        "New York University"
+        "Nara Institute of Science and Technology",
+        "Hangzhou Dianzi University"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "LLM 找 bug 误报多；本文要求每个报告附带机器可检验的程序逻辑证明。"
+          "text": "快照测试作为低成本回归手段被广泛采用，但关于其实际有效性的实证证据仍然稀少。"
         },
         {
           "tag": "方法",
-          "text": "Mizzle 是完备的并发不正确性逻辑，采用欠近似推理证明所报行为确实可达。"
+          "text": "覆盖 340 个 GitHub 仓库并调查 60 名从业者，对比快照与传统测试的覆盖率、代码区域互补性与变异检出能力。"
         },
         {
           "tag": "结果",
-          "text": "证明不受并发缺陷复现概率影响，并可针对库规范而非实现进行认证。"
+          "text": "两者结合后语句覆盖率中位数 86.7%，且互补覆盖不同区域；含快照套件检出变异体是纯传统测试的 1.3 倍。"
         }
       ],
-      "link": "arxiv.org/abs/2607.11611"
+      "link": "arxiv.org/abs/2610.29549"
     },
     {
       "rank": 9,
       "lane": "兴趣扩展",
-      "sid": "2610.22404",
-      "cat": "cs.IT",
-      "score": 60.0,
-      "title_en": "Aligning Information Theory and Formal Verification: A Lean Formalization of Rate-Distortion Theory",
+      "sid": "2610.26642",
+      "cat": "cs.CR",
+      "score": 32.2,
+      "title_en": "DM-RSA-OAEP: Formal Treatment of a Dual-Modulus Fault-Detection Countermeasure Based on Physical Diversity",
       "kw": [
-        "Lean",
-        "率失真",
-        "形式化"
+        "DM-RSA",
+        "IND-CCA2",
+        "故障检测"
       ],
-      "authors": "Fubin Yan, Ruxuan Dong, Ruoxuan Shi 等 5 人",
+      "authors": "Ramamonjy Andriamifidisoa, Rufine Marius Lalasoa",
       "units": [
-        "School of Science and Engineering",
-        "The Chinese University of Hong Kong, Shenzhen"
+        "University of Antananarivo, Madagascar"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "信息论的机器检验库有限，已有形式化几乎只覆盖 Shannon 无损定理。"
+          "text": "双模数 RSA（DM-RSA）原版被 Håstad 攻击攻破且容错声明有误；修复版 DM-RSA-OAEP 缺形式化保证。"
         },
         {
           "tag": "方法",
-          "text": "本文给出率失真理论核心组成部分的首个 Lean 形式化。"
+          "text": "给出随机预言模型下经两步混合论证的完整 IND-CCA2 证明（上界取较弱 RSA-OAEP 实例），并在覆盖计算/密钥/验证故障的敌手模型下证明故障检测定理。"
         },
         {
           "tag": "结果",
-          "text": "体现「AI 搜索证明 + 证明助手认证」的协作工作流。"
+          "text": "明确分析物理多样性假设被违反（单芯片共模故障）时对策退化为无效；定位为具可证检测保证的故障对策，而非计算上更强的 RSA。"
         }
       ],
-      "link": "arxiv.org/abs/2610.22404"
+      "link": "arxiv.org/abs/2610.26642"
     },
     {
       "rank": 10,
       "lane": "兴趣扩展",
-      "sid": "2610.22698",
+      "sid": "2610.28560",
       "cat": "cs.AI",
-      "score": 34.8,
-      "title_en": "Repair, Retry, and the Cost of Hindsight: Verifier Feedback in Formal Theorem Proving",
+      "score": 30.0,
+      "title_en": "Agentic Ensemble with Vision-Language Models for Visual Anomaly Detection",
       "kw": [
-        "Lean",
-        "验证器反馈",
-        "自修复"
+        "AnomalyAgent",
+        "视觉语言模型",
+        "异常检测"
       ],
-      "authors": "Jack Li, Sophia Li",
-      "units": [
-        "Department of Computer Science"
-      ],
+      "authors": "Shangquan Sun, Wenjun Luo, Xu He 等 5 人",
+      "units": [],
       "bullets": [
         {
           "tag": "背景",
-          "text": "验证器引导的自修复无需更新权重，但「反馈有助修复」与「自修复不如重采样」两个发现相互张力。"
+          "text": "视觉异常检测中异常样本稀缺，集成多个预训练检测器可借其可迁移分数与异常图，但固定融合规则在检测器明显分歧时失效。"
         },
         {
           "tag": "方法",
-          "text": "在 Lean 定理证明中做受控单步实验：固定前次失败，变化是否展示失败证明、编译错误是否对应、重试指令。"
+          "text": "AnomalyAgent 对齐异构分数与区域图、总结分数级与区域级分歧，把融合建模为有限动作选择，由受约束的视觉语言模型选择分数动作与图动作。"
         },
         {
           "tag": "结果",
-          "text": "厘清验证器反馈的价值与 hindsight 成本的边界（测试冻结的 Qwen3.6-27B）。"
+          "text": "在 MVTec AD、VisA 及另外七个公开基准与 Real-IAD 上稳定优于等权融合，取得最佳平均图像 AUROC 与像素 AP。"
         }
       ],
-      "link": "arxiv.org/abs/2610.22698"
+      "link": "arxiv.org/abs/2610.28560"
     }
   ]
 }

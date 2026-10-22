@@ -55,7 +55,8 @@
 | **零运行期依赖** | 只用 Python 标准库，`clone` 即跑，不需要 `pip install` |
 | **可选视频链路** | Remotion 代码渲染 + Edge TTS 中文旁白 + A/V 质量闸门 + B 站投稿（[指南](docs/guide/video-pipeline.md)） |
 | **可导入的数据包** | 某人的一整套设置与使用数据（配置 / 画像 / 收藏 / 行为学习 / 笔记）收在一个目录里，纯 JSON 可 diff；启动参数 `--preset` 或界面一键导入，**默认不加载**（[设计与边界](docs/architecture/data-isolation.md)） |
-| **测试兜底** | 720 个用例分四层（单元 / 集成 / 端到端 / 浏览器），行覆盖率 90%，全部在沙箱里跑，不碰真实数据 |
+| **启动不挑端口** | 默认 `127.0.0.1:8765`；被别的软件占着就自动向后顺延（8765 → 8766 → …）并在日志里报出实际地址，页面端口同步改写；启动成功后自动开浏览器，`--no-open` / `open_browser: false` 可关（[服务运行时](docs/architecture/server-runtime.md)） |
+| **测试兜底** | 795 个用例分四层（单元 / 集成 / 端到端 / 浏览器），行覆盖率 91%，全部在沙箱里跑，不碰真实数据 |
 
 ## 快速开始
 
@@ -69,16 +70,20 @@ python run_daily.py --categories cs.DB,cs.DC   # 选你要跟踪的分类（任�
 不加 `--categories` 也可以：脚本会提示你先去 `/profile` 的「🗂 arXiv 类别」面板选
 （两个联动下拉框，可搜索、可多选、标签可拖拽排序）。
 
-跑完浏览器会打开 `http://127.0.0.1:8765/`。之后：
+跑完终端会打印 `digest online: http://127.0.0.1:8765`。**默认端口 8765**，被别的程序
+占着时服务会自动向后顺延（8766、8767…），以打印出来的地址为准 —— 页面里的接口端口
+会跟着改，所以顺延之后收藏 / 下载照常可用。之后：
 
 ```bash
 python run_daily.py --skip-fetch --skip-affil   # 改完画像/模板，秒级重算重渲染
-python server.py                                 # 只起服务，不重新抓取
+python server.py                                 # 只起服务，不重新抓取（会开浏览器）
+python server.py --no-open                        # 起服务但不开浏览器（定时任务用）
 python run_daily.py --preset hengxin             # 想直接用一份现成设置（可选）
 ```
 
-Windows 可双击 `start_digest.bat`（自动找 Python，端口读 `config.json`）；
-想顺带导入数据包就 `start_digest.bat hengxin`。
+Windows 可双击 `start_digest.bat`（自动找 Python，端口读 `config.json`，被占用会顺延，
+启动后自动开浏览器）；想顺带导入数据包就 `start_digest.bat hengxin`。
+想让服务**永远不开浏览器**，在 `config.json` 里写 `"open_browser": false`。
 
 **下一步**：跟着 [快速开始](docs/getting-started/quickstart.md) 走一遍 10 分钟的完整闭环，
 或者先看 [安装](docs/getting-started/installation.md) 弄清初始化到底生成了什么。
@@ -158,8 +163,8 @@ Windows 可双击 `start_digest.bat`（自动找 Python，端口读 `config.json
 
 ```text
 arXiv-digest/
-├─ 21 个主流程模块                # 抓取 / 打分 / 归档 / 渲染 / 服务 / 选路 / 数据包
-│  ├─ 基础  paths.py arxiv_cats.py paperutil.py netroute.py
+├─ 22 个主流程模块                # 抓取 / 打分 / 归档 / 渲染 / 服务 / 选路 / 数据包
+│  ├─ 基础  paths.py arxiv_cats.py paperutil.py netroute.py serveport.py
 │  ├─ 领域  textscan.py fetchsrc.py profile.py archive.py
 │  ├─ 应用  customize.py scoring.py recommend.py fetch_*.py
 │  ├─ 渲染  build_report.py
@@ -206,12 +211,12 @@ arXiv-digest/
 
 ## 质量闸门
 
-**主闸门是 pytest 套件**：720 个用例（单元 / 集成 / 端到端 / 浏览器），行覆盖率 90%，
+**主闸门是 pytest 套件**：795 个用例（单元 / 集成 / 端到端 / 浏览器），行覆盖率 91%，
 门槛 85%。它们全部在 `tmp_pytest/` 沙箱里跑，**不会碰你的真实数据**。
 
 ```bash
 python -m pip install -r requirements-dev.txt   # 只装测试工具，运行期仍然零依赖
-python -m pytest                 # 720 passed
+python -m pytest                 # 795 passed
 python -m pytest -m unit         # 只跑单元，15s（改纯函数时用这个）
 python -m pytest --cov           # 覆盖率，低于 85% 直接失败
 ```

@@ -34,9 +34,13 @@ output/
 ├─ arxiv_digest_<YYYYMMDD>.{html,md} # 当期日报
 ├─ favorites.html / archive.html     # 收藏页 / 存档页
 ├─ backup/<时间>/                    # 导入预设时的旧配置备份
-├─ server.log                        # 服务日志
+├─ server.log                        # 服务日志（含 serving <实际地址> 一行）
+├─ server.json                       # 本次服务实际端口/URL/PID/启动时间
 └─ _*.json / *.bad_<时间戳>          # 临时与坏输出留档（可安全删除）
 ```
+
+> `server.json` 是唯一"描述进程状态"的文件：默认端口被占用而顺延时，`run_daily.py`
+> 与排障都靠它确认实际端口。删掉无害（服务不会读它），下次启动会重新写。
 
 ## 二、抓取池
 

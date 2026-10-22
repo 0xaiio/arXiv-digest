@@ -37,9 +37,27 @@ opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 ### 1.3 端口被占用
 
-**症状**：启动时报 `Address already in use` / `OSError: [WinError 10048]`。
+**症状**：打开 8765 是别的程序、或者本地服务在 8766 / 8767 上。
 
-**诊断**
+**现在的行为（2026-10-20 起）**：默认端口被占用时**不会**再报
+`Address already in use` / `[WinError 10048]` 然后退出，而是自动向后顺延（最多 20 个），
+并在启动日志里给出实际地址：
+
+```
+serving http://127.0.0.1:8766  (download_dir=...)
+port: 8766（8765 已被占用，已向后顺延；尝试过 8765–8766，共 2 个）
+```
+
+**先确认实际端口**
+
+```bash
+python -c "import serveport;print(serveport.read_runtime_info('output/server.json'))"
+```
+
+同时页面里的接口端口会被自动改写（静态页发出去时改 `APIPORT`，动态页按运行期端口渲染），
+所以顺延之后收藏 / 下载照常可用，**不需要手工改任何配置**。
+
+**想查/腾出占用者**
 
 ```bash
 # Windows PowerShell
@@ -51,10 +69,24 @@ Get-NetTCPConnection -LocalPort 8765 -State Listen | Select-Object OwningProcess
 lsof -i :8765
 ```
 
-**修复**：结束旧进程，或把 `config.json` 的 `port` 改成空闲端口（改完要重启服务，
-`start_digest.bat` 会自动读新端口）。
+**想固定端口**：改 `config.json` 的 `port`，或启动时 `python server.py --port 9000`
+（仍然被占用时会继续顺延）。20 个端口都不可用时进程以退出码 2 结束并打印尝试范围，
+此时换一段端口即可。
 
-### 1.4 改了模板，页面还是旧的
+### 1.4 启动后浏览器没有自动打开
+
+**先判断是不是本来就该关着**（默认是开的）：
+
+1. 启动参数带了 `--no-open`（`run_daily.py` 拉起的后台服务固定带它 —— 它只打印地址）；
+2. `config.json` 里写了 `"open_browser": false`。
+
+**症状**：日志里出现 `[browser] 未能自动打开浏览器，请手动访问 http://127.0.0.1:<端口>`。
+
+这不是故障：无桌面环境（SSH、容器、Windows 服务）、没有默认浏览器、或系统拒绝拉起浏览器时，
+只打印一行提示并继续提供服务，**不会让启动失败**。手动访问那个地址即可；想让提示消失就
+`--no-open`。反过来，配置里关了但这次想开，用 `--open`（命令行优先于配置）。
+
+### 1.5 改了模板，页面还是旧的
 
 | 页面 | 是否需要重启 | 说明 |
 | --- | --- | --- |
@@ -63,7 +95,7 @@ lsof -i :8765
 
 **修复**：`python build_report.py` 或点页面上的「↻ 重算推荐」。若连动态页都旧，重启服务。
 
-### 1.5 导入数据包被拒绝 / 画像页看不到包
+### 1.6 导入数据包被拒绝 / 画像页看不到包
 
 | 症状 | 根因 | 修复 |
 | --- | --- | --- |
@@ -293,6 +325,8 @@ python tools/gen_pending.py --limit 20    # 导出缺摘要清单到 output/_pen
 | 闸门报「段内静音 > 3s」 | 该段口播太短 | 补写 `output/video_notes.json` 的 `narration` |
 | 闸门报「总时长不符」 | 篇数与 `--top/--expand` 不符 | 显式写 `--top 8 --expand 2` |
 | TTS 报 `403 WSServerHandshakeError` | `edge-tts` 版本过旧，签名被服务端拒绝 | `pip install -U edge-tts` 后重试 |
+| TTS 报 `ClientConnectorError: Cannot connect to host speech.platform.bing.com` | **出网路由**问题，不是稿件问题：本机对该域名的直连被拦（DNS 常被解析到 `198.18.0.104` 这类假 IP，TCP 能连上但 TLS 握手被掐断），只有经代理才通 | 脚本已自动逐条回退路由（直连 → 环境代理 → 本机代理端口）并记住成功那条；仍失败时用 `--proxy` 显式指定，例如 `python tools/gen_narration.py --proxy http://127.0.0.1:7890`；先用 `curl -x <代理> -sv https://speech.platform.bing.com/` 确认 `CONNECT ... 200` 且 TLS 握手完成 |
+| TTS 偶发 `NoAudioReceived` | 服务端瞬时抽风，与稿件无关 | 脚本会在**同一路由**内自动重试；连续失败才换路由 |
 
 完整流程见[视频与投稿](../guide/video-pipeline.md)。
 
@@ -305,6 +339,7 @@ python tools/gen_pending.py --limit 20    # 导出缺摘要清单到 output/_pen
 | 登录态失效 | cookie 过期 | 重新 TV 扫码；`biliup renew` 可验证 |
 | 合集里没有新视频 | 没跑 `sync`，或稿件仍在审核（cid 未生成） | `python tools/bili_collection.py sync --exec`；等转码完成后重跑 |
 | `sync` 报 `code 20080 当前稿件已存在在合集中` | 刚刚已挂载成功，只是列表接口缓存导致本地判重没看到 | 属幂等成功，脚本已按成功处理；无需任何操作 |
+| 上传报 `error sending request ... tls handshake eof` | 上传线路（upos CDN）的 TLS 握手被出口拦断，**不是账号问题**，也未产生稿件 | 换一条线路重投：`--line bda2`（可选 `bda2/ws/qn/bldsa/tx/txa/bda/alia`），不会重复投稿 |
 
 cookie 等同账号密码：只在 `.secrets/` 里，绝不进日志、提交或外发。
 

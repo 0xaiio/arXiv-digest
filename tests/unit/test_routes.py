@@ -317,3 +317,55 @@ def test_output_file_only_serves_basename(sandbox):
     r = RT.output_file(_req(api=types.SimpleNamespace(OUT=str(sandbox.out))),
                        "../../etc/passwd")
     assert r.file_path == str(sandbox.out / "passwd"), "必须剥掉目录部分"
+
+
+# ------------------------------------------------------------------ 端口顺延后的静态页
+# 服务因默认端口被占而顺延（8765 → 8766）时，静态日报里烘焙的 APIPORT 必须跟着改：
+# 不改的话页面上的收藏/下载/Downvote 会打到旧端口，表象是「点了没反应」。
+
+def _page(out, name, port=8765):
+    f = out / name
+    f.write_text("<script>var APIPORT=%d;var b='http://127.0.0.1:'+APIPORT;</script>"
+                 % port, encoding="utf-8")
+    return f
+
+
+def test_digest_page_rewrites_baked_port_when_shifted(sandbox, monkeypatch):
+    f = _page(sandbox.out, "arxiv_digest_20261020.html")
+    monkeypatch.setattr(pu, "RUNTIME_PORT", 8766)
+    api = types.SimpleNamespace(OUT=str(sandbox.out), latest_digest=lambda: str(f), pu=pu)
+    r = RT.digest_page(_req(api=api))
+    assert r.file_path is None, "改写后要直接回内存体"
+    assert "var APIPORT=8766;" in r.body
+    assert "APIPORT=8765" not in r.body
+
+
+def test_digest_page_keeps_file_reply_when_port_matches(sandbox, monkeypatch):
+    f = _page(sandbox.out, "arxiv_digest_20261020.html", port=8765)
+    monkeypatch.setattr(pu, "RUNTIME_PORT", 8765)
+    api = types.SimpleNamespace(OUT=str(sandbox.out), latest_digest=lambda: str(f), pu=pu)
+    r = RT.digest_page(_req(api=api))
+    assert r.file_path == str(f), "端口一致时不必读盘改写，保持延迟读盘"
+
+
+def test_output_file_rewrites_port(sandbox, monkeypatch):
+    _page(sandbox.out, "favorites.html")
+    monkeypatch.setattr(pu, "RUNTIME_PORT", 9100)
+    api = types.SimpleNamespace(OUT=str(sandbox.out), pu=pu)
+    r = RT.output_file(_req(api=api), "favorites.html")
+    assert "var APIPORT=9100;" in r.body
+
+
+def test_output_file_does_not_touch_binary(sandbox, monkeypatch):
+    (sandbox.out / "x.pdf").write_bytes(b"%PDF-1.4")
+    monkeypatch.setattr(pu, "RUNTIME_PORT", 9100)
+    api = types.SimpleNamespace(OUT=str(sandbox.out), pu=pu)
+    r = RT.output_file(_req(api=api), "x.pdf")
+    assert r.file_path == str(sandbox.out / "x.pdf")
+
+
+def test_static_page_without_runtime_port_is_untouched(sandbox):
+    """独立跑 build_report（没有服务进程）时行为与以前完全一致。"""
+    f = _page(sandbox.out, "arxiv_digest_20261020.html")
+    api = types.SimpleNamespace(OUT=str(sandbox.out), latest_digest=lambda: str(f))
+    assert RT.digest_page(_req(api=api)).file_path == str(f)

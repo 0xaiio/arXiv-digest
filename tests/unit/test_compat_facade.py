@@ -13,6 +13,7 @@ import pytest
 
 import build_report as B
 import customize as CZ
+import paperutil as pu
 import recommend as R
 import server as S
 import service as SV
@@ -146,6 +147,17 @@ def test_render_js_follows_port_changes(sandbox):
     assert "APIPORT=9877" in B.render_js()
     sandbox.set_config(port=9878)
     assert "APIPORT=9878" in B.render_js()
+
+
+def test_render_js_follows_runtime_port(sandbox, monkeypatch):
+    """服务因端口被占而顺延时，动态页面的 APIBASE 必须指向**实际**端口。
+
+    静态页由 routes._static_html 改写，动态页走这里 —— 两条路都要跟得上，
+    否则顺延之后「日报能收藏、收藏页不能取消收藏」这种半坏状态最难查。
+    """
+    sandbox.set_config(port=9879)
+    monkeypatch.setattr(pu, "RUNTIME_PORT", 9880)
+    assert "APIPORT=9880" in B.render_js()
 
 
 def test_read_template_caches_by_mtime(sandbox):

@@ -60,3 +60,15 @@ def test_every_module_level_out_copy_is_registered():
 def test_sandbox_dirs_are_unique_per_test(sandbox, bare_sandbox):
     assert sandbox.root != bare_sandbox.root
     assert sandbox.out != bare_sandbox.out
+
+
+def test_fresh_dir_never_inherits_previous_run():
+    """跨轮次也必须拿到空目录：pid 会被复用，`tag-pid-序号` 会撞上上一轮的残留。
+
+    这批目录从不删除（沙箱拦截删除），撞车表现是一批无关用例随机红、单跑却全绿。
+    """
+    a = C._fresh_dir("uniq")
+    b = C._fresh_dir("uniq")
+    assert a != b
+    assert list((a / "output").iterdir()) == []
+    assert list((b / "output").iterdir()) == []

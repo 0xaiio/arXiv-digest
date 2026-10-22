@@ -22,6 +22,7 @@ import json
 import os
 import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -43,13 +44,19 @@ import run_daily as RD        # noqa: E402
 import server as S            # noqa: E402
 
 TMP_ROOT = ROOT / "tmp_pytest"
-_counter = {"n": 0}
 
 
 def _fresh_dir(tag):
+    """每次调用都拿到一个**全新**目录。
+
+    为什么不用 `tag-pid-序号`：沙箱对删除是累积拦截的，这些目录只会越攒越多；
+    而 pid 会被系统复用 —— 上一轮 `<tag>-12345-001` 里留下的 config/archive/language
+    会被下一轮的同一路径**继承**，表现为一批与本用例无关的断言失败
+    （2026-10-22 实测：完整套件 13 个用例随机红，单跑却全绿）。
+    `mkdtemp` 只建不删，也不与历史目录重名。
+    """
     TMP_ROOT.mkdir(exist_ok=True)
-    _counter["n"] += 1
-    d = TMP_ROOT / ("%s-%d-%03d" % (tag, os.getpid(), _counter["n"]))
+    d = Path(tempfile.mkdtemp(prefix="%s-" % tag, dir=str(TMP_ROOT)))
     (d / "output").mkdir(parents=True, exist_ok=True)
     return d
 

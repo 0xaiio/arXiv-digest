@@ -29,6 +29,8 @@
 import json
 import os
 
+import serveport
+
 
 class Reply:
     """一次响应的完整描述（状态码 / 体 / 类型 / 待读文件）。"""
@@ -144,6 +146,38 @@ def table():
 
 
 # ================================================================ 页面
+
+def _runtime_port(req):
+    """服务实际监听的端口；拿不到就返回 None（测试里的假 api、老扩展都可能没有）。"""
+    try:
+        return int(req.api.pu.effective_port())
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _static_html(req, path):
+    """静态 HTML 的回复：顺带把页面里烘焙的 APIPORT 改写成**实际**端口。
+
+    为什么要改写：日报与归档快照是静态文件（`Reply.file` 直接发字节，必须与
+    `output/archive` 保持一致，不能重新渲染），而页面 JS 里的端口是渲染当时的
+    `config.port`。服务因端口被占而自动顺延（8765 → 8766）时，不改写的话页面上的
+    收藏 / 下载 / Downvote 会打到旧端口 —— 表象是「点了没反应」（乐观更新被回滚）。
+
+    只在端口确实不同、且文件是 .html 时才写回内存副本；其它情况仍走 `Reply.file`
+    的延迟读盘（不存在时由 Handler 转 404）。
+    """
+    port = _runtime_port(req) if str(path).endswith(".html") else None
+    if not port:
+        return Reply.file(path)
+    try:
+        with open(path, encoding="utf-8") as f:
+            text = f.read()
+    except OSError:
+        return Reply.file(path)
+    patched = serveport.rewrite_api_port(text, port)
+    return Reply.html(patched) if patched != text else Reply.file(path)
+
+
 @get("/")
 @get("/index.html")
 @get("/digest")
@@ -156,7 +190,7 @@ def digest_page(req):
     f = req.q("f")
     target = os.path.join(req.api.OUT, f) if f else req.api.latest_digest()
     if target and os.path.exists(target):
-        return Reply.file(target)
+        return _static_html(req, target)
     try:
         cats = req.api.CZ.categories()
     except Exception:  # noqa
@@ -219,16 +253,16 @@ def archive_snapshot(req, date_part):
         f = None
     if not f:
         return Reply.text("该日期没有存档", 404)
-    return Reply.file(f)
+    return _static_html(req, f)
 
 
 @get_prefix("/files/")
 def output_file(req, name_part):
     """output/ 下的静态文件（只允许一层文件名，防目录穿越）。"""
     name = os.path.basename(name_part)
-    ctype = ("text/html; charset=utf-8" if name.endswith(".html")
-             else "application/octet-stream")
-    return Reply.file(os.path.join(req.api.OUT, name), ctype)
+    if name.endswith(".html"):
+        return _static_html(req, os.path.join(req.api.OUT, name))
+    return Reply.file(os.path.join(req.api.OUT, name), "application/octet-stream")
 
 
 def _write_side_effect(out_dir, name, text):

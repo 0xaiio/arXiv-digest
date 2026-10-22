@@ -7,6 +7,104 @@
 
 ---
 
+## 2026-10-22（语音合成的出网路由：能换路、会记住、失败可补跑）
+
+定时任务在这一轮 TTS 上连撞两次硬失败：12 段旁白合成到第 3 段整轮 traceback，
+而同一时刻**单跑**一次 `edge-tts` 却成功。定位结论是**路由**而不是服务：
+`speech.platform.bing.com` 在本机被解析到 `198.18.0.104` 这类假 IP，TCP 能连上（0.0s）、
+TLS 握手随即被掐断（`curl -v` 显示 `CONNECT ... 200` 之后 `SSL/TLS connection failed`）；
+而经环境代理 `HTTP(S)_PROXY` 的同类请求可以通，且**同一代理也会按请求随机失败**（实测约 1/3）。
+旧实现只有「同一路由重试 3 次」，撞上就是整轮失败。
+
+### 新增
+
+- **`gen_narration.py --proxy <url>`**：直接指定 TTS 出网代理，跳过自动探测；
+- **路由回退**：`tts_proxy_candidates()` 复用 `netroute.candidates()` 的顺序
+  （直连 → 环境代理 → 本机代理端口），逐条尝试；成功的一条记进 `_ROUTE`，供后续段落直接命中，
+  不再每段重等直连的建连超时。候选数量上限 `TTS_MAX_ROUTES = 6`
+  （`netroute` 末尾会追加"本机其它在监听端口"，实测那些是普通服务，返回 405/400 或直接断开，
+  试到第 8 条只是空转）；
+- **段级补跑**：`TTS_SEGMENT_ROUNDS = 3`。第一轮逐段合成，把失败的挑出来再补，
+  补齐才算成功（`audio.json` 的 `enabled` 以**最后一轮**为准）；
+- 新增 9 个单元测试（`tests/unit/test_gen_narration.py`）：候选顺序 / 记住成功路由 /
+  建连失败换路 / 单次抽风不换路 / 全部失败抛出 / 单段失败不崩主流程 / 补跑成功即整体成功。
+
+### 修复
+
+- **单段合成失败不再让整轮 traceback**：`main()` 内逐段 try/except，失败记为 `[err]` 并继续，
+  最终如实写 `enabled=false`（否则渲染会去引用一个不存在的 mp3）；
+- **补跑后的成功判定**：初版用「第一轮是否失败」定 `ok`，导致第二轮补齐了仍报 `enabled=false`
+  —— 该缺陷由新增用例抓出，已改为以最后一轮为准；
+- **重试策略区分两类错误**：`NoAudioReceived` 属服务端抽风 → 同一路由内重试；
+  建连失败（`ClientConnectorError` / TLS 被掐）→ 换路由，但**连续两次**才换
+  （可用代理本身会按请求抽风，一次就换会丢掉好路由，落到无关的本地服务上）。
+
+### 文档
+
+- `docs/reference/cli.md`：`gen_narration.py` 补 `--proxy` 与自动路由说明；
+- `docs/guide/video-pipeline.md`：新增「TTS 连接失败 = 路由问题」的判据与处理；
+- `docs/operations/troubleshooting.md`：视频小节补 `ClientConnectorError` / `NoAudioReceived` 两行。
+
+---
+
+## 2026-10-20（启动体验：端口自动顺延 + 浏览器开关）
+
+上一版启动是「端口被占就崩」：`server.py` 直接 `ThreadingHTTPServer(("127.0.0.1", port))`，
+`Address already in use` 一抛就退出；`start_digest.bat` 更糟 —— 它先自己 `start "" http://…:8765`
+再给服务传 `--no-open`，端口一旦被占，浏览器开到一个别人的页面上，窗口里只剩 traceback。
+这次把「怎么暴露服务」抽成一层并补齐三条链路（直接启动 / 批量流水线 / 双击 bat）。
+
+### 新增
+
+- **`serveport.py`**（基础层，仅标准库）：端口解析与校验（`valid_port` / `configured_port`）、
+  占用探测（`port_in_use` 走 connect、`can_bind` 走 bind）、顺延查找（`find_free_port`，
+  默认最多 20 个候选、越过 65535 即停不绕回）、页面端口改写（`rewrite_api_port`）、
+  浏览器开关（`browser_enabled` / `open_browser`）、运行期信息（`write_runtime_info` /
+  `read_runtime_info` → `output/server.json`）；
+- **`server.py --port <端口>`**：指定起始端口（优先于 `config.json`），被占用时照样顺延；
+- **`server.py --open`**：配置里关了自动开浏览器时，临时强制打开（`--no-open` 仍可关）；
+- **`config.json` 新字段 `open_browser`**（默认 `true`）：关掉后启动不再弹浏览器；
+- **启动日志明确报出实际地址**：`serving http://127.0.0.1:8766` + 一行
+  `port: 8766（8765 已被占用，已向后顺延；尝试过 8765–8766，共 2 个）`；
+- **`output/server.json`**：`{port, url, pid, started_at}`，供 `run_daily.py` 与排障对账；
+- 新增 75 个用例（50 单元 serveport + 16 单元 server 启动 + 5 路由静态页端口改写 +
+  1 渲染端口 + 3 run_daily 端口顺延），总数 720 → 795。
+
+### 变更
+
+- **`run_daily.py`**：不再盲目轮询 `config.port`。先用同一份 `find_free_port` 选空闲端口，
+  再以 `--port` 传给 `server.py`（保证「轮询的端口」＝「绑定的端口」）；服务若仍被抢而顺延，
+  回读 `output/server.json` 对账，不再误报「服务没起来」；
+- **`start_digest.bat`**：删掉自己拼 URL 与 `start ""` 的旧逻辑，改由 `server.py` 打印并打开
+  真实地址（旧逻辑在端口顺延后会开到别人的页面上）；
+- **`routes.py`**：新增 `_static_html()`。日报 / 归档快照 / `/files/*.html` 这类**静态**响应
+  在发送时就地改写 `APIPORT=<实际端口>`（端口一致时仍走原来的延迟读盘，且不落盘、归档快照
+  文件本身一字不改）；
+- **`build_report.api_port()`** 改走 `paperutil.effective_port()`：动态页（`/favorites`、
+  `/profile`、`/archive`）按**运行期实际端口**渲染，端口顺延后不会再指回旧端口；
+- **`paperutil.py`**：新增 `RUNTIME_PORT` / `set_runtime_port()` / `effective_port()`
+  （运行期端口 > `config.port` > 8765，非法值回落）。放在这里而不是 `build_report`，
+  因为后者每个请求都可能被 reload，模块级变量留不住；
+- 端口耗尽时进程以**退出码 2** 结束并打印尝试范围，不留半启动进程；绑定被抢（探测与 bind
+  之间的竞态）自动顺延重试一轮。
+
+### 文档
+
+- README / 文档首页：特性表加「启动不挑端口」，快速开始改成「打印地址」而不是「浏览器会打开」；
+- `docs/architecture/server-runtime.md`：新增「端口：先探测、再顺延、最后落盘」一节，
+  说明 connect 探测为何是主判据（Windows `SO_REUSEADDR` 端口劫持）、静态/动态页两条
+  端口改写路径、生命周期图与失败模式表同步；
+- `docs/reference/config.md`（`port` 语义 + 新字段 `open_browser`）、`cli.md`（`--port` /
+  `--open` / 顺延语义）、`troubleshooting.md`（1.3 端口被占用改成「会自动顺延」，
+  新增 1.4 浏览器没自动打开）、`installation.md`、`quickstart.md`、`data-files.md`
+  （`server.json`）、`modules.md`（新模块）、`contributing/testing.md`（用例数与覆盖率）。
+
+### 修复
+
+- 顺延后页面按钮失效的连带故障：页面 JS 里的 `APIPORT` 是渲染时烘焙的 `config.port`，
+  不改写的话收藏 / 下载 / Downvote 会打到旧端口，而 `/api/ping` 却是通的 ——
+  表象为「点了没反应」（乐观更新被回滚），极难定位。
+
 ## 2026-10-20（私人数据隔离：数据包与干净首启动）
 
 把"个人数据不进版本库"从**命名约定**升级为**有契约、有清单、有测试**的显式对象：

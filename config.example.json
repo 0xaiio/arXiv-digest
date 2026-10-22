@@ -1,5 +1,5 @@
 {
-  "_comment": "arXiv-digest 的默认配置模板。首次运行 run_daily.py / server.py 时若发现 config.json 不存在，会按本文件生成一份；之后请改 config.json（本文件保持干净，勿改）。categories = 每日必抓的 arXiv 分类（顺序即摘要页分类小节顺序）；默认**留空**，请在 /profile 的「arXiv 类别」面板里自选，或 `python run_daily.py --categories cs.DB,cs.DC`。expand_categories = 「兴趣扩展」的邻域分类池，留空表示自动取同 archive 的兄弟分类。download_dir 支持相对路径（相对项目根，默认 papers/）或绝对路径。",
+  "_comment": "arXiv-digest 的默认配置模板。首次运行 run_daily.py / server.py 时若发现 config.json 不存在，会按本文件生成一份；之后请改 config.json（本文件保持干净，勿改）。categories = 每日必抓的 arXiv 分类（顺序即摘要页分类小节顺序）；默认**留空**，请在 /profile 的「arXiv 类别」面板里自选，或 `python run_daily.py --categories cs.DB,cs.DC`。expand_categories = 「兴趣扩展」的邻域分类池，留空表示自动取同 archive 的兄弟分类。download_dir 支持相对路径（相对项目根，默认 papers/）或绝对路径。port 是**起始**端口（默认 8765）：被别的进程占用时 server.py 自动向后顺延（最多 20 个），实际地址打印在启动日志里；open_browser=false 关闭「启动后自动打开浏览器」（等同启动参数 --no-open，--open 可临时强制打开）。",
   "download_dir": "papers",
   "categories": [],
   "category_names": {},
@@ -11,5 +11,6 @@
   "expand_window_days": 3,
   "expand_max_results": 600,
   "affil_targets": 60,
-  "port": 8765
+  "port": 8765,
+  "open_browser": true
 }

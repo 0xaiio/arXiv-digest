@@ -81,13 +81,21 @@ def fake_popen(monkeypatch):
     return calls
 
 
+@pytest.fixture()
+def fixed_free_port(monkeypatch):
+    """让端口选择返回起点本身 —— 用例不该依赖本机 8791 恰好空着。"""
+    monkeypatch.setattr(RD.serveport, "find_free_port",
+                        lambda start, **k: (start, [start]))
+    return None
+
+
 def test_ensure_server_reuses_running_instance(monkeypatch, sandbox):
     monkeypatch.setattr(RD, "server_alive", lambda port, timeout=2.0: True)
     url, started = RD.ensure_server(port=8765)
     assert url == "http://127.0.0.1:8765" and started is False
 
 
-def test_ensure_server_starts_and_waits(monkeypatch, sandbox, fake_popen):
+def test_ensure_server_starts_and_waits(monkeypatch, sandbox, fake_popen, fixed_free_port):
     state = {"n": 0}
 
     def alive(port, timeout=2.0):
@@ -101,9 +109,10 @@ def test_ensure_server_starts_and_waits(monkeypatch, sandbox, fake_popen):
     assert fake_popen, "应真的尝试拉起子进程"
     cmd, kw = fake_popen[0]
     assert kw.get("cwd") == RD.HERE, "cwd 必须是项目根"
+    assert cmd[-2:] == ["--port", "8791"], "端口要显式传给 server.py"
 
 
-def test_ensure_server_reports_timeout(monkeypatch, sandbox, fake_popen):
+def test_ensure_server_reports_timeout(monkeypatch, sandbox, fake_popen, fixed_free_port):
     monkeypatch.setattr(RD, "server_alive", lambda port, timeout=2.0: False)
     monkeypatch.setattr(RD.time, "sleep", lambda *_: None)
     monkeypatch.setattr(RD.time, "time", lambda: 0.0)     # 立刻超时
@@ -111,7 +120,7 @@ def test_ensure_server_reports_timeout(monkeypatch, sandbox, fake_popen):
     assert started is False
 
 
-def test_ensure_server_survives_spawn_failure(monkeypatch, sandbox):
+def test_ensure_server_survives_spawn_failure(monkeypatch, sandbox, fixed_free_port):
     monkeypatch.setattr(RD, "server_alive", lambda port, timeout=2.0: False)
 
     def boom(*a, **k):
@@ -120,6 +129,71 @@ def test_ensure_server_survives_spawn_failure(monkeypatch, sandbox):
     monkeypatch.setattr(RD.subprocess, "Popen", boom)
     url, started = RD.ensure_server(port=8791)
     assert url.endswith(":8791") and started is False, "起不来也不能让流水线崩掉"
+
+
+# ---------------------------------------------------------------- 端口顺延（2026-10-20）
+
+@pytest.fixture()
+def busy_port():
+    """真占住一个端口，模拟「config 里的端口被别的软件用着」。"""
+    import socket
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    for _ in range(20):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.bind(("127.0.0.1", 0))
+        sock.listen(1)
+        if sock.getsockname()[1] < 65000:
+            break
+        sock.close()
+    try:
+        yield sock.getsockname()[1]
+    finally:
+        sock.close()
+
+
+def test_ensure_server_shifts_port_when_busy(busy_port, monkeypatch, sandbox, fake_popen):
+    """端口被占时：自己先选空闲端口再传给 server.py，轮询的端口就是它绑的端口。"""
+    started_ports = []
+
+    def alive(port, timeout=2.0):
+        started_ports.append(port)
+        return port != busy_port       # 被占的那个永远"不通"，顺延后的可以
+
+    monkeypatch.setattr(RD, "server_alive", alive)
+    monkeypatch.setattr(RD.time, "sleep", lambda *_: None)
+    url, started = RD.ensure_server(port=busy_port, wait=5)
+
+    assert started is True
+    assert url != "http://127.0.0.1:%d" % busy_port
+    asked = int(url.rsplit(":", 1)[1])
+    assert asked > busy_port
+    cmd, _kw = fake_popen[0]
+    assert cmd[-2:] == ["--port", str(asked)], "传下去的端口必须与轮询的一致"
+
+
+def test_ensure_server_reports_exhausted_ports(monkeypatch, sandbox, fake_popen, capsys):
+    monkeypatch.setattr(RD, "server_alive", lambda port, timeout=2.0: False)
+    monkeypatch.setattr(RD.serveport, "find_free_port",
+                        lambda start, **k: (None, [start, start + 1]))
+    url, started = RD.ensure_server(port=8765)
+    assert started is False
+    err = capsys.readouterr().err
+    assert "都不可用" in err and "config.json" in err
+    assert not fake_popen, "选不到端口就不该拉起进程"
+
+
+def test_ensure_server_adopts_actual_port_from_runtime_info(monkeypatch, sandbox, fake_popen):
+    """极端竞态：选完端口又被抢，服务自己顺延了 —— 以它落盘的 server.json 为准。"""
+    import json
+
+    (sandbox.out / "server.json").write_text(
+        json.dumps({"port": 8777, "url": "http://127.0.0.1:8777", "pid": 1,
+                    "started_at": "2026-10-20 16:00:00"}), encoding="utf-8")
+    monkeypatch.setattr(RD, "server_alive", lambda port, timeout=2.0: port == 8777)
+    monkeypatch.setattr(RD.time, "sleep", lambda *_: None)
+    url, started = RD.ensure_server(port=8791, wait=5)
+    assert started is True and url == "http://127.0.0.1:8777"
 
 
 def test_port_of_reads_config(sandbox, monkeypatch):

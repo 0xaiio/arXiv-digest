@@ -52,7 +52,18 @@ PAPERS = ROOT / "reel" / "src" / "papers.json"
 
 TID = "171"  # 知识·野生技术协会
 TITLE_MAX, DESC_MAX, TAG_MAX = 80, 250, 200
-BASE_TAGS = ["arXiv", "论文速递", "计算机科学", "分布式系统", "数据库", "形式化方法", "论文解读"]
+BASE_TAGS = ["arXiv", "论文速递", "计算机科学", "论文解读"]
+# 分类 → 标题/标签里的短名。标题与标签**必须由当期入选论文的分类推出来**：
+# 2026-10-22 这期十篇全是 cs.SE / math.OC / cs.CL / cs.CR / cs.AI，
+# 而旧实现把「DB·分布式·形式化」写死在 build_title 里，标题与内容不符（公开可见的错误）。
+CAT_SHORT = {
+    "cs.DB": "数据库", "cs.DC": "分布式", "cs.FL": "形式化方法", "cs.LO": "逻辑",
+    "cs.PL": "程序语言", "cs.SE": "软件工程", "cs.CR": "系统安全", "cs.LG": "机器学习",
+    "cs.AI": "人工智能", "cs.CL": "自然语言处理", "cs.CV": "计算机视觉",
+    "cs.AR": "体系结构", "cs.NI": "网络", "cs.PF": "性能", "cs.DS": "算法",
+    "math.OC": "优化", "math.LO": "数理逻辑", "eess.SY": "系统与控制",
+    "cs.RO": "机器人", "cs.IR": "信息检索", "cs.HC": "人机交互",
+}
 
 # member API 的稿件状态码（依据 bilibili-API-collect 稿件状态表）
 STATE_TEXT = {
@@ -216,13 +227,33 @@ def build_desc(papers: list[dict]) -> tuple[str, int]:
     return head[:DESC_MAX], 0
 
 
-def build_title(issue: str) -> str:
-    t = f"arXiv 日报 {issue}｜DB·分布式·形式化 Top10 速览"
-    return t[:TITLE_MAX]
+def topic_labels(papers: list[dict], limit: int = 3) -> list[str]:
+    """按出现顺序取前 limit 个**不同**分类短名（顺序即成片顺序，不按出现次数重排）。"""
+    seen, out = set(), []
+    for p in papers or []:
+        cat = str(p.get("cat") or "")
+        label = CAT_SHORT.get(cat)
+        if not label or label in seen:
+            continue
+        seen.add(label)
+        out.append(label)
+        if len(out) >= limit:
+            break
+    return out
+
+
+def build_title(issue: str, papers: list[dict] | None = None) -> str:
+    labels = topic_labels(papers or [])
+    topic = "·".join(labels) if labels else "论文精选"
+    n = len(papers or []) or 10
+    return f"arXiv 日报 {issue}｜{topic} Top{n} 速览"[:TITLE_MAX]
 
 
 def build_tags(papers: list[dict]) -> str:
     tags = list(BASE_TAGS)
+    for label in topic_labels(papers, limit=4):
+        if label not in tags:
+            tags.append(label)
     s = ",".join(tags)
     if len(s) > TAG_MAX:
         while len(s) > TAG_MAX and len(tags) > 2:
@@ -347,7 +378,7 @@ def cmd_meta(a: argparse.Namespace) -> int:
     issue, video, data = resolve_issue(a.date)
     papers = data.get("papers", [])
     desc, n_in = build_desc(papers)
-    title = build_title(issue)
+    title = build_title(issue, papers)
     tags = build_tags(papers)
     comment = build_comment(papers, issue)
     assert len(desc) <= DESC_MAX, "desc 超 250"
@@ -427,7 +458,11 @@ def cmd_upload(a: argparse.Namespace) -> int:
     ]
     if cover.is_file():
         cmd += ["--cover", str(cover)]
+    if getattr(a, "line", None):
+        cmd += ["--line", a.line]
     printable = subprocess.list2cmdline(cmd[:5]) + " --title … --tag … --desc … --copyright 1"
+    if getattr(a, "line", None):
+        printable += " --line " + a.line
     print("== 投稿命令 ==")
     info(printable)
     info(f"视频 {Path(m['video']).name if m['video'] else '?'} / 封面 {cover.name if cover.is_file() else '无（B站自动生成）'}")
@@ -446,6 +481,10 @@ def cmd_upload(a: argparse.Namespace) -> int:
     if "601" in log:
         bad("命中账号频控 code 601（您上传视频过快）。这是账号侧临时限流，"
             "等几分钟用同一条命令重投即可，**不要改参数硬刷**。")
+    elif "tls handshake" in log or "error sending request" in log:
+        bad("上传线路 TLS 握手失败（出口被拦，不是账号问题）。"
+            "换一条线路重投：`--line bda2`（可选 bda2/ws/qn/bldsa/tx/txa/bda/alia）。"
+            "未产生稿件，重投不会重复投稿。")
     else:
         bad(f"投稿失败，退出码 {r.returncode}")
     return r.returncode or 1
@@ -625,6 +664,9 @@ def main() -> int:
     ap.add_argument("cmd", choices=["check", "meta", "cover", "upload", "verify", "comment"])
     ap.add_argument("--date", "-d", default=None, help="期号 YYYYMMDD，默认当天")
     ap.add_argument("--exec", dest="exec", action="store_true", help="真正执行（对外副作用）")
+    ap.add_argument("--line", default=None,
+                    help="上传线路（bda2/ws/qn/bldsa/tx/txa/bda/alia），默认由 biliup 探测；"
+                         "某条线路 TLS 握手失败时换一条即可")
     a = ap.parse_args()
     return {
         "check": cmd_check, "meta": cmd_meta, "cover": cmd_cover,

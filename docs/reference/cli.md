@@ -61,7 +61,7 @@ python run_daily.py --preset hengxin --categories cs.LG   # 用这份画像，�
 | `recommend.py` | 无 | `recommend.json` `expand.json` `papers_index.json` `issue_core.json` `issue_expand.json` `issue_stats.json` `scores.json` |
 | `fetch_affil.py` | `--force` 重抓已缓存；`--max N` 本期最多解析 N 篇；`--only cs.DB,cs.DC` 只处理指定分类 | `output/affiliations.json`（跨日累积） |
 | `build_report.py` | 无 | `arxiv_digest_<日期>.html/.md`、`favorites.html`、`archive.html`、`output/archive/<日期>.{html,md}`，并登记 `archive.db` |
-| `server.py` | `--no-open` 不自动开浏览器；`--preset <名字>` 启动前先导入数据包；`--preset-force` 允许覆盖 | 启动 `http://127.0.0.1:<port>`（端口取 `config.json`） |
+| `server.py` | `--port <端口>` 指定**起始**端口；`--no-open` 不自动开浏览器；`--open` 强制开（覆盖配置）；`--preset <名字>` 启动前先导入数据包；`--preset-force` 允许覆盖 | 启动 `http://127.0.0.1:<port>`：默认取 `config.json` 的 `port`（8765），被占用时自动向后顺延并在日志打印实际地址 |
 | `profile.py` | 无 | 打印主题倍率、关键词两端极值、被 Downvote 的论文 |
 | `netroute.py` | `--forget` 清缓存重探；`--quick` 只列候选不探测 | 打印下载路由诊断结论 |
 | `arxiv_cats.py` | 无 | 打印 20 个 archive / 155 个分类的概览，并自检每个分类号是否符合格式规则 |
@@ -90,7 +90,7 @@ python run_daily.py --preset hengxin --categories cs.LG   # 用这份画像，�
 | 脚本 | 参数 | 说明 |
 | --- | --- | --- |
 | `gen_video_data.py` | `--top 8`（推荐篇数）、`--expand 2`（扩展篇数）、`--out <路径>` | 生成 `reel/src/papers.json`；口播稿优先取 `output/video_notes.json` |
-| `gen_narration.py` | `--voice`（默认 `zh-CN-YunxiNeural`）、`--papers`、`--notes`、`--outdir`、`--audio-json`、`--no-tts` | 合成每段旁白，写 `reel/public/audio/*.mp3` 并把 `reel/src/audio.json` 的 `enabled` 置 `true` |
+| `gen_narration.py` | `--voice`（默认 `zh-CN-YunxiNeural`）、`--papers`、`--notes`、`--outdir`、`--audio-json`、`--no-tts`、`--proxy` | 合成每段旁白，写 `reel/public/audio/*.mp3` 并把 `reel/src/audio.json` 的 `enabled` 置 `true`。出网路由默认自动（直连 → 环境代理 → 本机代理端口，逐条回退并记住成功的一条）；`--proxy` 可跳过探测直接指定 |
 | `check_video_av.py` | `<video.mp4>`、`--papers N`（默认从 `papers.json` 读） | A/V 质量闸门：总时长、音轨、逐段人声起点、段内静音 |
 
 完整流程见 [视频与投稿](../guide/video-pipeline.md)。
@@ -102,7 +102,7 @@ python run_daily.py --preset hengxin --categories cs.LG   # 用这份画像，�
 | `bili_tv_qr_login.py` | `--wait <秒>` | TV 通道扫码登录，写 `.secrets/bili_cookies.json`（**推荐**） |
 | `bili_qr_login.py` | `--wait <秒>` | Web 通道扫码（拿不到 App `access_token`，仅排错用） |
 | `bili_collection.py` | `videos` / `collections`（只读）；`cover` / `create` / `add` / `sync`（默认 dry-run，需 `--exec`） | 管理合集 `arXiv-daily`；`sync` 幂等，只补未挂载（`code 20080` 视为已挂载成功） |
-| `bili_upload.py` | 在 `.workbuddy/skills/bili-auto-upload/scripts/`；子命令 `check/meta/cover/upload/verify/comment`，`-d <期号>`，`--exec` 才真正执行 | 投稿与投稿后对账 |
+| `bili_upload.py` | 在 `.workbuddy/skills/bili-auto-upload/scripts/`；子命令 `check/meta/cover/upload/verify/comment`，`-d <期号>`，`--exec` 才真正执行；`--line <线路>` 指定上传线路（默认自动探测） | 投稿与投稿后对账。标题/标签由当期入选论文的分类推出（不再写死领域名） |
 
 ### 数据修复
 
@@ -137,7 +137,10 @@ Windows 用任务计划程序，操作填 `python`，参数填 `run_daily.py`，
 "起始于"填项目根目录（**必须**，否则相对路径会指向别处）。
 
 注意：`run_daily.py` 结束时服务仍在后台运行（Windows 下用 `cmd /c start /b` 脱离进程树）。
-若由调度器每天拉起，先确认端口未被上一轮的残留进程占用。
+它自己不会开浏览器（后台进程开浏览器是打扰），需要看页面就手动访问打印出来的地址。
+端口被上一轮残留进程占用不会再导致失败：残留实例在线时直接复用，被别的程序占着则自动
+顺延（`[port] 8765 已被占用，改用 8766`），最终地址以 `digest online: <url>` 为准，
+也已写进 `output/server.json`。
 
 ---
 

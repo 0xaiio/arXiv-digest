@@ -17,6 +17,7 @@
 | 基础 | `arxiv_cats.py` | ~460 | **arXiv 官方分类表**（20 主类 / 155 分类）+ 校验/检索/纠错/邻域推导 | 仅标准库 |
 | 基础 | `paperutil.py` | ~175 | 配置读写、库文件、短号与文件名、论文索引 | `paths` |
 | 基础 | `netroute.py` | ~400 | 下载取数选路（直连/环境代理/本机代理）与失败摘要 | `paths` |
+| 基础 | `serveport.py` | ~200 | 本地服务的「怎么暴露」：端口校验/占用探测/顺延、页面端口改写、浏览器开关、运行期信息落盘 | 仅标准库 |
 | 领域 | `textscan.py` | ~175 | 纯文本信号：去标签、人名、专业实词、主题命中 | `profile` |
 | 领域 | `fetchsrc.py` | ~170 | 来源取数适配：arXiv / 网页 / 本地文档 → `(meta, err)` | `paperutil`、`textscan` |
 | 领域 | `profile.py` | ~260 | 行为学习：把点击折算成主题倍率/关键词权重/单篇惩罚 | `paperutil`、`paths` |
@@ -32,7 +33,7 @@
 | 渲染 | `build_report.py` | ~950 | 渲染日报/收藏/画像/存档/引导页（画像页含「📦 数据包」面板）；**版面在 `templates/`** | `paperutil` `paths` `arxiv_cats`、惰性 `customize`/`archive`/`datapack` |
 | 接口 | `service.py` | ~300 | 业务用例：收藏/下载/画像学习/重建（**不认识 HTTP**） | `paperutil` `profile` `netroute` `paths` |
 | 接口 | `routes.py` | ~520 | HTTP 语义：路由表 + `Reply`/`Request`（业务委托给 `api`） | 仅标准库 |
-| 接口 | `server.py` | ~290 | 进程装配：Handler 分发、写 socket、启动服务、`--preset` 导入 | 以上全部 |
+| 接口 | `server.py` | ~290 | 进程装配：Handler 分发、写 socket、端口顺延启动、`--preset` 导入 | 以上全部 + `serveport` |
 | 编排 | `run_daily.py` | ~240 | 六个阶段 + 确保服务在线；未选类别时给引导并只起服务 | 子进程调用其它脚本 |
 
 ## 二、依赖方向
@@ -129,6 +130,17 @@ server.py ──▶ routes.py ──▶ (api 命名空间) ──▶ service.py 
 | 探测 | `ensure_route()` | 命中后写 `output/netroute.json` 缓存（TTL 900s，全失败走 45s 负缓存） |
 | 取数 | `build_opener()` `make_request()` `fetch_first()` | 统一 opener，绕过被注入的坏代理 |
 | 诊断 | `friendly()` `last_failure()` `forget()` | 面向人的错误摘要，供 `/api/download` 与 `/api/net_route` 使用 |
+
+### `serveport.py`（服务怎么暴露出来）
+
+| 能力 | 关键函数 | 说明 |
+| --- | --- | --- |
+| 取值 | `valid_port()` `configured_port()` `url_for()` | 端口解析与校验的唯一实现；非法值回落 8765，绝不抛 |
+| 占用探测 | `port_in_use()` `can_bind()` `usable()` | 先 connect（有人监听？）再 bind（能绑？）。Windows 的 `SO_REUSEADDR` 允许端口劫持，只看 bind 会误判 |
+| 顺延 | `find_free_port(start, limit=20)` | 返回 `(port, tried)`；越过 65535 就停，不绕回低端口 |
+| 页面端口 | `rewrite_api_port(text, port)` | 把静态 HTML 里烘焙的 `APIPORT=8765` 换成实际端口（只改赋值点） |
+| 浏览器 | `browser_enabled(argv, cfg)` `open_browser(url)` | 命令行 > 配置 > 默认开；后台线程 + 吞掉所有异常（无桌面环境不能拖垮启动） |
+| 运行期信息 | `write_runtime_info()` `read_runtime_info()` | `output/server.json`：`{port, url, pid, started_at}`，供 `run_daily.py` 对账 |
 
 ## 四、领域层
 
@@ -308,7 +320,7 @@ server.py ──▶ routes.py ──▶ (api 命名空间) ──▶ service.py 
 | 运行时 | `_Runtime`：路由层能看到的**白名单**能力，每次访问回查本模块（桩化生效） |
 | 兼容门面 | `download_pdf` `papers` `learn` `add_favorite` `LIB_LOCK` … 全部 re-export |
 | 缓存 | `digest_module(reload=True)`：惰性加载 `build_report`，reload 收敛到一处并加锁 |
-| 启动 | `main()`：读 `config.port`，绑定 `127.0.0.1`，`--no-open` 时不弹浏览器 |
+| 启动 | `run(argv)`：解析起始端口（`--port` > `config.port`）→ `bind_server()` 顺延绑定 → 打日志 + 写 `output/server.json` → 按开关开浏览器；`main()` 是它的兼容包装 |
 
 接口清单见 [HTTP API](../reference/http-api.md)。
 
@@ -320,6 +332,10 @@ server.py ──▶ routes.py ──▶ (api 命名空间) ──▶ service.py 
 写文件或保留旧文件。`ensure_server()` 用 `cmd /c start /d <dir> /b` 脱离进程树启动服务
 （`/b` 不继承 cwd，必须显式 `/d`，否则服务会读写错误的 `output/`）。
 
+端口也归它管：先用 `serveport.find_free_port()` 选一个空闲端口，再用 `--port` 传给
+`server.py`，保证「轮询的端口」与「实际绑定的端口」是同一个值；服务若仍顺延（探测与绑定
+之间被抢），回读 `output/server.json` 对账。
+
 ## 九、按"我要改什么"定位
 
 | 任务 | 该看哪个模块 | 风险提示 |
@@ -327,6 +343,7 @@ server.py ──▶ routes.py ──▶ (api 命名空间) ──▶ service.py 
 | 打分不准 | `scoring.py` 的 `topic_hits()` / `score()` | 改公式必须同步前端 `rescore()`，否则首屏与点击后排序不一致 |
 | 推荐数突然为 0 | `profile.py` 的 `apply_event()` + `output/profile_state.json` | 先看 [ranking.md](ranking.md) §5 的排查协议 |
 | 页面样式/交互 | `templates/style.css`、`templates/app.js` | 三个模块共用一组 `.down` 规则，别各写一份；改完不用重启 |
+| 启动/端口/浏览器 | `serveport.py`（探测、顺延、开关）+ `server.py` 的 `run()` | 端口一变，静态页要靠 `routes._static_html()` 改写、动态页靠 `paperutil.effective_port()`，两处缺一都会「点了没反应」 |
 | 页面结构/文案 | `templates/*.html` + `build_report.build_html()` 的占位符字典 | 占位符名字两边必须对齐，缺键会 `KeyError` |
 | 新增接口 | `routes.py`（装饰器 + handler）+ 前端 `api()` | 记得在 [http-api.md](../reference/http-api.md) 登记 |
 | 新增业务动作 | `service.py` + `routes.py` 里一行调用 | 不要在 routes 里写业务规则 |

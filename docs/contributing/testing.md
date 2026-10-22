@@ -1,13 +1,13 @@
 # 测试与回归
 
-项目有一套 **pytest 测试套件**：720 个用例，覆盖单元 / 集成 / 端到端 / 浏览器四层，
-行覆盖率 **90%**（门槛 85%），全量跑完约 67 秒（不含浏览器层约 55 秒）。
+项目有一套 **pytest 测试套件**：795 个用例，覆盖单元 / 集成 / 端到端 / 浏览器四层，
+行覆盖率 **91%**（门槛 85%），全量跑完约 80 秒（本机实测）。
 
 运行期仍然**零第三方依赖**——测试依赖只在 `requirements-dev.txt` 里。
 
 ```bash
 python -m pip install -r requirements-dev.txt
-python -m pytest                 # 720 passed
+python -m pytest                 # 795 passed
 python -m pytest --cov           # 附带覆盖率，低于 85% 直接失败
 ```
 
@@ -18,7 +18,7 @@ python -m pytest --cov           # 附带覆盖率，低于 85% 直接失败
 ```
 tests/
 ├─ conftest.py                 # 沙箱隔离（所有路径常量重定向）+ 数据工厂 + HTTP 客户端
-├─ unit/                       # 605 个：纯函数与单模块，不联网、不起服务
+├─ unit/                       # 680 个：纯函数与单模块，不联网、不起服务
 │  ├─ test_paths.py            #   ★ 路径唯一来源：各模块常量必须与 paths 一致
 │  ├─ test_arxiv_cats.py       #   ★ 官方分类表自洽性、校验七分支、纠错、邻域推导
 │  ├─ test_paperutil.py        #   短号归一、文件名、配置与库文件读写
@@ -37,9 +37,11 @@ tests/
 │  ├─ test_netroute.py         #   候选顺序、错误文案、缓存读写
 │  ├─ test_netroute_probe.py   #   探测 / 负缓存 / fetch_first 多 URL 回退
 │  ├─ test_netroute_net.py     #   opener / 请求头 / 本机端口枚举
+│  ├─ test_serveport.py        #   ★ 端口校验/占用探测/顺延/端口改写/浏览器开关/运行期信息
 │  ├─ test_service.py          #   ★ PaperIndex TTL/并发、注入点、批量保序、重建
 │  ├─ test_routes.py           #   ★ 路由表完整性、精确优先、Runtime 白名单、参数校验
 │  ├─ test_server_download.py  #   download_pdf 落盘的全部分支
+│  ├─ test_server_startup.py   #   ★ 启动：端口顺延、日志、server.json、浏览器开关与失败兜底
 │  ├─ test_run_daily_helpers.py#   子进程封装 run() 与服务拉起
 │  ├─ test_compat_facade.py    #   ★ 兼容门面：重构不得移除的对外符号清单
 │  └─ test_sandbox_isolation.py#   ★ 测试自身的回归：不许写进真实 output/
@@ -68,10 +70,10 @@ tests/
 
 ## 二、测试范围
 
-### 核心模块（15 个，全覆盖）
+### 核心模块（16 个，全覆盖）
 
 `arxiv_cats` · `paperutil` · `datapack` · `customize` · `profile` · `archive` · `recommend` ·
-`build_report` · `server` · `run_daily` · `netroute` · `fetch_arxiv` · `fetch_expand` ·
+`build_report` · `server` · `serveport` · `run_daily` · `netroute` · `fetch_arxiv` · `fetch_expand` ·
 `fetch_rss` · `fetch_affil`
 
 ### 关键业务流程
@@ -90,6 +92,7 @@ tests/
 | 画像主来源增删改 | `test_owner_crud_over_http`、`test_update_owner_rename_moves_people_entry`、`test_remove_owner_unlinks_and_refuses_last` |
 | 交互一致性 | `test_downvote_click_changes_visual_state`（真点，断言 `opacity .42` + 删除线） |
 | 归档只增不改 | `test_archive_journey_can_look_back`（哈希比对） |
+| 启动与端口顺延 | `test_serveport.py`（50 个：端口解析/占用探测/顺延上限/端口耗尽/页面端口改写/浏览器开关/`server.json` 往返）、`test_server_startup.py`（16 个：真占端口后顺延、绑定被抢重试、日志给实际地址、`--port` 覆盖、浏览器失败不影响启动） |
 
 ### 边界与负面路径
 
@@ -101,7 +104,8 @@ tests/
 | 缺文件 | 无 `config.json` / `interests.json` / 无抓取数据 / 无 `archive.db` |
 | 空结果 | 抓取返回 `{"error": ...}`、推荐全部不达标（兜底）、无收藏 |
 | 并发与幂等 | 同篇重复下载、同日重跑流水线、`mark_seen` 只记首次期次 |
-| 越界 | 主题倍率 `[0.25, 3.0]`、关键词 `[-4, 4]`、降权词最多计 4 个、单位最多 12 条 |
+| 越界 | 主题倍率 `[0.25, 3.0]`、关键词 `[-4, 4]`、降权词最多计 4 个、单位最多 12 条、端口 `0`/`65536`/非数字 |
+| 启动失败 | 连续 20 个端口不可用（退出码 2）、绑定被抢、无桌面环境开浏览器抛错、`server.json` 不可写 |
 | 错误码 | `400` 缺 id / 非法 action / 非法日期，`404` 未知接口与目录穿越，`500` 服务端异常 |
 | 隐私 | 首次初始化生成的配置里不得出现任何真实人名/本机路径 |
 
@@ -114,11 +118,13 @@ tests/
 | `scoring.py` | 100% | 纯函数，无 IO 无全局状态 |
 | `arxiv_cats.py` | 99% | 只剩 `__main__` 的 `raise SystemExit` 那一行 |
 | `paths.py` | 98% | 除 `main()` 的少量输出分支外全覆盖 |
+| `serveport.py` | 98% | 只剩真实 `webbrowser` 调用与极少数 OSError 分支 |
 | `textscan.py` | 98% | 未覆盖的是 HTML 解析器的极端容错分支 |
 | `customize.py` | 96% | |
 | `archive.py` | 95% | |
-| `paperutil.py` | 94% | |
+| `paperutil.py` | 95% | |
 | `routes.py` | 93% | 未覆盖的是页面渲染异常时的兜底分支 |
+| `server.py` | 94% | 未覆盖的是真实 `serve_forever` 循环与部分异常兜底 |
 | `service.py` | 93% | 未覆盖的是真实下载的成功路径（真网络） |
 | `recommend.py` | 91% | |
 | `run_daily.py` | 89% | 未覆盖的是 `--serve` 前台阻塞与 `main` 的 CLI 尾部 |

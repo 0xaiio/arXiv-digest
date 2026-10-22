@@ -349,11 +349,13 @@ def build_sections(d, groups, themes, by_sid):
 CSS = read_template("style.css")
 
 def api_port():
-    """当前配置里的服务端口（每次调用都读配置，不缓存）。"""
-    try:
-        return int((pu.load_config() or {}).get("port", 8765))
-    except Exception:
-        return 8765
+    """页面里的 APIBASE 应指向的端口（每次调用都重新解析，不缓存）。
+
+    取值优先级见 ``paperutil.effective_port``：服务进程实际监听的端口优先，
+    其次是配置里的 ``port``。服务因默认端口被占用而顺延时，这一层保证动态页面
+    （/favorites、/profile、/archive）生成出来的 JS 指向新端口。
+    """
+    return pu.effective_port()
 
 
 # 端口占位符在**渲染时**替换，而不是模块加载时：

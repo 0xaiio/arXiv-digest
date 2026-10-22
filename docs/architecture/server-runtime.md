@@ -20,9 +20,45 @@
 | 项 | 值 | 说明 |
 | --- | --- | --- |
 | 服务器 | `ThreadingHTTPServer` | 每个请求一个线程；因为下载是长 IO，单线程会把整页堵死 |
-| 绑定 | `127.0.0.1:<config.port>` | **只监听回环**，无鉴权，不应暴露公网 |
+| 绑定 | `127.0.0.1:<实际端口>` | **只监听回环**，无鉴权，不应暴露公网。起始端口取 `config.port`（默认 8765），被占用则自动向后顺延 |
 | 工作目录 | 启动时 `os.chdir(HERE)` | 防御 `start /b` 不继承 cwd 的情况，避免读写别人的 `output/` |
-| 浏览器 | 默认自动打开，`--no-open` 关闭 | 定时任务里用 `--no-open` |
+| 浏览器 | 默认自动打开；`--no-open` / `config.open_browser=false` 关闭，`--open` 强制打开 | 定时任务里用 `--no-open`；无桌面环境下打不开只打印一行提示，不影响服务 |
+
+### 端口：先探测、再顺延、最后落盘
+
+选端口与开浏览器都不在 `server.py` 里自己实现，而是收在 `serveport.py`（`run_daily.py`
+用同一份）：两处各写一遍的话，必然一处顺延、一处硬失败，表现为「双击能开、定时任务开不了」。
+
+```
+config.port(或 --port) ──▶ find_free_port(start, limit=20)
+                              │  每个候选：connect 探测（有人监听？）→ bind 探测（能绑？）
+                              ├─ 找到 ──▶ bind ──(被抢)──▶ 顺延重试一轮
+                              └─ 20 个都不行 ──▶ 退出码 2 + 明确错误，不留半启动进程
+                                        │
+                                        ▼
+                         serving http://127.0.0.1:<实际端口>
+                         output/server.json = {port, url, pid, started_at}
+```
+
+两个刻意的设计：
+
+- **connect 探测是主判据**。Windows 的 `SO_REUSEADDR` 语义允许第二个 socket 绑上已被监听
+  的端口（端口劫持），只看 bind 会把「已被占用」误判成「可用」；反过来 TIME_WAIT 的遗留
+  连接不应答 connect，所以「刚 Ctrl-C 完立刻重启」不会被误判成占用；
+- **实际端口要落盘**。`run_daily.py` 后台拉起服务后只能靠 HTTP 轮询（看不到子进程 stdout），
+  服务若又顺延了一次，轮询旧端口就会白等到超时 —— 它先按 `serveport.find_free_port` 选好
+  端口用 `--port` 传下来，再以 `output/server.json` 兜底对账。
+
+**页面必须跟着端口走**。这一层容易漏：日报是静态文件（`Reply.file` 直发字节，不能重渲染），
+而 JS 里的 `APIPORT` 是渲染当时的 `config.port`。所以有两条改写路径：
+
+| 页面 | 端口来源 | 谁负责 |
+| --- | --- | --- |
+| `/`、`/archive/<日期>`、`/files/*.html` | 静态文件里烘焙的值 | `routes._static_html()` 读盘后就地改写 `APIPORT=<实际端口>`（端口一致时仍走延迟读盘） |
+| `/favorites`、`/profile`、`/archive` | 每次渲染 | `paperutil.effective_port()`：运行期实际端口 > `config.port` > 8765 |
+
+不改写的话，顺延之后收藏 / 下载 / Downvote 会打到旧端口 —— 表象是「点了没反应」（乐观
+更新被回滚），而 `/api/ping` 却是通的，非常难查。
 
 ## 二、路由：一张表，而不是 if 链
 
@@ -90,18 +126,19 @@ def papers(force=False):
 
 | 页面 | 生成方式 | 为什么要这样 |
 | --- | --- | --- |
-| `/`（日报） | **静态文件** `arxiv_digest_<日期>.html` | 当期快照，必须与 `output/archive/` 完全一致 |
+| `/`（日报） | **静态文件** `arxiv_digest_<日期>.html` | 当期快照，必须与 `output/archive/` 完全一致；发出去时按实际端口改写 `APIPORT` |
 | `/favorites` | 每次请求渲染 | 收藏随时变，静态文件会过期 |
 | `/profile` | 每次请求渲染 | 画像与配置随时变 |
 | `/archive` | 每次请求渲染 | 新期次不断加入 |
-| `/archive/<日期>` | 静态快照 | 归档只增不改 |
+| `/archive/<日期>` | 静态快照 | 归档只增不改；同样按实际端口改写 `APIPORT` |
 
 动态页渲染时会 `digest_module()`：惰性导入 `build_report`，并**按需 reload**（收敛到一处、
 加锁）。原来三个页面路由各自 `importlib.reload`，重复且无锁——两个请求同时 reload 会互相打架。
 
 现在 reload 只为「代码改动」服务：**模板改动不需要它**，因为 `read_template()` 按 mtime 缓存，
-文件一变下次渲染就重新读盘。改 `config.port` 也不需要重启——端口占位符在渲染时替换
-（`render_js()`）。
+文件一变下次渲染就重新读盘。端口同理：占位符在渲染时替换（`render_js()`），取值来自
+`paperutil.effective_port()`（运行期实际端口优先）——所以「服务顺延」不会把页面指回旧端口，
+而「改 `config.port` 后重启」也能立刻生效（`_JS_CACHE` 按端口分键，不会钉住旧值）。
 
 ## 五、跨源与 `file://` 兼容
 
@@ -109,7 +146,8 @@ def papers(force=False):
 
 1. **响应头**：所有响应带 `Access-Control-Allow-Origin: *`，`OPTIONS` 返回 `204`；
 2. **前端改写**：页面打开时若 `location.protocol === 'file:'`，把 `APIBASE` 与站内链接改写成
-   `http://127.0.0.1:<port>` 的绝对地址（端口从 `papers_index.json` 或页面内联变量取得）。
+   `http://127.0.0.1:<port>` 的绝对地址（端口来自页面内联的 `APIPORT`，渲染时写入，静态页
+   由 `routes._static_html()` 按实际端口改写）。
 
 安全说明：`*` 在这个场景是可接受的——服务只监听回环、只操作本机数据；它带来的风险是
 **同一台机器上的任意网页都能调你的本地接口**（例如恶意页面替你批量 Downvote）。
@@ -148,27 +186,33 @@ ARXIV_DL_PROXY（人工强制）
 ## 七、服务生命周期
 
 ```
-run_daily.py ──▶ server_alive()? ──是──▶ 复用（打印 URL）
+run_daily.py ──▶ server_alive(config.port)? ──是──▶ 复用（打印 URL）
                        │否
                        ▼
-              cmd /c start /d <项目根> /b python server.py --no-open
+              find_free_port(config.port)  ──无可用端口─▶ 打印原因，不拉起
+                       │找到（可能是 8766）
+                       ▼
+    cmd /c start /d <项目根> /b python server.py --no-open --port <空闲端口>
                        │
                        ▼
-              轮询 /api/ping 直到就绪（最多 15s）
+        轮询 /api/ping 直到就绪（最多 15s；失败则回读 output/server.json 对账）
 ```
 
 - **必须 `start /d`**：`start /b` 不继承 `Popen(cwd=...)`，项目搬家后子进程会以旧目录为 cwd，
   继续读写旧的 `output/`（真实踩过）；
-- 服务日志追加到 `output/server.log`；
-- `server.py --serve`（前台阻塞）只用于"想让终端窗口承载服务"的场景。
+- 服务日志追加到 `output/server.log`，其中 `serving <url>` 那一行是权威地址；
+- `server.py --serve`（前台阻塞）只用于"想让终端窗口承载服务"的场景；这条路会按
+  `open_browser` 决定是否开浏览器。
 
 ## 八、失败模式速查
 
 | 现象 | 最可能的原因 | 处置 |
 | --- | --- | --- |
 | `curl 127.0.0.1:8765` 返回 502 | 环境代理劫持了回环 | 加 `--noproxy '*'` |
-| 端口被占用（`Address already in use`） | 上一个进程还在 | 结束占用进程后重启（见[故障排查](../operations/troubleshooting.md)） |
-| 收藏/下载点了没反应 | 服务没起，或页面以 `file://` 打开但服务离线 | 先 `/api/ping` |
+| 打开 8765 是别的程序 / 打不开 | 端口被占用后已顺延 | 看启动日志的 `serving <url>` 或 `output/server.json` 的 `port` |
+| 启动即退出（退出码 2） | 起始端口起连续 20 个都不可用 | 改用 `--port` 指定空闲段，或腾出端口 |
+| 浏览器没弹出来 | 无桌面环境 / 没装默认浏览器 / 配置关了 | 手动访问日志里的地址；这是非致命提示 |
+| 收藏/下载点了没反应 | 服务没起，或页面以 `file://` 打开但服务离线 | 先 `/api/ping`（顺延后要用实际端口） |
 | 收藏记录丢失 | 并发写覆盖（旧版本） | 现版本由 `_lib_lock` 保护；若复现请提 issue 并附日志 |
 | 下载报"未找到论文元数据" | 该篇已不在当前池（过期收藏） | 重新跑一次流水线再下载 |
 | 动态页一直显示旧内容 | 服务进程缓存了旧模块 | 现版本每次请求 reload；若仍复现请重启服务 |
