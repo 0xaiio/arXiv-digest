@@ -1,10 +1,10 @@
 {
-  "issue": "20261022",
-  "range": "2026-10-21 · 回溯 3 天公告批次",
-  "generated": "2026-10-22T12:11:44+08:00",
+  "issue": "20261024",
+  "range": "2026-10-22 · 回溯 3 天公告批次",
+  "generated": "2026-10-24T09:48:17+08:00",
   "stats": {
-    "core": 80,
-    "expand": 881,
+    "core": 49,
+    "expand": 522,
     "rec": 14,
     "exp": 10
   },
@@ -12,325 +12,326 @@
     {
       "rank": 1,
       "lane": "推荐",
-      "sid": "2610.29145",
-      "cat": "math.OC",
-      "score": 30.4,
-      "title_en": "ORSMT: Unleashing the Potential of Satisfiability Modulo Theories for Semantic Verification and Repair in LLM-Based Optimization",
+      "sid": "2610.30725",
+      "cat": "cs.SE",
+      "score": 50.5,
+      "title_en": "From Natural Language to Verified C: Verification-Guided Generation with ACSL Specifications",
       "kw": [
-        "SMT",
-        "可行域",
-        "匹配率"
+        "ACSL",
+        "证明义务",
+        "联合合成"
       ],
-      "authors": "Rui Zhang, Chenyu Zhou, Jianghao Lin 等 6 人",
+      "authors": "Zian Wang, Qin Li, Weisong Sun 等 4 人",
       "units": [
-        "Shanghai Jiao Tong University",
-        "Eindhoven University of Technology"
+        "East China Normal University",
+        "Nanyang Technological University"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "LLM 自动优化建模同时产出数学描述、求解器代码与报告，三者语义是否一致无法靠文本比对校验。"
+          "text": "AI 生成代码要可信，必须附带可机器检查的正确性证据；但现有方法分别生成实现与规约，验证器常无法消解证明义务。"
         },
         {
           "tag": "方法",
-          "text": "ORSMT 用类型化语义接口与精确 SMT 关系查询，对齐可观测决策、投影辅助变量、证成或反驳可行域与目标关系。"
+          "text": "VeriGen-C 把 C 程序与 ACSL 规约作为统一产物联合合成：约束代码暴露证明相关状态、简化控制流，并约束规约避免弱化与隐式锚点。"
         },
         {
           "tag": "结果",
-          "text": "3034 个问题、6 种生成器规模下 72 组匹配率全部提升；受保护选择把总匹配率从 43.2% 提到 88.2%。"
+          "text": "在自然语言需求到可验证 C 的任务上，联合合成显著提升自动验证通过率，并抑制仅满足弱规约的伪成功。"
         }
       ],
-      "link": "arxiv.org/abs/2610.29145"
+      "link": "arxiv.org/abs/2610.30725"
     },
     {
       "rank": 2,
       "lane": "推荐",
-      "sid": "2610.27826",
+      "sid": "2610.30200",
       "cat": "cs.SE",
-      "score": 23.5,
-      "title_en": "MIMOS-Tools: An Integrated Toolchain for Model-Based Design of Embedded Systems",
+      "score": 32.3,
+      "title_en": "Detection Is Not Enough: Reasoning Traces as Testable Program Hypotheses",
       "kw": [
-        "MIMOS",
-        "确定性",
-        "形式验证"
+        "推理链",
+        "变异探测",
+        "自查"
       ],
-      "authors": "Wang Yi, Chengzi Huang, Behnam Khodabandeloo 等 4 人",
-      "units": [
-        "Department of Information Technology"
-      ],
+      "authors": "Vaidehi Hegde",
+      "units": [],
       "bullets": [
         {
           "tag": "背景",
-          "text": "嵌入式实时系统的方法与工具发展数十年，仍缺少覆盖建模到代码生成全生命周期的集成环境。"
+          "text": "无参考解场景下，自我评估会污染答案，采样一致性只测稳定性，扰动实验实际在评模型而非轨迹。"
         },
         {
           "tag": "方法",
-          "text": "MIMOS-Tools 以单一确定性计算模型（含形式操作语义、可证功能与时间确定性）贯通建模、仿真、形式验证与异构多核代码生成。"
+          "text": "把轨迹抽象成关于题目量的程序，扰动其中一个量并执行，再把改写后的题目问模型一次，形成候选自生的变异测试。"
         },
         {
           "tag": "结果",
-          "text": "支持时间触发异步通信与灵活实时调度，增改组件无需重算全局调度；模型层验证的性质可保持到生成实现。"
+          "text": "1319 道题中 937 道即七成一存在有效扰动；有支撑的轨迹正确率 60.6%，基线仅 31.6%。"
         }
       ],
-      "link": "arxiv.org/abs/2610.27826"
+      "link": "arxiv.org/abs/2610.30200"
     },
     {
       "rank": 3,
       "lane": "推荐",
-      "sid": "2610.29147",
+      "sid": "2610.30188",
       "cat": "cs.SE",
-      "score": 21.9,
-      "title_en": "VERDICT: Multi-Agent Parallel Modular Verification",
+      "score": 28.8,
+      "title_en": "Agentic Verified Optimization of Real-World Software",
       "kw": [
-        "VERDICT",
-        "模块化",
-        "X.509"
+        "Lean 4",
+        "等价性证明",
+        "Verina"
       ],
-      "authors": "Tengjie Lin, Zhongyi Wang, Haokun Li 等 5 人",
+      "authors": "Zhe Ye, Udaya Ghai, Zhizhen Qin 等 5 人",
       "units": [
-        "Zhejiang University",
-        "Peking University"
+        "University of California, Berkeley"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "演绎验证靠模块化合约扩展，瓶颈是规格合成；现有 LLM 方法自底向上，限制并行且难消解跨调用链不一致。"
+          "text": "编码智能体能改算法与数据结构把程序变快，但等价性多靠测试判定，而智能体已被证明会钻测试的空子。"
         },
         {
           "tag": "方法",
-          "text": "VERDICT 为每个函数配一个 agent，先以假设合约并行合成，再沿调用图双向协调冲突直至合约收敛。"
+          "text": "以既有实现为规约，在 Lean 4 中同时产出更快实现与机器检查的等价性证明；Aqueduct 先把 C/C++/Go/Rust 迁移为原生 Lean…"
         },
         {
           "tag": "结果",
-          "text": "规格质量更高、验证耗时大降，首次扩展到 2 万行 X.509 解析器，数小时内排除几乎所有潜在运行时错误。"
+          "text": "Verina 的 189 个参考实现中 156 个得到更快的证明改写；17 个迁移应用里 92 条证明改写使 51 个场景中的 47 个加速。"
         }
       ],
-      "link": "arxiv.org/abs/2610.29147"
+      "link": "arxiv.org/abs/2610.30188"
     },
     {
       "rank": 4,
       "lane": "推荐",
-      "sid": "2610.29143",
+      "sid": "2610.30432",
       "cat": "cs.SE",
-      "score": 19.6,
-      "title_en": "VeeReview: Measuring Build-Verify Pairs in Agent-Authored Pull Requests from a V-Model Perspective",
+      "score": 24.2,
+      "title_en": "TrustedCode: Evaluating Large Language Models for Developing Trusted Code through Automated Program Verification",
       "kw": [
-        "VeeReview",
-        "V 模型",
-        "合并请求"
+        "Why3",
+        "Python",
+        "定理证明"
       ],
-      "authors": "Gabriel Dautovi, Jie JW Wu",
+      "authors": "Muhammad Danial, Muhammad Taimoor Khan",
       "units": [
-        "Department of Computer Science, Michigan Technological…"
-      ],
-      "bullets": [
-        {
-          "tag": "背景",
-          "text": "审 PR 需要针对改动的验证证据，但编码 agent 基准与 PR 结果研究并不直接度量这层关系。"
-        },
-        {
-          "tag": "方法",
-          "text": "VeeReview 用仓库信号加语言模型判定 V 模型的四类「构建-验证」配对，比较 741 个仓库的 1454 对 agent 与人类 PR。"
-        },
-        {
-          "tag": "结果",
-          "text": "agent PR 的「仅构建」率在四类配对上都更低（与预注册假设相反）；但工具校准未达标（一致率 4%–60%，要求 80%，kappa 0.154）。"
-        }
-      ],
-      "link": "arxiv.org/abs/2610.29143"
-    },
-    {
-      "rank": 5,
-      "lane": "推荐",
-      "sid": "2610.29767",
-      "cat": "cs.CL",
-      "score": 18.7,
-      "title_en": "ALIAS: Evaluating Performance and Memorization in LLM-Written TLA+ Specifications",
-      "kw": [
-        "TLA+",
-        "重命名",
-        "记忆"
-      ],
-      "authors": "Arslan Bisharat, Mujtaba Nazari, Khushboo Bhadauria 等 6 人",
-      "units": [
-        "Loyola University Chicago"
-      ],
-      "bullets": [
-        {
-          "tag": "背景",
-          "text": "一致标识符重命名（CIR）被用来检测 LLM 记忆：改名后分数下降即视为背下了答案。"
-        },
-        {
-          "tag": "方法",
-          "text": "ALIAS 在 TLA+ 上用模型检查器作 oracle 验证重命名是否保持原行为，再对比按名字与按行为两种判分。"
-        },
-        {
-          "tag": "结果",
-          "text": "重命名令 Opus 4.8 正确率 28%→18%、GPT-5 9%→7%；改按行为判分后降幅仅约 3 个百分点与 0。"
-        }
-      ],
-      "link": "arxiv.org/abs/2610.29767"
-    },
-    {
-      "rank": 6,
-      "lane": "推荐",
-      "sid": "2610.27828",
-      "cat": "cs.SE",
-      "score": 17.2,
-      "title_en": "Raise or Check? Predicting the Necessity of Additional Fuzzing for Continuous Fuzzing",
-      "kw": [
-        "RAISE",
-        "模糊测试",
-        "覆盖率"
-      ],
-      "authors": "Riku Kato, Tatsuya Shirai, Olivier Nourry 等 6 人",
-      "units": [
-        "Nara Institute of Science and Technology",
-        "The University of Osaka",
+        "School of Computing and Mathematical Sciences",
+        "University of Greenwich",
         "等 3 家单位"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "持续模糊测试存在「漏洞引入到被检出」的暴露窗口，而追加模糊测试的算力成本很高。"
+          "text": "GitHub 上约三成 Python 贡献由 AI 生成，而现有验证工具主要支持 Java 与 C，Python 侧支持薄弱。"
         },
         {
           "tag": "方法",
-          "text": "RAISE 在「项目-天」粒度做二分类，预测当天是否引入漏洞，据此决定是否为该高风险日追加模糊测试。"
+          "text": "用 LLM 完成类型检查、经 Why3 翻译到 WhyML、再由后端自动定理证明器验证；以 LangGraph 串接思维链提示，定位规约生成与证明中的模型短板。"
         },
         {
           "tag": "结果",
-          "text": "15 个 C/C++ 项目、15210 个项目-天；随机森林 ROC-AUC 0.74，覆盖率特征最重要；每检出漏洞多花 91.6 次会话。"
+          "text": "十个不同复杂度程序上，错误成因 50% 为领域知识缺口、30% 为语法不准确、20% 为语义与类型问题。"
         }
       ],
-      "link": "arxiv.org/abs/2610.27828"
+      "link": "arxiv.org/abs/2610.30432"
+    },
+    {
+      "rank": 5,
+      "lane": "推荐",
+      "sid": "2610.30491",
+      "cat": "cs.AI",
+      "score": 23.4,
+      "title_en": "What the Trace Shows and What the Label Says: Auditing Behavioral Detectors in Agent Evaluation",
+      "kw": [
+        "执行轨迹",
+        "检测器",
+        "静默改写"
+      ],
+      "authors": "Idunnuoluwa A. Adeniji, Shilpika, Michael E. Papka",
+      "units": [
+        "Department of Computer Science, University of Illinois…",
+        "Argonne Leadership Computing Facility, Argonne National…"
+      ],
+      "bullets": [
+        {
+          "tag": "背景",
+          "text": "智能体评估把轨迹归约为最终正确性、工具验证、故障传播等标签，标签未必反映轨迹实际发生的事。"
+        },
+        {
+          "tag": "方法",
+          "text": "在基于 GSM8K 的工具调用场景注入计算器输出污染，对六个生产模型的 90 条轨迹审计三类检测器，并与人工复核对齐。"
+        },
+        {
+          "tag": "结果",
+          "text": "最终正确性 67/67、故障影响 19/19、故障相关性 18/18 与人工一致，但复验判定仅 67/81，14 处分歧归为四种反复模式。"
+        }
+      ],
+      "link": "arxiv.org/abs/2610.30491"
+    },
+    {
+      "rank": 6,
+      "lane": "推荐",
+      "sid": "2610.30792",
+      "cat": "cs.LG",
+      "score": 21.2,
+      "title_en": "Trace2World: Reconstructing App Worlds from Real Interaction Traces for Scalable GUI Agent Training",
+      "kw": [
+        "GUI 智能体",
+        "工作流",
+        "可溯源"
+      ],
+      "authors": "Zezhou Wang, Hanzhang Zhou, Panrong Tong 等 6 人",
+      "units": [
+        "Alibaba Token Hub, Alibaba Group",
+        "Beijing Institute of Technology"
+      ],
+      "bullets": [
+        {
+          "tag": "背景",
+          "text": "GUI 强化学习需要保真的可交互环境，而把行为推断与编码耦合，会让部分轨迹变成状态转移错误的 mock。"
+        },
+        {
+          "tag": "方法",
+          "text": "把全局行为重建与实现解耦：先把轨迹归并为源链接的应用模型，再编译可执行环境，用独立重放定位失配并做有界修复。"
+        },
+        {
+          "tag": "结果",
+          "text": "从 1570 条轨迹构建 50 个环境，十款应用 200 条工作流端到端复现 91.1%；源证据校验保留真实设备 94.0% 的训练增益。"
+        }
+      ],
+      "link": "arxiv.org/abs/2610.30792"
     },
     {
       "rank": 7,
       "lane": "推荐",
-      "sid": "2610.27325",
-      "cat": "cs.SE",
-      "score": 16.1,
-      "title_en": "XRust: Detecting Logical Races in Rust Linux Drivers",
+      "sid": "2610.31201",
+      "cat": "cs.PL",
+      "score": 18.1,
+      "title_en": "The Reversible Intermediate Language L4, its Type System, and its Bidirectional Small-Step Semantics",
       "kw": [
-        "Rust",
-        "逻辑竞态",
-        "Linux"
+        "可逆",
+        "类型系统",
+        "小步语义"
       ],
-      "authors": "Qingxiao Xu, Ze Sheng, Zhicheng Chen 等 5 人",
+      "authors": "Torben Ægidius Mogensen",
       "units": [
-        "Texas A&M University"
+        "DIKU, University of Copenhagen",
+        "Universitetsparken 5, DK-2100 Copenhagen O"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "Rust 保证内存安全，但不阻止逻辑竞态：各自同步的操作交错后仍可能违反更高层的不变量。"
+          "text": "可逆编程语言编译到可逆机器需要合适的底层中间表示，L4 旨在取代并推广可逆 SSA 形式 RSSA。"
         },
         {
           "tag": "方法",
-          "text": "XRust 用逻辑 happens-before 分析定位与逻辑定序相关的共享状态访问，自动构造操作对 harness，以串行差分 oracle 检测。"
+          "text": "先非形式化定义 L4，再给出形式化类型系统与带方向标记的双向小步语义，方向可在执行过程中改变。"
         },
         {
           "tag": "结果",
-          "text": "Linux 7.3-rc2 的 10 个 Rust 驱动里构造 1654 个 harness，发现 2 个未知逻辑竞态，其中 rnull 的修复已被接收。"
+          "text": "为 L4 建立可机器检查的语义基础，使正向与反向执行在同一套规则下统一表述。"
         }
       ],
-      "link": "arxiv.org/abs/2610.27325"
+      "link": "arxiv.org/abs/2610.31201"
     },
     {
       "rank": 8,
       "lane": "推荐",
-      "sid": "2610.29549",
-      "cat": "cs.SE",
-      "score": 14.6,
-      "title_en": "On the Effectiveness of Snapshot Testing: An Empirical Study",
-      "kw": [
-        "快照测试",
-        "覆盖率",
-        "变异"
-      ],
-      "authors": "Shun Fujita, Satoru Tomizawa, Yutaro Kashiwa 等 5 人",
-      "units": [
-        "Nara Institute of Science and Technology",
-        "Hangzhou Dianzi University"
-      ],
-      "bullets": [
-        {
-          "tag": "背景",
-          "text": "快照测试作为低成本回归手段被广泛采用，但关于其实际有效性的实证证据仍然稀少。"
-        },
-        {
-          "tag": "方法",
-          "text": "覆盖 340 个 GitHub 仓库并调查 60 名从业者，对比快照与传统测试的覆盖率、代码区域互补性与变异检出能力。"
-        },
-        {
-          "tag": "结果",
-          "text": "两者结合后语句覆盖率中位数 86.7%，且互补覆盖不同区域；含快照套件检出变异体是纯传统测试的 1.3 倍。"
-        }
-      ],
-      "link": "arxiv.org/abs/2610.29549"
-    },
-    {
-      "rank": 9,
-      "lane": "兴趣扩展",
-      "sid": "2610.26642",
-      "cat": "cs.CR",
-      "score": 32.2,
-      "title_en": "DM-RSA-OAEP: Formal Treatment of a Dual-Modulus Fault-Detection Countermeasure Based on Physical Diversity",
-      "kw": [
-        "DM-RSA",
-        "IND-CCA2",
-        "故障检测"
-      ],
-      "authors": "Ramamonjy Andriamifidisoa, Rufine Marius Lalasoa",
-      "units": [
-        "University of Antananarivo, Madagascar"
-      ],
-      "bullets": [
-        {
-          "tag": "背景",
-          "text": "双模数 RSA（DM-RSA）原版被 Håstad 攻击攻破且容错声明有误；修复版 DM-RSA-OAEP 缺形式化保证。"
-        },
-        {
-          "tag": "方法",
-          "text": "给出随机预言模型下经两步混合论证的完整 IND-CCA2 证明（上界取较弱 RSA-OAEP 实例），并在覆盖计算/密钥/验证故障的敌手模型下证明故障检测定理。"
-        },
-        {
-          "tag": "结果",
-          "text": "明确分析物理多样性假设被违反（单芯片共模故障）时对策退化为无效；定位为具可证检测保证的故障对策，而非计算上更强的 RSA。"
-        }
-      ],
-      "link": "arxiv.org/abs/2610.26642"
-    },
-    {
-      "rank": 10,
-      "lane": "兴趣扩展",
-      "sid": "2610.28560",
+      "sid": "2610.30758",
       "cat": "cs.AI",
-      "score": 30.0,
-      "title_en": "Agentic Ensemble with Vision-Language Models for Visual Anomaly Detection",
+      "score": 18.0,
+      "title_en": "Can Loan Processors and Underwriters Spot AI-Edited Statements? An Empirical Study",
       "kw": [
-        "AnomalyAgent",
-        "视觉语言模型",
-        "异常检测"
+        "贷款材料",
+        "身份替换",
+        "人工复核"
       ],
-      "authors": "Shangquan Sun, Wenjun Luo, Xu He 等 5 人",
+      "authors": "Simiao Ren, Xingyu Shen, Tommy Duong 等 4 人",
       "units": [],
       "bullets": [
         {
           "tag": "背景",
-          "text": "视觉异常检测中异常样本稀缺，集成多个预训练检测器可借其可迁移分数与异常图，但固定融合规则在检测器明显分歧时失效。"
+          "text": "AI 辅助编辑能保留熟悉的发行人版式却替换申请人身份，一线审贷人员的首轮纯文档复核是否有效尚不清楚。"
         },
         {
           "tag": "方法",
-          "text": "AnomalyAgent 对齐异构分数与区域图、总结分数级与区域级分歧，把融合建模为有限动作选择，由受约束的视觉语言模型选择分数动作与图动作。"
+          "text": "由 47 份真实财务文档生成 134 份伪造 PDF，三位从业者在不知情条件下逐份判断，其解释再与原件核对。"
         },
         {
           "tag": "结果",
-          "text": "在 MVTec AD、VisA 及另外七个公开基准与 Real-IAD 上稳定优于等权融合，取得最佳平均图像 AUROC 与像素 AP。"
+          "text": "132 份判断中仅 14 份即一成零六有编辑证据支撑，全部源于标识信息不一致；无人凭视觉线索指出真实编辑。"
         }
       ],
-      "link": "arxiv.org/abs/2610.28560"
+      "link": "arxiv.org/abs/2610.30758"
+    },
+    {
+      "rank": 9,
+      "lane": "兴趣扩展",
+      "sid": "2610.30524",
+      "cat": "eess.SY",
+      "score": 57.8,
+      "title_en": "LLM2Cert: LLM Synthesis of Certificates with SMT/Lean Verification",
+      "kw": [
+        "屏障证书",
+        "SMT",
+        "Lean"
+      ],
+      "authors": "Zhipeng Cao, Peiyang Song, Nikolaus Vertovec 等 6 人",
+      "units": [
+        "Institute of Software, Chinese Academy of Sciences",
+        "School of Advanced Interdisciplinary Sciences",
+        "等 8 家单位"
+      ],
+      "bullets": [
+        {
+          "tag": "背景",
+          "text": "现有证书验证依赖平方和、区间方法或 SMT，往往需要松弛、偏保守，且随维度与非线性变差；基准也偏低位多项式系统。"
+        },
+        {
+          "tag": "方法",
+          "text": "提出 105 个实例的 DynaCertBench，覆盖稳定性、吸引域、前向不变与安全任务；LLM2Cert 合成候选证书，并把每条证明义务路由到 SMT…"
+        },
+        {
+          "tag": "结果",
+          "text": "在 DynaCertBench 上验证通过 81/105（77.1%），较一次性生成提升 17.1 个百分点。"
+        }
+      ],
+      "link": "arxiv.org/abs/2610.30524"
+    },
+    {
+      "rank": 10,
+      "lane": "兴趣扩展",
+      "sid": "2610.30645",
+      "cat": "quant-ph",
+      "score": 56.9,
+      "title_en": "FVQKD: A Formal Verification of Quantum Key Distribution Security in Rocq",
+      "kw": [
+        "Rocq",
+        "BB84",
+        "无 admit"
+      ],
+      "authors": "Ruixuan Deng, Zhengfeng Ji, Jiayu Zhang 等 4 人",
+      "units": [
+        "Institute of Software, Chinese Academy of Sciences"
+      ],
+      "bullets": [
+        {
+          "tag": "背景",
+          "text": "QKD 正走向标准化与商用，但其安全性建立在手工检查的精细证明上，推理错误难以排除。"
+        },
+        {
+          "tag": "方法",
+          "text": "构建 Rocq 库，从光滑熵、熵不确定关系、量子剩余哈希引理等基础设施重建 BB84 有限码长可组合安全性证明，并给出协议执行的形式语义。"
+        },
+        {
+          "tag": "结果",
+          "text": "首个端到端机器检查的 QKD 安全证明，全程无 admit，仅依赖 Rocq 内核与标准公理；揭示原文未声明的必要条件与一处缺失分支。"
+        }
+      ],
+      "link": "arxiv.org/abs/2610.30645"
     }
   ]
 }

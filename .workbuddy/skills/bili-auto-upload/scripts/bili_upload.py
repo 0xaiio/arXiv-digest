@@ -417,7 +417,8 @@ def cmd_cover(a: argparse.Namespace) -> int:
         bad("没有 ffmpeg")
         return 1
     out = OUT / f"bili_cover_{issue}.jpg"
-    cmd = [ff, "-y", "-ss", "1", "-i", str(video), "-frames:v", "1", "-q:v", "2", str(out)]
+    # 抽帧点取 3.6s：片头动画在 1s 时副标题仍压在标题上，落定后才干净可读。
+    cmd = [ff, "-y", "-ss", "3.6", "-i", str(video), "-frames:v", "1", "-q:v", "2", str(out)]
     r = subprocess.run(cmd, capture_output=True, text=True)
     if out.is_file():
         ok(f"封面 → {out.name}（{out.stat().st_size / 1024:.0f} KB）")
