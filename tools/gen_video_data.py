@@ -176,7 +176,11 @@ def main(argv=None):
     for idx, (p, lane) in enumerate(picked, start=1):
         sid = sid_of(p.get("id"))
         note = notes.get(sid) or notes.get(str(p.get("id"))) or {}
-        zh = p.get("summary") or summaries.get(sid) or ""
+        # summaries.json 自 2026-10-22 起 value 为 {"en","zh"}；兼容旧的单语字符串。
+        raw = p.get("summary") or summaries.get(sid) or ""
+        if isinstance(raw, dict):
+            raw = raw.get("zh") or raw.get("en") or ""
+        zh = raw
 
         bullets = note.get("bullets") or []
         if not bullets:
