@@ -114,7 +114,10 @@ def main():
             "primary": p.get("primary") or p.get("queried_cat", ""),
             "cats": p.get("cats", []),
             "published": (p.get("published") or "")[:10],
-            "abstract": (p.get("abstract") or "")[:1400],
+            # 摘要保留全文：页面上的「Abstract (EN)」就是它，截到 1400 会在句子
+            # 中途断开（看起来像残缺），中文译文也无从"对应完整摘要"。
+            # arXiv 摘要普遍 1–2 KB，对 JSON 体积影响可忽略。
+            "abstract": (p.get("abstract") or ""),
             "summary": summ_zh,
             "summary_en": summ_en,
             "score": round(s, 1),

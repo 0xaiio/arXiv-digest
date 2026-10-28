@@ -84,6 +84,16 @@ input.search{border:1px solid var(--bd);border-radius:8px;padding:6px 11px;font-
 .btn.fav.on{background:#fff8e8;border-color:var(--star);color:#a15c00}
 .btn.fav.on .ico{color:var(--star)}
 .btn.dl.done{background:#eaf7f0;border-color:var(--ok);color:var(--ok)}
+/* ---- arXiv 入口：字标 + 外链箭头 ----
+   只用「PDF」二字会与左边的「下载」撞语义（都像"把文件拿下来"）。这里给品牌
+   字标（arXiv 红 #b31b1b）+ 外链箭头，一眼看出是「去 arXiv 站外看论文页」。 */
+.btn.arx{gap:6px;padding-right:8px}
+.btn.arx .arx-wm{font-family:Georgia,"Times New Roman",serif;font-weight:700;
+ font-size:12.8px;letter-spacing:.2px;line-height:1;color:#b31b1b}
+.btn.arx .ext{color:var(--tx3);flex:none}
+.btn.arx:hover{border-color:#b31b1b}
+.btn.arx:hover .arx-wm{color:#8f1414}
+.btn.arx:hover .ext{color:#b31b1b}
 .btn.ab.open{border-color:var(--ac);color:var(--ac);background:var(--acbg)}
 .btn.dv.on{background:#fdecec;border-color:var(--warn);color:var(--warn)}
 .btn:disabled{opacity:.6;cursor:default}

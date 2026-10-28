@@ -103,7 +103,7 @@ if not core and scored:                     # 只在结果为空时触发
     只更新该篇抽出的实词（最多 45 个），结果 clamp 到 keyword_range（默认 [-4, 4]）
 ```
 
-`action_weight` 见 `behavior.actions`（下载 1.3 / 收藏 1.0 / 打开 PDF 0.55 / 展开摘要 0.3）。
+`action_weight` 见 `behavior.actions`（下载 1.3 / 收藏 1.0 / 打开 arXiv 页面或本地 PDF 0.55 / 展开摘要 0.3）。
 
 接着上面的例子，点一次**收藏**（`w = 1.0`，`lr_topic = 0.06`）：
 

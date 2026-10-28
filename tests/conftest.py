@@ -164,6 +164,7 @@ def _redirect(monkeypatch, sb):
     # 不能再靠 monkeypatch 模块级 dict —— 那只会替换 server 的一个没人读的别名。
     S.reset_papers()
     monkeypatch.setattr(B, "AFF", {}, raising=False)
+    monkeypatch.setattr(B, "DOWNLOADS", {}, raising=False)
 
     assert_isolated(sb)
 

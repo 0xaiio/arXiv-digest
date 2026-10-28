@@ -7,6 +7,48 @@
 
 ---
 
+## 2026-10-28（补齐中文摘要 + arXiv 入口 + 已下载按钮语义）
+
+三件事：把本期 77 篇论文的中文摘要译文与双语简介**全部补齐**；把「PDF」按钮改成
+一眼可辨的 **arXiv ↗** 入口；把「已下载」按钮的点击语义从"再下载一次"改成
+**打开本地 PDF**。
+
+### 新增
+
+- **`build_report.dl_btn()` / `arx_link()`**：按钮组件收敛为函数，推荐卡、分类条目、
+  重点论文块与收藏页共用同一套标记。
+  - `arx_link`：arXiv 入口改为打开 `https://arxiv.org/abs/<短号>` 论文页（标题链接仍是
+    PDF 直链），按钮为红色 arXiv 字标 + 内联 SVG 外链箭头，tooltip/aria-label 均写明
+    「在 arXiv 上打开论文页（新标签页）」。
+  - `dl_btn`：已下载态的按钮带 `done` 类、`title`/`aria-label`「打开本地文件」、图标 📂；
+    未下载态的 tooltip 是「下载 PDF 并自动收藏」。服务端渲染时就读
+    `library.json.downloads`（新模块级 `DOWNLOADS` + `load_downloads()`），
+    不再等前端 `/api/state` 回填——首屏不闪烁，禁 JS 也不出错。
+- **前端**：`app.js` 点击分支按按钮自身 `done` 态二选一——已下载调 `/api/open` 并弹
+  「正在打开本地文件」toast，未下载才走 `/api/download`；`setDl()` 同步换 tooltip /
+  图标 / 文字。收藏页删除了与 `app.js` 重复的点击委托（曾导致同一次点击发两次请求）。
+- **测试**：新增单元 `test_build_buttons.py`（6 条）、集成 2 条（服务端渲染的下载态与
+  arXiv 入口）、浏览器端到端 2 条（真点「已下载」断言走 `/api/open` 且未发下载请求；
+  未下载的仍是「下载」）。`tools/dl_button_check.py` 改为验证「已下载 → 打开本地文件」
+  （副作用：会真开一个 PDF）。
+
+### 变更
+
+- **摘要保留全文**：`recommend.pack()` 不再把 `abstract` 截断到 1400 字符——那会让
+  `Abstract (EN)` 在句子中途断掉，中文译文也无从对应"完整摘要"。
+  当期 520 篇摘要中位 1517 字符、最长 1917 字符，JSON 增量可忽略。
+- **数据**：本期（20261026）渲染集合 77 篇全部补齐中文摘要译文（`abstracts_zh.json`
+  52 → 109 条）与双语简介；`Abstract (CH)` 不再出现"还没有译文"提示。
+
+### 文档
+
+- `daily-workflow`（按钮表：新增「已下载（再点）」行，PDF → arXiv ↗）、`quickstart`
+  （按钮列表与交互步骤）、`http-api`（`/api/open` 与事件动作）、`profile-tuning` /
+  `ranking`（0.55 权重的行为名）、`data-files`（摘要不截断）、`cli`（`dl_button_check`
+  新语义）、`README`（按钮语义与文案）。
+
+---
+
 ## 2026-10-22（简介双语 + 摘要拆成 EN / CH 两个版本）
 
 此前「简介」的写法不统一：有的纯中文、有的纯英文，混在一屏里读起来要不断切换语感。

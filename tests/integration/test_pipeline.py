@@ -6,6 +6,7 @@
 以及两件容易被改坏的性质：同一天重跑幂等、扩展区兜底。
 """
 import json
+import re
 
 import pytest
 
@@ -267,6 +268,50 @@ def test_build_report_is_resilient_to_missing_editorial_files(seeded):
         assert not seeded.exists(name), "前置条件：这些文件本来就不存在"
     _run_pipeline()
     assert seeded.exists("arxiv_digest_20261015.html")
+
+
+# ---------------------------------------------------------------- 下载态与 arXiv 入口
+
+def test_downloaded_paper_renders_open_local_file_state(seeded):
+    """library.json 里已有的下载，首屏就必须是「已下载 → 打开本地文件」。
+
+    这一条覆盖的是**服务端渲染**：只靠前端 fetch /api/state 回填的话，
+    首屏会先闪一下「下载」，禁用 JS 时更是直接错。
+    """
+    seeded.download_dir.mkdir(parents=True, exist_ok=True)
+    target = seeded.download_dir / "arXiv2026 2609.10001 Isolation Level.pdf"
+    target.write_bytes(b"%PDF-1.4 test")
+    lib = pu.load_library()
+    lib["downloads"]["2609.10001"] = {"path": str(target), "at": "now", "title": "T"}
+    lib.setdefault("favorites", {})["2609.10001"] = {
+        "title": "Isolation Level Selection for Serializable Transactions",
+        "primary": "cs.DB", "published": "2026-10-15T00:00:00Z",
+        "added_at": "2026-10-15T09:00:00+08:00", "authors": ["Ada Lovelace"]}
+    pu.save_library(lib)
+
+    _run_pipeline()
+    html = (seeded.out / "arxiv_digest_20261015.html").read_text(encoding="utf-8")
+
+    done = re.findall(r'class="btn dl done" data-act="dl" data-sid="([^"]+)"', html)
+    assert set(done) == {"2609.10001"}, "只有库里记录过下载的那篇才该是已下载态"
+    assert html.count('title="打开本地文件"') == len(done)
+    assert html.count('title="下载 PDF 并自动收藏"'), "其余论文仍应是下载按钮"
+
+    fav = (seeded.out / "favorites.html").read_text(encoding="utf-8")
+    assert 'class="btn dl done" data-act="dl" data-sid="2609.10001"' in fav
+    assert 'title="打开本地文件"' in fav
+    assert 'data-open=' not in fav, "单独的「打开」按钮已合并进「已下载」按钮，别再重复一份"
+
+
+def test_arxiv_entry_points_at_abs_pages_not_pdf_files(seeded):
+    """卡片上的 arXiv 入口指向 /abs/ 论文页，并带品牌字标与外链箭头。"""
+    _run_pipeline()
+    html = (seeded.out / "arxiv_digest_20261015.html").read_text(encoding="utf-8")
+    assert 'href="https://arxiv.org/abs/2609.10001"' in html
+    assert 'class="arx-wm"' in html and 'class="ext"' in html
+    assert "在 arXiv 上打开论文页" in html
+    assert "https://arxiv.org/pdf/2609.10001" not in html.split('class="acts"')[1][:4000], \
+        "按钮组里不应再出现直链 PDF 的入口（标题链接仍可指向 PDF）"
 
 
 # ---------------------------------------------------------------- 通用分类：顺序契约

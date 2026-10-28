@@ -7,11 +7,15 @@
   2) 前端 → 本地服务的往返断了。
 二者靠读代码都看不出来，必须真点一次。
 
-做法（**不产生副作用**）：
-  · 只在 http://127.0.0.1:8765/ 同源页面上点「已下载过」的论文的下载按钮 ——
-    服务端会走「已存在，跳过下载」分支，不写任何新文件；
-  · 断言页面出现「已下载并收藏」toast，且按钮变为已下载态。
-网络取数这一半另由 `python netroute.py` 与隔离目录测试覆盖。
+**两种语义都要成立**（2026-10-28 起）：
+  · 未下载 → 「下载」：存 PDF 并收藏；
+  · 已下载 → 「已下载」：再点一次是**打开本地 PDF**（tooltip 亦为「打开本地文件」），
+    不会重复下载。
+
+做法（**不写新文件**）：只点一篇「已下载过」的论文的按钮 ——
+服务端走 `/api/open`，不会重新下载。**副作用**：会真的用系统默认阅读器打开一个
+PDF（这正是被测行为本身，跑之前请知悉）。
+取数路由那一半另由 `python netroute.py` 与隔离目录测试覆盖。
 
 依赖 websocket-client，请用默认 venv 运行：
   python tools/dl_button_check.py
@@ -69,7 +73,7 @@ def page_text(url, timeout=60):
 
 
 def pick_target(dlset, forced=None):
-    """找「页面上有下载按钮」且「已下载过」的论文 —— 这样点击不会写新文件。
+    """找「页面上有下载按钮」且「已下载过」的论文 —— 点击只会打开本地 PDF，不写新文件。
 
     当前期页面只含本期新增论文，往期已下载的论文得去 /archive/<日期> 快照页上点。
     返回 (url, sid)。
@@ -131,21 +135,27 @@ CLICK_DL = r"""
   const btn = document.querySelector(sel);
   const O = {sid: sid, found: !!btn};
   if (!btn) return O;
-  O.consoleErrors = (window.__errs || []).slice(0, 5);
+  O.doneBefore = btn.classList.contains('done');
+  O.titleBefore = btn.getAttribute('title');
+  O.labelBefore = (btn.querySelector('.lb') || {}).textContent;
   btn.click();
-  // 轮询等结果 toast（下载完成会追加 .tst 节点）
+  // 轮询等结果 toast（打开本地文件 / 下载完成都会追加 .tst 节点）
   const t0 = Date.now();
   let txt = null;
   while (Date.now() - t0 < 90000) {
     const all = [...document.querySelectorAll('#toast .tst')].map(e => e.textContent);
-    const hit = all.reverse().find(t => t.indexOf('下载') >= 0);
+    const hit = all.reverse().find(t => t.indexOf('打开') >= 0 || t.indexOf('下载') >= 0);
     if (hit) { txt = hit; break; }
     await sleep(400);
   }
   O.toast = txt;
   const b2 = document.querySelector(sel);
   O.doneState = b2 ? b2.classList.contains('done') : null;
+  O.title = b2 ? b2.getAttribute('title') : null;
   O.label = b2 ? (b2.querySelector('.lb') || {}).textContent : null;
+  // 已下载的按钮不该再发下载请求
+  O.dlRequests = performance.getEntriesByType('resource')
+    .filter(e => e.name.indexOf('/api/download') >= 0).length;
   O.consoleErrors = (window.__errs || []).slice(0, 5);
   return O;
 })()
@@ -168,7 +178,7 @@ def main():
     target_url, sid = pick_target(set(dls), a.sid)
     if not sid:
         raise SystemExit("找不到「已下载且页面有按钮」的论文（用 --sid 指定一篇已下载的）")
-    sys.stdout.write("测试页面：%s\n测试目标：%s（已下载过 → 走「已存在，跳过下载」分支，不写新文件）\n"
+    sys.stdout.write("测试页面：%s\n测试目标：%s（已下载过 → 点击应为「打开本地 PDF」，不重新下载）\n"
                      % (target_url, sid))
 
     edge = find_edge()
@@ -205,13 +215,22 @@ def main():
              "window.addEventListener('unhandledrejection',e=>window.__errs.push('rej:'+String(e.reason)));true")
 
         r = c.ev(CLICK_DL.replace("__SID__", sid))
-        sys.stdout.write("按钮存在：%s\n" % r.get("found"))
+        sys.stdout.write("按钮存在：%s（点击前 done=%s title=%r label=%r）\n"
+                         % (r.get("found"), r.get("doneBefore"), r.get("titleBefore"),
+                            r.get("labelBefore")))
         sys.stdout.write("结果 toast：%r\n" % (r.get("toast") or "(无)"))
-        sys.stdout.write("按钮态：done=%s label=%r\n" % (r.get("doneState"), r.get("label")))
+        sys.stdout.write("按钮态：done=%s title=%r label=%r\n"
+                         % (r.get("doneState"), r.get("title"), r.get("label")))
+        sys.stdout.write("期间 /api/download 请求数：%s（已下载态应为 0）\n"
+                         % (r.get("dlRequests"),))
         sys.stdout.write("页面 JS 报错：%s\n" % (r.get("consoleErrors") or "无"))
-        good = (r.get("found") and r.get("toast") and "下载失败" not in r["toast"]
-                and r.get("doneState") and not (r.get("consoleErrors") or []))
-        sys.stdout.write("\n结论：%s\n" % ("下载按钮链路 OK" if good else "下载按钮仍有问题"))
+        good = (r.get("found") and r.get("doneBefore")
+                and r.get("titleBefore") == "打开本地文件"
+                and r.get("toast") and "打开" in r["toast"]
+                and r.get("doneState") and r.get("dlRequests") == 0
+                and not (r.get("consoleErrors") or []))
+        sys.stdout.write("\n结论：%s\n"
+                         % ("下载/打开按钮链路 OK" if good else "按钮语义仍有问题"))
         ok = bool(good)
     finally:
         try:

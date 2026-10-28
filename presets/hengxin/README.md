@@ -10,6 +10,8 @@
 | --- | --- |
 | `config.json` | 6 个主分类（cs.DB / cs.DC / cs.FL / cs.LO / cs.PL / cs.SE）+ 18 个扩展分类 + 推荐条数等。**这是「个人示例配置」的样板**：仓库默认的 `config.example.json` 里分类是空数组，不会展示任何人的偏好 |
 | `interests.json` | 4 位画像主来源（本人 / Alexey Gotsman / Hagit Attiya / Constantin Enea）、14 个研究主题（含关键词）、61 位熟悉研究者、22 个代表系统、降权词 |
+| `summaries.json` | 双语简介（`{短号: {"en","zh"}}`，notes 分组、导入只做并集）。**按路径被 .gitignore 排除，不入库**——这里是本机的持久副本，丢了 output/ 里的工作成果时从这里找回 |
+| `abstracts_zh.json` | 英文完整摘要的中文译文（`{短号: 译文}`，notes 分组）。同上，仅存本机 |
 | `legacy/` | 当年一次性用过的迁移/种子脚本（把论文摘要与看点写进 `output/*.json`）。**正常运行不需要**，留作参考 |
 
 ## 怎么用

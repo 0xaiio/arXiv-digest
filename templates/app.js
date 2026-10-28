@@ -33,8 +33,15 @@ function eachBtn(sid,fn){document.querySelectorAll('[data-sid="'+sid+'"]').forEa
 function setFav(sid,on){eachBtn(sid,function(b){if(b.dataset.act!=='fav')return;
  b.classList.toggle('on',on);var lb=b.querySelector('.lb');if(lb)lb.textContent=on?'已收藏':'收藏';
  var ic=b.querySelector('.ico');if(ic)ic.textContent=on?'★':'☆';});syncCount();}
+/* 下载按钮的两副语义：未下载 = 下载并收藏；已下载 = 打开本地文件。
+   文字、tooltip、图标必须一起换 —— 只换文字会留下「写着已下载、点了却再下一次」
+   的错位（2026-10-28 用户报告）。 */
 function setDl(sid,on){eachBtn(sid,function(b){if(b.dataset.act!=='dl')return;
- b.classList.toggle('done',!!on);var lb=b.querySelector('.lb');if(lb)lb.textContent=on?'已下载':'下载';});}
+ b.classList.toggle('done',!!on);
+ b.title=on?'打开本地文件':'下载 PDF 并自动收藏';
+ b.setAttribute('aria-label',b.title);
+ var lb=b.querySelector('.lb');if(lb)lb.textContent=on?'已下载':'下载';
+ var ic=b.querySelector('.ico');if(ic)ic.textContent=on?'📂':'⬇';});}
 function setDv(sid,on){if(on)DV[sid]=1;else delete DV[sid];
  eachBtn(sid,function(b){if(b.dataset.act!=='dv')return;b.classList.toggle('on',!!on);
   var lb=b.querySelector('.lb');if(lb)lb.textContent=on?'已 Downvote':'Downvote';});
@@ -183,7 +190,9 @@ function onScroll(){if(_st)return;_st=setTimeout(function(){_st=0;
  updateRail();
  var b=document.getElementById('totop');if(b)b.classList.toggle('show',pageY()>420);},90);}
 function openFolder(){api('/api/open_folder',{}).then(function(r){if(!r.ok)toast(r.msg||'打开失败','err');});}
-async function openPaper(sid){var r=await api('/api/open',{id:sid});if(!r.ok)toast(r.msg||'尚未下载该论文','err');}
+async function openPaper(sid){var r=await api('/api/open',{id:sid});
+ if(!r.ok){toast(r.msg||'尚未下载该论文','err');return;}
+ toast('正在打开本地文件：'+((r.path||'').split(/[\\/]/).pop()||sid),'ok');}
 function applyFilter(mode){document.querySelectorAll('.tb[data-mode]').forEach(function(b){b.classList.toggle('on',b.dataset.mode===mode);});
  var q=(document.getElementById('q').value||'').toLowerCase();
  document.querySelectorAll('li.item').forEach(function(li){
@@ -200,9 +209,12 @@ var STATE={dldir:''};
 document.addEventListener('click',function(ev){
  var b=ev.target.closest('button[data-act]');
  if(b){ev.preventDefault();var sid=b.dataset.sid,a=b.dataset.act;
-  if(a==='fav')toggleFav(sid);else if(a==='dl')doDl(sid,b);
+  /* 已下载 = 打开本地 PDF；只有未下载才走下载。判据是按钮自己的 done 态，
+     这样同一篇在推荐卡 / 分类条目 / 收藏页三处行为一致。 */
+  if(a==='fav')toggleFav(sid);
+  else if(a==='dl'){if(b.classList.contains('done'))openPaper(sid);else doDl(sid,b);}
   else if(a==='abs'||a==='abszh')toggleAbs(sid,a);else if(a==='dv')toggleDv(sid,b);return;}
- var p=ev.target.closest('a.pdf[data-sid]');if(p){track(p.dataset.sid,'pdf');return;}
+ var p=ev.target.closest('a.arx[data-sid]');if(p){track(p.dataset.sid,'pdf');return;}
  var o=ev.target.closest('button[data-open]');if(o){openPaper(o.dataset.open);}});
 document.addEventListener('DOMContentLoaded',function(){
  var q=document.getElementById('q');

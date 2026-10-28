@@ -54,7 +54,7 @@ output/
 | 字段 | 说明 |
 | --- | --- |
 | `id` / `arxivid` | arXiv 完整号（可能带版本） |
-| `title` / `abstract` | 标题与摘要（摘要会截断到 1400 字符进页面） |
+| `title` / `abstract` | 标题与摘要（摘要保留全文：页面上的 `Abstract (EN)` 就是它，截断会在句子中途断开） |
 | `authors[]` | 作者列表 |
 | `published` / `updated` | 首次提交日 / 最后更新日（`YYYY-MM-DD`） |
 | `primary` | 主分类（如 `cs.DB`）；RSS 通道可能只有 `queried_cat` |
@@ -87,7 +87,7 @@ output/
   "primary": "cs.DB",
   "cats": ["cs.DB", "cs.LO"],
   "published": "2026-09-09",
-  "abstract": "...",             // ≤1400 字符，英文原文
+  "abstract": "...",             // 英文全文摘要（不截断）
   "summary": "中文简介（若已补）",
   "summary_en": "英文简介（若已补；缺失时页面用摘要开头兜底）",
   "score": 23.4,

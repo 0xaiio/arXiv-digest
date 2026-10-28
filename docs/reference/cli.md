@@ -126,7 +126,7 @@ python run_daily.py --preset hengxin --categories cs.LG   # 用这份画像，�
 | `dv_unify_check.py` | 是（Edge CDP） | 三处 Downvote 的 opacity / 删除线 / 不隐藏 / 可撤销 |
 | `owner_ui_check.py` | 是（Edge CDP） | `/profile` 画像主来源的增删改（只用临时条目并清理） |
 | `ui_file_check.py` | 是（Edge CDP） | 日报 HTML 以 `file://` 打开时的跨源交互与链接改写 |
-| `dl_button_check.py` | 是（Edge CDP） | 真实点一次下载按钮，断言 toast 与按钮态 |
+| `dl_button_check.py` | 是（Edge CDP） | 真实点一次**已下载**论文的按钮：断言它是「打开本地文件」态（tooltip、done 类、toast 含「打开」），且期间没有再发 `/api/download`。副作用：会用系统阅读器打开一个 PDF |
 | `fresh_clone_check.py` | 否（复制整棵源码树 + 真 HTTP，默认端口 8767） | **首次克隆验收**：引导页、空画像/空收藏、`/api/state` 全空、数据包视图只有形状、页面无私人痕迹、模板初值上一键导入成功 |
 | `ui_probe.py` / `ui_shots.py` / `ui_final_check.py` / `ui_check_v3.py` | 是 | 开发期探针与截图留档，不属于发布闸门 |
 

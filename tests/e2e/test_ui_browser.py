@@ -107,6 +107,69 @@ def test_abstract_en_and_ch_are_mutually_exclusive(seeded, http, browser):
     assert not opened("ch"), "再点一次收起"
 
 
+def test_downloaded_button_opens_the_local_pdf(seeded, http, monkeypatch, browser):
+    """已下载的按钮：tooltip 是「打开本地文件」，点它调用 /api/open，不再下载。
+
+    这一条只能在浏览器里验：文字、tooltip、点击分支三者是分别实现的，
+    任何一处漏改都会表现为「按钮写着已下载，点了又下载一遍」。
+    """
+    import build_report as B
+    import paperutil as pu
+    import recommend as R
+    import server as S
+
+    opened = []
+
+    def fake_open(path):
+        opened.append(path)
+        return True, ""
+
+    monkeypatch.setattr(S, "service_open", fake_open)
+
+    seeded.download_dir.mkdir(parents=True, exist_ok=True)
+    pdf = seeded.download_dir / "arXiv2026 2609.10001 Isolation Level.pdf"
+    pdf.write_bytes(b"%PDF-1.4 test")
+    lib = pu.load_library()
+    lib["downloads"]["2609.10001"] = {"path": str(pdf), "at": "now", "title": "T"}
+    pu.save_library(lib)
+
+    R.main()
+    B.main()
+    browser.goto(http.base + "/")
+
+    btn = "document.querySelector(\"[data-sid='2609.10001'] button[data-act='dl']\")"
+    assert browser.evaluate(btn + ".classList.contains('done')") is True
+    assert browser.evaluate(btn + ".getAttribute('title')") == "打开本地文件"
+    assert browser.evaluate(btn + ".querySelector('.lb').textContent") == "已下载"
+
+    click(browser, "[data-sid='2609.10001']", "dl")
+    time.sleep(0.8)
+
+    assert opened == [str(pdf)], "点「已下载」应打开本地 PDF（/api/open）"
+    assert browser.evaluate(btn + ".classList.contains('done')") is True, \
+        "打开本地文件不该把按钮打回下载态"
+    assert "下载中" not in browser.evaluate(btn + ".textContent")
+    hits = browser.evaluate(
+        "performance.getEntriesByType('resource').map(e=>e.name)")
+    assert not [h for h in hits if "/api/download" in h], \
+        "已下载的按钮不得再发下载请求"
+
+
+def test_fresh_paper_keeps_download_semantics(seeded, http, browser):
+    """没下载过的那篇仍是「下载」：状态是按篇判定的，不是全页一刀切。"""
+    import build_report as B
+    import recommend as R
+
+    R.main()
+    B.main()
+    browser.goto(http.base + "/")
+
+    btn = "document.querySelector(\"[data-sid='2609.10002'] button[data-act='dl']\")"
+    assert browser.evaluate(btn + ".classList.contains('done')") is False
+    assert browser.evaluate(btn + ".getAttribute('title')") == "下载 PDF 并自动收藏"
+    assert browser.evaluate(btn + ".querySelector('.lb').textContent") == "下载"
+
+
 def test_favorite_button_roundtrip_in_browser(seeded, http, browser):
     """点收藏 → 按钮变「已收藏」；再点 → 取消。"""
     import build_report as B

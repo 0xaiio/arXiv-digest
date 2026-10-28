@@ -190,7 +190,7 @@ print(routes.table())      # {'get': [...], 'get_prefix': [...], 'post': [...]}
 
 ### `POST /api/event`
 
-记录非写库的弱信号（页面上的 Abstract (EN) / Abstract (CH) / PDF / 打开）。
+记录非写库的弱信号（页面上的 Abstract (EN) / Abstract (CH) / arXiv ↗）。
 两个摘要按钮共用 `action=abstract`：服务端不区分看的是哪个版本。
 
 ```json
@@ -354,7 +354,7 @@ arXiv 官方分类全表，是 `/profile` 两个联动下拉框的数据源（�
 
 | 接口 | 请求体 | 行为 |
 | --- | --- | --- |
-| `POST /api/open` | `{"id": "..."}` | 用系统默认程序打开已下载的 PDF；文件不存在 → `{ok:false, msg:"文件不存在：<path>"}` |
+| `POST /api/open` | `{"id": "..."}` | 用系统默认程序打开已下载的 PDF（页面上的「已下载」按钮就走这里）；路径取 `library.json.downloads`，缺失时按命名规则推断；文件不存在 → `{ok:false, msg:"文件不存在：<path>"}` |
 | `POST /api/open_folder` | `{"dir": "可选"}` | 打开下载目录（不存在则创建） |
 
 这两个接口只在**本机桌面环境**有意义；无 GUI 的环境里 `os.startfile` 会抛异常并退化为

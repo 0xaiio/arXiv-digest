@@ -36,7 +36,9 @@
 每篇的<b>简介</b>为双语：上行英文（取自摘要原句）、下行中文；
 「Abstract (EN)」就地展开 arXiv 英文原文摘要，「Abstract (CH)」展开它的中文译文（两者互斥，
 译文缺失时会提示补写位置）。「下载」按 <code>arXiv&lt;年&gt; &lt;arXiv号&gt; &lt;去标点标题&gt;.pdf</code>
-保存到 <code class="dldir-m">%(dldir)s</code> 并自动收藏；「Downvote」表示不感兴趣：卡片当场<b>变灰 + 标题删除线</b>并留在原位（再点一次撤销），画像同时降权该类主题。
+保存到 <code class="dldir-m">%(dldir)s</code> 并自动收藏，按钮随即变成「已下载」——此时再点它是
+<b>打开本地 PDF</b>（tooltip 亦为「打开本地文件」），不会重复下载；右侧「arXiv ↗」去 arXiv 论文页（新标签页）
+看版本、comment 与 journal-ref；「Downvote」表示不感兴趣：卡片当场<b>变灰 + 标题删除线</b>并留在原位（再点一次撤销），画像同时降权该类主题。
 按钮动作即时生效、互不等待，一篇论文正在下载时其余操作照常响应。
 类别、兴趣来源与下载目录可在 <a href="/profile">⚙ 画像与设置</a> 里增删修改。</p>
 <div id="rec-list" data-limit="%(toprec)d">%(recs)s</div>
@@ -45,7 +47,7 @@
 <div class="exp-box" id="sec-exp">
 <div class="rec-h">🌱 兴趣扩展<span class="cnt">来自你跟踪类别之外的 %(excats)s 等，用于打破知识茧房</span></div>
 <p class="rec-sub">这些论文不在你日常追踪的类别里，但主题上与你的研究方向相邻。
-它们同样支持收藏 / 下载 / Abstract (EN) / Abstract (CH) / Downvote；如果觉得不相关，直接 Downvote，画像会自动降权该类主题。
+它们同样支持收藏 / 下载 / Abstract (EN) / Abstract (CH) / arXiv ↗ / Downvote；如果觉得不相关，直接 Downvote，画像会自动降权该类主题。
 Downvote 的表现与「为你推荐」「分类详解」完全一致：变灰 + 删除线，卡片不消失，可随时再点一次撤销。</p>
 <div id="exp-list" data-limit="%(topexp)d">%(exps)s</div>
 </div>

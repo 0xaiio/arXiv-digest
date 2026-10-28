@@ -162,6 +162,20 @@ def load_abstracts_zh():
     ABS_ZH = jload("abstracts_zh.json", {}) or {}
 
 
+# 已下载论文的本地路径（library.json.downloads）。渲染时就要知道，因为
+# 「已下载」按钮的语义与「下载」不同：前者是**打开本地文件**，不是再下一次。
+# 只在 JS 里改会留下一段「首屏先显示下载、随后才变」的闪烁，且禁 JS 时就错了。
+DOWNLOADS = {}
+
+
+def load_downloads(lib=None):
+    global DOWNLOADS
+    lib = lib if lib is not None else pu.load_library()
+    DOWNLOADS = {sid: (d or {}).get("path", "")
+                 for sid, d in (lib.get("downloads") or {}).items()
+                 if isinstance(d, dict)}
+
+
 def load_affiliations():
     global AFF
     AFF = jload("affiliations.json", {}) or {}
@@ -198,6 +212,7 @@ def load():
     if d.get("categories"):
         d["categories"] = ordered_categories(d["categories"])
     lib = pu.load_library()
+    load_downloads(lib)
     summaries = jload("summaries.json", {})
     rec = jload("recommend.json", [])
     exp = jload("expand.json", [])
@@ -246,23 +261,65 @@ def load():
 
 # 摘要拆成两个按钮：EN 是 arXiv 原文，CH 是它的中文译文（来自 abstracts_zh.json）。
 # 两者互斥展开（见 app.js 的 toggleAbs），同时展开会把卡片撑成两倍高。
+
+def dl_btn(sid, done=False):
+    """下载按钮。`done` 时语义变成「打开本地文件」。
+
+    四个地方要一起改：文字、tooltip、图标、点击行为。只改文字会留下
+    「写着已下载、点了却再下一次」的错位（2026-10-28 用户报告的正是这个）。
+    """
+    if done:
+        return ('<button class="btn dl done" data-act="dl" data-sid="%s"'
+                ' title="打开本地文件" aria-label="打开本地文件">'
+                '<span class="ico">📂</span><span class="lb">已下载</span></button>'
+                % esc(sid))
+    return ('<button class="btn dl" data-act="dl" data-sid="%s"'
+            ' title="下载 PDF 并自动收藏" aria-label="下载 PDF 并自动收藏">'
+            '<span class="ico">⬇</span><span class="lb">下载</span></button>'
+            % esc(sid))
+
+
+# 外链箭头：说明这个按钮会**离开本站**。用内联 SVG 而不是「↗」字符，
+# 后者在不同字体下大小与基线都不一致；也不要加外框——12px 下外框会糊成一个方块。
+ARX_EXT = ('<svg class="ext" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">'
+           '<path d="M4.5 11.5 11.5 4.5M6.2 4.5h5.3v5.3" fill="none" stroke="currentColor"'
+           ' stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>')
+
+
+def arx_link(sid):
+    """arXiv 入口：打开论文在 arXiv 上的**页面**，不是本地文件。
+
+    按钮上只写「PDF」会与左边的「下载」撞语义（都像"拿文件"）。这里改成
+    arXiv 字标 + 外链箭头 + 说清去向的 tooltip：看清是"去站外看论文页"。
+    目标用 /abs/ 而不是 /pdf/：卡片标题已经直链 PDF，摘要页才有版本、comment、
+    journal-ref 这些判断值不值得读的信息。
+    """
+    return ('<a class="btn ghost arx" data-act="arx" data-sid="%s" href="%s"'
+            ' target="_blank" rel="noopener"'
+            ' title="在 arXiv 上打开论文页（新标签页）"'
+            ' aria-label="在 arXiv 上打开论文页（新标签页）">'
+            '<span class="arx-wm" aria-hidden="true">arXiv</span>%s</a>'
+            % (esc(sid), esc(abs_url(sid)), ARX_EXT))
+
+
 ACTS = ('<div class="acts">'
         '<button class="btn fav" data-act="fav" data-sid="{sid}">'
         '<span class="ico">☆</span><span class="lb">收藏</span></button>'
-        '<button class="btn dl" data-act="dl" data-sid="{sid}">'
-        '<span class="ico">⬇</span><span class="lb">下载</span></button>'
+        '{dl}'
         '<button class="btn ab" data-act="abs" data-sid="{sid}">'
         '<span class="ico">▸</span><span class="lb">Abstract (EN)</span></button>'
         '<button class="btn ab abz" data-act="abszh" data-sid="{sid}">'
         '<span class="ico">▸</span><span class="lb">Abstract (CH)</span></button>'
-        '<a class="btn ghost pdf" data-sid="{sid}" href="{pdf}" target="_blank" rel="noopener">PDF</a>'
+        '{arx}'
         '<button class="btn dv" data-act="dv" data-sid="{sid}" title="不感兴趣：以后减少推荐">'
         '<span class="ico">👎</span><span class="lb">Downvote</span></button>'
         '</div>')
 
 
 def acts(sid):
-    return ACTS.format(sid=esc(sid), pdf=esc(pdf_url(sid)))
+    sid = pu.short_id(sid)
+    return ACTS.format(sid=esc(sid), dl=dl_btn(sid, bool(DOWNLOADS.get(sid))),
+                       arx=arx_link(sid))
 
 
 def abst_block(sid, abstract):
@@ -688,6 +745,7 @@ FAV_PAGE = read_template("favorites.html")
 def build_favorites(lib):
     load_affiliations()
     load_abstracts_zh()
+    load_downloads(lib)
     invalidate_cat_names()
     cfg = pu.load_config()
     favs = lib.get("favorites", {})
@@ -706,13 +764,16 @@ def build_favorites(lib):
             '%s'
             '<div class="path">%s</div>'
             '<div class="acts">'
-            '<button class="btn fav on" data-act="fav" data-sid="%s"><span class="ico">★</span><span class="lb">已收藏</span></button>'
-            '<button class="btn dl %s" data-act="dl" data-sid="%s"><span class="ico">⬇</span><span class="lb">%s</span></button>'
-            '<button class="btn ab" data-act="abs" data-sid="%s"><span class="ico">▸</span><span class="lb">Abstract (EN)</span></button>'
-            '<button class="btn ab abz" data-act="abszh" data-sid="%s"><span class="ico">▸</span><span class="lb">Abstract (CH)</span></button>'
+            '<button class="btn fav on" data-act="fav" data-sid="%s">'
+            '<span class="ico">★</span><span class="lb">已收藏</span></button>'
             '%s'
-            '<a class="btn ghost pdf" data-sid="%s" href="%s" target="_blank" rel="noopener">PDF</a>'
-            '<button class="btn dv" data-act="dv" data-sid="%s"><span class="ico">👎</span><span class="lb">Downvote</span></button>'
+            '<button class="btn ab" data-act="abs" data-sid="%s">'
+            '<span class="ico">▸</span><span class="lb">Abstract (EN)</span></button>'
+            '<button class="btn ab abz" data-act="abszh" data-sid="%s">'
+            '<span class="ico">▸</span><span class="lb">Abstract (CH)</span></button>'
+            '%s'
+            '<button class="btn dv" data-act="dv" data-sid="%s">'
+            '<span class="ico">👎</span><span class="lb">Downvote</span></button>'
             '</div>%s</div></div>'
             % (esc(sid), i, badge, esc(f.get("primary", "")),
                esc((f.get("published") or "")[:10]), esc(f.get("added_at", "")),
@@ -720,10 +781,8 @@ def build_favorites(lib):
                esc(", ".join((f.get("authors") or [])[:5])), esc(sid),
                aff_line(sid),
                esc(dlp or "尚未下载到本地"),
-               esc(sid), "done" if dlp else "", esc(sid), "已下载" if dlp else "下载",
-               esc(sid), esc(sid),
-               ('<button class="btn" data-open="%s">打开</button>' % esc(sid)) if dlp else "",
-               esc(sid), esc(pdf_url(sid)), esc(sid),
+               esc(sid), dl_btn(sid, bool(dlp)),
+               esc(sid), esc(sid), arx_link(sid), esc(sid),
                abst_block(sid, f.get("abstract", ""))))
     if not items:
         items = ['<div class="empty">还没有收藏。回到摘要页点击「☆ 收藏」即可加入这里；'

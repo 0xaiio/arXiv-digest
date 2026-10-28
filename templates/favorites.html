@@ -53,12 +53,8 @@ document.addEventListener('DOMContentLoaded',function(){
   STATE.dldir=s.download_dir||'';(s.favorites||[]).forEach(function(id){setFav(id,true);});
   Object.keys(s.downloads||{}).forEach(function(id){setDl(id,s.downloads[id]);});
   (s.downvotes||[]).forEach(function(id){setDv(id,true);});syncCount();}).catch(function(){});});
-document.addEventListener('click',function(ev){
- var b=ev.target.closest('button[data-act]');
- if(b){ev.preventDefault();var a=b.dataset.act,sid=b.dataset.sid;
-  if(a==='fav')toggleFav(sid);else if(a==='dl')doDl(sid,b);
-  else if(a==='abs'||a==='abszh')toggleAbs(sid,a);else if(a==='dv')toggleDv(sid,b);return;}
- var o=ev.target.closest('button[data-open]');if(o){openPaper(o.dataset.open);return;}
- var p=ev.target.closest('a.pdf[data-sid]');if(p){track(p.dataset.sid,'pdf');}});
+/* 点击委托已全部由 app.js 统一处理（收藏 / 下载 / 已下载打开本地文件 /
+   Abstract / Downvote / arXiv 外链）。这里再挂一份会对同一次点击发两次请求
+   —— 下载按钮曾因此重复请求，别再复制回页面里。 */
 </script>
 </body></html>

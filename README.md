@@ -3,14 +3,14 @@
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![Runtime deps](https://img.shields.io/badge/runtime-stdlib--only-brightgreen)](#环境与依赖)
 [![Docs](https://img.shields.io/badge/docs-25%20pages-informational)](docs/documentation.md)
-[![Tests](https://img.shields.io/badge/tests-838%20passed-success)](docs/contributing/testing.md)
+[![Tests](https://img.shields.io/badge/tests-849%20passed-success)](docs/contributing/testing.md)
 [![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)](docs/contributing/testing.md#三覆盖率)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Docs site](https://img.shields.io/badge/docs-site-0xaiio.github.io%2FarXiv--digest-informational)](https://0xaiio.github.io/arXiv-digest/)
 [![Status](https://img.shields.io/badge/status-active-success)](#项目状态)
 
 把 arXiv 的每日新论文按**你自己的研究画像**排序，生成一份可交互的本地日报：
-收藏、下载 PDF、就地展开摘要、Downvote 反馈——全部离线可用，点一次就当场学会你的口味。
+收藏、下载 PDF、就地展开双语摘要、一键去 arXiv、Downvote 反馈——全部离线可用，点一次就当场学会你的口味。
 
 **任何 arXiv 分类都能用**：官方 155 个分类（20 个 archive）任选，两级联动下拉框 + 可搜索多选 +
 拖拽排序的标签，不限于 `cs.*`。
@@ -47,6 +47,7 @@
 | --- | --- |
 | **分类自由选** | 官方分类表内置（20 个 archive / 155 个分类）：两级联动下拉、搜索、多选、标签拖拽排序；拼错会告诉你正确写法（[说明](docs/reference/categories.md)） |
 | **两层推荐** | 「🎯 为你推荐」（主分类，阈值 ≥7）与「🌱 兴趣扩展」（邻域分类，阈值 ≥9）互不重叠，前者求准、后者破茧 |
+| **按钮语义清晰** | `arXiv ↗` 带品牌字标与外链箭头，去 arXiv 论文页；`下载` 存 PDF，成功后变 `已下载`——再点一次是**打开本地 PDF**（tooltip「打开本地文件」），不会重复下载 |
 | **简介双语 / 摘要双语** | 每篇的简介是**摘要核心内容**的双语版（上行英文、下行中文，英文复用摘要原句）；摘要则有 `Abstract (EN)`（原文）与 `Abstract (CH)`（中文译文）两个按钮，互斥展开（[数据文件](docs/reference/data-files.md#四编辑性内容可手工补)） |
 | **只呈现本期新增** | SQLite `seen` 表判定首次出现期次，往期进 `/archive` 按日期回看，不会天天重播旧论文 |
 | **可解释的打分** | 主题命中 / 熟悉作者 / 代表系统 / 降权词 / 关键词权重逐项可拆，公式与算例见[排序算法](docs/architecture/ranking.md) |
@@ -57,7 +58,7 @@
 | **可选视频链路** | Remotion 代码渲染 + Edge TTS 中文旁白 + A/V 质量闸门 + B 站投稿（[指南](docs/guide/video-pipeline.md)） |
 | **可导入的数据包** | 某人的一整套设置与使用数据（配置 / 画像 / 收藏 / 行为学习 / 笔记）收在一个目录里，纯 JSON 可 diff；启动参数 `--preset` 或界面一键导入，**默认不加载**（[设计与边界](docs/architecture/data-isolation.md)） |
 | **启动不挑端口** | 默认 `127.0.0.1:8765`；被别的软件占着就自动向后顺延（8765 → 8766 → …）并在日志里报出实际地址，页面端口同步改写；启动成功后自动开浏览器，`--no-open` / `open_browser: false` 可关（[服务运行时](docs/architecture/server-runtime.md)） |
-| **测试兜底** | 838 个用例分四层（单元 / 集成 / 端到端 / 浏览器），行覆盖率 91%，全部在沙箱里跑，不碰真实数据 |
+| **测试兜底** | 849 个用例分四层（单元 / 集成 / 端到端 / 浏览器），行覆盖率 91%，全部在沙箱里跑，不碰真实数据 |
 
 ## 快速开始
 
@@ -116,7 +117,7 @@ Windows 可双击 `start_digest.bat`（自动找 Python，端口读 `config.json
 
 | 文档 | 解决的问题 |
 | --- | --- |
-| [日常使用](docs/guide/daily-workflow.md) | 三个板块怎么读、工具栏、五个按钮各自触发什么、收藏导出、往期回看、离线使用 |
+| [日常使用](docs/guide/daily-workflow.md) | 三个板块怎么读、工具栏、每个按钮各自触发什么、收藏导出、往期回看、离线使用 |
 | [调优画像](docs/guide/profile-tuning.md) | 推荐不准怎么调：起步配置、主题与降权词、兴趣来源、行为强度、画像漂移修复 |
 | [预设 / 数据包](docs/guide/presets.md) | `tools/preset.py` 的 list / show / import / export / status，四个数据分组、覆盖与合并语义、`--preset` 启动参数、分享前隐私检查 |
 | [视频与投稿](docs/guide/video-pipeline.md) | 选片 → 口播稿 → TTS → Remotion 渲染 → A/V 闸门 → B 站投稿 → 归入合集 |
@@ -212,12 +213,12 @@ arXiv-digest/
 
 ## 质量闸门
 
-**主闸门是 pytest 套件**：838 个用例（单元 / 集成 / 端到端 / 浏览器），行覆盖率 91%，
+**主闸门是 pytest 套件**：849 个用例（单元 / 集成 / 端到端 / 浏览器），行覆盖率 91%，
 门槛 85%。它们全部在 `tmp_pytest/` 沙箱里跑，**不会碰你的真实数据**。
 
 ```bash
 python -m pip install -r requirements-dev.txt   # 只装测试工具，运行期仍然零依赖
-python -m pytest                 # 838 passed
+python -m pytest                 # 849 passed
 python -m pytest -m unit         # 只跑单元，15s（改纯函数时用这个）
 python -m pytest --cov           # 覆盖率，低于 85% 直接失败
 ```
@@ -230,7 +231,7 @@ python tools/concurrency_check.py                              # 并发：下载
 python tools/dv_unify_check.py                                 # 三处 Downvote 的视觉/行为一致
 python tools/owner_ui_check.py                                 # /profile 画像主来源增删改
 python tools/ui_file_check.py output/arxiv_digest_<日期>.html   # 本地 HTML 跨源交互
-python tools/dl_button_check.py                                # 真实点一次下载按钮
+python tools/dl_button_check.py                                # 真实点一次「已下载」按钮（打开本地 PDF，不再下载）
 python tools/fresh_clone_check.py                              # 首次克隆验收：首屏干净 + 一键导入
 ```
 
