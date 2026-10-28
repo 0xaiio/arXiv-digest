@@ -1,10 +1,10 @@
 {
-  "issue": "20261026",
-  "range": "2026-10-23 · 回溯 3 天公告批次",
-  "generated": "2026-10-26T23:11:49+08:00",
+  "issue": "20261028",
+  "range": "2026-10-27 · 回溯 3 天公告批次",
+  "generated": "2026-10-28T23:11:21+08:00",
   "stats": {
-    "core": 61,
-    "expand": 460,
+    "core": 141,
+    "expand": 797,
     "rec": 14,
     "exp": 10
   },
@@ -12,322 +12,321 @@
     {
       "rank": 1,
       "lane": "推荐",
-      "sid": "2610.32053",
-      "cat": "cs.SE",
-      "score": 36.8,
-      "title_en": "Are LLM-Generated Formal Specifications Faithful to Their Requirements? A Study on Bimodal Formal Specification Generation",
+      "sid": "2610.34723",
+      "cat": "cs.LO",
+      "score": 63.4,
+      "title_en": "Connecting Quantum Proof Systems and Hoare Logic",
       "kw": [
-        "ACSL",
-        "Frama-C",
-        "LLM"
+        "Qafny",
+        "Hoare",
+        "Dafny"
       ],
-      "authors": "Wenhan Wang, Shiming Chen, Zeyu Sun 等 4 人",
+      "authors": "Liyi Li, Zoukarneini Difaizi Tagba, Alex Potanin",
       "units": [
-        "Institute for Software Chinese Academy of Sciences",
-        "Beijing Jiaotong University"
-      ],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "现有 LLM 规约生成方法假定输入程序正确，与形式验证的真实前提相悖。"
-        },
-        {
-          "tag": "发现",
-          "text": "程序正确时额外提供自然语言需求不提升规约通过率；程序错误时弱规约可假性通过。"
-        },
-        {
-          "tag": "结论",
-          "text": "实现被误导的规约无法靠更强提示消除，形式规约在预测正确性上不如自然语言推理。"
-        }
-      ],
-      "link": "arxiv.org/abs/2610.32053"
-    },
-    {
-      "rank": 2,
-      "lane": "推荐",
-      "sid": "2610.32597",
-      "cat": "cs.AR",
-      "score": 29.5,
-      "title_en": "Automated Multi-Line Bug Repair Using Model Checker Aided LLMs: A Case Study on RISC-V Processors",
-      "kw": [
-        "RTL",
-        "JasperGold",
-        "BRISC-V"
-      ],
-      "authors": "Debleena Das, Chandan Kumar Jha, Muhammad Hassan 等 6 人",
-      "units": [
-        "Indian Statistical Institute",
-        "University of Bremen",
-        "等 4 家单位"
-      ],
-      "bullets": [
-        {
-          "tag": "做法",
-          "text": "失败断言引导 LLM 生成多行补丁，候选补丁经 JasperGold 形式验证后才接受。"
-        },
-        {
-          "tag": "结果",
-          "text": "BRISC-V 核上变异测试：单行缺陷修复 98%，多行缺陷修复 93%。"
-        },
-        {
-          "tag": "意义",
-          "text": "闭环、可扩展且带形式保证，首个自动化 LLM 辅助多行 RTL 修复。"
-        }
-      ],
-      "link": "arxiv.org/abs/2610.32597"
-    },
-    {
-      "rank": 3,
-      "lane": "推荐",
-      "sid": "2610.32844",
-      "cat": "cs.DC",
-      "score": 28.6,
-      "title_en": "On Latency-Optimal Implementations of the Timestamp Object",
-      "kw": [
-        "timestamp",
-        "Byzantine"
-      ],
-      "authors": "Aurojit Panda, Scott Shenker, Sam Toueg 等 4 人",
-      "units": [
-        "New York University",
-        "University of Toronto"
-      ],
-      "bullets": [
-        {
-          "tag": "对象",
-          "text": "时间戳对象只提供一个操作，返回严格递增的整数，用于给分布式操作排序。"
-        },
-        {
-          "tag": "结论",
-          "text": "崩溃失败与带/不带签名的拜占庭失败下确定最优容错度，除一种情形外确定最优时延。"
-        },
-        {
-          "tag": "技术",
-          "text": "循环链论证：构造不可区分调度组成的环，环上时间戳须严格递增，导出矛盾。"
-        }
-      ],
-      "link": "arxiv.org/abs/2610.32844"
-    },
-    {
-      "rank": 4,
-      "lane": "推荐",
-      "sid": "2610.32803",
-      "cat": "cs.DC",
-      "score": 26.5,
-      "title_en": "Quantum Cadence: Post-Quantum Consensus with Multiple Concurrent Proposers",
-      "kw": [
-        "Quantum Cadence",
-        "quorum certificate",
-        "Coda"
-      ],
-      "authors": "Mohammad Mussadiq Jalalzai, Tobias Klenze, Jovan Komatovic",
-      "units": [],
-      "bullets": [
-        {
-          "tag": "痛点",
-          "text": "BLS 类聚合签名会被量子计算机攻破，而后量子签名无法聚合，证书体积不可承受。"
-        },
-        {
-          "tag": "做法",
-          "text": "取消证书，各验证者自行在已收消息中统计法定人数，安全性与活性不依赖签名。"
-        },
-        {
-          "tag": "性能",
-          "text": "保留分发加两轮投票的最优快速路径，失败时运行无签名多提议者协议 Coda。"
-        }
-      ],
-      "link": "arxiv.org/abs/2610.32803"
-    },
-    {
-      "rank": 5,
-      "lane": "推荐",
-      "sid": "2610.32558",
-      "cat": "cs.PL",
-      "score": 26.3,
-      "title_en": "On the Expressiveness of Asynchronous Processes with Nested Session Types",
-      "kw": [
-        "ASP",
-        "Turing",
-        "nested session types"
-      ],
-      "authors": "Sjors Wortelboer, Dan Frumin, Jorge A. Pérez",
-      "units": [
-        "University of Groningen, The Netherlands"
+        "Iowa State University",
+        "Australian National University"
       ],
       "bullets": [
         {
           "tag": "背景",
-          "text": "传统会话类型只表达正则协议；嵌套会话类型可写嵌套递归协议，对应单计数器机。"
+          "text": "量子程序验证依赖专用证明系统，人力成本高，是可扩展量子软件保障的首要障碍。"
         },
         {
-          "tag": "结论",
-          "text": "带嵌套会话类型的异步会话进程 ASP 图灵完备：双计数器机可正确编码为良类型进程。"
+          "tag": "方法",
+          "text": "把 Qafny 量子证明完全且可靠地翻译为带数组理论的 Hoare 逻辑，完备性在 Rocq 机械化。"
         },
         {
-          "tag": "构造",
-          "text": "编码采用状态感知的计数器与指令表示，由嵌套会话类型精确约束。"
+          "tag": "结果",
+          "text": "Dafny、SMT 分离逻辑等经典自动验证器可直接验证量子代码，补上 Qafny→Dafny 编译缺失的正确性论证。"
         }
       ],
-      "link": "arxiv.org/abs/2610.32558"
+      "link": "arxiv.org/abs/2610.34723"
+    },
+    {
+      "rank": 2,
+      "lane": "推荐",
+      "sid": "2610.34419",
+      "cat": "cs.DC",
+      "score": 44.9,
+      "title_en": "MANTA: Unlocking DAG Flexibility in Asynchronous BFT",
+      "kw": [
+        "DAG",
+        "BFT",
+        "coin"
+      ],
+      "authors": "Mohan Yu, Chenlin Wu, Jianyu Niu 等 5 人",
+      "units": [
+        "Southern University of Science and Technology",
+        "City University of Hong Kong"
+      ],
+      "bullets": [
+        {
+          "tag": "背景",
+          "text": "DAG 类 BFT 在异构广域网因同步轮推进被慢节点拖长轮次、性能退化。"
+        },
+        {
+          "tag": "方法",
+          "text": "灵活 DAG 生长：提交所需连通性跨轮累积，不阻塞每轮推进；灵活 coin 提前触发选举与最终性。"
+        },
+        {
+          "tag": "结果",
+          "text": "MANTA 在异构广域网部署中延迟降低约 30%–70%。"
+        }
+      ],
+      "link": "arxiv.org/abs/2610.34419"
+    },
+    {
+      "rank": 3,
+      "lane": "推荐",
+      "sid": "2610.36499",
+      "cat": "cs.SE",
+      "score": 44.4,
+      "title_en": "ProCerDCL: Query-Efficient Black-Box Probabilistic Verification of Deep Learning Compiler Optimization",
+      "kw": [
+        "oracle",
+        "序贯检验",
+        "TorchInductor"
+      ],
+      "authors": "Zexin Li, Weibo Zhang, Linyi Li 等 5 人",
+      "units": [
+        "STAR Lab, George Mason University",
+        "Simon Fraser University",
+        "等 3 家单位"
+      ],
+      "bullets": [
+        {
+          "tag": "背景",
+          "text": "深度学习编译器优化的语义一致性缺乏查询高效的黑盒概率验证。"
+        },
+        {
+          "tag": "方法",
+          "text": "单一序贯检验给出接受/拒绝/证据不足三值结论，每类错误概率受指定预算约束。"
+        },
+        {
+          "tag": "结果",
+          "text": "TorchInductor 与 TensorRT 24 个任务上，基线需 3.6–4.2 倍独特采样且决策契约更弱。"
+        }
+      ],
+      "link": "arxiv.org/abs/2610.36499"
+    },
+    {
+      "rank": 4,
+      "lane": "推荐",
+      "sid": "2610.34205",
+      "cat": "cs.PL",
+      "score": 43.7,
+      "title_en": "PastaLean: Deterministic transpilation from Python to Lean for Verification",
+      "kw": [
+        "Lean",
+        "Python",
+        "TypeInfer"
+      ],
+      "authors": "Anirudh Gupta, Petros Markopoulos, Siddhartha Gadgil",
+      "units": [
+        "Indian Institute of Science",
+        "University of California San Diego"
+      ],
+      "bullets": [
+        {
+          "tag": "背景",
+          "text": "Python 代码（尤其 AI 辅助代码）缺少到证明助手的确定性验证路径。"
+        },
+        {
+          "tag": "方法",
+          "text": "经 AST 确定性翻译为 Lean 的可证明/可运行孪生体，TypeInfer 引擎补静态类型。"
+        },
+        {
+          "tag": "结果",
+          "text": "LeetCode/HumanEval+ 覆盖超 92%，LiveCodeBench 超 98%；TypeInfer 居 TypeEvalPy 榜首。"
+        }
+      ],
+      "link": "arxiv.org/abs/2610.34205"
+    },
+    {
+      "rank": 5,
+      "lane": "推荐",
+      "sid": "2610.37244",
+      "cat": "cs.PL",
+      "score": 34.5,
+      "title_en": "Preserving Separation Logic Specifications through Compilation",
+      "kw": [
+        "分离逻辑",
+        "最弱前条件",
+        "Rocq"
+      ],
+      "authors": "Carmine Abate, Kleio Liotati, František Farka 等 4 人",
+      "units": [
+        "Barkhausen Institut"
+      ],
+      "bullets": [
+        {
+          "tag": "背景",
+          "text": "语义保持的编译器正确性不会把分离逻辑规范携带到编译后代码。"
+        },
+        {
+          "tag": "方法",
+          "text": "WP 保持编译 + 交互树上的资源感知模拟，追踪寄存器访问等无源对应操作中的所有权。"
+        },
+        {
+          "tag": "结果",
+          "text": "扩展到模块：独立编译与链接后规范仍保留；全部结果在 Rocq 机械化。"
+        }
+      ],
+      "link": "arxiv.org/abs/2610.37244"
     },
     {
       "rank": 6,
       "lane": "推荐",
-      "sid": "2610.32247",
-      "cat": "cs.DB",
-      "score": 24.2,
-      "title_en": "MetaDB: Putting File-System Structure Back into Distributed Databases",
+      "sid": "2610.36894",
+      "cat": "cs.SE",
+      "score": 33.7,
+      "title_en": "ASNER: Software Architecture Recovery with Adaptive Semantic Neighborhoods and Evidence-Grounded Refinement",
       "kw": [
-        "MetaDB",
-        "MVCC",
-        "EB"
+        "架构恢复",
+        "LLM",
+        "ARI"
       ],
-      "authors": "Zebin Ren, Biao Cao, Kang Chen 等 6 人",
-      "units": [
-        "Vrije Universiteit Amsterdam"
-      ],
+      "authors": "Wenhao Wang, Zhi Jin, Jia Li 等 6 人",
+      "units": [],
       "bullets": [
         {
-          "tag": "动机",
-          "text": "通用数据库把元数据当普通负载，忽略目录树局部性、差异化一致性与成簇删除。"
+          "tag": "背景",
+          "text": "功能相关不等于共享架构职责；固定阈值/Top-K 邻域忽略仓库规模与相似度分布。"
         },
         {
-          "tag": "设计",
-          "text": "树拓扑诱导分片与执行、语义感知的关键路径外处理、生命周期感知存储引擎配内存 MVCC。"
+          "tag": "方法",
+          "text": "LLM 导出文件职责 + 自适应语义邻域 + 职责-归属感知 Agent 证据锚定精化。"
         },
         {
-          "tag": "效果",
-          "text": "吞吐 2.2–4.1 倍、机器减半；生产五年，单集群 1000+ 节点、数十万亿记录、EB 级。"
+          "tag": "结果",
+          "text": "12 个项目五项指标宏平均全最佳；ARI 较 GAER-GAT 提升 19.5%，c2c@66 提升 32.9%。"
         }
       ],
-      "link": "arxiv.org/abs/2610.32247"
+      "link": "arxiv.org/abs/2610.36894"
     },
     {
       "rank": 7,
       "lane": "推荐",
-      "sid": "2610.32015",
-      "cat": "cs.DB",
-      "score": 22.5,
-      "title_en": "Scaling Graph Query Processing: Focused Exploration on Partitions Using Load Balancing",
+      "sid": "2610.35982",
+      "cat": "cs.SE",
+      "score": 30.8,
+      "title_en": "Generation and Verification: Human-Agent Collaboration for Safety-Critical Automotive Software Engineering",
       "kw": [
-        "SQL",
-        "graph"
+        "MISRA",
+        "MCP",
+        "verify"
       ],
-      "authors": "Harshit Modi, Abhishek Santra, Sharma Chakravarthy",
-      "units": [
-        "IT Lab &amp",
-        "University of Texas at Arlington"
-      ],
+      "authors": "Elizaveta Zinovyeva, Aiham Taleb, Nikita Kozodoi 等 6 人",
+      "units": [],
       "bullets": [
         {
-          "tag": "定位",
-          "text": "做查询处理而非搜索，目标是求全部或前 k 个答案，并重视查询表达力。"
+          "tag": "背景",
+          "text": "汽车安全关键软件要求变更可追溯、符合 MISRA/AUTOSAR，通用 LLM 缺领域知识。"
         },
         {
           "tag": "方法",
-          "text": "图划分加聚焦探索与分布式处理获得并行度，启发式减少查询时加载的分区数。"
+          "text": "MCP 暴露 generate/edit/verify 三工具，按需验证任意代码；AUMOVIO 生产代码定制模型。"
         },
         {
-          "tag": "验证",
-          "text": "论证存在分区时方法的正确性，比较多种负载均衡启发式并给出大量实验。"
+          "tag": "结果",
+          "text": "两周生产试点 verify 最常用；75% 开发者偏好提示工程配置，C 上违规更少。"
         }
       ],
-      "link": "arxiv.org/abs/2610.32015"
+      "link": "arxiv.org/abs/2610.35982"
     },
     {
       "rank": 8,
       "lane": "推荐",
-      "sid": "2610.32934",
+      "sid": "2610.36010",
       "cat": "cs.SE",
-      "score": 21.8,
-      "title_en": "Runtime BiDi Structural Verification Catches Right-to-Left Layout Defects that Accessibility, Actionability, and Logical-Property Linting…",
+      "score": 29.4,
+      "title_en": "CIVER: Causal Intervention Verification for Reliable Code Review",
       "kw": [
-        "RTL",
-        "Stylelint",
-        "Bootstrap",
-        "Bulma"
+        "LLM",
+        "因果干预",
+        "误报"
       ],
-      "authors": "Karan Yadav",
-      "units": [],
+      "authors": "Xinyuan Song, Hasibul Haque, Jay Somasundaram 等 6 人",
+      "units": [
+        "Causal Dynamics Lab"
+      ],
       "bullets": [
         {
-          "tag": "痛点",
-          "text": "物理方向 CSS 在 RTL 下未镜像，axe-core、Playwright 与 Stylelint 核心规则都定位不到。"
+          "tag": "背景",
+          "text": "LLM 代码评审冗长且误报多，误导开发者与下游编码智能体。"
         },
         {
           "tag": "方法",
-          "text": "运行时结构不变量：基于计算样式与几何的 zero-golden 模式，加双向保守差分模式。"
+          "text": "因果干预框架：评审、干预、验证三模块，经专家迭代联合优化。"
         },
         {
           "tag": "结果",
-          "text": "14 个真实缺陷检出 13 个，负例与 43 个未改动组件零误报（95% 上界 ≤7%）。"
+          "text": "SWE-Review-Bench 正确识别 77% 真缺陷；跨仓库泛化并提升下游修复成功率。"
         }
       ],
-      "link": "arxiv.org/abs/2610.32934"
+      "link": "arxiv.org/abs/2610.36010"
     },
     {
       "rank": 9,
       "lane": "兴趣扩展",
-      "sid": "2610.32661",
-      "cat": "cs.CR",
-      "score": 34.0,
-      "title_en": "AquaSense-ICS: A Hybrid Real-Simulated Cyber-Physical Dataset and Leakage-Aware Benchmark for Smart Water Quality Monitoring and Attack…",
+      "sid": "2610.35596",
+      "cat": "stat.CO",
+      "score": 51.3,
+      "title_en": "KAPPA: Checking the Proofs in Statistics Papers with Lean 4 and Language Model Agents",
       "kw": [
-        "AquaSense-ICS",
-        "EPANET",
-        "macro-F1"
+        "Lean",
+        "Claude",
+        "Mathlib"
       ],
-      "authors": "Amal Neji, Mohamed Fourati, Lamia Chaari Fourati",
+      "authors": "Zihua She, Xiao Wang",
       "units": [
-        "Digital Research Center of Sfax"
+        "Department of Statistics, Purdue University, West…"
       ],
       "bullets": [
         {
-          "tag": "数据",
-          "text": "真实边缘节点 8.0 小时记录与 EPANET-MSX 十三节点仿真共登记，附参数化攻击库与样本级真值。"
+          "tag": "背景",
+          "text": "统计理论论文的长证明鲜有读者逐行核对。"
         },
         {
-          "tag": "陷阱",
-          "text": "随机行划分加由输入特征计算标签，随机森林 macro-F1 达 0.9998，却是无信息量高分。"
+          "tag": "方法",
+          "text": "Claude 智能体把证明逐条翻入 Lean 4 + Mathlib，四档判定，证据可重跑、写作评审分离。"
         },
         {
-          "tag": "协议",
-          "text": "改用按时间切分、留出攻击类型后，攻击分类无人超过常数「正常」预测器（macro-F1=0.465）。"
+          "tag": "结果",
+          "text": "盲检三篇已发表论文均在勘误所指步骤找到错误；优于同模型直接用 Lean。"
         }
       ],
-      "link": "arxiv.org/abs/2610.32661"
+      "link": "arxiv.org/abs/2610.35596"
     },
     {
       "rank": 10,
       "lane": "兴趣扩展",
-      "sid": "2610.32919",
-      "cat": "cs.AI",
-      "score": 32.8,
-      "title_en": "SemantEq: Faithful Bidirectional Equivalence of Formal Statements",
+      "sid": "2610.36396",
+      "cat": "cs.SC",
+      "score": 48.0,
+      "title_en": "Automatic Certified Differentiation in Lean",
       "kw": [
-        "SemantEq",
-        "Lean 4"
+        "自动微分",
+        "Lean",
+        "Mathlib"
       ],
-      "authors": "Xinrui Li, Pawan Sasanka Ammanamanchi, Siddharth Bhat 等 6 人",
-      "units": [
-        "Carnegie Mellon University",
-        "University of Cambridge"
-      ],
+      "authors": "Ramy Shahin",
+      "units": [],
       "bullets": [
         {
-          "tag": "问题",
-          "text": "逻辑等价判据过强：库能分别证明两条陈述，等价便平凡成立，证明器越强误判越多。"
+          "tag": "背景",
+          "text": "自动微分的规则定义、符号构造与正确性保证是三重共同挑战。"
         },
         {
           "tag": "方法",
-          "text": "要求每条陈述只经允许步骤（逻辑重排、库内等式改写）化为另一条，按证明项而非策略脚本判定。"
+          "text": "Lean 中复用 Mathlib 求导定理，元编程构造导函数，按被导函数为定理建索引。"
         },
         {
           "tag": "结果",
-          "text": "ProofNetVerif 上 100% 精确率、65.6% 召回，高于 BEq+ 的 95.8% 与 61.8%。"
+          "text": "500 个随机函数全部求导成功，中位 0.18 秒，索引带来 8.6 倍加速。"
         }
       ],
-      "link": "arxiv.org/abs/2610.32919"
+      "link": "arxiv.org/abs/2610.36396"
     }
   ]
 }
