@@ -1,10 +1,10 @@
 {
-  "issue": "20261028",
-  "range": "2026-10-27 · 回溯 3 天公告批次",
-  "generated": "2026-10-28T23:11:21+08:00",
+  "issue": "20261030",
+  "range": "2026-10-29 · 回溯 3 天公告批次",
+  "generated": "2026-10-30T23:11:33+08:00",
   "stats": {
-    "core": 141,
-    "expand": 797,
+    "core": 98,
+    "expand": 773,
     "rec": 14,
     "exp": 10
   },
@@ -12,321 +12,328 @@
     {
       "rank": 1,
       "lane": "推荐",
-      "sid": "2610.34723",
-      "cat": "cs.LO",
-      "score": 63.4,
-      "title_en": "Connecting Quantum Proof Systems and Hoare Logic",
+      "sid": "2610.38174",
+      "cat": "cs.CL",
+      "score": 65.8,
+      "title_en": "Scaling Lean Theorem Proving for Real-World Code Verification",
       "kw": [
-        "Qafny",
-        "Hoare",
-        "Dafny"
+        "EasyProver",
+        "Lean",
+        "PutnamBench",
+        "Aegis"
       ],
-      "authors": "Liyi Li, Zoukarneini Difaizi Tagba, Alex Potanin",
+      "authors": "Debargha Ganguly, Divya Raghunathan, Dejan Jovanović 等 6 人",
       "units": [
-        "Iowa State University",
-        "Australian National University"
+        "Case Western Reserve University"
       ],
       "bullets": [
         {
-          "tag": "背景",
-          "text": "量子程序验证依赖专用证明系统，人力成本高，是可扩展量子软件保障的首要障碍。"
-        },
-        {
           "tag": "方法",
-          "text": "把 Qafny 量子证明完全且可靠地翻译为带数组理论的 Hoare 逻辑，完备性在 Rocq 机械化。"
+          "text": "递归智能体 + 隔离上下文 + 异步搜索，零额外训练驱动现成前沿模型"
         },
         {
           "tag": "结果",
-          "text": "Dafny、SMT 分离逻辑等经典自动验证器可直接验证量子代码，补上 Qafny→Dafny 编译缺失的正确性论证。"
+          "text": "PutnamBench 669/672、IMO 2026 六题全证、NTP4VC 597/600"
+        },
+        {
+          "tag": "新基准",
+          "text": "Aegis 把竞赛题转成实现级验证任务，2045 对 Rust-Lean 程序"
         }
       ],
-      "link": "arxiv.org/abs/2610.34723"
+      "link": "arxiv.org/abs/2610.38174"
     },
     {
       "rank": 2,
       "lane": "推荐",
-      "sid": "2610.34419",
-      "cat": "cs.DC",
-      "score": 44.9,
-      "title_en": "MANTA: Unlocking DAG Flexibility in Asynchronous BFT",
+      "sid": "2610.39723",
+      "cat": "cs.PL",
+      "score": 51.3,
+      "title_en": "Countable Nondeterminism in Weighted Programming with an Application to Mechanized Foundations for Probabilistic Program Verification",
       "kw": [
-        "DAG",
-        "BFT",
-        "coin"
+        "可数非确定性",
+        "加权编程",
+        "最弱前置条件",
+        "组合博弈"
       ],
-      "authors": "Mohan Yu, Chenlin Wu, Jianyu Niu 等 5 人",
+      "authors": "Sebastian Körner, Oliver Emil Bøving, Christoph Matheja",
       "units": [
-        "Southern University of Science and Technology",
-        "City University of Hong Kong"
+        "University of Oldenburg",
+        "Technical University of Denmark"
       ],
       "bullets": [
         {
-          "tag": "背景",
-          "text": "DAG 类 BFT 在异构广域网因同步轮推进被慢节点拖长轮次、性能退化。"
+          "tag": "扩展",
+          "text": "加入可数非确定性与用户定义加性奖励，参数从半环放宽到 module"
         },
         {
-          "tag": "方法",
-          "text": "灵活 DAG 生长：提交所需连通性跨轮累积，不阻塞每轮推进；灵活 coin 提前触发选举与最终性。"
+          "tag": "能力",
+          "text": "可推理概率程序的期望资源消耗，也可求组合博弈的最优得分"
         },
         {
-          "tag": "结果",
-          "text": "MANTA 在异构广域网部署中延迟降低约 30%–70%。"
+          "tag": "难点",
+          "text": "可数非确定性破坏连续性，wp 演算可能不可靠，论文给出充分条件"
         }
       ],
-      "link": "arxiv.org/abs/2610.34419"
+      "link": "arxiv.org/abs/2610.39723"
     },
     {
       "rank": 3,
       "lane": "推荐",
-      "sid": "2610.36499",
-      "cat": "cs.SE",
-      "score": 44.4,
-      "title_en": "ProCerDCL: Query-Efficient Black-Box Probabilistic Verification of Deep Learning Compiler Optimization",
+      "sid": "2610.40538",
+      "cat": "cs.LO",
+      "score": 46.5,
+      "title_en": "crush: Extensible Proof Automation for Lean",
       "kw": [
-        "oracle",
-        "序贯检验",
-        "TorchInductor"
+        "crush",
+        "Lean",
+        "SMT",
+        "去函数化"
       ],
-      "authors": "Zexin Li, Weibo Zhang, Linyi Li 等 5 人",
-      "units": [
-        "STAR Lab, George Mason University",
-        "Simon Fraser University",
-        "等 3 家单位"
-      ],
+      "authors": "Mike He, Dexin Zhang, Aarti Gupta",
+      "units": [],
       "bullets": [
         {
-          "tag": "背景",
-          "text": "深度学习编译器优化的语义一致性缺乏查询高效的黑盒概率验证。"
-        },
-        {
           "tag": "方法",
-          "text": "单一序贯检验给出接受/拒绝/证据不足三值结论，每类错误概率受指定预算约束。"
+          "text": "去函数化把 Lean 高阶函数值及其应用编码进一阶逻辑"
         },
         {
-          "tag": "结果",
-          "text": "TorchInductor 与 TensorRT 24 个任务上，基线需 3.6–4.2 倍独特采样且决策契约更弱。"
+          "tag": "保证",
+          "text": "对支持的高阶片段形式化翻译，并证明该翻译可靠"
+        },
+        {
+          "tag": "落地",
+          "text": "可作 tactic 或第三方后端，四个用例上义务与证明重建均领先"
         }
       ],
-      "link": "arxiv.org/abs/2610.36499"
+      "link": "arxiv.org/abs/2610.40538"
     },
     {
       "rank": 4,
       "lane": "推荐",
-      "sid": "2610.34205",
-      "cat": "cs.PL",
-      "score": 43.7,
-      "title_en": "PastaLean: Deterministic transpilation from Python to Lean for Verification",
+      "sid": "2610.39017",
+      "cat": "cs.DC",
+      "score": 38.8,
+      "title_en": "DistOptimize: Automatic Optimization of Distributed Protocols",
       "kw": [
-        "Lean",
-        "Python",
-        "TypeInfer"
+        "DistOptimize",
+        "Rocq",
+        "吞吐",
+        "时延"
       ],
-      "authors": "Anirudh Gupta, Petros Markopoulos, Siddhartha Gadgil",
-      "units": [
-        "Indian Institute of Science",
-        "University of California San Diego"
-      ],
+      "authors": "David Chu McElroy, Shadaj Laddad, Lucky Katahanas 等 6 人",
+      "units": [],
       "bullets": [
         {
-          "tag": "背景",
-          "text": "Python 代码（尤其 AI 辅助代码）缺少到证明助手的确定性验证路径。"
+          "tag": "问题",
+          "text": "协议修改在生产中频繁发生，却少有初次部署那样的证明与验证"
         },
         {
-          "tag": "方法",
-          "text": "经 AST 确定性翻译为 Lean 的可证明/可运行孪生体，TypeInfer 引擎补静态类型。"
+          "tag": "做法",
+          "text": "吞吐优化自动迁移，重写在 Rocq 中证正确，标定加 ILP 搜索导航"
         },
         {
-          "tag": "结果",
-          "text": "LeetCode/HumanEval+ 覆盖超 92%，LiveCodeBench 超 98%；TypeInfer 居 TypeEvalPy 榜首。"
+          "tag": "效果",
+          "text": "基础协议与 AWS 生产协议吞吐最高 4 倍，时延最多 +0.3ms"
         }
       ],
-      "link": "arxiv.org/abs/2610.34205"
+      "link": "arxiv.org/abs/2610.39017"
     },
     {
       "rank": 5,
       "lane": "推荐",
-      "sid": "2610.37244",
-      "cat": "cs.PL",
-      "score": 34.5,
-      "title_en": "Preserving Separation Logic Specifications through Compilation",
+      "sid": "2610.39066",
+      "cat": "cs.CR",
+      "score": 37.5,
+      "title_en": "DeepDiff: Neuro-Dynamic Regression-Freedom Checking for Security Patch Validation",
       "kw": [
-        "分离逻辑",
-        "最弱前条件",
-        "Rocq"
+        "DeepDiff",
+        "CyberGym",
+        "回归",
+        "差分"
       ],
-      "authors": "Carmine Abate, Kleio Liotati, František Farka 等 4 人",
+      "authors": "Laboni Sarker, Shuvendu K Lahiri",
       "units": [
-        "Barkhausen Institut"
+        "University of California, Santa Barbara"
       ],
       "bullets": [
         {
-          "tag": "背景",
-          "text": "语义保持的编译器正确性不会把分离逻辑规范携带到编译后代码。"
+          "tag": "思路",
+          "text": "用不崩溃但覆盖受影响路径的输入，对补丁与原程序做差分执行"
         },
         {
-          "tag": "方法",
-          "text": "WP 保持编译 + 交互树上的资源感知模拟，追踪寄存器访问等无源对应操作中的所有权。"
+          "tag": "判据",
+          "text": "正确补丁应消除触发崩溃，同时在非崩溃输入上保持原有行为"
         },
         {
-          "tag": "结果",
-          "text": "扩展到模块：独立编译与链接后规范仍保留；全部结果在 Rocq 机械化。"
+          "tag": "数据",
+          "text": "基于 CyberGym 建正确/错误补丁候选集，比较纯神经与混合方案"
         }
       ],
-      "link": "arxiv.org/abs/2610.37244"
+      "link": "arxiv.org/abs/2610.39066"
     },
     {
       "rank": 6,
       "lane": "推荐",
-      "sid": "2610.36894",
-      "cat": "cs.SE",
-      "score": 33.7,
-      "title_en": "ASNER: Software Architecture Recovery with Adaptive Semantic Neighborhoods and Evidence-Grounded Refinement",
+      "sid": "2610.39380",
+      "cat": "cs.AR",
+      "score": 34.8,
+      "title_en": "Learning to Formulate: Agentic Hardware-Software Co-Design of AI Infrastructure through Progressive Optimization and Verification",
       "kw": [
-        "架构恢复",
-        "LLM",
-        "ARI"
+        "Formulaic",
+        "表述",
+        "模板",
+        "Qwen3-8B"
       ],
-      "authors": "Wenhao Wang, Zhi Jin, Jia Li 等 6 人",
-      "units": [],
+      "authors": "Yi Ding, Li Shang",
+      "units": [
+        "Shenzhen Loop Area Institute",
+        "National University of Singapore"
+      ],
       "bullets": [
         {
-          "tag": "背景",
-          "text": "功能相关不等于共享架构职责；固定阈值/Top-K 邻域忽略仓库规模与相似度分布。"
+          "tag": "分工",
+          "text": "智能体写表述，求解器在表述内优化，验证与测量检查假设"
         },
         {
-          "tag": "方法",
-          "text": "LLM 导出文件职责 + 自适应语义邻域 + 职责-归属感知 Agent 证据锚定精化。"
+          "tag": "表述",
+          "text": "每一步是一族程序模板，附带其正确成立的条件"
         },
         {
-          "tag": "结果",
-          "text": "12 个项目五项指标宏平均全最佳；ARI 较 GAER-GAT 提升 19.5%，c2c@66 提升 32.9%。"
+          "tag": "芯片",
+          "text": "wall relaxation 给约束软件的硬件上限定价，搜索芯片空间"
         }
       ],
-      "link": "arxiv.org/abs/2610.36894"
+      "link": "arxiv.org/abs/2610.39380"
     },
     {
       "rank": 7,
       "lane": "推荐",
-      "sid": "2610.35982",
-      "cat": "cs.SE",
-      "score": 30.8,
-      "title_en": "Generation and Verification: Human-Agent Collaboration for Safety-Critical Automotive Software Engineering",
+      "sid": "2610.40287",
+      "cat": "cs.DC",
+      "score": 34.6,
+      "title_en": "Only Accepted Tokens Count: An Energy Accounting of Speculative Decoding Under Latency Targets",
       "kw": [
-        "MISRA",
-        "MCP",
-        "verify"
+        "投机解码",
+        "草稿 token",
+        "接受率",
+        "能耗"
       ],
-      "authors": "Elizaveta Zinovyeva, Aiham Taleb, Nikita Kozodoi 等 6 人",
-      "units": [],
+      "authors": "Bole Ma, Ayesha Afzal, Jan Eitzinger 等 5 人",
+      "units": [
+        "Erlangen National High Performance Computing Center"
+      ],
       "bullets": [
         {
-          "tag": "背景",
-          "text": "汽车安全关键软件要求变更可追溯、符合 MISRA/AUTOSAR，通用 LLM 缺领域知识。"
+          "tag": "前提",
+          "text": "每个草稿 token 无论是否被接受，都必须被验证"
         },
         {
-          "tag": "方法",
-          "text": "MCP 暴露 generate/edit/verify 三工具，按需验证任意代码；AUMOVIO 生产代码定制模型。"
+          "tag": "结论",
+          "text": "真实节能由接受率决定，而不是理论加速比"
         },
         {
-          "tag": "结果",
-          "text": "两周生产试点 verify 最常用；75% 开发者偏好提示工程配置，C 上违规更少。"
+          "tag": "实测",
+          "text": "对话比代码接受少，罗曼什语比英语少；SGLang + CUDA graphs"
         }
       ],
-      "link": "arxiv.org/abs/2610.35982"
+      "link": "arxiv.org/abs/2610.40287"
     },
     {
       "rank": 8,
       "lane": "推荐",
-      "sid": "2610.36010",
+      "sid": "2610.38130",
       "cat": "cs.SE",
-      "score": 29.4,
-      "title_en": "CIVER: Causal Intervention Verification for Reliable Code Review",
+      "score": 32.0,
+      "title_en": "Template-Free Dynamic Invariant Detection",
       "kw": [
-        "LLM",
-        "因果干预",
-        "误报"
+        "不变式",
+        "模板",
+        "插桩",
+        "副作用"
       ],
-      "authors": "Xinyuan Song, Hasibul Haque, Jay Somasundaram 等 6 人",
-      "units": [
-        "Causal Dynamics Lab"
-      ],
+      "authors": "Erfan Arvan, Michael D. Ernst, Martin Kellogg",
+      "units": [],
       "bullets": [
         {
-          "tag": "背景",
-          "text": "LLM 代码评审冗长且误报多，误导开发者与下游编码智能体。"
+          "tag": "动机",
+          "text": "固定模板库限制了不变式的表达力，也让推断成本居高不下"
         },
         {
-          "tag": "方法",
-          "text": "因果干预框架：评审、干预、验证三模块，经专家迭代联合优化。"
+          "tag": "风险",
+          "text": "LLM 提议的不变式求值时可执行任意代码，产生副作用或死循环"
         },
         {
-          "tag": "结果",
-          "text": "SWE-Review-Bench 正确识别 77% 真缺陷；跨仓库泛化并提升下游修复成功率。"
+          "tag": "对策",
+          "text": "每线程单候选求值 + 停顿监控重试 + 差分调试定位副作用"
         }
       ],
-      "link": "arxiv.org/abs/2610.36010"
+      "link": "arxiv.org/abs/2610.38130"
     },
     {
       "rank": 9,
       "lane": "兴趣扩展",
-      "sid": "2610.35596",
-      "cat": "stat.CO",
-      "score": 51.3,
-      "title_en": "KAPPA: Checking the Proofs in Statistics Papers with Lean 4 and Language Model Agents",
+      "sid": "2610.39354",
+      "cat": "cs.SC",
+      "score": 56.3,
+      "title_en": "Construction and formal verification of a special topology on {\\mathbb{Z}}^{n}: characterization of connected subsets",
       "kw": [
-        "Lean",
-        "Claude",
+        "拓扑",
+        "连通",
+        "Lean 4",
         "Mathlib"
       ],
-      "authors": "Zihua She, Xiao Wang",
+      "authors": "Ignacio Vega-Páez",
       "units": [
-        "Department of Statistics, Purdue University, West…"
+        "Centro de Investigación y de Estudios Avanzados del…"
       ],
       "bullets": [
         {
-          "tag": "背景",
-          "text": "统计理论论文的长证明鲜有读者逐行核对。"
+          "tag": "构造",
+          "text": "对每个整数格 Z^n 给出拓扑，连通子集恰为连续整数集合"
         },
         {
-          "tag": "方法",
-          "text": "Claude 智能体把证明逐条翻入 Lean 4 + Mathlib，四档判定，证据可重跑、写作评审分离。"
+          "tag": "证明",
+          "text": "坐标和奇偶性定义邻域基，拓扑连通等价于单位格步可达"
         },
         {
-          "tag": "结果",
-          "text": "盲检三篇已发表论文均在勘误所指步骤找到错误；优于同模型直接用 Lean。"
+          "tag": "形式化",
+          "text": "Lean 4 + Mathlib 完整验证，含空集与整数区间的独立刻画"
         }
       ],
-      "link": "arxiv.org/abs/2610.35596"
+      "link": "arxiv.org/abs/2610.39354"
     },
     {
       "rank": 10,
       "lane": "兴趣扩展",
-      "sid": "2610.36396",
-      "cat": "cs.SC",
-      "score": 48.0,
-      "title_en": "Automatic Certified Differentiation in Lean",
+      "sid": "2610.38616",
+      "cat": "cs.LO",
+      "score": 38.1,
+      "title_en": "Order Maintenance in Worst-Case Constant Time, Verified",
       "kw": [
-        "自动微分",
-        "Lean",
-        "Mathlib"
+        "序维护",
+        "常数时间",
+        "Lean 4",
+        "位宽"
       ],
-      "authors": "Ramy Shahin",
-      "units": [],
+      "authors": "Denis Firsov",
+      "units": [
+        "Tallinn University of Technology"
+      ],
       "bullets": [
         {
-          "tag": "背景",
-          "text": "自动微分的规则定义、符号构造与正确性保证是三重共同挑战。"
+          "tag": "目标",
+          "text": "插入删除下维护序列顺序，回答两个元素谁在前"
         },
         {
-          "tag": "方法",
-          "text": "Lean 中复用 Mathlib 求导定理，元编程构造导函数，按被导函数为定理建索引。"
+          "tag": "保证",
+          "text": "最坏情况常数时间，步数与元素个数、历史无关"
         },
         {
-          "tag": "结果",
-          "text": "500 个随机函数全部求导成功，中位 0.18 秒，索引带来 8.6 倍加速。"
+          "tag": "验证",
+          "text": "Lean 4 中机器程序级验证，计算值不超过 O(log t) 位"
         }
       ],
-      "link": "arxiv.org/abs/2610.36396"
+      "link": "arxiv.org/abs/2610.38616"
     }
   ]
 }
