@@ -1,10 +1,10 @@
 {
-  "issue": "20261030",
-  "range": "2026-10-29 · 回溯 3 天公告批次",
-  "generated": "2026-10-30T23:11:33+08:00",
+  "issue": "20261102",
+  "range": "2026-10-30 · 回溯 3 天公告批次",
+  "generated": "2026-11-02T23:11:17+08:00",
   "stats": {
-    "core": 98,
-    "expand": 773,
+    "core": 43,
+    "expand": 480,
     "rec": 14,
     "exp": 10
   },
@@ -12,328 +12,326 @@
     {
       "rank": 1,
       "lane": "推荐",
-      "sid": "2610.38174",
-      "cat": "cs.CL",
-      "score": 65.8,
-      "title_en": "Scaling Lean Theorem Proving for Real-World Code Verification",
+      "sid": "2610.41837",
+      "cat": "cs.DC",
+      "score": 38.3,
+      "title_en": "A Deterministic Commitment Rule over Unstructured DAGs for Optimistic Replication",
       "kw": [
-        "EasyProver",
-        "Lean",
-        "PutnamBench",
-        "Aegis"
+        "乐观复制",
+        "DAG",
+        "原子广播"
       ],
-      "authors": "Debargha Ganguly, Divya Raghunathan, Dejan Jovanović 等 6 人",
+      "authors": "João Paulo Bezerra, Petr Kuznetsov, Léo Olivier 等 4 人",
       "units": [
-        "Case Western Reserve University"
+        "Université Paris-Saclay, CEA, LIST, Palaiseau, France…",
+        "Télécom Paris, Institut Polytechnique de Paris…",
+        "等 4 家单位"
       ],
       "bullets": [
         {
+          "tag": "问题",
+          "text": "乐观复制只保证最终一致，需额外的提交机制补偿一致性损失"
+        },
+        {
           "tag": "方法",
-          "text": "递归智能体 + 隔离上下文 + 异步搜索，零额外训练驱动现成前沿模型"
+          "text": "以因果 DAG 表示对象状态，确定性提交规则几乎零额外消息开销"
         },
         {
-          "tag": "结果",
-          "text": "PutnamBench 669/672、IMO 2026 六题全证、NTP4VC 597/600"
-        },
-        {
-          "tag": "新基准",
-          "text": "Aegis 把竞赛题转成实现级验证任务，2045 对 Rust-Lean 程序"
+          "tag": "机制",
+          "text": "提交规则嵌入底层原子广播，副本周期性就状态演化达成一致"
         }
       ],
-      "link": "arxiv.org/abs/2610.38174"
+      "link": "arxiv.org/abs/2610.41837"
     },
     {
       "rank": 2,
       "lane": "推荐",
-      "sid": "2610.39723",
+      "sid": "2610.41202",
       "cat": "cs.PL",
-      "score": 51.3,
-      "title_en": "Countable Nondeterminism in Weighted Programming with an Application to Mechanized Foundations for Probabilistic Program Verification",
+      "score": 36.4,
+      "title_en": "Iris on Indirection Theory: Lightweight Higher-order Ghost State",
       "kw": [
-        "可数非确定性",
-        "加权编程",
-        "最弱前置条件",
-        "组合博弈"
-      ],
-      "authors": "Sebastian Körner, Oliver Emil Bøving, Christoph Matheja",
-      "units": [
-        "University of Oldenburg",
-        "Technical University of Denmark"
-      ],
-      "bullets": [
-        {
-          "tag": "扩展",
-          "text": "加入可数非确定性与用户定义加性奖励，参数从半环放宽到 module"
-        },
-        {
-          "tag": "能力",
-          "text": "可推理概率程序的期望资源消耗，也可求组合博弈的最优得分"
-        },
-        {
-          "tag": "难点",
-          "text": "可数非确定性破坏连续性，wp 演算可能不可靠，论文给出充分条件"
-        }
-      ],
-      "link": "arxiv.org/abs/2610.39723"
-    },
-    {
-      "rank": 3,
-      "lane": "推荐",
-      "sid": "2610.40538",
-      "cat": "cs.LO",
-      "score": 46.5,
-      "title_en": "crush: Extensible Proof Automation for Lean",
-      "kw": [
-        "crush",
+        "Iris",
+        "归纳理论",
         "Lean",
-        "SMT",
-        "去函数化"
+        "资源代数"
       ],
-      "authors": "Mike He, Dexin Zhang, Aarti Gupta",
-      "units": [],
-      "bullets": [
-        {
-          "tag": "方法",
-          "text": "去函数化把 Lean 高阶函数值及其应用编码进一阶逻辑"
-        },
-        {
-          "tag": "保证",
-          "text": "对支持的高阶片段形式化翻译，并证明该翻译可靠"
-        },
-        {
-          "tag": "落地",
-          "text": "可作 tactic 或第三方后端，四个用例上义务与证明重建均领先"
-        }
-      ],
-      "link": "arxiv.org/abs/2610.40538"
-    },
-    {
-      "rank": 4,
-      "lane": "推荐",
-      "sid": "2610.39017",
-      "cat": "cs.DC",
-      "score": 38.8,
-      "title_en": "DistOptimize: Automatic Optimization of Distributed Protocols",
-      "kw": [
-        "DistOptimize",
-        "Rocq",
-        "吞吐",
-        "时延"
-      ],
-      "authors": "David Chu McElroy, Shadaj Laddad, Lucky Katahanas 等 6 人",
-      "units": [],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "协议修改在生产中频繁发生，却少有初次部署那样的证明与验证"
-        },
-        {
-          "tag": "做法",
-          "text": "吞吐优化自动迁移，重写在 Rocq 中证正确，标定加 ILP 搜索导航"
-        },
-        {
-          "tag": "效果",
-          "text": "基础协议与 AWS 生产协议吞吐最高 4 倍，时延最多 +0.3ms"
-        }
-      ],
-      "link": "arxiv.org/abs/2610.39017"
-    },
-    {
-      "rank": 5,
-      "lane": "推荐",
-      "sid": "2610.39066",
-      "cat": "cs.CR",
-      "score": 37.5,
-      "title_en": "DeepDiff: Neuro-Dynamic Regression-Freedom Checking for Security Patch Validation",
-      "kw": [
-        "DeepDiff",
-        "CyberGym",
-        "回归",
-        "差分"
-      ],
-      "authors": "Laboni Sarker, Shuvendu K Lahiri",
+      "authors": "Darius Foo, Viet-Anh Nguyen, Wei-Ngan Chin",
       "units": [
-        "University of California, Santa Barbara"
-      ],
-      "bullets": [
-        {
-          "tag": "思路",
-          "text": "用不崩溃但覆盖受影响路径的输入，对补丁与原程序做差分执行"
-        },
-        {
-          "tag": "判据",
-          "text": "正确补丁应消除触发崩溃，同时在非崩溃输入上保持原有行为"
-        },
-        {
-          "tag": "数据",
-          "text": "基于 CyberGym 建正确/错误补丁候选集，比较纯神经与混合方案"
-        }
-      ],
-      "link": "arxiv.org/abs/2610.39066"
-    },
-    {
-      "rank": 6,
-      "lane": "推荐",
-      "sid": "2610.39380",
-      "cat": "cs.AR",
-      "score": 34.8,
-      "title_en": "Learning to Formulate: Agentic Hardware-Software Co-Design of AI Infrastructure through Progressive Optimization and Verification",
-      "kw": [
-        "Formulaic",
-        "表述",
-        "模板",
-        "Qwen3-8B"
-      ],
-      "authors": "Yi Ding, Li Shang",
-      "units": [
-        "Shenzhen Loop Area Institute",
         "National University of Singapore"
       ],
       "bullets": [
         {
-          "tag": "分工",
-          "text": "智能体写表述，求解器在表述内优化，验证与测量检查假设"
+          "tag": "矛盾",
+          "text": "Iris 需大量机械化域理论、难移植；归纳理论简单但资源模型受限"
         },
         {
-          "tag": "表述",
-          "text": "每一步是一族程序模板，附带其正确成立的条件"
+          "tag": "做法",
+          "text": "在 Lean 中轻量机械化归纳理论，结点承载 Iris 风格资源代数函子"
         },
         {
-          "tag": "芯片",
-          "text": "wall relaxation 给约束软件的硬件上限定价，搜索芯片空间"
+          "tag": "验证",
+          "text": "重建 Iris 基础逻辑，做高阶状态逻辑关系与带不变式程序逻辑两案例"
         }
       ],
-      "link": "arxiv.org/abs/2610.39380"
+      "link": "arxiv.org/abs/2610.41202"
+    },
+    {
+      "rank": 3,
+      "lane": "推荐",
+      "sid": "2610.41472",
+      "cat": "cs.SE",
+      "score": 35.4,
+      "title_en": "Post-SQLFix: Property-Guided Repair of LLM-Generated SQL with Runtime Verification",
+      "kw": [
+        "SQL",
+        "Post-SQLFix",
+        "仲裁悖论",
+        "静态分析"
+      ],
+      "authors": "Zhihao Guo, Zonghan Wu, Yilei Shao 等 6 人",
+      "units": [
+        "University of Technology Sydney",
+        "East China Normal University",
+        "等 4 家单位"
+      ],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "执行反馈只给症状级、方言相关报错，模型只能猜根因"
+        },
+        {
+          "tag": "方法",
+          "text": "规范化为方言感知查询结构，语法、结构、语义三层静态分析定位违规"
+        },
+        {
+          "tag": "闸门",
+          "text": "应用前时序监控只接受违规数下降、不引入旧违规的修复，带重试上限"
+        }
+      ],
+      "link": "arxiv.org/abs/2610.41472"
+    },
+    {
+      "rank": 4,
+      "lane": "推荐",
+      "sid": "2610.41207",
+      "cat": "cs.DC",
+      "score": 33.2,
+      "title_en": "Resource Locks and Fast Unlock for Shared Balances in Certificate-Based Payment Systems",
+      "kw": [
+        "FastPay",
+        "共享余额",
+        "两阶段广播"
+      ],
+      "authors": "Lingkang Shangguan",
+      "units": [
+        "The University of Sydney"
+      ],
+      "bullets": [
+        {
+          "tag": "缺口",
+          "text": "客户端驱动设计仅在没有锁被撤销时成立，共享账户并发扣款必须解锁"
+        },
+        {
+          "tag": "结论",
+          "text": "证明证书形成对验证者不可见时，任何解锁规则都不安全"
+        },
+        {
+          "tag": "协议",
+          "text": "个人账户沿用原路径；共享资源走 ECHO/READY 两阶段广播，冲突时冻结版本"
+        }
+      ],
+      "link": "arxiv.org/abs/2610.41207"
+    },
+    {
+      "rank": 5,
+      "lane": "推荐",
+      "sid": "2610.41562",
+      "cat": "cs.SE",
+      "score": 31.3,
+      "title_en": "SCRBench: Beyond Equivalence Checking for Semantic Change Reasoning in Code",
+      "kw": [
+        "SCRBench",
+        "语义等价",
+        "语义变化"
+      ],
+      "authors": "Omid Saghatchian, Ali Mahzoun, Khashayar Etemadi 等 4 人",
+      "units": [
+        "Department of Computer and Data Sciences",
+        "Faculty of Mathematical Sciences",
+        "等 4 家单位"
+      ],
+      "bullets": [
+        {
+          "tag": "数据",
+          "text": "SCRBench 含 67,658 组 Python 程序对，分层抽 4,500 对评测五个模型"
+        },
+        {
+          "tag": "发现",
+          "text": "等价准确率 94.71% 的模型只诊断出 54.44% 的语义变化"
+        },
+        {
+          "tag": "难度",
+          "text": "精确重建改动序列最好仅 39.27%，改动增至五处无一模型超过 1.11%"
+        }
+      ],
+      "link": "arxiv.org/abs/2610.41562"
+    },
+    {
+      "rank": 6,
+      "lane": "推荐",
+      "sid": "2610.41097",
+      "cat": "cs.SE",
+      "score": 27.7,
+      "title_en": "RepGen: Reproducing Deep Learning Bugs through Context-Aware Code Generation and Verification",
+      "kw": [
+        "RepGen",
+        "复现",
+        "缺陷报告"
+      ],
+      "authors": "Mehil B Shah, Mohammad Masudur Rahman, Foutse Khomh",
+      "units": [
+        "Faculty of Computer Science"
+      ],
+      "bullets": [
+        {
+          "tag": "难点",
+          "text": "失败横跨代码、模型、数据、依赖与环境，报告常缺关键细节"
+        },
+        {
+          "tag": "流程",
+          "text": "探索仓库建上下文 → 复现计划 → 生成候选脚本 → 静态检查加模型反馈迭代"
+        },
+        {
+          "tag": "结果",
+          "text": "106 个真实缺陷复现 85 个（80.19%）；27 人实验成功率 +23.35%、耗时 -56.8%"
+        }
+      ],
+      "link": "arxiv.org/abs/2610.41097"
     },
     {
       "rank": 7,
       "lane": "推荐",
-      "sid": "2610.40287",
-      "cat": "cs.DC",
-      "score": 34.6,
-      "title_en": "Only Accepted Tokens Count: An Energy Accounting of Speculative Decoding Under Latency Targets",
+      "sid": "2610.41094",
+      "cat": "cs.SE",
+      "score": 25.4,
+      "title_en": "AIFaultBench: A Reproducible Benchmark of Real-World Faults in AI Software Systems",
       "kw": [
-        "投机解码",
-        "草稿 token",
-        "接受率",
-        "能耗"
+        "AIFaultBench",
+        "770",
+        "复现"
       ],
-      "authors": "Bole Ma, Ayesha Afzal, Jan Eitzinger 等 5 人",
-      "units": [
-        "Erlangen National High Performance Computing Center"
-      ],
+      "authors": "Mehil B Shah, Mohammad Masudur Rahman, Foutse Khomh",
+      "units": [],
       "bullets": [
         {
-          "tag": "前提",
-          "text": "每个草稿 token 无论是否被接受，都必须被验证"
+          "tag": "规模",
+          "text": "770 个真实缺陷，来自 105 个仓库、76 家机构，覆盖六类 AI 系统"
         },
         {
-          "tag": "结论",
-          "text": "真实节能由接受率决定，而不是理论加速比"
+          "tag": "结构",
+          "text": "每条记录关联报告、代码库、元数据、环境脚本、复现触发与调查证据"
         },
         {
-          "tag": "实测",
-          "text": "对话比代码接受少，罗曼什语比英语少；SGLang + CUDA graphs"
+          "tag": "复现",
+          "text": "在记录的执行条件下复现 652 个（84.7%），其余 118 次尝试亦留档"
         }
       ],
-      "link": "arxiv.org/abs/2610.40287"
+      "link": "arxiv.org/abs/2610.41094"
     },
     {
       "rank": 8,
       "lane": "推荐",
-      "sid": "2610.38130",
-      "cat": "cs.SE",
-      "score": 32.0,
-      "title_en": "Template-Free Dynamic Invariant Detection",
+      "sid": "2610.40721",
+      "cat": "cs.CR",
+      "score": 25.4,
+      "title_en": "MetaVul: Agentic Harness Discovery for Vulnerability Detection",
       "kw": [
-        "不变式",
-        "模板",
-        "插桩",
-        "副作用"
+        "MetaVul",
+        "外壳",
+        "帕累托最优"
       ],
-      "authors": "Erfan Arvan, Michael D. Ernst, Martin Kellogg",
-      "units": [],
+      "authors": "Ira Ceka, Arnav Garg, Ryan Lutz 等 6 人",
+      "units": [
+        "University of Victoria",
+        "Columbia University, Department of Computer Science"
+      ],
       "bullets": [
         {
-          "tag": "动机",
-          "text": "固定模板库限制了不变式的表达力，也让推断成本居高不下"
+          "tag": "问题",
+          "text": "外壳多为手写且固定，改进难跨数据集、跨模型迁移"
         },
         {
-          "tag": "风险",
-          "text": "LLM 提议的不变式求值时可执行任意代码，产生副作用或死循环"
+          "tag": "方法",
+          "text": "工作流优化循环，用漏洞与修复函数配对反馈迭代改写结构化推理外壳"
         },
         {
-          "tag": "对策",
-          "text": "每线程单候选求值 + 停顿监控重试 + 差分调试定位副作用"
+          "tag": "结果",
+          "text": "留出集配对准确率最高 +25.8 点；换模型零优化迁移仍 +14.7 点"
         }
       ],
-      "link": "arxiv.org/abs/2610.38130"
+      "link": "arxiv.org/abs/2610.40721"
     },
     {
       "rank": 9,
       "lane": "兴趣扩展",
-      "sid": "2610.39354",
-      "cat": "cs.SC",
-      "score": 56.3,
-      "title_en": "Construction and formal verification of a special topology on {\\mathbb{Z}}^{n}: characterization of connected subsets",
+      "sid": "2610.40906",
+      "cat": "cs.AI",
+      "score": 44.4,
+      "title_en": "Does Recursive Knowledge Construction Help Agents Verify Consensus Claims in Science?",
       "kw": [
-        "拓扑",
-        "连通",
-        "Lean 4",
-        "Mathlib"
+        "证据状态",
+        "718",
+        "判定器"
       ],
-      "authors": "Ignacio Vega-Páez",
-      "units": [
-        "Centro de Investigación y de Estudios Avanzados del…"
-      ],
+      "authors": "Lun Ai, Yu-Heng Wu, Jonathan Schaul 等 6 人",
+      "units": [],
       "bullets": [
         {
-          "tag": "构造",
-          "text": "对每个整数格 Z^n 给出拓扑，连通子集恰为连续整数集合"
+          "tag": "任务",
+          "text": "共识科学论断验证：从开放文献判定论断的共识立场"
         },
         {
-          "tag": "证明",
-          "text": "坐标和奇偶性定义邻域基，拓扑连通等价于单位格步可达"
+          "tag": "数据",
+          "text": "ProClaim-eval 含 718 条论断，跨分子生物学、核物理与天文学五库"
         },
         {
-          "tag": "形式化",
-          "text": "Lean 4 + Mathlib 完整验证，含空集与整数区间的独立刻画"
+          "tag": "发现",
+          "text": "外部持久证据状态优于上下文累积；训练过的判定器优于固定轮数停止"
         }
       ],
-      "link": "arxiv.org/abs/2610.39354"
+      "link": "arxiv.org/abs/2610.40906"
     },
     {
       "rank": 10,
       "lane": "兴趣扩展",
-      "sid": "2610.38616",
-      "cat": "cs.LO",
-      "score": 38.1,
-      "title_en": "Order Maintenance in Worst-Case Constant Time, Verified",
+      "sid": "2610.40732",
+      "cat": "cs.LG",
+      "score": 42.3,
+      "title_en": "Don't Just Impute, Detect: Task-Aware Diffusion Pipelines for Edge Anomaly Detection",
       "kw": [
-        "序维护",
-        "常数时间",
-        "Lean 4",
-        "位宽"
+        "SMD",
+        "F1",
+        "扩散",
+        "插补"
       ],
-      "authors": "Denis Firsov",
-      "units": [
-        "Tallinn University of Technology"
-      ],
+      "authors": "Jeongsu Park, Taehyeon Yun, Geonwoo Kim 等 5 人",
+      "units": [],
       "bullets": [
         {
-          "tag": "目标",
-          "text": "插入删除下维护序列顺序，回答两个元素谁在前"
+          "tag": "偏差",
+          "text": "按均方误差训练的插补器把部分观测到的异常平滑回正常，边界产生误报"
         },
         {
-          "tag": "保证",
-          "text": "最坏情况常数时间，步数与元素个数、历史无关"
+          "tag": "方法",
+          "text": "条件扩散精修器对齐冻结检测器的损失景观，单步干净窗口估计使训练成本不增"
         },
         {
-          "tag": "验证",
-          "text": "Lean 4 中机器程序级验证，计算值不超过 O(log t) 位"
+          "tag": "结果",
+          "text": "SMD 上 F1 提升 0.338（p=0.0015）；十步采样 41.4 毫秒/窗，约 24 路 1Hz 流"
         }
       ],
-      "link": "arxiv.org/abs/2610.38616"
+      "link": "arxiv.org/abs/2610.40732"
     }
   ]
 }
