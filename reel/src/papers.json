@@ -1,10 +1,10 @@
 {
-  "issue": "20261104",
-  "range": "2026-11-03 · 回溯 3 天公告批次",
-  "generated": "2026-11-04T23:11:11+08:00",
+  "issue": "20261106",
+  "range": "2026-11-05 · 回溯 3 天公告批次",
+  "generated": "2026-11-06T23:11:46+08:00",
   "stats": {
-    "core": 177,
-    "expand": 931,
+    "core": 146,
+    "expand": 822,
     "rec": 14,
     "exp": 10
   },
@@ -12,311 +12,303 @@
     {
       "rank": 1,
       "lane": "推荐",
-      "sid": "2611.02849",
-      "cat": "cs.AI",
-      "score": 68.2,
-      "title_en": "TLAPS-Bench: Formally Proving Correctness of Real-World System Specifications with TLA+ Proof System",
-      "kw": [
-        "TLAPS-Bench",
-        "TLA",
-        "TLA+",
-        "GPT-6.1"
+      "sid": "2611.05882",
+      "cat": "cs.DB",
+      "score": 75.3,
+      "title_en": "Optimizing Geo-replicated Deterministic Databases",
+      "kw": [],
+      "authors": "Yunhao Mao, Shiquan Zhang, Gengrui Zhang 等 4 人",
+      "units": [
+        "University of Toronto"
       ],
-      "authors": "Qian Cheng, Ruize Tang, Saad Mohammad Rafid Pial 等 6 人",
-      "units": [],
       "bullets": [
         {
-          "tag": "基准",
-          "text": "95 个真实系统的 TLA+ 规范、265 个证明目标，覆盖缓存一致性、拜占庭共识与写前日志"
+          "tag": "要点 1",
+          "text": "确定式并发控制（DCC）通过在执行前为一批交易确定全局顺序，把跨地域副本间的协调开销摊薄"
         },
         {
-          "tag": "脚手架",
-          "text": "智能体在 TLA+ 证明系统（TLAPS）上迭代开发证明，配证明工具库与防奖励作弊护栏"
+          "tag": "要点 2",
+          "text": "本文先从理论上分析两阶段锁与乐观并发控制在地理复制下的表现，并建立 DCC 模型，比较三种范式、刻画 DCC 占优的条件"
         },
         {
-          "tag": "结果",
-          "text": "12 个规范 70 个目标上，最强的 GPT-6.1 Sol (max) 证明 31 个，成功率 44.3%"
+          "tag": "要点 3",
+          "text": "据此实现 Quirinus——基于 DCC 的地理复制数据库，用推测执行、交易重排、CRDT 集成与快速路径提交优化执行；即便不含这些优化，其 TPC-C…"
         }
       ],
-      "link": "arxiv.org/abs/2611.02849"
+      "link": "arxiv.org/abs/2611.05882"
     },
     {
       "rank": 2,
       "lane": "推荐",
-      "sid": "2611.01363",
+      "sid": "2611.05612",
       "cat": "cs.DB",
-      "score": 50.3,
-      "title_en": "Eliminating Servers in State Machine Replication",
+      "score": 59.5,
+      "title_en": "Whiel: A Neurosymbolic Platform for Certified Relational Program Verification",
       "kw": [
-        "SMR",
-        "AirDB"
+        "Whiel"
       ],
-      "authors": "Dohyun Park, Wenjie Hu, Xiangyao Yu 等 5 人",
+      "authors": "Jesse Comer, Fangzhu Shen, Shuo Zhang 等 6 人",
       "units": [
-        "University of Wisconsin–Madison"
+        "University of Pennsylvania"
       ],
       "bullets": [
         {
-          "tag": "痛点",
-          "text": "SMR 靠服务器物化、存储并服务状态快照，服务器成为脆弱昂贵的瓶颈点"
+          "tag": "要点 1",
+          "text": "Whiel 是面向命令式关系程序的 Lean 认证推理平台，可编码 Datalog 及其带否定扩展、图查询语言核心片段的包含与等价问题…"
         },
         {
-          "tag": "方案",
-          "text": "S²MR 把物化状态与持久全序都放上分解式存储，客户端并发维护状态副本"
+          "tag": "要点 2",
+          "text": "其程序状态即数据库实例，命令式结构支持带一阶关系规范的分层 Hoare 式推理，用预言变量与分层不变式支撑归纳论证"
         },
         {
-          "tag": "洞察",
-          "text": "共享日志不仅给命令定序，还支撑分布式物化，成为实现 SMR 的唯一接口；AirDB 落地验证"
+          "tag": "要点 3",
+          "text": "不变量可由神经符号方法发现，验证条件交 Vampire 一阶定理证明器检验，反例回流，解译为 Lean 证明证书"
         }
       ],
-      "link": "arxiv.org/abs/2611.01363"
+      "link": "arxiv.org/abs/2611.05612"
     },
     {
       "rank": 3,
       "lane": "推荐",
-      "sid": "2611.01323",
-      "cat": "cs.DC",
-      "score": 49.0,
-      "title_en": "Beyond Leaderless: Randomized Consensus Against Mobile Crashes",
+      "sid": "2611.06319",
+      "cat": "cs.PL",
+      "score": 56.2,
+      "title_en": "Verified Implementation of the Next-gen Borrow Checking Algorithm for Rust via Abstract Interpretation",
       "kw": [
-        "ML-FVS",
-        "Simplex",
-        "O(Δ)"
+        "Rust"
       ],
-      "authors": "Ittai Abraham, Kaya Alpturer, Pranav Garimidi 等 6 人",
+      "authors": "Jinhua Wu, Yuting Wang, Zhemin Chen",
       "units": [
-        "Technion",
-        "Institute for Advanced Study"
+        "John Hopcroft Center for Computer Science, School of…",
+        "Shanghai Jiao Tong University"
       ],
       "bullets": [
         {
-          "tag": "威胁",
-          "text": "移动崩溃对手可在副本间移动并反复崩溃其一，许多共识协议在同步网络下也无法终止"
+          "tag": "要点 1",
+          "text": "现有对借用检查的形式化要么视其为类型系统的一部分，要么以符号执行描述资源转移，都未直接解释官方编译器里 NLL / Polonius…"
         },
         {
-          "tag": "设计",
-          "text": "ML-FVS 保留 Fixed-View Simplex 结构与良好情况延迟，多领导并行提案，投票针对已见提案集合"
+          "tag": "要点 2",
+          "text": "本文在 Rust 核心子集上形式化下一代借用检查算法 Polonius，并证明被其接受的程序在运行时不会访问失效引用：关键观察是惰性借用检查下…"
         },
         {
-          "tag": "保证",
-          "text": "投票截止后揭示的隐藏阈值信标定领导优先级；常数崩溃预算加 Δ 延迟腐化下期望延迟 O(Δ)"
+          "tag": "要点 3",
+          "text": "该形式化在 CompCert 的抽象解释框架中实现并机器验证，证明由智能体在人类指导下以论文证明为提纲生成"
         }
       ],
-      "link": "arxiv.org/abs/2611.01323"
+      "link": "arxiv.org/abs/2611.06319"
     },
     {
       "rank": 4,
       "lane": "推荐",
-      "sid": "2611.02779",
-      "cat": "cs.DB",
-      "score": 47.5,
-      "title_en": "Stop Handcrafting Your Engine! GenDB-V: Towards AI-Generated and Formally Verified Database Systems",
-      "kw": [
-        "GenDB-V",
-        "SQLSpec"
+      "sid": "2611.07919",
+      "cat": "cs.DC",
+      "score": 55.7,
+      "title_en": "Modular Parameterized Model Checking of Threshold-Based Distributed Algorithms",
+      "kw": [],
+      "authors": "Paul Eichler, Swen Jacobs",
+      "units": [
+        "CISPA Helmholtz Center for Information Security…"
       ],
-      "authors": "Jiale Lao, Immanuel Trummer",
-      "units": [],
       "bullets": [
         {
-          "tag": "动机",
-          "text": "硬件与负载持续变化迫使引擎反复重构，而成熟引擎仍不断曝出错误答案缺陷"
+          "tag": "要点 1",
+          "text": "容错分布式算法的模型检验通常要构造庞大单体模型"
         },
         {
-          "tag": "路线",
-          "text": "GenDB-V 让 AI 智能体合成针对硬件与负载特化、且经形式化验证的数据库引擎"
+          "tag": "要点 2",
+          "text": "本文提出模块化路线：用户把算法分解为模块，逐个验证，再以同步抽象替换各模块"
         },
         {
-          "tag": "机制",
-          "text": "SQLSpec 形式化 SQL 语义、构造与实现无关的合成目标；存储执行协同优化联合合成代码与证明"
+          "tag": "要点 3",
+          "text": "为此引入融合阈值自动机与全局同步协议的新系统模型，刻画其表达力，给出（有界）模型检验过程以及检验抽象步骤正确性的方法，并在案例上报告实验结果"
         }
       ],
-      "link": "arxiv.org/abs/2611.02779"
+      "link": "arxiv.org/abs/2611.07919"
     },
     {
       "rank": 5,
       "lane": "推荐",
-      "sid": "2611.04561",
-      "cat": "cs.DC",
-      "score": 46.7,
-      "title_en": "Distributed LTL Synthesis under Arbitrary Message Adversaries",
+      "sid": "2611.07916",
+      "cat": "cs.PL",
+      "score": 51.0,
+      "title_en": "SymFC: Configurable Semantics for All Paths Symbolic Execution in Haskell via Embeddings",
       "kw": [
-        "LTL",
-        "消息对手"
+        "SymFC",
+        "Haskell"
       ],
-      "authors": "Benedikt Bollig, Patricia Bouyer-Decitre, Matthias Függer 等 6 人",
+      "authors": "Robin Webbers, Wind Wong, Klaus v. Gleissenthall",
       "units": [
-        "Université Paris-Saclay, CNRS, ENS Paris-Saclay, LMF",
-        "Institut Universitaire de France",
-        "等 3 家单位"
+        "Vrije Universiteit Amsterdam"
       ],
       "bullets": [
         {
-          "tag": "结论",
-          "text": "两进程每轮至少送达一条消息的不可靠链路上，分布式 LTL 合成不可判定，即便消息携带完整因果历史"
+          "tag": "要点 1",
+          "text": "现有 Haskell 符号执行工具只对 SMT 基本类型提供固定符号语义，难以覆盖 IO 等真实语言构件，也难以调优符号表示的性能"
         },
         {
-          "tag": "刻画",
-          "text": "用消息对手描述通信限制，经迭代染色细分配把图历史映入 [0,1] 区间"
+          "tag": "要点 2",
+          "text": "SymFC 通过「嵌入」（embedding）给出可配置语义：一个函数的嵌入就是另一个可用任意代码与 SMT 原语的 Haskell 函数，借…"
         },
         {
-          "tag": "判据",
-          "text": "ω-正则对手：合成可判定当且仅当其像无处稠密；可判定情形给出实现性判定与算法构造"
+          "tag": "要点 3",
+          "text": "作为 GHC 插件实现的全路径符号执行引擎，可为 GHC core 中任意类型与值建立符号表示；为 IORef、Ptr/ForeignPtr、Clash…"
         }
       ],
-      "link": "arxiv.org/abs/2611.04561"
+      "link": "arxiv.org/abs/2611.07916"
     },
     {
       "rank": 6,
       "lane": "推荐",
-      "sid": "2611.02285",
+      "sid": "2611.07760",
       "cat": "cs.SE",
-      "score": 45.2,
-      "title_en": "Modern Software Engineering with Verification Agents: A Spec-First Architecture for Autonomous Synthesis, Verification IRs, and…",
+      "score": 51.0,
+      "title_en": "Fast Unsupervised Anomaly Detection Methods on Software Logs - An Empirical Study",
       "kw": [
-        "Spec-First",
-        "IRs",
-        "VIR"
+        "An"
       ],
-      "authors": "Jason Hickey",
+      "authors": "Jesse Nyyssölä, Mika Mäntylä, Yuqing Wang",
       "units": [
-        "Affiliation: Independent Research"
+        "Department of Computer Science, University of Helsinki"
       ],
       "bullets": [
         {
-          "tag": "倒置",
-          "text": "智能体同时生成实现、规范与证明时，形式规范成为人评审的主要产物，代码与证明脚本沦为可抛弃产物"
+          "tag": "要点 1",
+          "text": "系统研究软件日志无监督异常检测中预处理、方法与数据集三因素的影响：三种预处理（无异常训练数据、随机而非按时间选取训练数据、自定义加载器抽消息）…"
         },
         {
-          "tag": "工作流",
-          "text": "零代码评审、由自动化 CI 门禁把关；最小验证中间表示 VIR 经薄验证翻译器下降"
+          "tag": "要点 2",
+          "text": "结论：各数据集差异巨大、无法给出普适推荐"
         },
         {
-          "tag": "规模",
-          "text": "跨多团队组织用个人 Spec-Copilot 与共享合成舰队协作，检测跨团队冲突"
+          "tag": "要点 3",
+          "text": "日志解析在部分数据集有益、在另一些有害；用无异常数据训练可提升效果但需额外成本；此前被认为由打乱数据导致的数据泄漏…"
         }
       ],
-      "link": "arxiv.org/abs/2611.02285"
+      "link": "arxiv.org/abs/2611.07760"
     },
     {
       "rank": 7,
       "lane": "推荐",
-      "sid": "2611.05173",
-      "cat": "cs.DB",
-      "score": 39.8,
-      "title_en": "Correctness Firewalls for Synthesized Database Components",
+      "sid": "2611.07876",
+      "cat": "cs.SE",
+      "score": 48.0,
+      "title_en": "Which Signals of Code Correctness Survive Distribution Shift? Hidden-State and Causal Predictors of Program and Verdict Correctness",
       "kw": [
-        "Zstd"
+        "Code"
       ],
-      "authors": "Mohammad Javad Amiri, Carsten Binnig, Andreas Kipf 等 6 人",
-      "units": [],
+      "authors": "Viola Campos, Thomas Klassert, Adrian Ulges",
+      "units": [
+        "Rhein Main University of Applied Sciences"
+      ],
       "bullets": [
         {
-          "tag": "立场",
-          "text": "编码智能体能生成高性能定制组件，但纯智能体路线不自动继承数十年积累的正确性保证"
+          "tag": "要点 1",
+          "text": "无需执行即可判断「模型对代码的判定是否可信」的预测器，在跨项目、跨语言的分布漂移下可能退化"
         },
         {
-          "tag": "模式",
-          "text": "正确性防火墙：合成组件只能影响系统性能、绝不能影响结果，分 advisory、guarded、certified 三类"
+          "tag": "要点 2",
+          "text": "作者在 Qwen3-Coder-30B 与 gpt-oss-20b 上比较四族六个预测器，覆盖 LiveCodeBench↔BigCodeBench…"
         },
         {
-          "tag": "实测",
-          "text": "案例覆盖基数估计、有序数据搜索与压缩；搜索比学习型索引快至 3 倍，文本比 Zstd 小 1.5 倍"
+          "tag": "要点 3",
+          "text": "结论：对「判定正确性」，因果定位提升语言漂移下的鲁棒性（Qwen3-Coder 上比输出置信度高 0.09 AUROC），但对 gpt-oss…"
         }
       ],
-      "link": "arxiv.org/abs/2611.05173"
+      "link": "arxiv.org/abs/2611.07876"
     },
     {
       "rank": 8,
       "lane": "推荐",
-      "sid": "2611.02164",
+      "sid": "2611.06479",
       "cat": "cs.DC",
-      "score": 38.8,
-      "title_en": "RegionFence: Adaptive Concurrency Control for Blockchain Parallel Transaction Execution",
-      "kw": [
-        "RegionFence",
-        "go-ethereum"
-      ],
-      "authors": "Jiaying Feng, Linpeng Jia, Yi Sun",
+      "score": 43.5,
+      "title_en": "Optimal Subcubic Byzantine Agreement with Plain PKI",
+      "kw": [],
+      "authors": "Marc Dufay, Roger Wattenhofer",
       "units": [
-        "Institute of Computing Technology, Chinese Academy of…",
-        "School of Computer Science and Technology, University of…"
+        "ETH Zürich"
       ],
       "bullets": [
         {
-          "tag": "瓶颈",
-          "text": "区块链吞吐受限于交易执行；现有引擎整笔交易套用单一 OCC 或 PCC，重执行或延迟整笔交易"
+          "tag": "要点 1",
+          "text": "同步拜占庭协商中，达到最优容错 t<n/2 且最优位复杂度的已知方案全都依赖门限签名"
         },
         {
-          "tag": "设计",
-          "text": "region 把控制粒度细化到触碰争用键的部分；fence 在运行时决定各 region 的冲突处理方式"
+          "tag": "要点 2",
+          "text": "仅用普通签名时最优容错下只知三次复杂度协议"
         },
         {
-          "tag": "保证",
-          "text": "块内与块间在线学习预判冲突；结果仍与共识序串行执行一致，已在 go-ethereum 实现"
+          "tag": "要点 3",
+          "text": "本文证明三次复杂度并非必需：给定哈希/签名规模上界 κ，给出确定性协议，位复杂度 O(κ^{(√13-1)/2}…"
         }
       ],
-      "link": "arxiv.org/abs/2611.02164"
+      "link": "arxiv.org/abs/2611.06479"
     },
     {
       "rank": 9,
       "lane": "兴趣扩展",
-      "sid": "2611.01950",
-      "cat": "cs.CR",
-      "score": 38.8,
-      "title_en": "CertClaim: Towards Certified Model-Claim Verification for Coding-Agent Services",
+      "sid": "2611.08277",
+      "cat": "cs.AI",
+      "score": 68.2,
+      "title_en": "LeanContext: Disentangling Mathematical Resources from Local Formal Context in Lean Whole-Proof Generation",
       "kw": [
-        "CertClaim"
+        "LeanContext",
+        "Context",
+        "Lean"
       ],
-      "authors": "Jiacheng Lu, Qixuan Yang, Tao Song 等 6 人",
-      "units": [],
+      "authors": "Hang Zhang, Qihao Ye, Litong Liu 等 6 人",
+      "units": [
+        "University of Missouri-Kansas City",
+        "Monash University Malaysia"
+      ],
       "bullets": [
         {
-          "tag": "盲区",
-          "text": "现有模型审计假设部署静态；提供方可合法改采样预设、推理模式或系统提示而不换模型"
+          "tag": "要点 1",
+          "text": "LeanContext 是 129,826 个 Lean 整证明生成问题的基准，用来度量「目标选中的声明」相对同类候选的优势及其对训练的依赖"
         },
         {
-          "tag": "后果",
-          "text": "要么误告诚实的提供方，要么漏检被换成廉价衍生模型的服务"
+          "tag": "要点 2",
+          "text": "作者把选中的完整前置数学声明划为数学上下文（MC）、其余选中的本地源码命令划为环境上下文（EC），提供四个对齐输入视图以支持交叉的训练/推理评测"
         },
         {
-          "tag": "方法",
-          "text": "把授权部署集合纳入被验声称，测试是否存在某个授权部署能解释全部证据，并给出误告率理论分析"
+          "tag": "要点 3",
+          "text": "对扩散式与自回归式模型，训练含 MC 时选中声明相对同类候选的优势更大；最终输入审计发现被目标引用却遗漏的声明，优先补齐这些依赖使 LLaDA 与…"
         }
       ],
-      "link": "arxiv.org/abs/2611.01950"
+      "link": "arxiv.org/abs/2611.08277"
     },
     {
       "rank": 10,
       "lane": "兴趣扩展",
-      "sid": "2611.05340",
-      "cat": "physics.med-ph",
-      "score": 38.7,
-      "title_en": "MedPhysBench: A Benchmark for Evaluating Language Models on Medical Physics Calculations and Error Detection",
+      "sid": "2611.06425",
+      "cat": "cs.AI",
+      "score": 47.0,
+      "title_en": "D3D: Decoupled Diffusion Drafting for Asynchronous Speculative Decoding",
       "kw": [
-        "MedPhysBench",
-        "TG-51"
+        "D3D"
       ],
-      "authors": "Omar Nusrat",
+      "authors": "Baoyou Chen, Ruiqiao Mei, Guancong Lin 等 6 人",
       "units": [
-        "Department of Physics, Toronto Metropolitan University",
-        "Institute for Biomedical Engineering, Science and…"
+        "Shanghai Innovation Institute",
+        "Shanghai Academy of AI for Science",
+        "等 3 家单位"
       ],
       "bullets": [
         {
-          "tag": "风险",
-          "text": "束流校准或 MU 计算的一处错误会波及所有用它的患者，医学物理靠同行互检查错"
+          "tag": "要点 1",
+          "text": "以目标模型隐状态为条件的扩散起草器可并行产出候选 token，但每个新块都要等目标模型更新隐状态，起草与验证被迫串行"
         },
         {
-          "tag": "构造",
-          "text": "十个种子生成器产出放疗、影像、核医学与辐射防护计算题（含 TG-51 工作表）与同事工作表查错题"
+          "tag": "要点 2",
+          "text": "D3D 去掉这种轮间依赖：把分块去噪与辅助自回归监督结合，在无目标隐状态下获得长被接受前缀"
         },
         {
-          "tag": "结果",
-          "text": "1200 题留出集上 12 个模型计算得分 33.3% 到 100%；最强四款答错的 9 题里 5 题是模型自身错误"
+          "tag": "要点 3",
+          "text": "由此可在验证期间以一次打包前向起草后续块，实现异步推测解码；按对接受长度的影响渐进剪枝以降低打包起草成本——在 Qwen3-8B 目标下剪去 36 层中的…"
         }
       ],
-      "link": "arxiv.org/abs/2611.05340"
+      "link": "arxiv.org/abs/2611.06425"
     }
   ]
 }
