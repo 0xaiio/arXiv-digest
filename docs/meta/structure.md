@@ -38,7 +38,7 @@ arXiv-digest/
 ├─ templates/                  # 版面：style.css / app.js / 四个页面模板
 ├─ config.example.json         # 配置模板 → 首次运行生成 config.json
 ├─ interests.example.json      # 画像模板 → 首次运行生成 interests.json
-├─ start_digest.bat            # Windows 双击启动
+├─ start_digest.bat            # Windows 双击启动：可选日期打开指定期次 + 起服务（内嵌 Python 帮助块）
 │
 ├─ docs/                       # 全部文档（见 §3）
 ├─ tests/                      # pytest 套件：unit / integration / e2e（沙箱隔离）

@@ -22,7 +22,7 @@
 | 服务器 | `ThreadingHTTPServer` | 每个请求一个线程；因为下载是长 IO，单线程会把整页堵死 |
 | 绑定 | `127.0.0.1:<实际端口>` | **只监听回环**，无鉴权，不应暴露公网。起始端口取 `config.port`（默认 8765），被占用则自动向后顺延 |
 | 工作目录 | 启动时 `os.chdir(HERE)` | 防御 `start /b` 不继承 cwd 的情况，避免读写别人的 `output/` |
-| 浏览器 | 默认自动打开；`--no-open` / `config.open_browser=false` 关闭，`--open` 强制打开 | 定时任务里用 `--no-open`；无桌面环境下打不开只打印一行提示，不影响服务 |
+| 浏览器 | 默认自动打开；`--no-open` / `config.open_browser=false` 关闭，`--open` 强制打开 | 定时任务里用 `--no-open`；无桌面环境下打不开只打印一行提示，不影响服务。`start_digest.bat` 会固定加 `--no-open`，改由脚本自己打开一份选定的日报 HTML（避免两个标签页） |
 
 ### 端口：先探测、再顺延、最后落盘
 

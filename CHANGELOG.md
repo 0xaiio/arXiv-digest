@@ -7,6 +7,45 @@
 
 ---
 
+## 2026-11-12（start_digest.bat 支持按日期打开指定期次）
+
+只改 `start_digest.bat` 一个脚本，**服务启动逻辑保持原样**（仍是前台
+`%PY% server.py` + 数据包参数，端口取 `config.json` 并自动顺延）。新增可选的日期参数，
+让「起服务」和「打开某一期日报」一次完成。
+
+### 新增
+
+- **日期参数** `YYYY-MM-DD`（或 `--date` / `--date=`）：打开「期次日期 ≤ 指定日期且最接近」
+  的一份 HTML，**含指定当天**；不给日期则打开当前已生成的最新一期。
+  旧用法 `start_digest.bat hengxin` / `hengxin force` 完全兼容，日期、包名、`force` 顺序无关。
+- 候选与去重：根目录 `arxiv_digest_<YYYYMMDD>[_后缀].html` 与 `output/archive/<YYYYMMDD>.html`；
+  同一期次有多份时按生成时间（mtime）取最新，mtime 相同优先根目录正式文件；
+  `favorites.html` / `archive.html` / `_preview.html` 等非期次页面不参与。
+- 日期校验用脚本**内嵌的 Python 帮助块**（不新增源文件）：严格 `YYYY-MM-DD` + 真实日历日期，
+  闰年/大小月正确；批处理通过 `python -c` 抽取该块并读回 `KEY=VALUE`。
+  参数非法、找不到符合条件的 HTML 时打印明确提示、**不打开任何文件**，服务照常启动。
+- 服务侧改用 `--no-open`：浏览器只打开选定的这一份 HTML，避免冒出两个标签页；
+  `config.json` 的 `open_browser=false` 仍然生效。
+
+### 测试与文档
+
+- 新增 `tests/unit/test_start_digest_bat.py`（66 个用例）：直接 exec 脚本内嵌帮助块测纯函数、
+  进程内执行真实 `python -c` 引导串、以及 6 个真实 `cmd` 干跑（默认跳过，
+  `RUN_BAT_CMD_E2E=1` 开启，与既有 `ui` 用例同样的做法）。用例总数 849 → 915，
+  行覆盖率 90.81%（门槛 85%）。
+- 同步 README、文档中心、命令行参考、快速开始 / 安装、数据包指南、私人数据隔离、
+  服务运行时、config / data-files 参考、FAQ、故障排查、测试文档、`tests/README.md`、
+  变更记录与测试计数徽章。
+
+> 已知边界：打开的是静态 HTML，页内 `APIPORT` 是生成当时的端口；若端口顺延，
+> 交互按钮需刷新或改用服务地址。已在各文档标注。
+>
+> 另：`tests/unit/test_service.py::test_download_many_runs_in_parallel` 是既有的
+> wall-clock 计时断言（阈值 0.40s、串行 0.45s，余量仅 0.05s），本机负载高时偶发失败；
+> 用 `--ignore=tests/unit/test_start_digest_bat.py` 跑基线同样能复现，与本次改动无关。
+
+---
+
 ## 2026-10-28（补齐中文摘要 + arXiv 入口 + 已下载按钮语义）
 
 三件事：把本期 77 篇论文的中文摘要译文与双语简介**全部补齐**；把「PDF」按钮改成
@@ -445,7 +484,7 @@ TLS 握手随即被掐断（`curl -v` 显示 `CONNECT ... 200` 之后 `SSL/TLS c
 
 - 重构为六层文档体系（`getting-started` / `guide` / `reference` / `architecture` /
   `contributing` / `operations` / `meta`），共 21 篇，每篇单一职责、相互用相对链接引用；
-- 新增 [文档中心](docs/README.md)（按"我要做什么"定位）与根 [README](README.md) 的完整索引；
+- 新增 [文档中心](docs/documentation.md)（按"我要做什么"定位）与根 [README](README.md) 的完整索引；
 - 新增 [CONTRIBUTING.md](CONTRIBUTING.md)、[CHANGELOG.md](CHANGELOG.md)；
 - 原 `docs/CONFIG.md` → [reference/config.md](docs/reference/config.md)（拆分出
   [reference/interests.md](docs/reference/interests.md)），

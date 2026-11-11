@@ -128,6 +128,16 @@ python run_daily.py --preset myown
 顺带的好处：页面用 `file://` 打开也能交互（服务在跑时），见
 [服务运行时](../architecture/server-runtime.md) §5。
 
+### 怎么快速打开某一期的旧日报？
+
+Windows：`start_digest.bat 2026-11-11` —— 会用默认浏览器打开「期次日期不晚于
+2026-11-11 且最接近」的一份（含 11-11 当天），同时把本地服务拉起来。不带日期就是最新一期。
+日期必须是 `YYYY-MM-DD` 的真实日历日期；写错或本机没有那一期只会打印提示，不会打开错文件。
+同一期次有多份 HTML（例如根目录正式文件与 `output/archive/` 快照）时按生成时间取最新。
+
+其它平台：在服务地址后面加 `?f=arxiv_digest_20261111.html`（见 [HTTP API](../reference/http-api.md)），
+或直接打开 `output/arxiv_digest_20261111.html`。完整参数见[命令行参考](../reference/cli.md)。
+
 ### 跑测试会动到我自己的数据吗？
 
 不会。每个用例都在 `tmp_pytest/<tag>-<随机后缀>/` 下的独立沙箱里跑（`tempfile.mkdtemp` 建目录、

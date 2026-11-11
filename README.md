@@ -3,7 +3,7 @@
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![Runtime deps](https://img.shields.io/badge/runtime-stdlib--only-brightgreen)](#环境与依赖)
 [![Docs](https://img.shields.io/badge/docs-25%20pages-informational)](docs/documentation.md)
-[![Tests](https://img.shields.io/badge/tests-849%20passed-success)](docs/contributing/testing.md)
+[![Tests](https://img.shields.io/badge/tests-915%20cases-success)](docs/contributing/testing.md)
 [![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)](docs/contributing/testing.md#三覆盖率)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Docs site](https://img.shields.io/badge/docs-site-0xaiio.github.io%2FarXiv--digest-informational)](https://0xaiio.github.io/arXiv-digest/)
@@ -58,7 +58,7 @@
 | **可选视频链路** | Remotion 代码渲染 + Edge TTS 中文旁白 + A/V 质量闸门 + B 站投稿（[指南](docs/guide/video-pipeline.md)） |
 | **可导入的数据包** | 某人的一整套设置与使用数据（配置 / 画像 / 收藏 / 行为学习 / 笔记）收在一个目录里，纯 JSON 可 diff；启动参数 `--preset` 或界面一键导入，**默认不加载**（[设计与边界](docs/architecture/data-isolation.md)） |
 | **启动不挑端口** | 默认 `127.0.0.1:8765`；被别的软件占着就自动向后顺延（8765 → 8766 → …）并在日志里报出实际地址，页面端口同步改写；启动成功后自动开浏览器，`--no-open` / `open_browser: false` 可关（[服务运行时](docs/architecture/server-runtime.md)） |
-| **测试兜底** | 849 个用例分四层（单元 / 集成 / 端到端 / 浏览器），行覆盖率 91%，全部在沙箱里跑，不碰真实数据 |
+| **测试兜底** | 915 个用例分四层（单元 / 集成 / 端到端 / 浏览器），行覆盖率 91%，全部在沙箱里跑，不碰真实数据 |
 
 ## 快速开始
 
@@ -83,9 +83,20 @@ python server.py --no-open                        # 起服务但不开浏览器�
 python run_daily.py --preset hengxin             # 想直接用一份现成设置（可选）
 ```
 
-Windows 可双击 `start_digest.bat`（自动找 Python，端口读 `config.json`，被占用会顺延，
-启动后自动开浏览器）；想顺带导入数据包就 `start_digest.bat hengxin`。
-想让服务**永远不开浏览器**，在 `config.json` 里写 `"open_browser": false`。
+Windows 可双击 `start_digest.bat`：默认用默认浏览器打开**最新一期**日报 HTML，同时启动本地服务
+（自动找 Python，端口读 `config.json`，被占用会顺延）。想看某一期就传一个日期，脚本会打开
+「期次日期不晚于该日期且最接近」的一份（**含指定当天**）：
+
+```bat
+start_digest.bat 2026-11-11          :: 看 11-11 当期；没有就找最接近的更早一期
+start_digest.bat --date 2026-11-11   :: 等价的显式写法
+start_digest.bat hengxin             :: 兼容旧用法：顺带导入数据包
+start_digest.bat hengxin 2026-11-11  :: 导入数据包 + 指定期次
+```
+
+日期必须是 `YYYY-MM-DD` 的真实日历日期；参数非法或找不到符合条件的 HTML 时只打印提示、
+**不打开任何文件**，服务照常启动。完整规则见[命令行参考](docs/reference/cli.md)。
+想让服务**永远不开浏览器**，在 `config.json` 里写 `"open_browser": false`（脚本会尊重它）。
 
 **下一步**：跟着 [快速开始](docs/getting-started/quickstart.md) 走一遍 10 分钟的完整闭环，
 或者先看 [安装](docs/getting-started/installation.md) 弄清初始化到底生成了什么。
@@ -213,14 +224,15 @@ arXiv-digest/
 
 ## 质量闸门
 
-**主闸门是 pytest 套件**：849 个用例（单元 / 集成 / 端到端 / 浏览器），行覆盖率 91%，
+**主闸门是 pytest 套件**：915 个用例（单元 / 集成 / 端到端 / 浏览器），行覆盖率 91%，
 门槛 85%。它们全部在 `tmp_pytest/` 沙箱里跑，**不会碰你的真实数据**。
 
 ```bash
 python -m pip install -r requirements-dev.txt   # 只装测试工具，运行期仍然零依赖
-python -m pytest                 # 849 passed
+python -m pytest                 # 909 passed + 6 skipped
 python -m pytest -m unit         # 只跑单元，15s（改纯函数时用这个）
 python -m pytest --cov           # 覆盖率，低于 85% 直接失败
+RUN_BAT_CMD_E2E=1 python -m pytest tests/unit/test_start_digest_bat.py -s  # 验真实 cmd 层（6 个默认跳过）
 ```
 
 `tools/*_check.py` 仍然保留，作为**发布前的黑盒验收**（真下载、真点按钮、必要时读写真实

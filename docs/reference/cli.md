@@ -67,6 +67,40 @@ python run_daily.py --preset hengxin --categories cs.LG   # 用这份画像，�
 | `arxiv_cats.py` | 无 | 打印 20 个 archive / 155 个分类的概览，并自检每个分类号是否符合格式规则 |
 | `paths.py` | 无 | 列出全部数据文件路径并标出是否已生成 |
 
+### `start_digest.bat`（Windows 启动脚本）
+
+双击或在 `cmd` 里运行；**只改这一个脚本**即可完成「起服务 + 打开一份指定日报」。
+服务仍是原来的 `%PY% server.py ...` 前台命令（端口取 `config.json`、占用自动顺延），
+脚本另外用 `--no-open` 关掉服务自带的开页，避免出现两个标签页。
+
+| 参数 | 含义 | 默认 / 边界 |
+| --- | --- | --- |
+| `YYYY-MM-DD` | 期次日期上界。打开「期次日期 ≤ 该日期且最接近」的一份，**含指定当天** | 不给 = 打开当前已生成的**最新一期** |
+| `--date YYYY-MM-DD`、`--date=YYYY-MM-DD` | 日期的显式写法，与位置参数等价 | 只接受一个日期；重复给出会报错 |
+| `<包名>` | 兼容旧用法：第 1 个非日期参数，导入 `presets/<名字>/` | 不给 = 干净启动，不导入任何数据 |
+| `force` / `--preset-force` | 允许数据包覆盖本机已有的 `config.json` / `interests.json` | 不给 = 默认不覆盖 |
+| `--preset <名字>` | 显式指定包名 | 与位置参数等价 |
+
+```bat
+start_digest.bat                          :: 无参数：兼容旧行为，打开最新一期
+start_digest.bat 2026-11-11               :: 看 11-11 当期；没有则找最接近的更早一期
+start_digest.bat --date 2026-11-11        :: 同上
+start_digest.bat hengxin                  :: 旧用法：导入数据包 + 打开最新一期
+start_digest.bat hengxin force            :: 同上，且允许覆盖本机配置
+start_digest.bat hengxin 2026-11-11       :: 导入数据包 + 指定期次
+```
+
+期次判定与边界：
+
+- 候选是 `output/arxiv_digest_<YYYYMMDD>.html`（含同日期带后缀的副本）与
+  `output/archive/<YYYYMMDD>.html`；`favorites.html`、`archive.html` 等非期次页面不计入。
+- 日期严格按 `YYYY-MM-DD` 且必须是**真实日历日期**（`2026-02-30`、`2026-11-1`、`20261111` 都拒绝）。
+- 同一期次有多份时按**生成时间（mtime）**取最新；mtime 相同优先根目录的正式文件。
+- 参数非法、找不到符合条件的 HTML：打印明确提示，**不打开任何文件**，服务照常启动；
+  绝不退回「随便开一份」。`config.json` 的 `open_browser=false` 仍会阻止打开浏览器。
+- 打开的是**已生成的静态 HTML**，页内 `APIPORT` 是生成当时的端口；若本次启动因端口占用
+  而顺延，收藏/下载等交互按钮需刷新页面或改用服务地址 `http://127.0.0.1:<实际端口>/`。
+
 ## 二、维护与工具脚本（`tools/`）
 
 ### 配置与画像

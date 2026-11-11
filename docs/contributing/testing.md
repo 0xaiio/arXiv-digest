@@ -1,15 +1,24 @@
 # 测试与回归
 
-项目有一套 **pytest 测试套件**：849 个用例，覆盖单元 / 集成 / 端到端 / 浏览器四层，
+项目有一套 **pytest 测试套件**：915 个用例，覆盖单元 / 集成 / 端到端 / 浏览器四层，
 行覆盖率 **91%**（门槛 85%），全量跑完约 80 秒（本机实测）。
 
 运行期仍然**零第三方依赖**——测试依赖只在 `requirements-dev.txt` 里。
 
 ```bash
 python -m pip install -r requirements-dev.txt
-python -m pytest                 # 849 passed
+python -m pytest                 # 909 passed + 6 skipped
 python -m pytest --cov           # 附带覆盖率，低于 85% 直接失败
 ```
+
+其中 6 个「真实 `cmd` 干跑」用例默认跳过：Windows 上嵌套 `cmd`/`python` 子进程偶发与
+pytest 的 fd 捕获争用 stdio 句柄。需要验批处理层（含中文提示、参数透传、"出错不打开"）时：
+
+```bash
+RUN_BAT_CMD_E2E=1 python -m pytest tests/unit/test_start_digest_bat.py -s
+```
+
+逻辑层（含 `python -c` 引导串本身）始终在默认套件里跑，不依赖子进程。
 
 ---
 
@@ -18,7 +27,7 @@ python -m pytest --cov           # 附带覆盖率，低于 85% 直接失败
 ```
 tests/
 ├─ conftest.py                 # 沙箱隔离（所有路径常量重定向）+ 数据工厂 + HTTP 客户端
-├─ unit/                       # 680 个：纯函数与单模块，不联网、不起服务
+├─ unit/                       # 789 个：纯函数与单模块，不联网、不起服务
 │  ├─ test_paths.py            #   ★ 路径唯一来源：各模块常量必须与 paths 一致
 │  ├─ test_arxiv_cats.py       #   ★ 官方分类表自洽性、校验七分支、纠错、邻域推导
 │  ├─ test_paperutil.py        #   短号归一、文件名、配置与库文件读写
@@ -43,14 +52,15 @@ tests/
 │  ├─ test_server_download.py  #   download_pdf 落盘的全部分支
 │  ├─ test_server_startup.py   #   ★ 启动：端口顺延、日志、server.json、浏览器开关与失败兜底
 │  ├─ test_run_daily_helpers.py#   子进程封装 run() 与服务拉起
+│  ├─ test_start_digest_bat.py #   ★ 启动脚本：日期校验 / 期次选择 / 旧参数兼容 / 出错不打开
 │  ├─ test_compat_facade.py    #   ★ 兼容门面：重构不得移除的对外符号清单
 │  └─ test_sandbox_isolation.py#   ★ 测试自身的回归：不许写进真实 output/
-├─ integration/                # 91 个：多模块协作，会起真实 HTTP 服务
+├─ integration/                # 99 个：多模块协作，会起真实 HTTP 服务
 │  ├─ test_pipeline.py         #   抓取池 → 推荐 → 渲染 → 归档 的产物契约；分类顺序 → 页面小节顺序
 │  ├─ test_server_api.py       #   全部路由：状态码、副作用、CORS、目录穿越
 │  ├─ test_datapack_api.py     #   ★ 数据包接口 + 「首屏不泄漏」边界（接口/页面只出现包名）
 │  └─ test_run_daily.py        #   编排顺序、开关语义、RSS 降级、未选类别时的引导路径
-└─ e2e/                        # 24 个：完整用户链路
+└─ e2e/                        # 27 个：完整用户链路
    ├─ test_user_journey.py     #   阅读 → 收藏 → 下载 → Downvote → 分数变化 → 撤销
    ├─ test_ui_browser.py       #   真实 Edge 点击：变灰、删除线、按钮文字、无 JS 报错
    ├─ test_category_picker_ui.py #  类别选择器：联动/搜索/多选/拖拽排序/即时校验/引导页
@@ -81,7 +91,8 @@ tests/
 | 流程 | 覆盖用例 |
 | --- | --- |
 | 首次安装 | `test_fresh_install_has_no_personal_traces`（含三层页面渲染）、`test_pack_in_presets_is_not_loaded_automatically`、`test_config_is_seeded_from_example_on_first_use`、`test_shipped_example_has_no_personal_categories`、`test_interests_file_is_created_from_example` |
-| 数据包导入/导出 | `test_datapack.py`（32 个：名称校验/覆盖与合并/清单哈希/中性化/往返）、`test_datapack_api.py`（13 个：接口状态码 + 「首屏只出现包名」边界） |
+| 数据包导入/导出 | `test_datapack.py`（32 个：名称校验/覆盖与合并/清单哈希/中性化/往返）、`test_datapack_api.py`（14 个：接口状态码 + 「首屏只出现包名」边界） |
+| Windows 启动脚本 | `test_start_digest_bat.py`（66 个：抽取脚本内嵌帮助块直接测；日期格式/闰年、`≤ 目标日期` 且最接近、同日期按 mtime 取最新、非期次页面不入选、旧 `hengxin/force` 兼容、`--date` 显式写法、非法参数与无匹配时 `DIGEST` 必为空、6 个真实 cmd 干跑） |
 | 选择分类（通用版） | `test_arxiv_cats.py`（54 个：表自洽/校验/纠错/检索/邻域）、`test_add_categories_bulk_partial_success`、`test_reorder_rejects_missing_extra_and_duplicate`、`test_digest_sections_follow_config_category_order` |
 | 类别选择器 UI | `test_category_picker_ui.py`（15 个：联动/搜索/多选/拖拽落点/即时校验/引导页） |
 | 抓取 → 推荐 → 渲染 → 归档 | `test_pipeline_writes_all_expected_artifacts` 等 18 个 |
@@ -299,7 +310,7 @@ FAILED tests/unit/test_x.py::test_y - AssertionError: 权重翻倍后分数必�
 
 ## 十一、保持全绿
 
-红线：**主分支上 `python -m pytest` 必须始终 849 passed、覆盖率 ≥ 85%。**
+红线：**主分支上 `python -m pytest` 必须始终 909 passed + 6 skipped、覆盖率 ≥ 85%。**
 
 改代码时的最小自查表：
 

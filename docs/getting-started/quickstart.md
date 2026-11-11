@@ -164,7 +164,10 @@ python server.py                                 # 只起服务
 
 - 每天固定时间跑 `run_daily.py` 即可（Windows 任务计划 / cron / 任意调度器）；
 - 日报只呈现**本期新增**，往期进 `/archive`；
-- 收藏清单在 `/favorites`，可一键导出 `favorites.md`。
+- 收藏清单在 `/favorites`，可一键导出 `favorites.md`；
+- Windows 想直接打开某一期：`start_digest.bat 2026-11-11`（不带日期 = 最新一期）。
+  脚本会打开「不晚于该日期且最接近」的一份，参数写错或找不到时只提示、不打开错文件；
+  详见[命令行参考](../reference/cli.md)。
 
 ---
 

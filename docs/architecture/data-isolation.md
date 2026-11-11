@@ -273,8 +273,12 @@ PACKS = packs_dir()
 python run_daily.py --preset hengxin        # 先导入，再抓取/推荐/渲染
 python server.py --preset hengxin           # 先导入，再起服务
 start_digest.bat hengxin                    # 同上（Windows 双击场景）
+start_digest.bat 2026-11-11                 # 不导入数据，只打开该期次日报
 ```
 
+`start_digest.bat` 的日期参数与 `--preset` 是**两条独立的入口**：前者只选一份
+`output/arxiv_digest_<日期>.html` 用默认浏览器打开，不读写任何私人配置；后者才触发导入。
+参数非法 / 找不到对应期次时脚本只打印提示、不打开任何文件，服务照常启动。
 行为约定：
 
 - 导入在**其它动作之前**执行。`run_daily.py` 里 `--preset` 先于 `--categories`，

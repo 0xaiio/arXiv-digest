@@ -60,9 +60,13 @@ python tools/preset.py status                # 本机有哪些个人数据、多
 ```bash
 python run_daily.py --preset hengxin     # 先导入，再抓取 / 推荐 / 渲染
 python server.py --preset hengxin        # 先导入，再起服务
-start_digest.bat hengxin                 # Windows 双击场景（第二个参数写 force 则允许覆盖）
+start_digest.bat hengxin                 # Windows 双击场景（写 force 则允许覆盖）
+start_digest.bat hengxin 2026-11-11      # 导入数据包 + 打开该期次（参数与顺序无关）
 ```
 
+- `start_digest.bat` 现在也接受一个可选的**日期参数**（`YYYY-MM-DD` / `--date`）：
+  打开「期次日期不晚于该日期且最接近」的一份；不给日期就是最新一期。日期与包名、
+  `force` 可以任意组合；合法性校验与边界见[命令行参考](../reference/cli.md)。
 - 导入发生在其它动作**之前**；`--preset` 先于 `--categories`，所以
   `--preset hengxin --categories cs.LG` = 「用这份画像，但类别只看 cs.LG」。
 - 导入失败**不阻断启动**（名字打错、本机已有不同配置都会继续跑），原因会打印在终端；

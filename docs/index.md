@@ -68,7 +68,7 @@
 | **零运行期依赖** | 只用 Python 标准库，`clone` 即跑 |
 | **启动不挑端口** | 默认 `127.0.0.1:8765`，被占用自动顺延并在日志里报出实际地址；启动后自动开浏览器，可开关 |
 | **可选视频链路** | Remotion 代码渲染 + Edge TTS 中文旁白 + A/V 质量闸门 + B 站投稿 |
-| **测试兜底** | 849 个用例分四层，行覆盖率 91%，全部在沙箱里跑 |
+| **测试兜底** | 915 个用例分四层，行覆盖率 91%，全部在沙箱里跑 |
 
 ## 快速上手
 
@@ -88,8 +88,10 @@ python server.py --no-open                        # 起服务但不开浏览器
 python run_daily.py --preset hengxin             # 导入一份现成数据包（可选）
 ```
 
-Windows 可双击 `start_digest.bat`（带参数 `start_digest.bat hengxin` 则同时导入数据包）。
-完整步骤见[快速开始](getting-started/quickstart.md)。
+Windows 可双击 `start_digest.bat`：**不带参数**打开最新一期日报 HTML（兼容旧行为），
+带日期 `start_digest.bat 2026-11-11` 则打开「不晚于该日期且最接近」的一期，
+带包名 `start_digest.bat hengxin` 仍按旧用法导入数据包（三类参数可组合、顺序无关）。
+详见[命令行参考](reference/cli.md)；完整步骤见[快速开始](getting-started/quickstart.md)。
 
 ## 文档导航
 

@@ -42,6 +42,11 @@ output/
 > `server.json` 是唯一"描述进程状态"的文件：默认端口被占用而顺延时，`run_daily.py`
 > 与排障都靠它确认实际端口。删掉无害（服务不会读它），下次启动会重新写。
 
+`arxiv_digest_<YYYYMMDD>.html` 与 `archive/<YYYYMMDD>.html` 是「已生成的日报」，
+`start_digest.bat [YYYY-MM-DD]` 就在这两类文件里选一份打开：取期次日期不晚于指定日期
+且最接近的一期（含当天），同一期次有多份按生成时间取最新；不带日期则取最新一期。
+非期次页面（`favorites.html` / `archive.html` / `_preview.html`）不参与选择。
+
 ## 二、抓取池
 
 | 文件 | 顶层结构 | 说明 |
