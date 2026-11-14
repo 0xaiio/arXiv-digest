@@ -190,7 +190,27 @@ python tools/bili_collection.py sync --exec
 
 > 稿件仍在审核（cid 未生成）时会先 `取不到 cid，跳过`，等转码完成后再跑一次即可。
 
-## 九、典型问题
+## 九、归档本期成品
+
+```bash
+python tools/snapshot_episode.py -d <期号>        # 归档到 output/episodes/<期号>/
+```
+
+**为什么必须单独做一步**：`reel/src/papers.json`、`output/video_notes.json`、
+`reel/src/audio.json`、`reel/public/audio/*.mp3` 都不带期号 —— 第二天一跑就被覆盖，
+事后无法回答「这一期当时讲了哪 10 篇、配了什么解说」。日报与视频本身按期号命名，
+但它们之外的所有制作过程证据，只有归档后才有当期副本。
+
+目录内容：`digest.html/.md`、`video.mp4`、`meta.json`、`cover.jpg/.json`、`comment.txt`、
+`published.json`，以及 `papers.json`、`video_notes.json`、`audio.json`、`audio/*.mp3`，
+外加 `MANIFEST.json`（大小 / sha256 / 来源 / 缺失项）。
+
+- 跨日不覆盖：每期一个目录；
+- 同期重跑：内容相同跳过，内容变了旧版进 `history/<时间>/`，不删除；
+- 共享文件先验期号：`papers.json` 的 `issue` 与目标日期不符就跳过，宁可不存也不串期；
+- `--skip-video` 省空间，`--link` 用硬链接（同盘零额外占用），`--dry-run` 只看计划。
+
+## 十、典型问题
 
 | 现象 | 原因 | 处理 |
 | --- | --- | --- |

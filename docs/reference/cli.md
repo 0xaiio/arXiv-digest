@@ -132,6 +132,7 @@ start_digest.bat hengxin 2026-11-11       :: 导入数据包 + 指定期次
 | `gen_video_data.py` | `--top 8`（推荐篇数）、`--expand 2`（扩展篇数）、`--out <路径>` | 生成 `reel/src/papers.json`；口播稿优先取 `output/video_notes.json`。选题带两条硬约束：同一 `primary` 最多 4 篇、至少 1 篇标题自带可读钩子；不满足自动换片 |
 | `gen_narration.py` | `--voice`（默认 `zh-CN-YunxiNeural`）、`--papers`、`--notes`、`--outdir`、`--audio-json`、`--no-tts`、`--proxy` | 合成每段旁白，写 `reel/public/audio/*.mp3` 并把 `reel/src/audio.json` 的 `enabled` 置 `true`。出网路由默认自动（直连 → 环境代理 → 本机代理端口，逐条回退并记住成功的一条）；`--proxy` 可跳过探测直接指定 |
 | `check_video_av.py` | `<video.mp4>`、`--papers N`（默认从 `papers.json` 读） | A/V 质量闸门：总时长、音轨、逐段人声起点、段内静音 |
+| `snapshot_episode.py` | `-d/--date <期号>`、`--skip-video`、`--link`、`--dry-run`、`--json` | 把整期成品归档到 `output/episodes/<期号>/`（含 papers / video_notes / audio 这些不带期号、每次都会被覆盖的文件）。同期重跑不覆盖：内容变了旧版进 `history/<时间>/` |
 
 完整流程见 [视频与投稿](../guide/video-pipeline.md)。
 

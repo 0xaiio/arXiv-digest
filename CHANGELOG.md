@@ -7,6 +7,41 @@
 
 ---
 
+## 2026-11-14（每期成品按日期归档，不再被覆盖）
+
+定时任务每跑一次就覆盖同名文件：`reel/src/papers.json`、`output/video_notes.json`、
+`reel/src/audio.json`、`reel/public/audio/*.mp3` 都不带期号 —— 第二天一跑，
+「这一期讲了哪 10 篇、配了什么解说」的证据就没了（`output/` 里积的
+`video_notes.json.bak_20261114` 这类手工备份，就是这件事反复发生的证据）。
+
+### 新增
+
+- **`tools/snapshot_episode.py`**：把整期成品归档到 `output/episodes/<YYYYMMDD>/`。
+  内容：日报、视频、投稿元数据 / 封面 / 置顶评论稿 / 投稿回执，加上最容易被覆盖的
+  `papers.json`、`video_notes.json`、`audio.json`、`audio/*.mp3`，以及
+  `MANIFEST.json`（大小 / sha256 / 来源 / 缺失项 / 历史版本）。
+- 归档规则：跨日不覆盖（每期一个目录）；**同期重跑不丢旧版**（内容变了就把旧文件
+  移进 `<日期>/history/<时间>/`，只移动不删除）；共享文件先比对 `papers.json` 的
+  `issue`，期号不符就跳过，宁可少存也不把今天的数据塞进昨天的目录。
+- `--skip-video` / `--link`（同盘硬链接）/ `--dry-run` / `--json`，退出码 0/1 语义明确。
+
+### 变更
+
+- 自动化流程新增第 6 步：`comment` 之后跑一次归档，**且不受投稿成败影响** ——
+  中途失败也要把已经生成的产物存下来，否则第二天的运行会把它覆盖掉。
+- 回填历史：`output/episodes/` 下已生成 34 期目录，合计 539 MB。
+
+### 测试与文档
+
+- 新增 `tests/unit/test_snapshot_episode.py`（14 个用例），覆盖归档、幂等、
+  历史版本、期号不符跳过、dry-run、JSON 输出。用例总数 963 → 977，
+  `python -m pytest` 为 971 passed + 6 skipped。
+- 同步 `docs/reference/cli.md`、`docs/guide/video-pipeline.md`、
+  `docs/reference/data-files.md`。
+
+---
+
+
 ## 2026-11-14（标题公式 / 封面设计稿 / 选题硬约束 / 发布前校验）
 
 针对「内容生产流程」的四项改造。核心判断：这三件事被违反时**不会报错**——

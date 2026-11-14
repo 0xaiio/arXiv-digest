@@ -31,7 +31,10 @@ output/
 ├─ kw_df.json                        # 关键词文档频率（来源关键词抽取用）
 ├─ archive.db                        # SQLite：本期新增判定 + 期次索引
 ├─ archive/<YYYYMMDD>.{html,md}      # 每期快照（只增不改）
+├─ episodes/<YYYYMMDD>/              # 每期成品归档（digest/video/meta/cover/音频/papers + MANIFEST.json）
 ├─ arxiv_digest_<YYYYMMDD>.{html,md} # 当期日报
+├─ arxiv_weekly_<YYYYMMDD>.mp4       # 当期视频（按期号命名，不会被覆盖）
+├─ bili_meta_/bili_cover_/bili_comment_/bili_published_<YYYYMMDD>.*  # B站投稿产物
 ├─ favorites.html / archive.html     # 收藏页 / 存档页
 ├─ backup/<时间>/                    # 导入预设时的旧配置备份
 ├─ server.log                        # 服务日志（含 serving <实际地址> 一行）
@@ -217,6 +220,15 @@ output/
 
 `output/archive/<YYYYMMDD>.{html,md}` 是当期日报的**副本**，只会新增、不会被后续重跑改写。
 `/archive` 与 `/archive/<日期>` 读的就是它。补跑历史可以用 `tools/backfill_archive.py`。
+
+`output/episodes/<YYYYMMDD>/` 是**整期成品的归档**（`tools/snapshot_episode.py` 生成）：
+日报、视频、投稿元数据与封面、置顶评论稿、以及最容易被覆盖的三样 —
+`papers.json`（选了哪 10 篇）、`video_notes.json`（文案）、`audio/`（口播音频）。
+目录里还有一份 `MANIFEST.json`，记录每个文件的大小、sha256 与原始路径。
+
+- **跨日不覆盖**：每期一个目录；
+- **同期重跑留痕**：内容变了就把旧文件移进 `history/<时间>/`，不是直接覆盖；
+- 共享文件（`papers.json` 等）只在期号匹配时才归档，避免把今天的数据塞进昨天的目录。
 
 ## 十、可安全删除的临时文件
 
