@@ -23,7 +23,8 @@ B站照收稿，标题长度合法、封面尺寸合法，只是点击率悄悄�
 - **封面**：不再用 `ffmpeg -ss 3.6` 抽视频帧（缩到信息流尺寸后字太小），改为 Pillow
   画 1146×717 设计稿：左上眉标 `ARXIV DAILY`、钩子两行大字（按像素折行，放不下先缩字号，
   不丢结论数字）、右上 `#MMDD` 角标、左下「N 篇论文 · 每篇 20 秒」与当期领域、
-  右下低对比大数字。每次渲染同时写 `bili_cover_<issue>.json` 设计清单。
+  右下低对比大数字。第二行明显短于第一行时（如「把 LLM 推理成本砍到 / 1/4」）用强调色绘制，
+  否则短行看起来像排版算错了。每次渲染同时写 `bili_cover_<issue>.json` 设计清单。
 - **选题两条硬约束**：`gen_video_data.py` 新增 `select_episode()`——同一 `primary`
   分类最多 4 篇；至少 1 篇标题自带可读钩子（数字/倍数/百分比/`without`/`provably` 等）。
   不满足时自动换片（换片也守分类上限），并把每篇的 `hook`、`title_hook` 写进
@@ -41,8 +42,8 @@ B站照收稿，标题长度合法、封面尺寸合法，只是点击率悄悄�
 
 - 新增 `tests/unit/test_bili_cover.py`、`tests/unit/test_gen_video_select.py`、
   `tests/unit/test_verify_episode.py`，并改写 `tests/unit/test_bili_meta.py`
-  （旧用例断言的是被替换掉的标题格式）。用例总数 915 → 959，
-  `python -m pytest` 为 953 passed + 6 skipped。
+  （旧用例断言的是被替换掉的标题格式）。用例总数 915 → 963，
+  `python -m pytest` 为 957 passed + 6 skipped。
 - 同步 `SKILL.md`、`docs/guide/video-pipeline.md`、`docs/reference/cli.md`、
   README 徽章与测试计数。
 

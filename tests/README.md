@@ -5,7 +5,7 @@
 
 ```bash
 python -m pip install -r requirements-dev.txt
-python -m pytest                 # 全量：953 passed + 6 skipped，约 97s
+python -m pytest                 # 全量：957 passed + 6 skipped，约 97s
 python -m pytest -m unit         # 只跑单元，约 15s
 python -m pytest --cov           # 覆盖率（门槛 85%，当前 91%）
 RUN_BAT_CMD_E2E=1 python -m pytest tests/unit/test_start_digest_bat.py -s  # 真实 cmd 干跑（默认跳过 6 个）

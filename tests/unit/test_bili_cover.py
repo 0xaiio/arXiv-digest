@@ -63,6 +63,17 @@ def test_find_cjk_font(BU):
     assert font is None or os.path.isfile(font)
 
 
+@pytest.mark.parametrize("lines,expect", [
+    (["把 LLM 推理成本砍到", "1/4"], 1),
+    (["事务隔离可以更便宜"], None),
+    (["把 LLM 推理成本砍到", "新方法的若干细节"], None),
+    (["短", "很长很长很长很长"], None),
+])
+def test_accent_line_index(BU, lines, expect):
+    """短行 + 长行 = 强调行；两行都长就不该染色，否则整段都是彩色。"""
+    assert BU.accent_line_index(lines) == expect
+
+
 @pytest.fixture
 def cover_env(BU, sandbox, monkeypatch):
     monkeypatch.setattr(BU, "OUT", sandbox.out)

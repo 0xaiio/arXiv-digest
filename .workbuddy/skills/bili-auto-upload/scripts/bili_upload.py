@@ -500,6 +500,19 @@ def wrap_cjk(text: str, measure, max_width: float,
     return ([x.strip() for x in lines] or [""]), complete
 
 
+def accent_line_index(lines: list[str]) -> int | None:
+    """第二行明显短于第一行时，把它当「强调行」用强调色画。
+
+    钩子常是「一句描述 + 一个结论数字」（`把 LLM 推理成本砍到` / `1/4`），
+    硬折行会剩下三五个字的短行。染成强调色，视觉上就成了排版意图，
+    否则读者会以为版面算错了。条件刻意保守：只在第二行 ≤6 字且不到第一行一半时触发。
+    """
+    if len(lines) != 2:
+        return None
+    head, tail = len(lines[0].strip()), len(lines[1].strip())
+    return 1 if tail <= 6 and tail * 2 <= head else None
+
+
 def render_cover(issue: str, hook: str, count: int, topics: list[str],
                  out_path, font_path: str | None = None) -> dict:
     """画一张真正的封面，而不是从视频里截一帧。
@@ -551,9 +564,11 @@ def render_cover(issue: str, hook: str, count: int, topics: list[str],
 
     step = int(hook_size * 1.28)
     top = 210
+    accent_at = accent_line_index(lines)
     d.rectangle([72, top - 26, 78, top + hook_size + step * (len(lines) - 1)], fill=COVER_ACCENT)
     for i, ln in enumerate(lines):
-        d.text((104, top + i * step), ln, font=f_hook, fill=COVER_FG)
+        d.text((104, top + i * step), ln, font=f_hook,
+               fill=COVER_ACCENT if i == accent_at else COVER_FG)
 
     d.text((72, 590), "%d 篇论文 · 每篇 20 秒中文讲解" % count, font=f_meta, fill=COVER_SUB)
     if topics:
