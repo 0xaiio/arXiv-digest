@@ -1,10 +1,10 @@
 {
-  "issue": "20261111",
-  "range": "2026-11-10 · 回溯 3 天公告批次",
-  "generated": "2026-11-11T23:11:08+08:00",
+  "issue": "20261114",
+  "range": "2026-11-12 · 回溯 3 天公告批次",
+  "generated": "2026-11-14T11:01:59+08:00",
   "stats": {
-    "core": 146,
-    "expand": 818,
+    "core": 114,
+    "expand": 748,
     "rec": 14,
     "exp": 10
   },
@@ -12,317 +12,318 @@
     {
       "rank": 1,
       "lane": "推荐",
-      "sid": "2611.11117",
+      "sid": "2611.14795",
       "cat": "cs.PL",
-      "score": 73.1,
-      "title_en": "Keel: A Verified In-Kernel Proof Checker for Proof Carrying BPF",
+      "score": 77.7,
+      "title_en": "Model Checking Probabilistic Multiparty Session Types",
       "kw": [
-        "Keel",
-        "BPF",
-        "eBPF",
-        "Lean"
+        "会话类型",
+        "概率"
       ],
-      "authors": "Yalu Cai, Tung-Che Chang, Santosh Nagarakatte",
-      "units": [],
+      "authors": "Aleksander Junge, Leo Seojun Lee, Joseph Paulus 等 5 人",
+      "units": [
+        "University of Oxford"
+      ],
       "bullets": [
         {
-          "tag": "隐患",
-          "text": "eBPF 验证器证明失败时靠内核内证明检查器兜底，单个 bug 即可威胁整个内核"
+          "tag": "问题",
+          "text": "分布式系统依赖随机化，验证技术与构建它们的编程抽象却彼此脱节"
         },
         {
           "tag": "做法",
-          "text": "在 Lean 中把检查器写成纯函数程序并证可靠性，再用 EmbC 证明 C 实现精化"
+          "text": "首个通用多参与方会话类型的概率扩展，自底向上定型、无需全局规格"
         },
         {
           "tag": "结果",
-          "text": "在 BCF 检查器中发现 13 个 bug；Keel 比它快 1.3×，最慢证书上快 2×"
+          "text": "类型上下文诱导有限 MDP，给出公平调度下无死锁与活性的概率下界"
         }
       ],
-      "link": "arxiv.org/abs/2611.11117"
+      "link": "arxiv.org/abs/2611.14795"
     },
     {
       "rank": 2,
       "lane": "推荐",
-      "sid": "2611.12412",
-      "cat": "cs.MA",
-      "score": 62.9,
-      "title_en": "Unprompted coordination through shared memory in LLM agents: a locked two-implementation replication and extension",
+      "sid": "2611.15207",
+      "cat": "cs.SE",
+      "score": 71.6,
+      "title_en": "Pre-QED: Environment Specifications for Agentic Verification",
       "kw": [
-        "共享存储",
-        "复现"
+        "Pre-QED",
+        "LTL"
       ],
-      "authors": "Pekka Abrahamsson, Muhammad Waseem, Esa Karjalainen 等 6 人",
-      "units": [],
+      "authors": "Tristan Lim, Haoxin Tu, Mehtab Zafar 等 5 人",
+      "units": [
+        "National University of Singapore"
+      ],
       "bullets": [
         {
           "tag": "问题",
-          "text": "提示词未告知伙伴存在，智能体是否仍会经共享内存自发协调，此前从未独立复现"
+          "text": "模糊测试 harness 当规格只覆盖单一调用序列，证明的是场景不是库"
         },
         {
-          "tag": "实验",
-          "text": "四个智能体各领算术任务与私有草稿区，设计、数据与分析全程哈希锁定"
+          "tag": "做法",
+          "text": "验证 harness 建模 API 全部合法用法，用 LTL 排除非法调用顺序"
         },
         {
-          "tag": "发现",
-          "text": "协调只经共享存储发生；一句『提交前再检查工作区』即可开关该行为"
+          "tag": "结果",
+          "text": "关于 harness 的证明即关于所有行为良好客户端的证明"
         }
       ],
-      "link": "arxiv.org/abs/2611.12412"
+      "link": "arxiv.org/abs/2611.15207"
     },
     {
       "rank": 3,
       "lane": "推荐",
-      "sid": "2611.12338",
-      "cat": "cs.SE",
-      "score": 61.4,
-      "title_en": "From Formal Methods to Fuzzing and Back",
+      "sid": "2611.15847",
+      "cat": "cs.DC",
+      "score": 65.6,
+      "title_en": "SoK: Design Choices in Tendermint BFT Consensus",
       "kw": [
-        "GPUVerify",
-        "GraphicsFuzz",
-        "Keystone"
+        "Tendermint",
+        "BFT",
+        "ABCI"
       ],
-      "authors": "Alastair F. Donaldson",
+      "authors": "Sanaz Taheri-Boshrooyeh, Yahya Hassanzadeh-Nazarabadi",
       "units": [
-        "Department of Computing, Imperial College London…"
+        "Math Crypt Research Inc"
       ],
       "bullets": [
         {
-          "tag": "经历",
-          "text": "从 GPUVerify 的形式化验证到 GraphicsFuzz 的随机测试，亲历两种范式取舍"
+          "tag": "问题",
+          "text": "围绕 Tendermint 的改动散落各处，无人把协议与这些工作当一族系统研究"
         },
         {
-          "tag": "论点",
-          "text": "oracle 问题是模糊测试与形式化方法之间的智识纽带"
+          "tag": "做法",
+          "text": "以设计选择为线索描述基线，按重新协商了哪个选择给每篇工作分类"
         },
         {
-          "tag": "展望",
-          "text": "生成式 AI 或许是让形式化规模化的缺料，Keystone 项目将检验这一承诺"
+          "tag": "结果",
+          "text": "方案归为性能、验证者问责、可利用信息保护三条主线"
         }
       ],
-      "link": "arxiv.org/abs/2611.12338"
+      "link": "arxiv.org/abs/2611.15847"
     },
     {
       "rank": 4,
       "lane": "推荐",
-      "sid": "2611.13250",
-      "cat": "cs.SE",
-      "score": 60.5,
-      "title_en": "Using Proof Dependencies to Manage Verification Projects",
+      "sid": "2611.16886",
+      "cat": "cs.LO",
+      "score": 58.0,
+      "title_en": "LLM-Assisted Verification in Dafny",
       "kw": [
-        "Viper",
-        "Gobra"
+        "Dafny"
       ],
-      "authors": "Lea Salome Brugger, Andrea Keusch, João Pereira 等 4 人",
+      "authors": "Wieger Wesselink, Kees Huizing, Huub van de Wetering",
       "units": [],
       "bullets": [
         {
           "tag": "问题",
-          "text": "验证工具跑通只说明证明闭合，进度与保证依赖哪些规格与假设无从判断"
+          "text": "完整机器检查验证需迭代构造规格与不变式、诊断求解器失败"
         },
         {
-          "tag": "方法",
-          "text": "自动计算每个证明义务所依赖的规格、语句与假设，实现证明审计"
+          "tag": "做法",
+          "text": "Dafny 十步工作流，含契约开发、不变式经验验证与瓶颈剖析"
         },
         {
-          "tag": "落地",
-          "text": "在 Viper 符号执行后端实现并提升到 Go 验证器 Gobra，提出新进度指标"
+          "tag": "结果",
+          "text": "37 个图论与迁移系统算法，含 Hopcroft-Tarjan 三连通性判定"
         }
       ],
-      "link": "arxiv.org/abs/2611.13250"
+      "link": "arxiv.org/abs/2611.16886"
     },
     {
       "rank": 5,
       "lane": "推荐",
-      "sid": "2611.13401",
+      "sid": "2611.15596",
       "cat": "cs.SE",
-      "score": 52.9,
-      "title_en": "SPARK: Semantic-preserving Prompt Mutation for Code Generation using Consensus-based Verification Framework",
+      "score": 57.8,
+      "title_en": "Bug Finding With Agentic Symbolic Execution",
       "kw": [
-        "Code",
-        "共识验证",
-        "保义变异"
+        "Bug",
+        "CrossHair",
+        "符号执行"
       ],
-      "authors": "Alireza Daghigh, Chung-Yu Wang, Luca Filippelli 等 6 人",
-      "units": [],
+      "authors": "George Granberry, Wolfgang Ahrendt, Andy Gordon 等 4 人",
+      "units": [
+        "Chalmers University of Technology",
+        "University of Edinburgh"
+      ],
       "bullets": [
         {
-          "tag": "痛点",
-          "text": "真实场景缺测试用例，LLM 生成的代码难以自动验证"
+          "tag": "问题",
+          "text": "符号执行卡在人工加断言与外部环境建模两道门槛"
         },
         {
           "tag": "做法",
-          "text": "对题面做保义变异，逐变异生成代码与测试，按功能一致性做共识验证"
+          "text": "智能体编排 CrossHair，自动插桩断言并合成约束感知的数据库环境"
         },
         {
-          "tag": "效果",
-          "text": "LiveCodeBench 等三基准、三模型上超 SOTA 共识方法最多 4.1%"
+          "tag": "结果",
+          "text": "11 个 Web 应用函数覆盖 4.5%→81%，1050 个 bug 均有测试复现"
         }
       ],
-      "link": "arxiv.org/abs/2611.13401"
+      "link": "arxiv.org/abs/2611.15596"
     },
     {
       "rank": 6,
       "lane": "推荐",
-      "sid": "2611.14371",
-      "cat": "cs.SE",
-      "score": 52.2,
-      "title_en": "Reliable and explainable analysis of AVS/RS by Statistical Model Checking and Process Mining",
+      "sid": "2611.16516",
+      "cat": "cs.DB",
+      "score": 57.1,
+      "title_en": "Authenticated Approximate Nearest Neighbor Search in Outsourced Vector Databases",
       "kw": [
-        "AVS",
-        "RS",
-        "AVS/RS",
-        "统计模型检查"
+        "VIDA",
+        "ANN"
       ],
-      "authors": "Emanuele Guerrazzi, Andrea Vandin",
+      "authors": "Yuanhang Zhou, Xinyi Zhang, Cheng Xu 等 4 人",
       "units": [
-        "L’EMbeDS, Sant’Anna School of Advanced Studies"
+        "Department of Computer Science, Hong Kong Baptist…"
       ],
       "bullets": [
         {
-          "tag": "对象",
-          "text": "AVS/RS 自动化仓储系统，吞吐与成本的关键在存取策略"
+          "tag": "问题",
+          "text": "外包向量库不可信，已有可认证 ANN 需传高维向量、依赖拓扑无关结构"
         },
         {
-          "tag": "方法",
-          "text": "MultiVeStA 统计模型检查给置信估计，过程挖掘解释行为模式与瓶颈"
+          "tag": "做法",
+          "text": "向量承诺 + 聚合内积论证 + 拓扑感知认证结构 MeST"
         },
         {
-          "tag": "贡献",
-          "text": "首个 SMC+PM 联合评估，开源工具链支持 what-if 与事后诊断"
+          "tag": "结果",
+          "text": "量化感知剪枝减少需密码学认证的精确距离数量"
         }
       ],
-      "link": "arxiv.org/abs/2611.14371"
+      "link": "arxiv.org/abs/2611.16516"
     },
     {
       "rank": 7,
       "lane": "推荐",
-      "sid": "2611.13627",
-      "cat": "cs.PL",
-      "score": 51.0,
-      "title_en": "Curriculum proof repair with learned counterexamples",
+      "sid": "2611.14581",
+      "cat": "cs.SE",
+      "score": 55.8,
+      "title_en": "When Evaluators of AI Agents Disagree: An Empirical Study of Native Scoring, LLM Judges, and Commit-Boundary Checks on tau2-bench",
       "kw": [
-        "Verus",
-        "TopoVerus",
-        "反例"
+        "LLM",
+        "裁判"
       ],
-      "authors": "Yuechun Sun, Jun Yang, Kexin Pei",
+      "authors": "Sungbin Im",
       "units": [
-        "Department of Computer Science",
-        "University of Chicago"
+        "Seoul School of Integrated Sciences and Technologies"
       ],
       "bullets": [
         {
-          "tag": "缺口",
-          "text": "验证器只有二元过/不过反馈，修复证明缺可操作信号"
+          "tag": "问题",
+          "text": "基准的原生评分与线上 LLM 裁判被当作可互换，实际是否成立未知"
         },
         {
-          "tag": "框架",
-          "text": "TopoVerus 单次生成结构化反例、修复理由与修复证明，RL 优化加安全门"
+          "tag": "做法",
+          "text": "2160 个 tau2-bench episode，四种评分对照，120 例人工标注"
         },
         {
-          "tag": "课程",
-          "text": "按不变式依赖的拓扑图奖励排序修复；471 题上超 Claude Sonnet 4.5 达 5.7 分"
+          "tag": "结果",
+          "text": "裁判自洽 98.2% 但仅 56.2% 同原生评分；11 例禁止写入放过 10 例"
         }
       ],
-      "link": "arxiv.org/abs/2611.13627"
+      "link": "arxiv.org/abs/2611.14581"
     },
     {
       "rank": 8,
       "lane": "推荐",
-      "sid": "2611.14106",
-      "cat": "cs.SE",
-      "score": 49.8,
-      "title_en": "ProofCoder: Continuous Reasoning for Automated Software Verification",
+      "sid": "2611.16588",
+      "cat": "cs.CR",
+      "score": 52.1,
+      "title_en": "CrossPloit: A Benchmark for Cross-Version PoC Migration in Python Web Applications",
       "kw": [
-        "Rocq",
-        "持续推理"
+        "CrossPloit",
+        "PoC",
+        "Python",
+        "Web"
       ],
-      "authors": "Martim Afonso, Inês Lynce, Maurizio Morisio 等 4 人",
+      "authors": "Hung Nguyen-Huu, Nguyen Anh Tuan, Ting Zhang 等 6 人",
       "units": [
-        "INESC-ID & IST, University of Lisbon",
-        "INESC-ID & Faculty of Engineering, University of Porto"
+        "Singapore Management University",
+        "Hanoi University of Science and Technology"
       ],
       "bullets": [
         {
-          "tag": "局限",
-          "text": "现有 LLM 证明合成困在固定策略循环，前提检索与回溯由外部系统控制"
+          "tag": "问题",
+          "text": "漏洞库受影响版本区间不完整，有漏洞的旧版本被当作安全"
         },
         {
-          "tag": "设计",
-          "text": "从编码智能体视角做持续推理，按证明助手反馈决定检索、修订与回溯"
+          "tag": "做法",
+          "text": "127 个跨版本 PoC 迁移实例，版本固定容器 + 漏洞专用 oracle"
         },
         {
           "tag": "结果",
-          "text": "AutoRocq 280 任务上成功率 47%→60%，成本约一半；消融确认持续推理是关键"
+          "text": "最佳配置解决 58.3%，轨迹引导基线 8.7%；攻击向量迁移最难"
         }
       ],
-      "link": "arxiv.org/abs/2611.14106"
+      "link": "arxiv.org/abs/2611.16588"
     },
     {
       "rank": 9,
       "lane": "兴趣扩展",
-      "sid": "2611.13705",
-      "cat": "cs.AI",
-      "score": 69.6,
-      "title_en": "Agentic AI Meets Formal Verification in the Era of Agentic Hardware Development",
+      "sid": "2611.16433",
+      "cat": "cs.CL",
+      "score": 60.5,
+      "title_en": "daVinci-Prover: Agent-Native Mid-Training for Formal Theorem Proving",
       "kw": [
-        "AI",
-        "硬件形式化",
-        "RTL",
-        "proof-native"
+        "Prover",
+        "daVinci-Prover",
+        "Lean"
       ],
-      "authors": "Wenji Fang, Yuchao Wu, Jing Wang 等 4 人",
+      "authors": "Wenhong Zhu, Xuefeng Li, Jiashuo Zhang 等 6 人",
       "units": [
-        "Hong Kong University of Science and Technology"
+        "Generative Artificial Intelligence Research Lab",
+        "Shanghai Innovation Institute",
+        "等 3 家单位"
       ],
       "bullets": [
         {
-          "tag": "背景",
-          "text": "AI 智能体越来越会生成与优化硬件电路，验证 AI 生成设计成为要务"
+          "tag": "问题",
+          "text": "定理证明模型缺少透明有效的数据配方"
         },
         {
-          "tag": "综述",
-          "text": "从规格、证明构造、推理引擎三层看智能体如何推进硬件形式化"
+          "tag": "做法",
+          "text": "33.7B token 智能体原生中训练语料 + Lean 交互轨迹微调"
         },
         {
-          "tag": "反哺",
-          "text": "形式方法支撑 RTL 生成、调试与保正确性优化，愿景是 proof-native 开发"
+          "tag": "结果",
+          "text": "相对 Qwen3-8B 仅 SFT 基线平均提升 13.7 分"
         }
       ],
-      "link": "arxiv.org/abs/2611.13705"
+      "link": "arxiv.org/abs/2611.16433"
     },
     {
       "rank": 10,
       "lane": "兴趣扩展",
-      "sid": "2611.13042",
+      "sid": "2611.16991",
       "cat": "cs.AI",
-      "score": 50.2,
-      "title_en": "Trust, but verify, audit and attribute: a human-in-the-loop framework for checking AI-produced research results",
+      "score": 53.7,
+      "title_en": "AnalogLayoutWorld: An Open Benchmark for Agentic Analog Layout Design",
       "kw": [
-        "Lean",
-        "保真审计"
+        "AnalogLayoutWorld",
+        "An",
+        "Analog",
+        "Layout"
       ],
-      "authors": "György Eigner, Patrik P. Süli, Roland Hollós",
-      "units": [
-        "Trust, but verify, audit and attribute: a…",
-        "Biomatics and Applied Artificial Intelligence Institute…",
-        "等 5 家单位"
-      ],
+      "authors": "NovaSilicon Team",
+      "units": [],
       "bullets": [
         {
-          "tag": "背景",
-          "text": "单实验室一个月放出 700+ 篇 AI 生成数学稿，检查大多由 AI 智能体完成"
+          "tag": "问题",
+          "text": "编码智能体在受物理约束的长程工程任务上能力不明"
         },
         {
-          "tag": "关键",
-          "text": "通过的检查只认证被检产物；到 Lean 的翻译是否忠实一般不可判定"
+          "tag": "做法",
+          "text": "40 个专家评审的模拟版图任务，独立物理与版图后电气验证"
         },
         {
-          "tag": "框架",
-          "text": "带保真审计的人机协同框架，固定节点人类决策，对话报告归属人与 AI"
+          "tag": "结果",
+          "text": "91.1% 能出 GDS，仅 23.0% 过验收；差距源于测试时扩展效率"
         }
       ],
-      "link": "arxiv.org/abs/2611.13042"
+      "link": "arxiv.org/abs/2611.16991"
     }
   ]
 }

@@ -25,9 +25,16 @@ function toast(msg,kind){var w=document.getElementById('toast');if(!w){w=documen
 async function api(path,body){try{var r=await fetch(APIBASE+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});return await r.json();}
  catch(e){return {ok:false,offline:true,msg:'本地服务未启动，请运行 start_digest.bat 后刷新'};}}
 function applyProfile(p){if(!p)return;if(p.weights)W=p.weights;if(p.kw)KW=p.kw;if(p.pens)PENS=p.pens;}
-function scoreOf(p){var s=p.base+(PENS[p.id]||0);
- for(var k=0;k<(p.tv||[]).length;k++){s+=p.tv[k][1]*W[p.tv[k][0]];}
- var t=p.toks||[];for(var j=0;j<t.length;j++){s+=(KW[t[j]]||0);}
+/* 映射查表必须只认自有属性：KW/W/PENS 是普通对象字面量，键名一旦撞上
+   Object.prototype（如论文 token 里出现 "constructor" / "toString"），
+   KW['constructor'] 会取到原型函数，`s+=函数` 变成字符串拼接，
+   随后 s.toFixed() 抛 TypeError，整个 /api/state 回调被 catch 吞成
+   「本地服务未运行」的假报错（2026-11-14 实测，2611.17044 的 token 命中）。 */
+function ownNum(m,k){return (m&&Object.prototype.hasOwnProperty.call(m,k)
+ &&typeof m[k]==='number')?m[k]:0;}
+function scoreOf(p){var s=(typeof p.base==='number')?p.base:0; s+=ownNum(PENS,p.id);
+ for(var k=0;k<(p.tv||[]).length;k++){s+=p.tv[k][1]*ownNum(W,p.tv[k][0]);}
+ var t=p.toks||[];for(var j=0;j<t.length;j++){s+=ownNum(KW,t[j]);}
  return s;}
 function eachBtn(sid,fn){document.querySelectorAll('[data-sid="'+sid+'"]').forEach(fn);}
 function setFav(sid,on){eachBtn(sid,function(b){if(b.dataset.act!=='fav')return;
