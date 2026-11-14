@@ -43,7 +43,7 @@ access_token + refresh_token + cookie_info，正好是 biliup 的 `LoginInfo` �
 
 | 字段 | 限制 | 本项目取值 |
 |---|---|---|
-| `title` | ≤ 80 字 | `arXiv 日报 20261002｜DB·分布式·形式化 Top10 速览` |
+| `title` | ≤ 80 字 | `把 LLM 推理成本砍到 1/4｜arXiv 日报 #1114`（钩子 ≤18 字 + 系列锚点） |
 | `desc` | ≤ 250 字 | 引导语 + 尽可能多的论文短链 + 「其余见置顶评论」 |
 | `tag` | 逗号分隔，总长 < 200 | `arXiv,论文速递,分布式系统,数据库,形式化方法,论文解读,计算机科学` |
 | `tid` | 分区 id | `171` = 知识·野生技术协会 |
@@ -71,7 +71,7 @@ MP4 容器本身**不能承载超链接** —— 这一点要在画面里对用�
 ```powershell
 python bili_upload.py check                     # 环境体检：biliup / ffmpeg / cookie / 产物
 python bili_upload.py meta                      # 生成投稿元数据 → output/bili_meta_<date>.json
-python bili_upload.py cover                     # ffmpeg 抽封面 → output/bili_cover_<date>.jpg
+python bili_upload.py cover                     # Pillow 设计稿封面（1146×717）→ bili_cover_<date>.jpg + .json
 python bili_upload.py upload                    # dry-run：只打印将执行的命令，不真投
 python bili_upload.py upload --exec             # 真投稿
 python bili_upload.py verify                    # 对账：查 member 稿件列表，确认 BV 号与状态
@@ -84,6 +84,32 @@ python bili_upload.py comment --exec            # 发评论并置顶（纯 reque
 有就直接置顶不重发。
 
 默认 `--date` 取当天；可对历史期补投 `--date 20261002`。
+
+## 标题公式与封面方案
+
+**标题**固定为 `{钩子 ≤18 字}｜arXiv 日报 #MMDD`：
+
+- 钩子优先取当期 `output/video_notes.json` 里各篇的 `hook` 字段（由流水线写），
+  缺失时退化为「当期前两个领域名」（如 `数据库·分布式`）；
+- 期号用 `#MMDD` 而不是 `YYYYMMDD`：移动端信息流只显示前 20 来个字，
+  完整日期会把钩子挤出可见区；
+- 超过 18 字按字符截断补 `…`，绝不把半个词留在标题末尾。
+
+**封面**不再是「从视频里抽第 3.6 秒那一帧」，而是 Pillow 画的设计稿（1146×717）：
+左上眉标 `ARXIV DAILY`、钩子两行大字（按像素折行，放不下先缩字号）、
+右上 `#MMDD` 角标、左下「N 篇论文 · 每篇 20 秒」与当期领域、右下低对比大数字。
+每次渲染同时写 `output/bili_cover_<issue>.json`（设计清单），供校验脚本对账。
+
+## 发布前校验
+
+```powershell
+python tools/verify_episode.py                  # 校验最新一期（标题 / 封面 / 选题）
+python tools/verify_episode.py --date 20261116
+python tools/verify_episode.py --json           # 机器可读，便于定时任务落日志
+```
+
+退出码：0 全过 / 1 有失败项 / 2 产物缺失。流水线应在 `cover` 之后、`upload --exec`
+之前跑一次 —— 这三条约束违反时 B站照收稿，只会悄悄降低点击率，不会有任何报错。
 
 ## 流程编排
 

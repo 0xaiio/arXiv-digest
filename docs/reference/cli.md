@@ -129,7 +129,7 @@ start_digest.bat hengxin 2026-11-11       :: 导入数据包 + 指定期次
 
 | 脚本 | 参数 | 说明 |
 | --- | --- | --- |
-| `gen_video_data.py` | `--top 8`（推荐篇数）、`--expand 2`（扩展篇数）、`--out <路径>` | 生成 `reel/src/papers.json`；口播稿优先取 `output/video_notes.json` |
+| `gen_video_data.py` | `--top 8`（推荐篇数）、`--expand 2`（扩展篇数）、`--out <路径>` | 生成 `reel/src/papers.json`；口播稿优先取 `output/video_notes.json`。选题带两条硬约束：同一 `primary` 最多 4 篇、至少 1 篇标题自带可读钩子；不满足自动换片 |
 | `gen_narration.py` | `--voice`（默认 `zh-CN-YunxiNeural`）、`--papers`、`--notes`、`--outdir`、`--audio-json`、`--no-tts`、`--proxy` | 合成每段旁白，写 `reel/public/audio/*.mp3` 并把 `reel/src/audio.json` 的 `enabled` 置 `true`。出网路由默认自动（直连 → 环境代理 → 本机代理端口，逐条回退并记住成功的一条）；`--proxy` 可跳过探测直接指定 |
 | `check_video_av.py` | `<video.mp4>`、`--papers N`（默认从 `papers.json` 读） | A/V 质量闸门：总时长、音轨、逐段人声起点、段内静音 |
 
@@ -142,7 +142,8 @@ start_digest.bat hengxin 2026-11-11       :: 导入数据包 + 指定期次
 | `bili_tv_qr_login.py` | `--wait <秒>` | TV 通道扫码登录，写 `.secrets/bili_cookies.json`（**推荐**） |
 | `bili_qr_login.py` | `--wait <秒>` | Web 通道扫码（拿不到 App `access_token`，仅排错用） |
 | `bili_collection.py` | `videos` / `collections`（只读）；`cover` / `create` / `add` / `sync`（默认 dry-run，需 `--exec`） | 管理合集 `arXiv-daily`；`sync` 幂等，只补未挂载。判据用稿件详情的 `season_id`（绕过合集列表缓存），挂完回读校验。`code 20080` 是**整批级**拒绝，收到后逐条重投，不当整批成功 |
-| `bili_upload.py` | 在 `.workbuddy/skills/bili-auto-upload/scripts/`；子命令 `check/meta/cover/upload/verify/comment`，`-d <期号>`，`--exec` 才真正执行；`--line <线路>` 指定上传线路（默认自动探测） | 投稿与投稿后对账。标题/标签由当期入选论文的分类推出（不再写死领域名） |
+| `bili_upload.py` | 在 `.workbuddy/skills/bili-auto-upload/scripts/`；子命令 `check/meta/cover/upload/verify/comment`，`-d <期号>`，`--exec` 才真正执行；`--line <线路>` 指定上传线路（默认自动探测） | 投稿与投稿后对账。标题固定 `{钩子 ≤18 字}｜arXiv 日报 #MMDD`；`cover` 用 Pillow 画 1146×717 设计稿并写 `bili_cover_<期号>.json` |
+| `verify_episode.py` | `-d/--date <期号>`、`--json`、`--quiet` | 发布前闸门：校验标题公式、封面设计稿与尺寸、选题两条硬约束；退出码 0/1/2。流水线在 `cover` 之后、`upload --exec` 之前调用 |
 
 ### 数据修复
 

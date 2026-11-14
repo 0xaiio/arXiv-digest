@@ -52,6 +52,17 @@ PAPERS = ROOT / "reel" / "src" / "papers.json"
 
 TID = "171"  # 知识·野生技术协会
 TITLE_MAX, DESC_MAX, TAG_MAX = 80, 250, 200
+# 标题公式：{钩子 ≤18 字}｜arXiv 日报 #MMDD
+# 前半段是「给人看的理由」，后半段是「系列锚点」。期号用 MMDD 而不是 YYYYMMDD，
+# 是因为移动端信息流只显示前 20 来个字，日期占位越长，钩子越容易被截掉。
+TITLE_TAG = "｜arXiv 日报 #"
+HOOK_MAX = 18
+# B站封面推荐尺寸（16:9 显示，实际像素 1146×717）
+COVER_W, COVER_H = 1146, 717
+COVER_BG = (11, 18, 32)
+COVER_FG = (248, 250, 252)
+COVER_SUB = (148, 163, 184)
+COVER_ACCENT = (34, 211, 238)
 BASE_TAGS = ["arXiv", "论文速递", "计算机科学", "论文解读"]
 # 分类 → 标题/标签里的短名。标题与标签**必须由当期入选论文的分类推出来**：
 # 2026-10-22 这期十篇全是 cs.SE / math.OC / cs.CL / cs.CR / cs.AI，
@@ -242,11 +253,46 @@ def topic_labels(papers: list[dict], limit: int = 3) -> list[str]:
     return out
 
 
+def pick_hook(papers: list[dict] | None) -> str:
+    """标题钩子：优先用当期 `video_notes.json` 里人工/模型写的 `hook`。
+
+    没有再退化为「当期前两个领域名」。退化档不是好文案，但保证标题公式永远成立、
+    且仍然只由当期内容推导 —— 不能为了凑钩子写与内容无关的话（2026-10-22 的教训）。
+    """
+    for p in papers or []:
+        h = str(p.get("hook") or "").strip()
+        if h:
+            return h
+    labels = topic_labels(papers or [], limit=2)
+    return "·".join(labels) if labels else "本周论文精选"
+
+
+def clean_hook(hook, limit: int = HOOK_MAX) -> str:
+    """压平空白并限长；超长截断补省略号，绝不把半个词留在标题末尾。"""
+    h = " ".join(str(hook or "").split())
+    if len(h) > limit:
+        h = h[: max(1, limit - 1)] + "…"
+    return h
+
+
+def issue_badge(issue: str) -> str:
+    """期号 → `#MMDD`。
+
+    只取数字里第 5–8 位；期号不是 8 位数字（手工指定）时退化为原样，
+    保证这个函数不会因为脏输入抛异常、把投稿卡死在生成元数据这一步。
+    """
+    digits = re.sub(r"\D", "", str(issue or ""))
+    return "#" + (digits[4:8] if len(digits) >= 8 else digits)
+
+
 def build_title(issue: str, papers: list[dict] | None = None) -> str:
-    labels = topic_labels(papers or [])
-    topic = "·".join(labels) if labels else "论文精选"
-    n = len(papers or []) or 10
-    return f"arXiv 日报 {issue}｜{topic} Top{n} 速览"[:TITLE_MAX]
+    """按固定公式生成标题：`{钩子}｜arXiv 日报 #MMDD`。
+
+    长度由 clean_hook 保证（≤18），加上后缀也只有 30 字上下，远低于 B站的 80 字上限；
+    末尾再套一次 TITLE_MAX 是防御性截断，正常不会触发。
+    """
+    hook = clean_hook(pick_hook(papers))
+    return ("%s%s%s" % (hook, TITLE_TAG, issue_badge(issue).lstrip("#")))[:TITLE_MAX]
 
 
 def build_tags(papers: list[dict]) -> str:
@@ -387,11 +433,13 @@ def cmd_meta(a: argparse.Namespace) -> int:
         "issue": issue,
         "video": str(video) if video else None,
         "title": title,
+        "hook": clean_hook(pick_hook(papers)),
         "desc": desc,
         "tags": tags,
         "tid": TID,
         "copyright": "1",
         "cover": str(OUT / f"bili_cover_{issue}.jpg"),
+        "cover_manifest": str(OUT / f"bili_cover_{issue}.json"),
         "links_in_desc": n_in,
         "links_total": len(papers),
     }
@@ -407,24 +455,151 @@ def cmd_meta(a: argparse.Namespace) -> int:
 
 
 # ---------------------------------------------------------------------------- cmd: cover
+def find_cjk_font(bold: bool = True) -> str | None:
+    """找一个能显示中文的字体文件。
+
+    Windows 优先微软雅黑；Linux/macOS 退到 Noto / 苹方。找不到就返回 None，
+    由 render_cover 明确报错 —— 静默用默认位图字体（方块字）比失败更糟。
+    """
+    win = [r"C:\Windows\Fonts\msyhbd.ttc", r"C:\Windows\Fonts\msyh.ttc"] if bold \
+        else [r"C:\Windows\Fonts\msyh.ttc", r"C:\Windows\Fonts\msyhbd.ttc"]
+    cands = win + [
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
+        "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
+        "/System/Library/Fonts/PingFang.ttc",
+    ]
+    for p in cands:
+        if os.path.isfile(p):
+            return p
+    return None
+
+
+def wrap_cjk(text: str, measure, max_width: float,
+             max_lines: int = 2) -> tuple[list[str], bool]:
+    """按像素宽度折行，返回 `(行列表, 是否完整放下)`。
+
+    中文没有空格可断，只能逐字符量宽；`measure` 是注入的字符串测宽函数，
+    这样单测可以塞一个假实现，不需要真的加载字体。放不下时末尾补省略号并返回
+    False —— 调用方据此换更小的字号，而不是把钩子的后半句（常常是数字结论）丢掉。
+    """
+    lines, cur = [], ""
+    for ch in text:
+        if measure(cur + ch) <= max_width or not cur:
+            cur += ch
+            continue
+        lines.append(cur)
+        cur = ch
+        if len(lines) >= max_lines:
+            break
+    if len(lines) < max_lines and cur:
+        lines.append(cur)
+    complete = sum(len(x) for x in lines) >= len(text)
+    if not complete and lines:
+        lines[-1] = lines[-1][:-1] + "…"
+    # 折行点常常落在空格上；行首空格在封面上会表现成「缩进」，去掉更干净。
+    return ([x.strip() for x in lines] or [""]), complete
+
+
+def render_cover(issue: str, hook: str, count: int, topics: list[str],
+                 out_path, font_path: str | None = None) -> dict:
+    """画一张真正的封面，而不是从视频里截一帧。
+
+    版面：左上眉标 → 钩子两行（≤18 字，按像素折行）→ 左下「N 篇论文 · 每篇 20 秒」
+          与当期领域；右上 `#MMDD` 角标；右下低对比大数字作为视觉锚点。
+    返回的 dict 同时写进 `bili_cover_<issue>.json`，供 verify_episode 对账。
+    """
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+    except Exception as e:  # pragma: no cover - 依赖缺失时给一句能照做的提示
+        raise RuntimeError("需要 Pillow 才能渲染封面：pip install pillow（%s）" % e)
+
+    bold_path = font_path or find_cjk_font(True)
+    if not bold_path:
+        raise RuntimeError("找不到中文字体（msyhbd.ttc / NotoSansCJK-Bold / PingFang）")
+    regular_path = find_cjk_font(False) or bold_path
+
+    img = Image.new("RGB", (COVER_W, COVER_H), COVER_BG)
+    d = ImageDraw.Draw(img)
+    d.rectangle([0, 0, 8, COVER_H], fill=COVER_ACCENT)
+
+    f_kick = ImageFont.truetype(regular_path, 24)
+    f_meta = ImageFont.truetype(regular_path, 30)
+    f_tag = ImageFont.truetype(regular_path, 24)
+    f_badge = ImageFont.truetype(bold_path, 30)
+    f_big = ImageFont.truetype(bold_path, 200)
+
+    badge = issue_badge(issue)
+    bw = int(d.textlength(badge, font=f_badge)) + 44
+    bx, by = COVER_W - 72 - bw, 64
+    d.rounded_rectangle([bx, by, bx + bw, by + 60], radius=12, fill=COVER_ACCENT)
+    d.text((bx + bw / 2, by + 30), badge, font=f_badge, fill=COVER_BG, anchor="mm")
+
+    d.text((72, 62), "ARXIV DAILY", font=f_kick, fill=COVER_ACCENT)
+
+    # 钩子：从 78px 起逐档缩小，直到两行放得下（放不下才截断）。
+    hook_size, lines, f_hook = 78, [""], None
+    for size in (78, 70, 62, 54):
+        cand = ImageFont.truetype(bold_path, size)
+        ls, complete = wrap_cjk(hook, lambda s, f=cand: d.textlength(s, font=f), 760, 2)
+        if complete:
+            hook_size, lines, f_hook = size, ls, cand
+            break
+    if f_hook is None:
+        hook_size = 54
+        f_hook = ImageFont.truetype(bold_path, hook_size)
+        lines, _ = wrap_cjk(hook, lambda s: d.textlength(s, font=f_hook), 760, 2)
+
+    step = int(hook_size * 1.28)
+    top = 210
+    d.rectangle([72, top - 26, 78, top + hook_size + step * (len(lines) - 1)], fill=COVER_ACCENT)
+    for i, ln in enumerate(lines):
+        d.text((104, top + i * step), ln, font=f_hook, fill=COVER_FG)
+
+    d.text((72, 590), "%d 篇论文 · 每篇 20 秒中文讲解" % count, font=f_meta, fill=COVER_SUB)
+    if topics:
+        d.text((72, 642), " / ".join(topics[:3]), font=f_tag, fill=(100, 116, 139))
+
+    d.text((COVER_W - 56, COVER_H - 34), "%02d" % count, font=f_big,
+           fill=(24, 39, 66), anchor="rs")
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    img.save(out_path, "JPEG", quality=92, optimize=True)
+    return {
+        "issue": issue,
+        "renderer": "pillow",
+        "size": [COVER_W, COVER_H],
+        "hook": hook,
+        "lines": lines,
+        "badge": badge,
+        "count": count,
+        "topics": topics[:3],
+        "font": os.path.basename(bold_path),
+        "generated_at": dt.datetime.now().isoformat(timespec="seconds"),
+    }
+
+
 def cmd_cover(a: argparse.Namespace) -> int:
-    issue, video, _ = resolve_issue(a.date)
+    issue, video, data = resolve_issue(a.date)
+    papers = data.get("papers", []) if isinstance(data, dict) else []
+    if not papers:
+        bad("没有当期论文数据（先跑 gen_video_data.py）")
+        return 1
     if not video:
-        bad("没有视频，无法抽封面")
-        return 1
-    ff = find_ffmpeg()
-    if not ff:
-        bad("没有 ffmpeg")
-        return 1
+        warn("没有视频文件，只渲染封面（投稿前仍需补上视频）")
+    hook = clean_hook(pick_hook(papers))
+    topics = topic_labels(papers, limit=3)
     out = OUT / f"bili_cover_{issue}.jpg"
-    # 抽帧点取 3.6s：片头动画在 1s 时副标题仍压在标题上，落定后才干净可读。
-    cmd = [ff, "-y", "-ss", "3.6", "-i", str(video), "-frames:v", "1", "-q:v", "2", str(out)]
-    r = subprocess.run(cmd, capture_output=True, text=True)
-    if out.is_file():
-        ok(f"封面 → {out.name}（{out.stat().st_size / 1024:.0f} KB）")
-        return 0
-    bad("抽帧失败：" + (r.stderr or "")[-400:])
-    return 1
+    try:
+        manifest = render_cover(issue, hook, len(papers), topics, out)
+    except Exception as e:
+        bad("封面渲染失败：%s" % e)
+        return 1
+    (OUT / f"bili_cover_{issue}.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+    ok(f"封面 → {out.name}（{COVER_W}×{COVER_H}，{out.stat().st_size / 1024:.0f} KB）")
+    info("主文案：" + " ／ ".join(manifest["lines"]))
+    info("角标 %s · %d 篇 · %s" % (manifest["badge"], manifest["count"], " / ".join(topics) or "无领域"))
+    return 0
 
 
 # ---------------------------------------------------------------------------- cmd: upload

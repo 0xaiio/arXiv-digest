@@ -136,15 +136,27 @@ python tools/check_video_av.py reel/out/arxiv-weekly.mp4
 ```bash
 python .../bili_upload.py check    -d <期号>          # 检查环境、登录态、视频文件
 python .../bili_upload.py meta     -d <期号>          # 生成标题/简介/标签，人工审
-python .../bili_upload.py cover    -d <期号>          # 生成封面
+python .../bili_upload.py cover    -d <期号>          # Pillow 设计稿封面（1146×717）
 python .../bili_upload.py upload   -d <期号>          # 预览命令（不执行）
 python .../bili_upload.py upload   -d <期号> --exec   # 真正投稿
 python .../bili_upload.py verify   -d <期号>          # 读回 BV 号，确认 state=0
 python .../bili_upload.py comment  -d <期号> --exec   # 发并置顶论文链接清单
+
+# cover 之后、upload 之前必须校验三条硬约束（退出码 0/1/2）
+python tools/verify_episode.py -d <期号>
 ```
 
 约束与经验：
 
+- **标题公式** `{钩子 ≤18 字}｜arXiv 日报 #MMDD`：钩子取自 `video_notes.json` 的 `hook`，
+  缺省退化为「当期两个领域名」。标题里的领域名必须来自当期论文的分类，
+  不能写死（2026-10-22 曾因此出现「标题宣称数据库、内容全是软件工程」的公开错误）；
+- **封面是设计稿，不是抽帧**：`cover` 用 Pillow 画 1146×717 的版面（钩子两行大字 +
+  `#MMDD` 角标 + 篇数/领域 + 右下大数字），并写 `bili_cover_<期号>.json` 设计清单；
+  抽帧得到的画面缩到信息流尺寸后字太小，等于没有封面；
+- **选题两条硬约束**：同一 primary 分类最多 4 篇；至少 1 篇标题自带可读钩子
+  （数字 / 倍数 / `without` / `provably` 之类）。`gen_video_data.py` 自动换片满足，
+  `verify_episode.py` 复核，两边共用同一份正则；
 - **登录必须走 TV 通道扫码**：`python tools/bili_tv_qr_login.py --wait 280`，二维码在
   `output/bili_qr_tv.png`。普通 Web 扫码拿不到 App 接口需要的 `access_token`，会以 `-400` 失败；
 - cookie 等同账号密码，落在 `.secrets/bili_cookies.json`（`.gitignore` 已覆盖），

@@ -57,6 +57,112 @@ def sid_of(pid):
     return re.sub(r"v\d+$", "", s)
 
 
+# ---------------------------------------------------------------- 选题硬约束
+# 两条约束都是「发布前可机械校验」的明确规则，不做模糊打分：
+#   1) 同一 primary 分类最多 MAX_PER_PRIMARY 篇 —— 防止整期压在同一个方向上；
+#   2) 至少 1 篇标题自带可读钩子（数字 / 反直觉）—— 给标题和封面提供素材。
+# 校验方在 tools/verify_episode.py，两边共用同一份正则，避免判断漂移。
+MAX_PER_PRIMARY = 4
+HOOK_RE = re.compile(
+    r"(\d+(?:\.\d+)?\s*[×xX]\s*\d*"          # 2.5x / 3 × 4
+    r"|\d+(?:\.\d+)?\s*%"                     # 40%
+    r"|\b\d+/\d+\b"                           # 1/4
+    r"|\bfaster\b|\bwithout\b|\bprovabl\w*"   # 更快 / 不需要 / 可证明
+    r"|\bfirst\b|\bbeyond\b|\bzero\b|\bfree\b"
+    r"|\bhalf\b|\bdouble\b|\btriple\b|\bbillion\b|\btrillion\b)",
+    re.I,
+)
+
+
+def has_readable_hook(title):
+    """标题里有没有能直接搬上封面的抓手：数字、倍数、百分比、反直觉限定词。"""
+    return bool(HOOK_RE.search(title or ""))
+
+
+def cat_of(p):
+    """一篇论文的 primary 分类；字段缺失时退到 cats[0]，再缺就是空串。"""
+    return str(p.get("primary") or (p.get("cats") or [""])[0] or "")
+
+
+def _cap_ok(picked, max_per_primary=MAX_PER_PRIMARY):
+    counts = {}
+    for p, _ in picked:
+        c = cat_of(p)
+        counts[c] = counts.get(c, 0) + 1
+        if counts[c] > max_per_primary:
+            return False
+    return True
+
+
+def ensure_hook(picked, pool, max_per_primary=MAX_PER_PRIMARY):
+    """保证至少一篇「标题自带钩子」；没有就换掉优先级最低的那篇。
+
+    换片只在分类上限允许时进行：先移除末尾一篇（腾出名额），再试候选；
+    全部候选都放不进去时保持原样，由 verify_episode 报错，而不是悄悄违规。
+    """
+    if any(has_readable_hook(p.get("title", "")) for p, _ in picked):
+        return picked
+    used = {sid_of(p.get("id")) for p, _ in picked}
+    for cand, lane in pool:
+        if sid_of(cand.get("id")) in used or not has_readable_hook(cand.get("title", "")):
+            continue
+        for i in range(len(picked) - 1, -1, -1):
+            trial = picked[:i] + picked[i + 1:] + [(cand, lane)]
+            if _cap_ok(trial, max_per_primary):
+                return trial
+    return picked
+
+
+def select_episode(core_sorted, expand_sorted, top, expand,
+                   max_per_primary=MAX_PER_PRIMARY):
+    """按分数取片，同时满足两条硬约束。
+
+    返回 `(picked, stats)`：picked 为 `[(paper, lane)]`（lane 决定片内「推荐 / 兴趣扩展」），
+    stats 记录目标篇数、各分类计数与钩子篇数，供日志与校验对账。
+    """
+    target = top + expand
+    picked, used, counts = [], set(), {}
+
+    def take(p, lane):
+        sid = sid_of(p.get("id"))
+        cat = cat_of(p)
+        if sid in used or counts.get(cat, 0) >= max_per_primary:
+            return False
+        used.add(sid)
+        counts[cat] = counts.get(cat, 0) + 1
+        picked.append((p, lane))
+        return True
+
+    for p in core_sorted:
+        if len([1 for _, lane in picked if lane == "推荐"]) >= top:
+            break
+        take(p, "推荐")
+    for p in expand_sorted:
+        if len([1 for _, lane in picked if lane == "兴趣扩展"]) >= expand:
+            break
+        take(p, "兴趣扩展")
+    # 被分类上限截断、或某一池子不够时，按分数继续补满目标篇数。
+    for p, lane in [(x, "推荐") for x in core_sorted] + [(x, "兴趣扩展") for x in expand_sorted]:
+        if len(picked) >= target:
+            break
+        take(p, lane)
+
+    pool = [(x, "推荐") for x in core_sorted] + [(x, "兴趣扩展") for x in expand_sorted]
+    picked = ensure_hook(picked, pool, max_per_primary)
+    picked.sort(key=lambda pl: (0 if pl[1] == "推荐" else 1,
+                                -float(pl[0].get("score") or 0)))
+    per_cat = {}
+    for p, _ in picked:
+        per_cat[cat_of(p)] = per_cat.get(cat_of(p), 0) + 1
+    stats = {
+        "target": target,
+        "per_cat": per_cat,
+        "max_per_cat": max(per_cat.values()) if per_cat else 0,
+        "hooks": sum(1 for p, _ in picked if has_readable_hook(p.get("title", ""))),
+    }
+    return picked, stats
+
+
 def split_points(zh, limit=3):
     """把一句中文摘要切成 <=limit 条要点（按 ；。！? 与逗号兜底）。"""
     zh = " ".join((zh or "").split())
@@ -140,24 +246,13 @@ def main(argv=None):
     n_exp_rec = len(expand_files[1]) if isinstance(expand_files[1], list) else 0
 
     reco_sorted = sorted(reco, key=lambda p: float(p.get("score") or 0), reverse=True)
-    picked: list[tuple[dict, str]] = [(p, "推荐") for p in reco_sorted[: args.top]]
-
-    # 兴趣扩展：expand.json 是 recommend.py 输出的本期扩展推荐（已按分数排好、与核心零重叠）
-    if args.expand > 0:
-        exp_sorted = sorted(
-            (p for p in expand_files[1] if isinstance(p, dict)),
-            key=lambda p: float(p.get("score") or 0),
-            reverse=True,
-        )
-        taken = {sid_of(p.get("id")) for p, _ in picked}
-        for p in exp_sorted:
-            sid = sid_of(p.get("id"))
-            if sid in taken:
-                continue
-            taken.add(sid)
-            picked.append((p, "兴趣扩展"))
-            if len([1 for _, lane in picked if lane == "兴趣扩展"]) >= args.expand:
-                break
+    exp_sorted = sorted(
+        (p for p in expand_files[1] if isinstance(p, dict)),
+        key=lambda p: float(p.get("score") or 0),
+        reverse=True,
+    )
+    # 两条硬约束（同一分类 ≤4 篇 / 至少 1 篇标题带钩子）在 select_episode 里统一处理。
+    picked, sel = select_episode(reco_sorted, exp_sorted, args.top, args.expand)
 
     if not picked:
         print("[err] recommend.json 为空，先跑流水线")
@@ -214,6 +309,10 @@ def main(argv=None):
                 "cat": p.get("primary") or (p.get("cats") or [""])[0],
                 "score": round(float(p.get("score") or 0), 1),
                 "title_en": clip(p.get("title", ""), 140),
+                # 标题钩子（≤18 字）：由 video_notes.json 提供，缺省为空串，
+                # 由 bili_upload.pick_hook 退化为领域名，标题公式不会因此失效。
+                "hook": str(note.get("hook") or "").strip(),
+                "title_hook": has_readable_hook(p.get("title", "")),
                 "kw": kw,
                 "authors": who,
                 "units": [clip(u, 58) for u in units],
@@ -241,6 +340,12 @@ def main(argv=None):
 
     print("[ok] %s" % args.out)
     print("     期号 %s  区间 %s  统计 %s" % (issue, rng, data["stats"]))
+    print(
+        "     选题约束：目标 %d 篇 · 单分类最多 %d 篇（实际 %d）· 标题钩子 %d 篇"
+        % (sel["target"], MAX_PER_PRIMARY, sel["max_per_cat"], sel["hooks"])
+    )
+    if sel["max_per_cat"] > MAX_PER_PRIMARY or sel["hooks"] < 1:
+        print("[warn] 选题硬约束未满足：分类分布 %s，钩子 %d 篇" % (sel["per_cat"], sel["hooks"]))
     for it in items:
         print(
             "     #%d %-12s %-7s %-6s %5.1f  %s"

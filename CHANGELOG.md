@@ -7,7 +7,47 @@
 
 ---
 
-## 2026-11-14（更新节奏改为工作日每天，发布前移到上午）
+## 2026-11-14（标题公式 / 封面设计稿 / 选题硬约束 / 发布前校验）
+
+针对「内容生产流程」的四项改造。核心判断：这三件事被违反时**不会报错**——
+B站照收稿，标题长度合法、封面尺寸合法，只是点击率悄悄变差。所以每一条都要落成
+可机械校验的规则，而不是写作建议。
+
+### 变更
+
+- **标题公式**：`build_title` 由 `arXiv 日报 {期号}｜{分类} TopN 速览` 改为
+  `{钩子 ≤18 字}｜arXiv 日报 #MMDD`。钩子优先取 `video_notes.json` 的 `hook`，
+  缺失时退化为当期前两个领域名（`数据库·分布式`），退化的标题同样满足公式。
+  期号改用 `#MMDD`：移动端信息流只显示前 20 来个字，完整日期会把钩子挤出可见区。
+  超长按字符截断补 `…`；`meta` 里新增 `hook` 与 `cover_manifest` 两个字段。
+- **封面**：不再用 `ffmpeg -ss 3.6` 抽视频帧（缩到信息流尺寸后字太小），改为 Pillow
+  画 1146×717 设计稿：左上眉标 `ARXIV DAILY`、钩子两行大字（按像素折行，放不下先缩字号，
+  不丢结论数字）、右上 `#MMDD` 角标、左下「N 篇论文 · 每篇 20 秒」与当期领域、
+  右下低对比大数字。每次渲染同时写 `bili_cover_<issue>.json` 设计清单。
+- **选题两条硬约束**：`gen_video_data.py` 新增 `select_episode()`——同一 `primary`
+  分类最多 4 篇；至少 1 篇标题自带可读钩子（数字/倍数/百分比/`without`/`provably` 等）。
+  不满足时自动换片（换片也守分类上限），并把每篇的 `hook`、`title_hook` 写进
+  `papers.json`；日志打印分类分布与钩子数。
+
+### 新增
+
+- **`tools/verify_episode.py`**：发布前闸门，校验标题公式（正则 + 钩子长度 + 与 meta 一致）、
+  封面（1146×717、`renderer=pillow`、角标/钩子/篇数与本期一致）、选题（片数一致、
+  单分类 ≤4、至少 1 篇钩子、rank 连续）。`-d/--date`、`--json`、`--quiet`，
+  退出码 0/1/2；JPEG 尺寸用自己的 SOF 头解析，不依赖 Pillow——校验方要比被校验方依赖更少。
+  流水线在 `cover` 之后、`upload --exec` 之前调用，每天随日报自动执行一次。
+
+### 测试与文档
+
+- 新增 `tests/unit/test_bili_cover.py`、`tests/unit/test_gen_video_select.py`、
+  `tests/unit/test_verify_episode.py`，并改写 `tests/unit/test_bili_meta.py`
+  （旧用例断言的是被替换掉的标题格式）。用例总数 915 → 959，
+  `python -m pytest` 为 953 passed + 6 skipped。
+- 同步 `SKILL.md`、`docs/guide/video-pipeline.md`、`docs/reference/cli.md`、
+  README 徽章与测试计数。
+
+---
+
 
 把定时流水线从「每周一、三、五 23:10」改为「每周一至周五 09:40」，生产完成后**立即投稿**，
 不再等到深夜。这次调整只动排期与对外文案，不改任何抓取 / 推荐 / 渲染逻辑。

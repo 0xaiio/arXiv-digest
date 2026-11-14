@@ -63,7 +63,7 @@
 | 文档 | 用途 |
 | --- | --- |
 | [development.md](contributing/development.md) | 本地开发约定、改完什么必须重启、调试手法、提交前检查 |
-| [testing.md](contributing/testing.md) | 四层测试结构（915 用例 / 91% 覆盖）、覆盖范围、运行方式、沙箱隔离、如何新增 |
+| [testing.md](contributing/testing.md) | 四层测试结构（959 用例 / 91% 覆盖）、覆盖范围、运行方式、沙箱隔离、如何新增 |
 | [troubleshooting.md](operations/troubleshooting.md) | 症状 → 诊断命令 → 根因 → 修复，覆盖抓取/推荐/下载/服务/视频/投稿 |
 
 ## 七、元信息

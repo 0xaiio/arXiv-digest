@@ -1,13 +1,13 @@
 # 测试与回归
 
-项目有一套 **pytest 测试套件**：915 个用例，覆盖单元 / 集成 / 端到端 / 浏览器四层，
+项目有一套 **pytest 测试套件**：959 个用例，覆盖单元 / 集成 / 端到端 / 浏览器四层，
 行覆盖率 **91%**（门槛 85%），全量跑完约 80 秒（本机实测）。
 
 运行期仍然**零第三方依赖**——测试依赖只在 `requirements-dev.txt` 里。
 
 ```bash
 python -m pip install -r requirements-dev.txt
-python -m pytest                 # 909 passed + 6 skipped
+python -m pytest                 # 953 passed + 6 skipped
 python -m pytest --cov           # 附带覆盖率，低于 85% 直接失败
 ```
 
@@ -310,7 +310,7 @@ FAILED tests/unit/test_x.py::test_y - AssertionError: 权重翻倍后分数必�
 
 ## 十一、保持全绿
 
-红线：**主分支上 `python -m pytest` 必须始终 909 passed + 6 skipped、覆盖率 ≥ 85%。**
+红线：**主分支上 `python -m pytest` 必须始终 953 passed + 6 skipped、覆盖率 ≥ 85%。**
 
 改代码时的最小自查表：
 
