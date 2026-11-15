@@ -32,6 +32,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import io
+import re
 import json
 import sys
 import time
@@ -59,6 +60,9 @@ OUT = ROOT / "output"
 
 COLLECTION_NAME = "arXiv-daily"
 TITLE_PREFIX = "arXiv 日报"
+# 2026-11-14 起日报标题改成 `{钩子}｜arXiv 日报 #MMDD`，周报是 `{主题}｜arXiv 周报 #MMDD`，
+# 都不再以「arXiv 日报」开头。合集只认标题形态，不认前缀；老标题继续按前缀兼容。
+TITLE_PAT = re.compile(r"｜arXiv (日报|周报) #\d{4}$")
 COLLECTION_DESC = (
     "arXiv 日报视频合集：每期精选 DB·分布式·形式化方向 Top10 论文，"
     "20 秒中文速览（背景/方法/结果）。定期更新，欢迎追更。"
@@ -128,7 +132,12 @@ def list_archives(s: requests.Session) -> list:
 
 
 def filter_arxiv(archives: list) -> list:
-    return [a for a in archives if (a.get("title") or "").startswith(TITLE_PREFIX)]
+    out = []
+    for a in archives:
+        title = a.get("title") or ""
+        if title.startswith(TITLE_PREFIX) or TITLE_PAT.search(title):
+            out.append(a)
+    return out
 
 
 def list_collections(s: requests.Session) -> list:

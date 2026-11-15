@@ -906,10 +906,12 @@ def cmd_verify(a: argparse.Namespace) -> int:
 
 # ---------------------------------------------------------------------------- cmd: comment
 def cmd_comment(a: argparse.Namespace) -> int:
-    issue, _, data = resolve_issue(a.date)
-    papers = data.get("papers", [])
-    txt = build_comment(papers, issue)
     kind = kind_of(a)
+    issue, _, data = resolve_issue(a.date, kind)
+    if kind == "trend":
+        txt = build_trend_comment(issue, data)
+    else:
+        txt = build_comment(data.get("papers", []), issue)
     p = paths_for(issue, kind)["comment"]
     p.write_text(txt, encoding="utf-8")
     print("== 置顶评论稿 ==")
@@ -983,9 +985,13 @@ def cmd_comment(a: argparse.Namespace) -> int:
                         params={"oid": int(oid), "type": 1, "mode": 2},
                         headers=hdr, timeout=15,
                     ).json()
+                    head = txt.strip()[:30]
                     for c in (r4.get("data") or {}).get("replies") or []:
-                        if c.get("mid") == int(jar.get("DedeUserID") or -1) \
-                                and "论文链接清单" in c["content"]["message"]:
+                        msg = (c.get("content") or {}).get("message") or ""
+                        # 认自己发的那条：要么是日报的「论文链接清单」，要么开头与本次稿件一致
+                        # （周报的首行是「周度趋势 … 主题与代表论文」，不含那个固定词）。
+                        if c.get("mid") == int(jar.get("DedeUserID") or -1) and (
+                                "论文链接清单" in msg or (head and msg.strip().startswith(head))):
                             rid = c["rpid"]
                             break
                 except Exception:
