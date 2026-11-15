@@ -156,3 +156,82 @@ def test_analyze_structure_and_shares():
     assert data["categories"][0]["count"] >= data["categories"][-1]["count"]
     assert data["growth_up"], "有基线且 agent 类词充足时应该报出增长"
     assert "vectorizer" in data["method"]
+
+
+# ---------------------------------------------------------------- 代表词质量
+
+def test_lemma_collapses_plural_and_agentic():
+    assert T.lemma("agents") == T.lemma("agent") == "agent"
+    assert T.lemma("agentic") == "agent"
+    assert T.lemma("databases") == "database"
+    assert T.lemma("networks") == "network"
+
+
+def test_select_terms_never_repeats_the_same_concept():
+    """agents / agent / agentic 只能占一个位次 —— 这是用户明确点名的缺陷。"""
+    papers = [mk("26%02d.%05d" % (0, i),
+                 "Agents and agentic workflows with agent tool use",
+                 "agents agent agentic tool planning retrieval " * 6,
+                 ("cs.AI",)) for i in range(30)]
+    terms = [p["term"] for p in T.select_terms(list(range(len(papers))), papers,
+                                               [0.0], [], top_n=5)]
+    keys = [T.lemma(t) for t in terms]
+    assert len(keys) == len(set(keys))
+    assert not ({"agents", "agent", "agentic"} <= set(terms))
+
+
+def test_select_terms_drops_broad_single_words():
+    """weights / image / video / algorithm 不能作为独立代表词出现。"""
+    papers = [mk("26%02d.%05d" % (0, i),
+                 "Image and video model weights",
+                 "image video weights algorithm memory " * 6, ("cs.CV",)) for i in range(30)]
+    terms = [p["term"] for p in T.select_terms(list(range(len(papers))), papers,
+                                               [0.0], [], top_n=5)]
+    for bad in ("weights", "image", "video", "algorithm"):
+        assert bad not in terms
+
+
+def test_select_terms_prefers_arxiv_category_word():
+    papers = [mk("26%02d.%05d" % (0, i), "Query optimization for storage engines",
+                 "query transaction index storage latency " * 6, ("cs.DB",))
+              for i in range(30)]
+    terms = [p["term"] for p in T.select_terms(list(range(len(papers))), papers,
+                                               [0.0], [], top_n=5)]
+    assert "数据库" in terms, "主导分类是 cs.DB 时应采用 arXiv 官方分类词"
+
+
+def test_brief_note_uses_curated_terms_only():
+    paper = mk("1", "PACE: Keeping the Right Tokens in the KV Cache",
+               "Long-horizon agents need a budget. We keep a small set of tokens.")
+    note = T.brief_note(paper)
+    assert "KV 缓存" in note and len(note) <= 24
+    assert "keeping" not in note.lower(), "词典外的词不该拼进蓝色小字"
+
+
+def test_brief_note_avoids_nested_tags():
+    paper = mk("1", "Agentic Workflows for Enterprise Knowledge",
+               "agentic workflow agents knowledge")
+    note = T.brief_note(paper)
+    parts = [p.strip() for p in note.split("·")]
+    for a in parts:
+        for b in parts:
+            if a != b and a and b:
+                assert not (a in b or b in a), "「智能体」与「智能体工作流」不该并列"
+
+
+def test_term_cloud_is_chinese_and_deduped():
+    papers = [mk(str(i), "Agent agents agentic LLM tool", "agent llm tool " * 5)
+              for i in range(20)]
+    cloud = T.term_cloud(papers, top_n=10)
+    assert cloud and all(T.has_cjk(w["text"]) for w in cloud)
+    assert len({w["text"] for w in cloud}) == len(cloud)
+    assert cloud[0]["weight"] == 1.0
+
+
+def test_analyze_exposes_cloud_and_three_samples_with_notes():
+    data = T.analyze(corpus(12))
+    assert data["cloud"], "报告要带全周词云数据"
+    for c in data["clusters"]:
+        assert len(c["samples"]) == 3
+        assert all(s.get("note") for s in c["samples"])
+        assert all(s.get("short") for s in c["samples"])

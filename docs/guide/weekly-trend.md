@@ -59,9 +59,10 @@ idf = log((1 + N) / (1 + df)) + 1
 
 **4. 主题命名**
 
-每个簇取质心权重最高的 5 个词作为代表词，再用一张约 60 条的高信号词表翻成中文
-（`agent → 智能体`、`retrieval → 检索`），没收录的一律显示英文原词——宁可中英混排，
-也不硬翻译出不像术语的中文名。两个簇代表词撞车时补第三个词区分。
+代表词按「策展短语 → arXiv 分类词 → 词典词」三级挑选，再做词形归并与包含关系去重
+（`agents` / `agent` / `agentic` 只留一个，有了 `KV 缓存` 就不再出现 `缓存`）；
+`weights` / `image` / `video` / `algorithm` 这类宽泛词不会作为独立代表词出现。
+细节见下文「代表词怎么选」。两个簇代表词撞车时补第三个词区分。
 
 **5. 异常增长**
 
@@ -124,22 +125,58 @@ python trend_report.py --json               # 机器可读摘要
 ## 周报视频
 
 与日报视频**同一套流程、同一组视觉变量**（`#05070A` 底、`#00D4FF` 强调色、微软雅黑、
-左侧竖向时间线、5s 片头 + 20s/段 + 5s 片尾），只是内容从「十篇论文」换成「八个主题 + 一段增长」。
+左侧竖向时间线、5s 片头 + 20s/段 + 5s 片尾），内容结构是
+**1 段词云 + 7 段主题 + 1 段异常增长**。
 
 **成片时长下限是 3 分钟（180 秒）。** 段长锁死 20 秒（与日报的节奏一致），时长靠段数凑：
-8 段主题 + 1 段增长 = 9 段，合 190.6 秒 / 5718 帧。主题簇不足 8 个时 `gen_trend_video_data.py`
-会打印 `[warn] ... 低于 180 秒下限`，这种期次交给 A/V 闸门（按 9 段核对）会直接失败，
-不会带着 150 秒的短片上架。
+9 段合 190.6 秒 / 5718 帧。主题簇不足 7 个时 `gen_trend_video_data.py` 会打印
+`[warn] ... 低于 180 秒下限`，这种期次交给 A/V 闸门（按 9 段核对）会直接失败，
+不会带着更短的片子上架。
 
 | 阶段 | 命令 | 产物 |
 | --- | --- | --- |
-| 分段数据 | `python tools/gen_trend_video_data.py -d <期号>` | `reel/src/trend.json`、`output/trend_notes.json` |
+| 分段数据 | `python tools/gen_trend_video_data.py -d <期号> --k 7` | `reel/src/trend.json`、`output/trend_notes.json` |
+| 代表论文说明 | 写 `output/trend_related_notes.json` 后**重跑**上一条 | 21 条中文说明覆盖自动结果 |
 | 口播合成 | `python tools/gen_narration.py --papers reel/src/trend.json --notes output/trend_notes.json --outdir reel/public/audio_trend --audio-json reel/src/trend_audio.json --subdir audio_trend` | `reel/public/audio_trend/*.mp3`、`reel/src/trend_audio.json` |
 | 渲染 | `cd reel && npm run render:trend` | `reel/out/arxiv-trend.mp4` |
 | 闸门 | `python tools/check_video_av.py output/arxiv_trend_<期号>.mp4 --papers 9` | 时长 190.6s / 5718 帧 |
 
 `--papers 9` 是段数，不是篇数：A/V 闸门按 `150 + N×600 + 18 + 150` 帧核对称片长度。
 9 段即 190.6 秒，同时满足「不少于 3 分钟」的时长要求；改段数必须同步这个参数，否则闸门必失败。
+
+### 画面里的四类图表
+
+| 画面 | 图表 | 数据来源 |
+| --- | --- | --- |
+| 片头 | 水平柱状图：本周前 6 个分类 | `categories`（含 arXiv 分类中文名） |
+| 词云段 | 字号 = 文档频率的词云 | `cloud`（已剔通用词、按词形归并） |
+| 主题段 | 环形图：该主题占全周比例 + 前四主题规模对比 | `share` / `count` |
+| 增长段 | 水平柱状图：相对均值的倍数 | `growth_up` |
+
+### 代表词怎么选
+
+不再直接取 TF-IDF 质心前 6（那会给出 `agents / agent / agentic` 这种同一个词的三次重复，
+以及 `weights / image / video / algorithm` 这类放之四海皆准的宽泛词）。现在的顺序是：
+
+1. **策展短语**：`KV 缓存`、`混合专家`、`高斯泼溅`、`视觉-语言-动作` 等，出现在簇内 ≥3 篇且 ≥3% 才算；
+2. **arXiv 分类词**：簇的主导分类占比 ≥35% 且不是 `cs.LG` / `cs.AI` 这种大口袋时，
+   采用 `数据库`、`计算机视觉`、`密码与安全` 这类官方分类名；
+3. **词典内的单词**：`智能体`、`检索`、`强化学习` 等，按词形归并（agents→agent）后去重；
+4. **兜底**：以上不足 3 个时，才回退到质心原词。
+
+去重同时看「概念键」与「中文包含关系」：有了 `KV 缓存` 就不会再出现 `缓存`。
+
+### 「最接近的三项工作」
+
+每个主题段给 **3 篇**代表作，每篇显示编号、标题、arXiv 号，以及**标题下方的蓝色小字**——
+一句 16 字以内的中文说明（`#4F9DFF`）。口播也会念出这三句，所以模板里做了 120 字预算，
+超了先砍「代表词」那句，保证不压进下一段。
+
+说明文本的优先级：
+
+1. `output/trend_related_notes.json` 里的人工/模型说明（`{"<sid>": "..."}`，周报自动化会写）；
+2. `trend_analysis.brief_note()` 的词典结果（只用标题里的术语，避免摘要里的偶然搭配带偏）；
+3. 标题副标题原文（英文），保证任何情况下都有字可显示。
 
 **旁白是模板生成的**，不是手写：周报讲的每个数字（篇数、占比、倍数）都能从
 `trend_archive/<期号>.json` 取到，模板句不会说错；日报要讲论文贡献，才必须人工写。
@@ -157,7 +194,7 @@ python tools/bili_collection.py sync --exec      # 与日报同一个合集
 ```
 
 标题形如 `智能体 / 大模型占 14%｜arXiv 周报 #1115`；封面眉标 `ARXIV WEEKLY`、
-副文案「8 个主题 · 每周日 10:00 更新」，尺寸仍是 1146×717。
+副文案「7 个主题 · 每周日 10:00 更新」，尺寸仍是 1146×717。
 
 ## 局限
 
