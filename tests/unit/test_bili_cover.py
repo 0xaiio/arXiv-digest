@@ -121,7 +121,7 @@ def test_cmd_cover_writes_manifest(cover_env, sandbox, monkeypatch):
         {"sid": "2611.00001", "cat": "cs.DB", "hook": "事务隔离可以更便宜"},
         {"sid": "2611.00002", "cat": "cs.DC"},
     ]
-    monkeypatch.setattr(BU, "resolve_issue", lambda d=None: ("20261116", None, {"papers": papers}))
+    monkeypatch.setattr(BU, "resolve_issue", lambda d=None, kind="daily": ("20261116", None, {"papers": papers}))
     ns = type("NS", (), {"date": None})()
     assert BU.cmd_cover(ns) == 0
     assert (sandbox.out / "bili_cover_20261116.jpg").is_file()
@@ -132,6 +132,6 @@ def test_cmd_cover_writes_manifest(cover_env, sandbox, monkeypatch):
 
 def test_cmd_cover_without_papers_fails(cover_env, monkeypatch):
     BU = cover_env
-    monkeypatch.setattr(BU, "resolve_issue", lambda d=None: ("20261116", None, {"papers": []}))
+    monkeypatch.setattr(BU, "resolve_issue", lambda d=None, kind="daily": ("20261116", None, {"papers": []}))
     ns = type("NS", (), {"date": None})()
     assert BU.cmd_cover(ns) == 1

@@ -1,0 +1,87 @@
+{
+ "enabled": false,
+ "voice": "zh-CN-YunxiNeural",
+ "segments": {
+  "intro": {
+   "id": "intro",
+   "file": "audio_trend/intro.mp3",
+   "seconds": 3.91,
+   "rate": "-8%",
+   "chars": 14,
+   "mean_db": -18.3,
+   "sid": null
+  },
+  "paper1": {
+   "id": "paper1",
+   "file": "audio_trend/p1.mp3",
+   "seconds": 18.5,
+   "rate": "-7%",
+   "chars": 84,
+   "mean_db": -18.1,
+   "sid": "t1"
+  },
+  "paper2": {
+   "id": "paper2",
+   "file": "audio_trend/p2.mp3",
+   "seconds": 18.6,
+   "rate": "-9%",
+   "chars": 85,
+   "mean_db": -18.3,
+   "sid": "t2"
+  },
+  "paper3": {
+   "id": "paper3",
+   "file": "audio_trend/p3.mp3",
+   "seconds": 18.53,
+   "rate": "-9%",
+   "chars": 95,
+   "mean_db": -18.4,
+   "sid": "t3"
+  },
+  "paper4": {
+   "id": "paper4",
+   "file": "audio_trend/p4.mp3",
+   "seconds": 18.6,
+   "rate": "-7%",
+   "chars": 98,
+   "mean_db": -18.1,
+   "sid": "t4"
+  },
+  "paper5": {
+   "id": "paper5",
+   "file": "audio_trend/p5.mp3",
+   "seconds": 18.67,
+   "rate": "-8%",
+   "chars": 105,
+   "mean_db": -18.1,
+   "sid": "t5"
+  },
+  "paper6": {
+   "id": "paper6",
+   "file": "audio_trend/p6.mp3",
+   "seconds": 18.7,
+   "rate": "-8%",
+   "chars": 111,
+   "mean_db": -18.5,
+   "sid": "t6"
+  },
+  "paper7": {
+   "id": "paper7",
+   "file": "audio_trend/p7.mp3",
+   "seconds": 18.58,
+   "rate": "+4%",
+   "chars": 123,
+   "mean_db": -18.0,
+   "sid": "t7"
+  },
+  "outro": {
+   "id": "outro",
+   "file": "audio_trend/outro.mp3",
+   "seconds": 3.94,
+   "rate": "+0%",
+   "chars": 16,
+   "mean_db": -17.8,
+   "sid": null
+  }
+ }
+}

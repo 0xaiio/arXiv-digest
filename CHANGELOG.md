@@ -7,6 +7,47 @@
 
 ---
 
+## 2026-11-16（周报视频：复用日报的流程与视觉，投稿同一合集）
+
+周报此前只有 HTML/Markdown，没有视频。这次把**日报视频的那一套**（分段数据 → Edge TTS
+旁白 → Remotion 代码渲染 → A/V 闸门 → 投稿 → 合集）搬到周报上，视觉变量完全一致：
+`#05070A` 底 + `#00D4FF` 强调色 + 微软雅黑 + 左侧竖向时间线 + 5s 片头 / 20s 每段 / 5s 片尾。
+
+### 新增
+
+- **`reel/src/TrendReel.tsx`**：新的 Remotion 合成，7 段（6 个主题 + 1 段异常增长），
+  总长 150.6 秒 / 4518 帧。片头报「论文 / 分类 / 主题簇」，每个主题段给中文主题名、
+  代表词、占比大字与代表论文；增长段给「方向 / 倍数 / 篇数」。
+- **`tools/gen_trend_video_data.py`**：读 `trend_archive/<期号>.json` → `reel/src/trend.json`
+  + `output/trend_notes.json`。旁白用**模板生成**：周报讲的全是数字，模板句不会说错；
+  日报讲论文贡献，才必须人工写。
+- **`bili_upload.py --kind trend`**：周报的标题/封面/评论/对账产物统一用 `bili_trend_*`
+  前缀，与日报的同名文件互不覆盖（同一天可能两条视频都在）。
+- `gen_narration.py` 支持 `--subdir` 与 `segments` 数据：周报音频落在
+  `reel/public/audio_trend/`，不再和日报抢 `audio/` 目录。
+
+### 变更
+
+- 周日 10:00 的自动化加入完整视频链路：生成分段 → TTS → `npm run render:trend` →
+  `check_video_av.py --papers 7` → `bili_upload --kind trend` 全套 → 合集 sync。
+
+### 两个渲染期踩到的坑
+
+1. **片头片尾旁白必须 ≤20 字**。5 秒窗口只能放约 20 字；第一版片头写了 96 字（14.9s），
+   会整段压进第一个主题段，两段旁白叠着说。现在片头「这一周，计算机科学在往哪走？」（14 字）。
+2. **周报的片尾不能提前 1 秒进**。日报提前是为了盖住末卡淡出；周报末段本来就有 2 秒余量，
+   提前反而在结尾留下 3.07 秒静音，被 A/V 闸门判失败。`OUTRO_LEAD` 在周报里设为 0。
+
+### 测试与文档
+
+- 新增 `tests/unit/test_gen_trend_video_data.py`、`tests/unit/test_bili_trend.py`，17 个用例
+  （分段选取与排序、数字口径、片头片尾字数、空增长兜底、路径隔离、标题/简介/标签/评论）。
+  用例总数 1006 → 1023，`python -m pytest` 为 1017 passed + 6 skipped。
+- 文档：`docs/guide/weekly-trend.md` 增加「周报视频」章节；`cli.md` 增加
+  `gen_trend_video_data.py` 与 `--kind`；`data-files.md` 补充周报视频与 `bili_trend_*` 产物。
+
+---
+
 ## 2026-11-15（新增 cs.* 周度趋势周报）
 
 日报回答「今天哪几篇值得我看」，靠个人画像排序；它回答不了「这一周整个 cs 在往哪走」。

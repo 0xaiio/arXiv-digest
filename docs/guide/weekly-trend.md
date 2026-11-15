@@ -121,6 +121,38 @@ python trend_report.py --json               # 机器可读摘要
 3. 把关键数字写进汇报：窗口、总篇数、分类数、主题簇数、增长最快的前三个方向；
 4. `git add -A` → commit（含期号）→ `git push`（`output/` 已被忽略，不会入库）。
 
+## 周报视频
+
+与日报视频**同一套流程、同一组视觉变量**（`#05070A` 底、`#00D4FF` 强调色、微软雅黑、
+左侧竖向时间线、5s 片头 + 20s/段 + 5s 片尾），只是内容从「十篇论文」换成「六个主题 + 一段增长」。
+
+| 阶段 | 命令 | 产物 |
+| --- | --- | --- |
+| 分段数据 | `python tools/gen_trend_video_data.py -d <期号>` | `reel/src/trend.json`、`output/trend_notes.json` |
+| 口播合成 | `python tools/gen_narration.py --papers reel/src/trend.json --notes output/trend_notes.json --outdir reel/public/audio_trend --audio-json reel/src/trend_audio.json --subdir audio_trend` | `reel/public/audio_trend/*.mp3`、`reel/src/trend_audio.json` |
+| 渲染 | `cd reel && npm run render:trend` | `reel/out/arxiv-trend.mp4` |
+| 闸门 | `python tools/check_video_av.py output/arxiv_trend_<期号>.mp4 --papers 7` | 时长 150.6s / 4518 帧 |
+
+`--papers 7` 是段数，不是篇数：A/V 闸门按 `150 + N×600 + 18 + 150` 帧核对称片长度。
+
+**旁白是模板生成的**，不是手写：周报讲的每个数字（篇数、占比、倍数）都能从
+`trend_archive/<期号>.json` 取到，模板句不会说错；日报要讲论文贡献，才必须人工写。
+片头片尾各只有 5 秒，旁白固定在 20 字以内——超了会压进相邻段，变成两段旁白叠着说。
+
+**投稿**必须带 `--kind trend`，产物用 `bili_trend_*` 前缀，与日报的同名文件互不覆盖：
+
+```bash
+python .../bili_upload.py meta    --kind trend -d <期号>
+python .../bili_upload.py cover   --kind trend -d <期号>
+python .../bili_upload.py upload  --kind trend -d <期号> --exec
+python .../bili_upload.py verify  --kind trend -d <期号>
+python .../bili_upload.py comment --kind trend -d <期号> --exec
+python tools/bili_collection.py sync --exec      # 与日报同一个合集
+```
+
+标题形如 `智能体 / 大模型占 14%｜arXiv 周报 #1115`；封面眉标 `ARXIV WEEKLY`、
+副文案「6 个主题 · 每周日 10:00 更新」，尺寸仍是 1146×717。
+
 ## 局限
 
 - **无监督结果**：簇是 TF-IDF 空间里的邻近关系，不等于作者自述的领域；主题名来自

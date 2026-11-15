@@ -81,6 +81,7 @@ node_modules/
 reel/out/
 reel/.remotion/
 reel/public/audio/
+reel/public/audio_trend/
 npm-debug.log*
 
 # ---------------------------------------------------------------- 编辑器 / 系统

@@ -1,0 +1,158 @@
+{
+  "issue": "20261115",
+  "window": {
+    "start": "2026-11-06",
+    "end": "2026-11-12"
+  },
+  "generated": "2026-11-15T23:56:32",
+  "stats": {
+    "total": 3840,
+    "cats": 86,
+    "clusters": 14,
+    "growth": 4
+  },
+  "segments": [
+    {
+      "kind": "topic",
+      "rank": 1,
+      "label": "智能体 / 大模型",
+      "terms": [
+        "agents",
+        "agent",
+        "llm",
+        "agentic",
+        "code"
+      ],
+      "count": 554,
+      "share": 0.1443,
+      "sample": {
+        "sid": "2611.13196",
+        "title": "From Process Models to Composable Agentic Workflows: Combining BPMN, Agents and Enterprise Knowledge"
+      }
+    },
+    {
+      "kind": "topic",
+      "rank": 2,
+      "label": "GPU / 内存",
+      "terms": [
+        "gpu",
+        "memory",
+        "weights",
+        "cost",
+        "llm"
+      ],
+      "count": 404,
+      "share": 0.1052,
+      "sample": {
+        "sid": "2611.10240",
+        "title": "PACE: Keeping the Right Tokens in the KV Cache Is Not Enough for Long-Horizon LLM Agents"
+      }
+    },
+    {
+      "kind": "topic",
+      "rank": 3,
+      "label": "视频",
+      "terms": [
+        "image",
+        "reconstruction",
+        "segmentation",
+        "video",
+        "visual"
+      ],
+      "count": 344,
+      "share": 0.0896,
+      "sample": {
+        "sid": "2611.17318",
+        "title": "Spatial Foundry: A Multimodal Dataset for Spatial Intelligence"
+      }
+    },
+    {
+      "kind": "topic",
+      "rank": 4,
+      "label": "优化 / 量子",
+      "terms": [
+        "optimization",
+        "quantum",
+        "estimation",
+        "sampling",
+        "gradient"
+      ],
+      "count": 336,
+      "share": 0.0875,
+      "sample": {
+        "sid": "2611.11905",
+        "title": "On the Global Convergence of Stochastic Adam for Physics-Informed Neural Networks"
+      }
+    },
+    {
+      "kind": "topic",
+      "rank": 5,
+      "label": "algorithm / linear",
+      "terms": [
+        "algorithm",
+        "linear",
+        "polynomial",
+        "prove",
+        "algorithms"
+      ],
+      "count": 307,
+      "share": 0.0799,
+      "sample": {
+        "sid": "2611.16412",
+        "title": "Exact Quantum Algorithms for Composed Boolean Functions"
+      }
+    },
+    {
+      "kind": "topic",
+      "rank": 6,
+      "label": "foundation / prediction",
+      "terms": [
+        "foundation",
+        "prediction",
+        "action",
+        "manipulation",
+        "robot"
+      ],
+      "count": 300,
+      "share": 0.0781,
+      "sample": {
+        "sid": "2611.11500",
+        "title": "ForeAct: Geometry-Guided Action Learning from World Representations"
+      }
+    },
+    {
+      "kind": "growth",
+      "rank": 7,
+      "items": [
+        {
+          "key": "reconstruction",
+          "cur": 223,
+          "base": 178.1,
+          "ratio": 1.25,
+          "z": 3.36
+        },
+        {
+          "key": "simulation",
+          "cur": 269,
+          "base": 224.4,
+          "ratio": 1.2,
+          "z": 2.98
+        },
+        {
+          "key": "foundation",
+          "cur": 230,
+          "base": 190.9,
+          "ratio": 1.2,
+          "z": 2.83
+        },
+        {
+          "key": "challenge",
+          "cur": 216,
+          "base": 179.7,
+          "ratio": 1.2,
+          "z": 2.71
+        }
+      ]
+    }
+  ]
+}

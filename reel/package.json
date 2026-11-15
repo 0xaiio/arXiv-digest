@@ -6,7 +6,9 @@
   "scripts": {
     "compositions": "remotion compositions src/index.ts",
     "still": "remotion still src/index.ts PaperReel out/still.png",
-    "render": "remotion render src/index.ts PaperReel out/arxiv-weekly.mp4 --codec=h264 --crf=18"
+    "render": "remotion render src/index.ts PaperReel out/arxiv-weekly.mp4 --codec=h264 --crf=18",
+    "render:trend": "remotion render src/index.ts TrendReel out/arxiv-trend.mp4 --codec=h264 --crf=18",
+    "still:trend": "remotion still src/index.ts TrendReel out/trend-still.png"
   },
   "dependencies": {
     "@remotion/cli": "4.0.526",

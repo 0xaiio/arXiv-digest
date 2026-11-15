@@ -420,6 +420,8 @@ def main(argv=None):
     ap.add_argument("--notes", default=os.path.join(OUT, "video_notes.json"))
     ap.add_argument("--outdir", default=PUB_AUDIO)
     ap.add_argument("--audio-json", default=os.path.join(REEL, "src", "audio.json"))
+    ap.add_argument("--subdir", default="audio",
+                    help="audio.json 里 file 字段的子目录（默认 audio；周报用 audio_trend 隔离）")
     ap.add_argument("--no-tts", action="store_true", help="只生成稿件，不调用 TTS")
     ap.add_argument("--proxy", default=None,
                     help="TTS 出网代理（默认自动：直连→环境代理→本机代理端口）")
@@ -427,9 +429,11 @@ def main(argv=None):
 
     data = load(args.papers, {})
     notes = load(args.notes, {})
-    papers = data.get("papers") or []
+    # 周报数据用 `segments`（主题 + 增长），日报用 `papers`；两者都按「一段一音频」处理。
+    papers = data.get("papers") or data.get("segments") or []
     if not papers:
-        print("[err] %s 里没有论文，先跑 gen_video_data.py" % args.papers)
+        print("[err] %s 里没有可配音的分段，先跑 gen_video_data.py / gen_trend_video_data.py"
+              % args.papers)
         return 2
 
     ff = ffmpeg_exe()
@@ -451,9 +455,11 @@ def main(argv=None):
     outro_ok = (notes.get("_outro") or {}).get("narration", "").strip()
     plan = [("intro", "intro", intro_ok or intro_script(data), None)]
     for i, p in enumerate(papers, start=1):
-        sid = p.get("sid", "p%d" % i)
+        sid = p.get("sid") or ("t%d" % i)
         n = notes.get(sid) or {}
-        script = (n.get("narration") or "").strip() or fallback_script(p, i)
+        script = (n.get("narration") or "").strip()
+        if not script:
+            script = fallback_script(p, i) if p.get("title_en") else "第 %d 个方向。" % i
         plan.append(("paper%d" % i, "p%d" % i, script, sid))
     plan.append(("outro", "outro", outro_ok or outro_script(), None))
 
@@ -487,7 +493,7 @@ def main(argv=None):
             print("         ↑ 超出 %.2fs，请精简口播稿或放长该段" % over)
         return {
             "id": seg_id,
-            "file": "audio/%s.mp3" % fname,
+            "file": "%s/%s.mp3" % (args.subdir, fname),
             "seconds": round(sec, 2),
             "rate": rate,
             "chars": len(script),

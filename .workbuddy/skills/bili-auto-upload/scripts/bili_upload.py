@@ -56,6 +56,7 @@ TITLE_MAX, DESC_MAX, TAG_MAX = 80, 250, 200
 # 前半段是「给人看的理由」，后半段是「系列锚点」。期号用 MMDD 而不是 YYYYMMDD，
 # 是因为移动端信息流只显示前 20 来个字，日期占位越长，钩子越容易被截掉。
 TITLE_TAG = "｜arXiv 日报 #"
+TITLE_TAG_TREND = "｜arXiv 周报 #"
 HOOK_MAX = 18
 # B站封面推荐尺寸（16:9 显示，实际像素 1146×717）
 COVER_W, COVER_H = 1146, 717
@@ -179,25 +180,63 @@ def find_ffmpeg() -> str | None:
     return shutil.which("ffmpeg")
 
 
-def load_papers() -> dict:
-    return json.loads(PAPERS.read_text(encoding="utf-8"))
+TREND_DATA = ROOT / "reel" / "src" / "trend.json"
 
 
-def newest_video() -> Path | None:
-    cands = sorted(OUT.glob("arxiv_weekly_*.mp4"))
+def kind_of(a) -> str:
+    """当前子命令跑的是日报（daily）还是周报（trend）。"""
+    return getattr(a, "kind", "daily") or "daily"
+
+
+def paths_for(issue: str, kind: str = "daily") -> dict:
+    """一期视频的全部产物路径。
+
+    周报用 `bili_trend_*` 前缀：同一天可能既有日报又有周报，共用 `bili_meta_<期号>.json`
+    会互相覆盖 —— 而这一组文件是投稿对账的唯一依据。
+    """
+    if kind == "trend":
+        return {
+            "video": OUT / ("arxiv_trend_%s.mp4" % issue),
+            "meta": OUT / ("bili_trend_meta_%s.json" % issue),
+            "cover": OUT / ("bili_trend_cover_%s.jpg" % issue),
+            "cover_manifest": OUT / ("bili_trend_cover_%s.json" % issue),
+            "comment": OUT / ("bili_trend_comment_%s.txt" % issue),
+            "published": OUT / ("bili_trend_published_%s.json" % issue),
+        }
+    return {
+        "video": OUT / ("arxiv_weekly_%s.mp4" % issue),
+        "meta": OUT / ("bili_meta_%s.json" % issue),
+        "cover": OUT / ("bili_cover_%s.jpg" % issue),
+        "cover_manifest": OUT / ("bili_cover_%s.json" % issue),
+        "comment": OUT / ("bili_comment_%s.txt" % issue),
+        "published": OUT / ("bili_published_%s.json" % issue),
+    }
+
+
+def load_papers(kind: str = "daily") -> dict:
+    path = TREND_DATA if kind == "trend" else PAPERS
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def newest_video(kind: str = "daily") -> Path | None:
+    pattern = "arxiv_trend_*.mp4" if kind == "trend" else "arxiv_weekly_*.mp4"
+    cands = sorted(OUT.glob(pattern))
     return cands[-1] if cands else None
 
 
-def resolve_issue(date: str | None) -> tuple[str, Path | None, dict]:
-    """返回 (issue, video_path, papers)。date 为空时先试当天，回退到最新一期。"""
-    data = load_papers()
+def resolve_issue(date: str | None, kind: str = "daily") -> tuple[str, Path | None, dict]:
+    """返回 (issue, video_path, data)。date 为空时先试当天，回退到最新一期。"""
+    data = load_papers(kind)
     issue = date or dt.datetime.now().strftime("%Y%m%d")
-    video = OUT / f"arxiv_weekly_{issue}.mp4"
+    video = paths_for(issue, kind)["video"]
     if not video.is_file():
-        nv = newest_video()
+        nv = newest_video(kind)
         if nv is None:
             return issue, None, data
-        m = re.search(r"arxiv_weekly_(\d{8})\.mp4", nv.name)
+        m = re.search(r"_(\d{8})\.mp4$", nv.name)
         if m and not date:
             issue = data.get("issue") or m.group(1)
         video = nv
@@ -293,6 +332,83 @@ def build_title(issue: str, papers: list[dict] | None = None) -> str:
     """
     hook = clean_hook(pick_hook(papers))
     return ("%s%s%s" % (hook, TITLE_TAG, issue_badge(issue).lstrip("#")))[:TITLE_MAX]
+
+
+def trend_topics(data: dict) -> list[dict]:
+    return [s for s in (data.get("segments") or []) if s.get("kind") == "topic"]
+
+
+def trend_growth(data: dict) -> list[dict]:
+    seg = next((s for s in (data.get("segments") or []) if s.get("kind") == "growth"), {})
+    return list(seg.get("items") or [])
+
+
+def build_trend_title(issue: str, data: dict) -> str:
+    """周报标题：`{主题}占 N%｜arXiv 周报 #MMDD`。
+
+    钩子用「占比第一的主题 + 份额」，是这份报告里最硬的一个数字；
+    不用「本周趋势」这类没有信息量的短语占位。
+    """
+    topics = trend_topics(data)
+    if topics:
+        top = topics[0]
+        hook = clean_hook("%s占 %d%%" % (top.get("label") or "本周趋势",
+                                        round(float(top.get("share") or 0) * 100)))
+    else:
+        hook = "本周 cs.* 趋势"
+    return ("%s%s%s" % (hook, TITLE_TAG_TREND, issue_badge(issue).lstrip("#")))[:TITLE_MAX]
+
+
+def build_trend_desc(issue: str, data: dict) -> str:
+    stats = data.get("stats") or {}
+    topics = trend_topics(data)
+    parts = ["本周 cs.* 共 %d 篇、%d 个主题簇。" % (stats.get("total") or 0,
+                                                  stats.get("clusters") or len(topics))]
+    if topics:
+        parts.append("前三：" + "；".join(
+            "%s %d%%" % (t.get("label"), round(float(t.get("share") or 0) * 100))
+            for t in topics[:3]) + "。")
+    growth = trend_growth(data)
+    if growth:
+        parts.append("增长最快：" + "、".join(
+            "%s ×%.2f" % (g.get("key"), float(g.get("ratio") or 0)) for g in growth[:3]) + "。")
+    else:
+        parts.append("本周无达到门槛的增长方向。")
+    parts.append("数据：arXiv 全量 cs.*，只取标题/摘要/分类；每周日 10:00 更新。")
+    return "".join(parts)[:DESC_MAX]
+
+
+def build_trend_tags(data: dict) -> str:
+    tags = list(BASE_TAGS)
+    if "周报" not in tags:
+        tags.append("周报")
+    for t in trend_topics(data)[:3]:
+        label = str(t.get("label") or "").replace(" / ", "·").strip()
+        if label and label not in tags:
+            tags.append(label)
+    out = ",".join(tags)
+    while len(out) > TAG_MAX and len(tags) > 2:
+        tags.pop()
+        out = ",".join(tags)
+    return out
+
+
+def build_trend_comment(issue: str, data: dict) -> str:
+    lines = ["arXiv cs.* 周度趋势 %s 期 · 主题与代表论文" % issue]
+    for t in trend_topics(data):
+        lines.append("%d. %s（%d 篇，%d%%） 代表词：%s"
+                     % (t.get("rank") or 0, t.get("label"), t.get("count") or 0,
+                        round(float(t.get("share") or 0) * 100),
+                        "、".join((t.get("terms") or [])[:4])))
+        sample = t.get("sample") or {}
+        if sample.get("sid"):
+            lines.append("   arxiv.org/abs/%s" % sample["sid"])
+    growth = trend_growth(data)
+    if growth:
+        lines.append("")
+        lines.append("本周增长：" + "、".join("%s ×%.2f" % (g.get("key"), float(g.get("ratio") or 0))
+                                            for g in growth))
+    return "\n".join(lines)
 
 
 def build_tags(papers: list[dict]) -> str:
@@ -397,8 +513,9 @@ def cmd_check(a: argparse.Namespace) -> int:
     else:
         warn(f"未登录（无 {COOKIE}）。先跑：biliup -u \"{COOKIE}\" login")
 
-    issue, video, data = resolve_issue(a.date)
-    ok(f"期号 {issue} · 论文 {len(data.get('papers', []))} 篇")
+    issue, video, data = resolve_issue(a.date, kind_of(a))
+    cnt = len(data.get("papers") or data.get("segments") or [])
+    ok(f"期号 {issue} · 分段 {cnt} 段（{kind_of(a)}）")
     if video:
         ok(f"视频 → {video.name}（{video.stat().st_size / 1e6:.1f} MB）")
     else:
@@ -421,36 +538,59 @@ def cmd_check(a: argparse.Namespace) -> int:
 
 # ---------------------------------------------------------------------------- cmd: meta
 def cmd_meta(a: argparse.Namespace) -> int:
-    issue, video, data = resolve_issue(a.date)
-    papers = data.get("papers", [])
-    desc, n_in = build_desc(papers)
-    title = build_title(issue, papers)
-    tags = build_tags(papers)
-    comment = build_comment(papers, issue)
+    kind = kind_of(a)
+    issue, video, data = resolve_issue(a.date, kind)
+    paths = paths_for(issue, kind)
+
+    if kind == "trend":
+        topics = trend_topics(data)
+        if not topics:
+            bad("trend.json 里没有主题分段（先跑 tools/gen_trend_video_data.py）")
+            return 1
+        title = build_trend_title(issue, data)
+        desc = build_trend_desc(issue, data)
+        tags = build_trend_tags(data)
+        comment = build_trend_comment(issue, data)
+        hook = title.split(TITLE_TAG_TREND)[0]
+        total = len(topics)
+        n_in = 0
+    else:
+        papers = data.get("papers", [])
+        desc, n_in = build_desc(papers)
+        title = build_title(issue, papers)
+        tags = build_tags(papers)
+        comment = build_comment(papers, issue)
+        hook = clean_hook(pick_hook(papers))
+        total = len(papers)
+
     assert len(desc) <= DESC_MAX, "desc 超 250"
     assert len(title) <= TITLE_MAX, "title 超 80"
     meta = {
         "issue": issue,
+        "kind": kind,
         "video": str(video) if video else None,
         "title": title,
-        "hook": clean_hook(pick_hook(papers)),
+        "hook": hook,
         "desc": desc,
         "tags": tags,
         "tid": TID,
         "copyright": "1",
-        "cover": str(OUT / f"bili_cover_{issue}.jpg"),
-        "cover_manifest": str(OUT / f"bili_cover_{issue}.json"),
+        "cover": str(paths["cover"]),
+        "cover_manifest": str(paths["cover_manifest"]),
         "links_in_desc": n_in,
-        "links_total": len(papers),
+        "links_total": total,
     }
-    p = OUT / f"bili_meta_{issue}.json"
-    p.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
-    (OUT / f"bili_comment_{issue}.txt").write_text(comment, encoding="utf-8")
-    ok(f"元数据 → {p.name}")
+    paths["meta"].write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+    paths["comment"].write_text(comment, encoding="utf-8")
+    ok(f"元数据 → {paths['meta'].name}")
     info(f"标题({len(title)}字)：{title}")
-    info(f"简介({len(desc)}字)：10 篇里塞进 {n_in} 条链接，其余 {len(papers) - n_in} 条走置顶评论")
+    if kind == "trend":
+        info(f"简介({len(desc)}字)：%d 个主题 + %d 条增长" % (total, len(trend_growth(data))))
+    else:
+        info(f"简介({len(desc)}字)：{total} 篇里塞进 {n_in} 条链接，"
+             f"其余 {total - n_in} 条走置顶评论")
     info(f"标签({len(tags)}字)：{tags}")
-    info(f"评论稿 → bili_comment_{issue}.txt（{len(comment)} 字符）")
+    info(f"评论稿 → {paths['comment'].name}（{len(comment)} 字符）")
     return 0
 
 
@@ -484,7 +624,9 @@ def wrap_cjk(text: str, measure, max_width: float,
     """
     lines, cur = [], ""
     for ch in text:
-        if measure(cur + ch) <= max_width or not cur:
+        # 数字与百分号/单位不能被拆到两行：「14」换行后单独一个「%」很难看。
+        keep = bool(cur) and cur[-1].isdigit() and ch in "%％‰"
+        if measure(cur + ch) <= max_width or not cur or keep:
             cur += ch
             continue
         lines.append(cur)
@@ -514,7 +656,9 @@ def accent_line_index(lines: list[str]) -> int | None:
 
 
 def render_cover(issue: str, hook: str, count: int, topics: list[str],
-                 out_path, font_path: str | None = None) -> dict:
+                 out_path, font_path: str | None = None,
+                 kicker: str = "ARXIV DAILY",
+                 caption: str | None = None) -> dict:
     """画一张真正的封面，而不是从视频里截一帧。
 
     版面：左上眉标 → 钩子两行（≤18 字，按像素折行）→ 左下「N 篇论文 · 每篇 20 秒」
@@ -547,7 +691,7 @@ def render_cover(issue: str, hook: str, count: int, topics: list[str],
     d.rounded_rectangle([bx, by, bx + bw, by + 60], radius=12, fill=COVER_ACCENT)
     d.text((bx + bw / 2, by + 30), badge, font=f_badge, fill=COVER_BG, anchor="mm")
 
-    d.text((72, 62), "ARXIV DAILY", font=f_kick, fill=COVER_ACCENT)
+    d.text((72, 62), kicker, font=f_kick, fill=COVER_ACCENT)
 
     # 钩子：从 78px 起逐档缩小，直到两行放得下（放不下才截断）。
     hook_size, lines, f_hook = 78, [""], None
@@ -570,7 +714,8 @@ def render_cover(issue: str, hook: str, count: int, topics: list[str],
         d.text((104, top + i * step), ln, font=f_hook,
                fill=COVER_ACCENT if i == accent_at else COVER_FG)
 
-    d.text((72, 590), "%d 篇论文 · 每篇 20 秒中文讲解" % count, font=f_meta, fill=COVER_SUB)
+    d.text((72, 590), caption or ("%d 篇论文 · 每篇 20 秒中文讲解" % count),
+           font=f_meta, fill=COVER_SUB)
     if topics:
         d.text((72, 642), " / ".join(topics[:3]), font=f_tag, fill=(100, 116, 139))
 
@@ -594,32 +739,49 @@ def render_cover(issue: str, hook: str, count: int, topics: list[str],
 
 
 def cmd_cover(a: argparse.Namespace) -> int:
-    issue, video, data = resolve_issue(a.date)
-    papers = data.get("papers", []) if isinstance(data, dict) else []
-    if not papers:
-        bad("没有当期论文数据（先跑 gen_video_data.py）")
-        return 1
+    kind = kind_of(a)
+    issue, video, data = resolve_issue(a.date, kind)
+    paths = paths_for(issue, kind)
     if not video:
         warn("没有视频文件，只渲染封面（投稿前仍需补上视频）")
-    hook = clean_hook(pick_hook(papers))
-    topics = topic_labels(papers, limit=3)
-    out = OUT / f"bili_cover_{issue}.jpg"
+
+    if kind == "trend":
+        topics_seg = trend_topics(data)
+        if not topics_seg:
+            bad("trend.json 里没有主题分段（先跑 tools/gen_trend_video_data.py）")
+            return 1
+        hook = clean_hook(build_trend_title(issue, data).split(TITLE_TAG_TREND)[0])
+        labels = [str(t.get("label") or "") for t in topics_seg[:3]]
+        caption = "%d 个主题 · 每周日 10:00 更新" % len(topics_seg)
+        kicker, count = "ARXIV WEEKLY", len(topics_seg)
+    else:
+        papers = data.get("papers", []) if isinstance(data, dict) else []
+        if not papers:
+            bad("没有当期论文数据（先跑 gen_video_data.py）")
+            return 1
+        hook = clean_hook(pick_hook(papers))
+        labels = topic_labels(papers, limit=3)
+        caption, kicker, count = None, "ARXIV DAILY", len(papers)
+
+    out = paths["cover"]
     try:
-        manifest = render_cover(issue, hook, len(papers), topics, out)
+        manifest = render_cover(issue, hook, count, labels, out,
+                                kicker=kicker, caption=caption)
     except Exception as e:
         bad("封面渲染失败：%s" % e)
         return 1
-    (OUT / f"bili_cover_{issue}.json").write_text(
+    paths["cover_manifest"].write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     ok(f"封面 → {out.name}（{COVER_W}×{COVER_H}，{out.stat().st_size / 1024:.0f} KB）")
     info("主文案：" + " ／ ".join(manifest["lines"]))
-    info("角标 %s · %d 篇 · %s" % (manifest["badge"], manifest["count"], " / ".join(topics) or "无领域"))
+    info("角标 %s · %d · %s" % (manifest["badge"], count, " / ".join([x for x in labels if x]) or "无"))
     return 0
 
 
 # ---------------------------------------------------------------------------- cmd: upload
 def cmd_upload(a: argparse.Namespace) -> int:
-    issue, video, _ = resolve_issue(a.date)
+    kind = kind_of(a)
+    issue, video, _ = resolve_issue(a.date, kind)
     if not video:
         bad("没有视频")
         return 1
@@ -632,7 +794,7 @@ def cmd_upload(a: argparse.Namespace) -> int:
             bad(f"未登录：先跑 biliup -u \"{COOKIE}\" login")
             return 1
         warn(f"未登录（{COOKIE.name} 不存在）：dry-run 照常展示，真投前先扫码登录")
-    mp = OUT / f"bili_meta_{issue}.json"
+    mp = paths_for(issue, kind)["meta"]
     if not mp.is_file():
         info("未找到元数据，先生成")
         cmd_meta(a)
@@ -691,8 +853,9 @@ def cmd_verify(a: argparse.Namespace) -> int:
     if not COOKIE.is_file():
         bad("没有 cookie，无法查稿件")
         return 1
-    issue, _, _ = resolve_issue(a.date)
-    mp = OUT / f"bili_meta_{issue}.json"
+    kind = kind_of(a)
+    issue, _, _ = resolve_issue(a.date, kind)
+    mp = paths_for(issue, kind)["meta"]
     title_expect = json.loads(mp.read_text(encoding="utf-8"))["title"] if mp.is_file() else None
 
     sess = requests.Session()
@@ -732,10 +895,10 @@ def cmd_verify(a: argparse.Namespace) -> int:
         info(f"BV 号  BV{hit.get('bvid','')}" if not str(hit.get("bvid", "")).startswith("BV") else f"BV 号  {hit.get('bvid')}")
         info(f"状态  {st} → {STATE_TEXT.get(st, '未知（请在创作中心确认）')}")
         info(f"链接  https://www.bilibili.com/video/{hit.get('bvid','')}")
-        (OUT / f"bili_published_{issue}.json").write_text(
+        (paths_for(issue, kind)["published"]).write_text(
             json.dumps({"issue": issue, "bvid": hit.get("bvid"), "aid": hit.get("aid"), "state": st, "verified_at": now},
                        ensure_ascii=False, indent=2), encoding="utf-8")
-        ok(f"对账结果 → bili_published_{issue}.json")
+        ok(f"对账结果 → {paths_for(issue, kind)['published'].name}")
         return 0
     bad("未在近期稿件中找到本期标题 —— 结论：**未核实**，可能仍在队列或投稿实际未成功，请到创作中心人工核对")
     return 1
@@ -746,7 +909,8 @@ def cmd_comment(a: argparse.Namespace) -> int:
     issue, _, data = resolve_issue(a.date)
     papers = data.get("papers", [])
     txt = build_comment(papers, issue)
-    p = OUT / f"bili_comment_{issue}.txt"
+    kind = kind_of(a)
+    p = paths_for(issue, kind)["comment"]
     p.write_text(txt, encoding="utf-8")
     print("== 置顶评论稿 ==")
     print(txt)
@@ -754,9 +918,9 @@ def cmd_comment(a: argparse.Namespace) -> int:
     if not a.exec:
         warn("dry-run：未发送。加 --exec 才真正发评论并置顶。")
         return 0
-    pub = OUT / f"bili_published_{issue}.json"
+    pub = paths_for(issue, kind)["published"]
     if not pub.is_file():
-        bad("没有 bili_published_<issue>.json（BV 号未知）。先跑 verify 再评论。")
+        bad("没有 %s（BV 号未知）。先跑 verify 再评论。" % pub.name)
         return 1
     try:
         from bilibili_api import comment, Credential
@@ -855,6 +1019,8 @@ def main() -> int:
     ap.add_argument("cmd", choices=["check", "meta", "cover", "upload", "verify", "comment"])
     ap.add_argument("--date", "-d", default=None, help="期号 YYYYMMDD，默认当天")
     ap.add_argument("--exec", dest="exec", action="store_true", help="真正执行（对外副作用）")
+    ap.add_argument("--kind", choices=["daily", "trend"], default="daily",
+                    help="daily=日报视频（默认）；trend=周报趋势视频（产物用 bili_trend_* 前缀）")
     ap.add_argument("--line", default=None,
                     help="上传线路（bda2/ws/qn/bldsa/tx/txa/bda/alia），默认由 biliup 探测；"
                          "某条线路 TLS 握手失败时换一条即可")
