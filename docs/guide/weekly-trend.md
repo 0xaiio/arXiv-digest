@@ -196,6 +196,27 @@ python tools/bili_collection.py sync --exec      # 与日报同一个合集
 标题形如 `智能体 / 大模型占 14%｜arXiv 周报 #1115`；封面眉标 `ARXIV WEEKLY`、
 副文案「7 个主题 · 每周日 10:00 更新」，尺寸仍是 1146×717。
 
+## 重发与换源（保留 BV 号）
+
+成片改了要重发时，**不要重新投稿**——那会多一条新视频。用换源：
+
+```bash
+python tools/bili_replace_video.py -d <期号>          # 空跑，看清要改什么
+python tools/bili_replace_video.py -d <期号> --exec   # 上传新分P + 换封面 + 编辑稿件
+```
+
+B站没有公开的换源 API：`/x/vu/web/edit` 官方说明只能改元数据。但网页端「更换视频」
+走的是同一条路径——把 `videos[].filename` 指向新上传的文件、`cid` 仍用原分 P，
+服务端就会重转码且**保留 BV 号、播放/点赞/评论**。脚本复刻了这条链路：
+
+1. `bilibili_api.video_uploader` 上传分 P（只上传、不投稿）拿到 filename；
+2. 上传新封面拿到 URL；
+3. `POST /x/vu/web/edit`（videos 里 filename=新、cid=旧）；
+4. 轮询公开接口，时长变了才算成功（190.6s 对 151s，一眼能看出来）。
+
+实测：20261115 期 151s → 191s，BV 不变，cid 会换成新分 P 的；旧评论要手动清掉重发
+（`comment --exec` 会发新的并置顶，旧的可先用 `/x/v2/reply/del` 删除）。
+
 ## 局限
 
 - **无监督结果**：簇是 TF-IDF 空间里的邻近关系，不等于作者自述的领域；主题名来自

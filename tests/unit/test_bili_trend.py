@@ -47,7 +47,8 @@ def data():
 
 def test_trend_title_follows_the_same_formula(BU):
     t = BU.build_trend_title("20261115", data())
-    assert t == "智能体 / 大模型占 14%｜arXiv 周报 #1115"
+    # 复合主题名只取第一段：整串「智能体 / 大模型」会把 18 字钩子撑爆并截成「…」
+    assert t == "智能体占 14%｜arXiv 周报 #1115"
     assert len(t.split("｜arXiv 周报 #")[0]) <= BU.HOOK_MAX
 
 

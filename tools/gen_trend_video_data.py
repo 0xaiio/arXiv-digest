@@ -68,7 +68,9 @@ def latest_issue() -> str | None:
 def pick_segments(data: dict, k: int) -> list[dict]:
     """词云段 + 占比最高的 k 个主题簇 + 一段「增长」。"""
     clusters = sorted(data.get("clusters") or [], key=lambda c: -c.get("size", 0))[:k]
-    segs = [{"kind": "cloud", "rank": 1,
+    # 每段都必须带 sid：gen_narration 用它去 trend_notes.json 里取旁白，
+    # 缺了就退回 "第 N 个方向" 这种占位句，配音会整段错位（2026-11-16 踩过）。
+    segs = [{"kind": "cloud", "rank": 1, "sid": "te1",
              "words": (data.get("cloud") or [])[:28]}]
     for i, c in enumerate(clusters, start=1):
         samples = []
@@ -82,6 +84,7 @@ def pick_segments(data: dict, k: int) -> list[dict]:
         segs.append({
             "kind": "topic",
             "rank": i,
+            "sid": "t%d" % i,
             "label": c.get("label") or "主题",
             "terms": list(c.get("terms") or [])[:5],
             "term_weights": list(c.get("term_weights") or [])[:5],
@@ -92,7 +95,8 @@ def pick_segments(data: dict, k: int) -> list[dict]:
             "sample": samples[0] if samples else {"sid": "", "title": ""},
         })
     growth = (data.get("growth_up") or [])[:4]
-    segs.append({"kind": "growth", "rank": len(clusters) + 1, "items": growth})
+    segs.append({"kind": "growth", "rank": len(clusters) + 1,
+                 "sid": "t%d" % (len(clusters) + 1), "items": growth})
     return segs
 
 
@@ -157,8 +161,9 @@ def build_notes(data: dict, segs: list[dict]) -> dict:
     top_words = [w.get("text") or "" for w in cloud.get("words", [])[:5]]
     if top_words:
         notes["te%d" % cloud["rank"]] = {
+            # 词云段要撑满 20 秒：太短会在段尾留 >3s 静音，被 A/V 闸门判失败。
             "narration": "先看高频词。字号越大，本周出现的论文越多：%s。"
-                         "这些词横跨多个方向，说明本周的热度并不集中在一处。"
+                         "这些词横跨多个方向，说明热度并不集中在一处，而是分散在几条线上。"
                          % "、".join(top_words)
         }
     else:

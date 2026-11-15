@@ -352,8 +352,10 @@ def build_trend_title(issue: str, data: dict) -> str:
     topics = trend_topics(data)
     if topics:
         top = topics[0]
-        hook = clean_hook("%s占 %d%%" % (top.get("label") or "本周趋势",
-                                        round(float(top.get("share") or 0) * 100)))
+        # 主题名可能是「大语言模型 / LLM 智能体」这种复合标签，整串占 19 字，
+        # 会把 18 字的钩子额度撑爆并截成「…」。标题只取第一段，副标签留给封面/评论。
+        label = str(top.get("label") or "本周趋势").split(" / ")[0]
+        hook = clean_hook("%s占 %d%%" % (label, round(float(top.get("share") or 0) * 100)))
     else:
         hook = "本周 cs.* 趋势"
     return ("%s%s%s" % (hook, TITLE_TAG_TREND, issue_badge(issue).lstrip("#")))[:TITLE_MAX]

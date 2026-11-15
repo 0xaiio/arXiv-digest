@@ -212,3 +212,20 @@ def test_short_episode_warns_but_still_writes(G, sandbox, monkeypatch, capsys):
                  "--out", str(sandbox.out / "t.json"), "--notes", str(sandbox.out / "n.json")])
     err = capsys.readouterr().err
     assert rc == 0 and "低于 180 秒下限" in err
+
+
+def test_every_segment_has_sid_matching_notes(G):
+    """每段都要带 sid：gen_narration 靠它取旁白，缺了会整段错位（2026-11-16 踩过）。"""
+    segs = G.pick_segments(sample(), k=2)
+    notes = G.build_notes(sample(), segs)
+    sids = [s.get("sid") for s in segs]
+    assert all(sids), "cloud / topic / growth 都必须有 sid"
+    assert sids[0] == "te1"
+    assert set(sids) <= set(notes)
+
+
+def test_cloud_narration_fills_the_segment(G):
+    """词云段旁白太短会在段尾留 >3s 静音，被 A/V 闸门判失败。"""
+    segs = G.pick_segments(sample(), k=1)
+    notes = G.build_notes(sample(), segs)
+    assert len(notes["te1"]["narration"]) >= 60

@@ -149,6 +149,7 @@ start_digest.bat hengxin 2026-11-11       :: 导入数据包 + 指定期次
 | `gen_narration.py` | `--voice`（默认 `zh-CN-YunxiNeural`）、`--papers`、`--notes`、`--outdir`、`--audio-json`、`--no-tts`、`--proxy` | 合成每段旁白，写 `reel/public/audio/*.mp3` 并把 `reel/src/audio.json` 的 `enabled` 置 `true`。出网路由默认自动（直连 → 环境代理 → 本机代理端口，逐条回退并记住成功的一条）；`--proxy` 可跳过探测直接指定 |
 | `check_video_av.py` | `<video.mp4>`、`--papers N`（默认从 `papers.json` 读） | A/V 质量闸门：总时长、音轨、逐段人声起点、段内静音。周报播 `--papers 9`（段数，190.6s ≥ 3 分钟） |
 | `gen_trend_video_data.py` | `-d <期号>`、`--k 7`（主题段数，+词云 +增长 = 9 段 / 190.6s）、`--related-notes`（覆盖代表论文说明）、`--out`、`--notes` | 周报视频的分段数据与旁白稿：`reel/src/trend.json`（含词云、分类柱状图、每主题 3 篇带说明的代表作）+ `output/trend_notes.json` |
+| `bili_replace_video.py` | `-d <期号>`、`--exec`、`--cid-mode old\|new` | 给**已发布**稿件换源（保留 BV 号与互动数据）：上传新分P → 上传封面 → `POST /x/vu/web/edit`，再轮询时长确认生效。默认 dry-run |
 | `snapshot_episode.py` | `-d/--date <期号>`、`--skip-video`、`--link`、`--dry-run`、`--json` | 把整期成品归档到 `output/episodes/<期号>/`（含 papers / video_notes / audio 这些不带期号、每次都会被覆盖的文件）。同期重跑不覆盖：内容变了旧版进 `history/<时间>/` |
 
 完整流程见 [视频与投稿](../guide/video-pipeline.md)。

@@ -215,6 +215,7 @@
     {
       "kind": "cloud",
       "rank": 1,
+      "sid": "te1",
       "words": [
         {
           "text": "基准测试",
@@ -361,6 +362,7 @@
     {
       "kind": "topic",
       "rank": 1,
+      "sid": "t1",
       "label": "大语言模型 / LLM 智能体",
       "terms": [
         "大语言模型",
@@ -408,6 +410,7 @@
     {
       "kind": "topic",
       "rank": 2,
+      "sid": "t2",
       "label": "大语言模型 / 混合专家",
       "terms": [
         "大语言模型",
@@ -455,6 +458,7 @@
     {
       "kind": "topic",
       "rank": 3,
+      "sid": "t3",
       "label": "点云 / 零样本",
       "terms": [
         "点云",
@@ -502,6 +506,7 @@
     {
       "kind": "topic",
       "rank": 4,
+      "sid": "t4",
       "label": "神经网络 / 强化学习",
       "terms": [
         "神经网络",
@@ -549,6 +554,7 @@
     {
       "kind": "topic",
       "rank": 5,
+      "sid": "t5",
       "label": "线性 / 多项式",
       "terms": [
         "线性",
@@ -596,6 +602,7 @@
     {
       "kind": "topic",
       "rank": 6,
+      "sid": "t6",
       "label": "世界模型 / 视觉-语言-动作",
       "terms": [
         "世界模型",
@@ -643,6 +650,7 @@
     {
       "kind": "topic",
       "rank": 7,
+      "sid": "t7",
       "label": "视觉语言模型 / 大语言模型",
       "terms": [
         "视觉语言模型",
@@ -690,6 +698,7 @@
     {
       "kind": "growth",
       "rank": 8,
+      "sid": "t8",
       "items": [
         {
           "key": "reconstruction",
