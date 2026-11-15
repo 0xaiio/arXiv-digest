@@ -124,16 +124,22 @@ python trend_report.py --json               # 机器可读摘要
 ## 周报视频
 
 与日报视频**同一套流程、同一组视觉变量**（`#05070A` 底、`#00D4FF` 强调色、微软雅黑、
-左侧竖向时间线、5s 片头 + 20s/段 + 5s 片尾），只是内容从「十篇论文」换成「六个主题 + 一段增长」。
+左侧竖向时间线、5s 片头 + 20s/段 + 5s 片尾），只是内容从「十篇论文」换成「八个主题 + 一段增长」。
+
+**成片时长下限是 3 分钟（180 秒）。** 段长锁死 20 秒（与日报的节奏一致），时长靠段数凑：
+8 段主题 + 1 段增长 = 9 段，合 190.6 秒 / 5718 帧。主题簇不足 8 个时 `gen_trend_video_data.py`
+会打印 `[warn] ... 低于 180 秒下限`，这种期次交给 A/V 闸门（按 9 段核对）会直接失败，
+不会带着 150 秒的短片上架。
 
 | 阶段 | 命令 | 产物 |
 | --- | --- | --- |
 | 分段数据 | `python tools/gen_trend_video_data.py -d <期号>` | `reel/src/trend.json`、`output/trend_notes.json` |
 | 口播合成 | `python tools/gen_narration.py --papers reel/src/trend.json --notes output/trend_notes.json --outdir reel/public/audio_trend --audio-json reel/src/trend_audio.json --subdir audio_trend` | `reel/public/audio_trend/*.mp3`、`reel/src/trend_audio.json` |
 | 渲染 | `cd reel && npm run render:trend` | `reel/out/arxiv-trend.mp4` |
-| 闸门 | `python tools/check_video_av.py output/arxiv_trend_<期号>.mp4 --papers 7` | 时长 150.6s / 4518 帧 |
+| 闸门 | `python tools/check_video_av.py output/arxiv_trend_<期号>.mp4 --papers 9` | 时长 190.6s / 5718 帧 |
 
-`--papers 7` 是段数，不是篇数：A/V 闸门按 `150 + N×600 + 18 + 150` 帧核对称片长度。
+`--papers 9` 是段数，不是篇数：A/V 闸门按 `150 + N×600 + 18 + 150` 帧核对称片长度。
+9 段即 190.6 秒，同时满足「不少于 3 分钟」的时长要求；改段数必须同步这个参数，否则闸门必失败。
 
 **旁白是模板生成的**，不是手写：周报讲的每个数字（篇数、占比、倍数）都能从
 `trend_archive/<期号>.json` 取到，模板句不会说错；日报要讲论文贡献，才必须人工写。
@@ -151,7 +157,7 @@ python tools/bili_collection.py sync --exec      # 与日报同一个合集
 ```
 
 标题形如 `智能体 / 大模型占 14%｜arXiv 周报 #1115`；封面眉标 `ARXIV WEEKLY`、
-副文案「6 个主题 · 每周日 10:00 更新」，尺寸仍是 1146×717。
+副文案「8 个主题 · 每周日 10:00 更新」，尺寸仍是 1146×717。
 
 ## 局限
 

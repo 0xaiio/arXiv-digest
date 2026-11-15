@@ -4,7 +4,7 @@
 
 与日报视频的分工完全一致：
     日报  `gen_video_data.py`  读 recommend.json  → reel/src/papers.json（10 篇 × 20s）
-    周报  本脚本              读 trend_archive/*.json → reel/src/trend.json（6 主题 + 1 增长 × 20s）
+    周报  本脚本              读 trend_archive/*.json → reel/src/trend.json（8 主题 + 1 增长 × 20s）
 
 为什么旁白是**模板生成**而不是手写：周报讲的是数字（篇数、占比、倍数），
 每个数字都能从 JSON 里取到，模板句不会说错；日报要讲论文贡献，才必须人工/模型写。
@@ -13,7 +13,7 @@
 用法::
 
     python tools/gen_trend_video_data.py                 # 最新一期
-    python tools/gen_trend_video_data.py -d 20261115 --k 6
+    python tools/gen_trend_video_data.py -d 20261115 --k 8
 """
 from __future__ import annotations
 
@@ -30,8 +30,16 @@ OUT = os.path.join(ROOT, "output")
 ARCHIVE = os.path.join(OUT, "trend_archive")
 REEL = os.path.join(ROOT, "reel", "src")
 
-TOPICS_DEFAULT = 6     # 主题段数（+1 段增长 = 总段数）
+# 8 个主题 + 1 段增长 = 9 段 × 20s + 片头尾 10s ≈ 190.6s，越过「成片 ≥ 3 分钟」的下限。
+# 段长必须锁死 20s（与日报的 PAPER 一致），靠段数凑时长，不能改节奏。
+TOPICS_DEFAULT = 8     # 主题段数（+1 段增长 = 总段数）
 SEGMENT_SEC = 20       # 与 PaperReel 的 PAPER 常量保持一致
+MIN_SECONDS = 180      # 成片时长下限（3 分钟）
+
+
+def estimate_seconds(n_segments: int) -> float:
+    """成片时长的估算值（片头 5s + 每段 20s + 片尾 5s，另加 0.6s 转场）。"""
+    return 10 + n_segments * SEGMENT_SEC + 0.6 if n_segments else 0.0
 
 
 def load(path, default):
@@ -115,7 +123,7 @@ def build_notes(data: dict, segs: list[dict]) -> dict:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="生成周报视频的分段数据与旁白稿")
     ap.add_argument("-d", "--date", help="期号 YYYYMMDD；默认最新一期")
-    ap.add_argument("--k", type=int, default=TOPICS_DEFAULT, help="主题段数（默认 6）")
+    ap.add_argument("--k", type=int, default=TOPICS_DEFAULT, help="主题段数（默认 8，成片 ≥ 3 分钟）")
     ap.add_argument("--data", default=None, help="周报 JSON；默认 trend_archive/<期号>.json")
     ap.add_argument("--out", default=os.path.join(REEL, "trend.json"))
     ap.add_argument("--notes", default=os.path.join(OUT, "trend_notes.json"))
@@ -153,8 +161,15 @@ def main(argv=None) -> int:
         json.dump(notes, fh, ensure_ascii=False, indent=1)
 
     print("[ok] %s" % args.out)
-    print("     %s ｜ %d 段（%d 主题 + 1 增长）｜ 成片约 %.1f 秒"
-          % (doc["issue"], len(segs), len(segs) - 1, 5 + len(segs) * SEGMENT_SEC + 5))
+    est = estimate_seconds(len(segs))
+    print("     %s ｜ %d 段（%d 主题 + 1 增长）｜ 成片约 %.1f 秒（下限 %d 秒）"
+          % (doc["issue"], len(segs), len(segs) - 1, est, MIN_SECONDS))
+    if est < MIN_SECONDS:
+        # 主题簇不够时不缩短段长（会破坏与日报一致的节奏），而是明确报警：
+        # 这种期次按 A/V 闸门的段数核对会直接失败，不会带着 150 秒的片子投出去。
+        print("[warn] 成片约 %.1f 秒，低于 %d 秒下限：本期可用的主题簇只有 %d 个。"
+              " 先看 trend_archive/%s.json 的 clusters 数量。"
+              % (est, MIN_SECONDS, len(segs) - 1, doc["issue"]), file=sys.stderr)
     for s in segs:
         if s["kind"] == "topic":
             print("     #%d %-18s %4d 篇 %5.1f%%  %s"

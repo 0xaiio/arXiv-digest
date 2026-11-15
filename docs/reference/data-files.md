@@ -34,7 +34,7 @@ output/
 ├─ episodes/<YYYYMMDD>/              # 每期成品归档（digest/video/meta/cover/音频/papers + MANIFEST.json）
 ├─ arxiv_digest_<YYYYMMDD>.{html,md} # 当期日报
 ├─ arxiv_trend_<YYYYMMDD>.{html,md}  # 当期周报（趋势总结，独立于日报）
-├─ arxiv_trend_<YYYYMMDD>.mp4        # 周报视频（7 段 × 20s，与日报同一套渲染流程）
+├─ arxiv_trend_<YYYYMMDD>.mp4        # 周报视频（9 段 × 20s = 190.6s，与日报同一套渲染流程）
 ├─ bili_trend_{meta,cover,comment,published}_<YYYYMMDD>.*  # 周报投稿产物（与日报同名文件隔离）
 ├─ trend_archive/<YYYYMMDD>.{html,md,json}  # 周报快照（只增不改）
 ├─ trend_history.json                # 周报跨周基线（最近 8 周的分类/词频计数）

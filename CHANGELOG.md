@@ -7,6 +7,28 @@
 
 ---
 
+## 2026-11-16（周报视频时长下限提到 3 分钟）
+
+周报成片原来 6 主题 + 1 增长 = 7 段 / 150.6 秒，不足 3 分钟。段长锁死 20 秒（与日报的
+`PAPER` 常量同源，不为了凑时长改节奏），因此**通过增加段数**把成片拉到 190.6 秒。
+
+### 变更
+
+- `tools/gen_trend_video_data.py`：`TOPICS_DEFAULT` 6 → **8**（+1 段增长 = 9 段），
+  新增 `MIN_SECONDS = 180` 与 `estimate_seconds()`；段数不足打 `[warn] ... 低于 180 秒下限`，
+  不静默缩短段长。`TrendReel.tsx` 的 `DURATION` 本就由 `DATA.segments.length` 推导，无需改动。
+- 周日 10:00 自动化：`--k 8`、`check_video_av.py --papers 9`（190.6s / 5718 帧），
+  并把「成片不得短于 180 秒」写成硬约束——闸门不过不得投稿。
+- 文档：`docs/guide/weekly-trend.md`（视频章节）、`docs/reference/cli.md`、
+  `docs/reference/data-files.md` 同步段数与时长。
+- 测试：`tests/unit/test_gen_trend_video_data.py` 新增 2 个用例（默认段数满足 3 分钟下限、
+  短篇必须告警）。用例总数 1023 → 1025。
+
+本次只改配置与脚本，**未重跑 20261115 期**，已发布的那条保持原样，下一次（2026-11-22 10:00）
+起按 9 段生成。
+
+---
+
 ## 2026-11-16（周报视频：复用日报的流程与视觉，投稿同一合集）
 
 周报此前只有 HTML/Markdown，没有视频。这次把**日报视频的那一套**（分段数据 → Edge TTS

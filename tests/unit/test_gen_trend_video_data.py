@@ -123,3 +123,23 @@ def test_main_missing_data_returns_2(G, sandbox, monkeypatch):
     monkeypatch.setattr(G, "ARCHIVE", sandbox.out / "trend_archive")
     assert G.main(["-d", "20990101", "--out", str(sandbox.out / "x.json"),
                    "--notes", str(sandbox.out / "y.json")]) == 2
+
+def test_default_segment_count_meets_three_minutes(G):
+    """默认段数必须让成片越过 3 分钟：段长锁死 20s，只能靠段数凑时长。"""
+    assert G.MIN_SECONDS == 180
+    # TOPICS_DEFAULT 是主题段数，加 1 段增长才是总段数
+    assert G.estimate_seconds(G.TOPICS_DEFAULT + 1) >= G.MIN_SECONDS
+
+
+def test_short_episode_warns_but_still_writes(G, sandbox, monkeypatch, capsys):
+    """主题簇不足时不许悄悄缩短段长，必须给出 warn（后续会被 A/V 闸门拦住）。"""
+    data = sample()
+    src = sandbox.out / "trend_archive" / "20261115.json"
+    src.parent.mkdir(parents=True, exist_ok=True)
+    src.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    monkeypatch.setattr(G, "ARCHIVE", sandbox.out / "trend_archive")
+    rc = G.main(["-d", "20261115", "--k", "2",
+                 "--out", str(sandbox.out / "t.json"), "--notes", str(sandbox.out / "n.json")])
+    err = capsys.readouterr().err
+    assert rc == 0 and "低于 180 秒下限" in err
+
