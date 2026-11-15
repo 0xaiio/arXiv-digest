@@ -33,6 +33,10 @@ output/
 ├─ archive/<YYYYMMDD>.{html,md}      # 每期快照（只增不改）
 ├─ episodes/<YYYYMMDD>/              # 每期成品归档（digest/video/meta/cover/音频/papers + MANIFEST.json）
 ├─ arxiv_digest_<YYYYMMDD>.{html,md} # 当期日报
+├─ arxiv_trend_<YYYYMMDD>.{html,md}  # 当期周报（趋势总结，独立于日报）
+├─ trend_archive/<YYYYMMDD>.{html,md,json}  # 周报快照（只增不改）
+├─ trend_history.json                # 周报跨周基线（最近 8 周的分类/词频计数）
+├─ trend_raw_<YYYYMMDD>.json         # 周报抓取缓存（--skip-fetch 复用）
 ├─ arxiv_weekly_<YYYYMMDD>.mp4       # 当期视频（按期号命名，不会被覆盖）
 ├─ bili_meta_/bili_cover_/bili_comment_/bili_published_<YYYYMMDD>.*  # B站投稿产物
 ├─ favorites.html / archive.html     # 收藏页 / 存档页
@@ -229,6 +233,10 @@ output/
 - **跨日不覆盖**：每期一个目录；
 - **同期重跑留痕**：内容变了就把旧文件移进 `history/<时间>/`，不是直接覆盖；
 - 共享文件（`papers.json` 等）只在期号匹配时才归档，避免把今天的数据塞进昨天的目录。
+
+`output/trend_archive/` 是**周报**的快照目录，和 `archive/`（日报）、`episodes/`（视频期次）
+并列且互不混放。`trend_history.json` 存最近 8 周的 `cats` / `terms` 计数，是
+「异常增长」的基线；删掉它不会报错，但下一期会退化成「基线不足」。
 
 ## 十、可安全删除的临时文件
 

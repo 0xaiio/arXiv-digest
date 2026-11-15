@@ -3,7 +3,7 @@
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![Runtime deps](https://img.shields.io/badge/runtime-stdlib--only-brightgreen)](#环境与依赖)
 [![Docs](https://img.shields.io/badge/docs-25%20pages-informational)](docs/documentation.md)
-[![Tests](https://img.shields.io/badge/tests-977%20cases-success)](docs/contributing/testing.md)
+[![Tests](https://img.shields.io/badge/tests-1006%20cases-success)](docs/contributing/testing.md)
 [![Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen)](docs/contributing/testing.md#三覆盖率)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Docs site](https://img.shields.io/badge/docs-site-0xaiio.github.io%2FarXiv--digest-informational)](https://0xaiio.github.io/arXiv-digest/)
@@ -56,9 +56,10 @@
 | **离线单文件 HTML** | 内联 CSS/JS、无 CDN、无构建步骤；`file://` 双击也能读，服务在跑时还能交互 |
 | **零运行期依赖** | 只用 Python 标准库，`clone` 即跑，不需要 `pip install` |
 | **可选视频链路** | Remotion 代码渲染 + Edge TTS 中文旁白 + A/V 质量闸门 + B 站投稿（[指南](docs/guide/video-pipeline.md)） |
+| **可选周度趋势** | `cs.*` 全量（约 3800 篇/周）做 TF-IDF + 球形 k-means，出「主题分布 + 异常增长」；不挑文章、不翻译、不用画像（[指南](docs/guide/weekly-trend.md)） |
 | **可导入的数据包** | 某人的一整套设置与使用数据（配置 / 画像 / 收藏 / 行为学习 / 笔记）收在一个目录里，纯 JSON 可 diff；启动参数 `--preset` 或界面一键导入，**默认不加载**（[设计与边界](docs/architecture/data-isolation.md)） |
 | **启动不挑端口** | 默认 `127.0.0.1:8765`；被别的软件占着就自动向后顺延（8765 → 8766 → …）并在日志里报出实际地址，页面端口同步改写；启动成功后自动开浏览器，`--no-open` / `open_browser: false` 可关（[服务运行时](docs/architecture/server-runtime.md)） |
-| **测试兜底** | 977 个用例分四层（单元 / 集成 / 端到端 / 浏览器），行覆盖率 91%，全部在沙箱里跑，不碰真实数据 |
+| **测试兜底** | 1006 个用例分四层（单元 / 集成 / 端到端 / 浏览器），行覆盖率 91%，全部在沙箱里跑，不碰真实数据 |
 
 ## 快速开始
 
@@ -149,7 +150,7 @@ start_digest.bat hengxin 2026-11-11  :: 导入数据包 + 指定期次
 | 文档 | 讲什么 |
 | --- | --- |
 | [架构总览](docs/architecture/overview.md) | 六阶段流水线、三层降级、本期新增判定、分层与依赖方向、扩展点 |
-| [模块职责](docs/architecture/modules.md) | 21 个模块的职责、依赖图、关键函数、"我要改什么"定位表 |
+| [模块职责](docs/architecture/modules.md) | 23 个模块的职责、依赖图、关键函数、"我要改什么"定位表 |
 | [私人数据隔离](docs/architecture/data-isolation.md) | 模板 / 数据包 / 运行态三层模型、JSON 包格式与清单、导入语义、界面只暴露"形状"的边界、备选方案取舍 |
 | [排序与学习算法](docs/architecture/ranking.md) | 打分公式逐项拆解、数值算例、阈值与兜底、行为更新式、负向学习故障复盘 |
 | [服务运行时](docs/architecture/server-runtime.md) | 两级锁、论文索引缓存、静态页 vs 动态页、CORS 与 `file://`、下载选路 |
@@ -224,12 +225,12 @@ arXiv-digest/
 
 ## 质量闸门
 
-**主闸门是 pytest 套件**：977 个用例（单元 / 集成 / 端到端 / 浏览器），行覆盖率 91%，
+**主闸门是 pytest 套件**：1006 个用例（单元 / 集成 / 端到端 / 浏览器），行覆盖率 91%，
 门槛 85%。它们全部在 `tmp_pytest/` 沙箱里跑，**不会碰你的真实数据**。
 
 ```bash
 python -m pip install -r requirements-dev.txt   # 只装测试工具，运行期仍然零依赖
-python -m pytest                 # 971 passed + 6 skipped
+python -m pytest                 # 1000 passed + 6 skipped
 python -m pytest -m unit         # 只跑单元，15s（改纯函数时用这个）
 python -m pytest --cov           # 覆盖率，低于 85% 直接失败
 RUN_BAT_CMD_E2E=1 python -m pytest tests/unit/test_start_digest_bat.py -s  # 验真实 cmd 层（6 个默认跳过）

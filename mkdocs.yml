@@ -65,6 +65,7 @@ nav:
       - 日常使用: guide/daily-workflow.md
       - 调优画像: guide/profile-tuning.md
       - 预设: guide/presets.md
+      - 周度趋势: guide/weekly-trend.md
       - 视频与投稿: guide/video-pipeline.md
   - 参考:
       - 命令行: reference/cli.md

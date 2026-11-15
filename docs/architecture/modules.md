@@ -1,6 +1,6 @@
 # 模块职责
 
-21 个 Python 模块全部在项目根目录（为什么不做包化拆分，见[目录职责](../meta/structure.md)§4）。
+23 个 Python 模块全部在项目根目录（为什么不做包化拆分，见[目录职责](../meta/structure.md)§4）。
 本文是「改代码前的索引」：每个模块负责什么、对外暴露什么、依赖谁。
 渲染层的版面在 `templates/`，不在 `.py` 里。
 
@@ -35,6 +35,8 @@
 | 接口 | `routes.py` | ~520 | HTTP 语义：路由表 + `Reply`/`Request`（业务委托给 `api`） | 仅标准库 |
 | 接口 | `server.py` | ~290 | 进程装配：Handler 分发、写 socket、端口顺延启动、`--preset` 导入 | 以上全部 + `serveport` |
 | 编排 | `run_daily.py` | ~240 | 六个阶段 + 确保服务在线；未选类别时给引导并只起服务 | 子进程调用其它脚本 |
+| 编排 | `trend_analysis.py` | ~380 | **周报的纯计算层**：切词、TF-IDF、球形 k-means、增长检测（无 IO、无网络） | 仅标准库 |
+| 编排 | `trend_report.py` | ~520 | 周报编排：抓 `cs.*` 全量 → 分析 → 渲染 → 归档 → 历史累积 | `trend_analysis` |
 
 ## 二、依赖方向
 
@@ -73,6 +75,11 @@ server.py ──▶ routes.py ──▶ (api 命名空间) ──▶ service.py 
 - **`service` 不 import `server` / `routes`**，`routes` 不 import `service` ——
   两边只通过 `req.api` 的**属性名**耦合（白名单见 `server._Runtime.ALLOWED`）。
   这样既没有循环依赖，又能让外部替换 `server.download_pdf` 立即生效。
+
+**周报是独立的第二条链路**：`trend_report.py`（抓取 / 渲染 / 归档 / 历史累积）只依赖
+`trend_analysis.py`（切词、TF-IDF、聚类、增长检测，纯函数）。它**不 import 任何日报模块**，
+也不读画像与配置——所以在一个没有任何个人数据的新克隆上也能直接跑，
+这是「趋势总结」与「个性化日报」在架构上的分界。
 
 ## 三、基础层
 

@@ -36,6 +36,7 @@
 | [profile-tuning.md](guide/profile-tuning.md) | 推荐不准怎么调：主题、熟悉作者、降权词、兴趣来源、反馈的边际效果 |
 | [presets.md](guide/presets.md) | 一整套设置怎么搬：数据包的四个分组、`tools/preset.py` 的 list / show / import / export / status、`--preset` 启动参数、界面一键导入、分享前的隐私检查 |
 | [video-pipeline.md](guide/video-pipeline.md) | 可选模块：把当期日报渲染成带中文旁白的视频并投稿到 B 站 |
+| [weekly-trend.md](guide/weekly-trend.md) | 可选模块：`cs.*` 全量周度趋势（TF-IDF + 球形 k-means），主题分布、异常增长、数据口径与局限 |
 
 ## 四、参考：精确取值
 
@@ -54,7 +55,7 @@
 | --- | --- |
 | [overview.md](architecture/overview.md) | 端到端数据流：抓取 → 增量判定 → 打分 → 渲染 → 归档，以及每一步失败时的降级 |
 | [data-isolation.md](architecture/data-isolation.md) | 模板 / 数据包 / 运行态三层分离：为什么用 JSON 文本 + 一个目录、包清单与校验、导入为什么默认不覆盖、界面为什么只显示"形状"、备选方案取舍 |
-| [modules.md](architecture/modules.md) | 21 个 Python 模块的职责、依赖方向、谁调用谁（改代码前先看这里） |
+| [modules.md](architecture/modules.md) | 23 个 Python 模块的职责、依赖方向、谁调用谁（改代码前先看这里） |
 | [ranking.md](architecture/ranking.md) | 打分公式逐项拆解、行为学习更新式、为什么负向学习默认关闭 |
 | [server-runtime.md](architecture/server-runtime.md) | 两级锁、单篇下载锁、论文索引缓存、CORS、`file://` 兼容、下载选路 |
 
@@ -63,7 +64,7 @@
 | 文档 | 用途 |
 | --- | --- |
 | [development.md](contributing/development.md) | 本地开发约定、改完什么必须重启、调试手法、提交前检查 |
-| [testing.md](contributing/testing.md) | 四层测试结构（977 用例 / 91% 覆盖）、覆盖范围、运行方式、沙箱隔离、如何新增 |
+| [testing.md](contributing/testing.md) | 四层测试结构（1006 用例 / 91% 覆盖）、覆盖范围、运行方式、沙箱隔离、如何新增 |
 | [troubleshooting.md](operations/troubleshooting.md) | 症状 → 诊断命令 → 根因 → 修复，覆盖抓取/推荐/下载/服务/视频/投稿 |
 
 ## 七、元信息

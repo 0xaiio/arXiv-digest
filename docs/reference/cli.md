@@ -101,6 +101,22 @@ start_digest.bat hengxin 2026-11-11       :: 导入数据包 + 指定期次
 - 打开的是**已生成的静态 HTML**，页内 `APIPORT` 是生成当时的端口；若本次启动因端口占用
   而顺延，收藏/下载等交互按钮需刷新页面或改用服务地址 `http://127.0.0.1:<实际端口>/`。
 
+### `trend_report.py`（周报，可选）
+
+`cs.*` 全量周度趋势：抓取 → TF-IDF + 球形 k-means → 渲染 → 归档。**不读画像、不挑文章**，
+与日报完全独立（详见[周度趋势](../guide/weekly-trend.md)）。
+
+| 参数 | 作用 |
+| --- | --- |
+| （无） | 最近一个周日；窗口回退 3 天取 7 天（避开未公告的尾巴） |
+| `-d/--date YYYYMMDD` | 指定期号（8 位数字） |
+| `--skip-fetch` | 复用 `output/trend_raw_<期号>.json`，只重算与重渲染 |
+| `--no-bootstrap` | 首跑时不补抓上一周做基线 |
+| `--json` | 输出机器可读摘要 |
+
+产物：`output/arxiv_trend_<期号>.{html,md}`、`output/trend_archive/<期号>.{html,md,json}`、
+`output/trend_history.json`（跨周基线）、`output/trend_raw_<期号>.json`（抓取缓存）。
+
 ## 二、维护与工具脚本（`tools/`）
 
 ### 配置与画像
@@ -173,6 +189,9 @@ start_digest.bat hengxin 2026-11-11       :: 导入数据包 + 指定期次
 ```bash
 # 每天 08:10 跑一次（Linux/macOS crontab）
 10 8 * * * cd /path/to/arXiv-digest && python run_daily.py >> output/cron.log 2>&1
+
+# 每周日 10:00 跑一次周报
+0 10 * * 0 cd /path/to/arXiv-digest && python trend_report.py >> output/cron-trend.log 2>&1
 ```
 
 Windows 用任务计划程序，操作填 `python`，参数填 `run_daily.py`，
