@@ -1,10 +1,10 @@
 {
-  "issue": "20261114",
-  "range": "2026-11-12 · 回溯 3 天公告批次",
-  "generated": "2026-11-14T11:01:59+08:00",
+  "issue": "20261117",
+  "range": "2026-11-13 · 回溯 3 天公告批次",
+  "generated": "2026-11-17T09:43:03+08:00",
   "stats": {
-    "core": 114,
-    "expand": 748,
+    "core": 46,
+    "expand": 379,
     "rec": 14,
     "exp": 10
   },
@@ -12,318 +12,324 @@
     {
       "rank": 1,
       "lane": "推荐",
-      "sid": "2611.14795",
+      "sid": "2611.18036",
       "cat": "cs.PL",
-      "score": 77.7,
-      "title_en": "Model Checking Probabilistic Multiparty Session Types",
+      "score": 78.9,
+      "title_en": "C-to-Rust Translation Validation at the LLVM IR Level via AI-Assisted Refinement Proof",
+      "hook": "C 转 Rust 正确性可证明",
+      "title_hook": false,
       "kw": [
-        "会话类型",
-        "概率"
+        "LLVM",
+        "IR",
+        "Rocq"
       ],
-      "authors": "Aleksander Junge, Leo Seojun Lee, Joseph Paulus 等 5 人",
-      "units": [
-        "University of Oxford"
-      ],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "分布式系统依赖随机化，验证技术与构建它们的编程抽象却彼此脱节"
-        },
-        {
-          "tag": "做法",
-          "text": "首个通用多参与方会话类型的概率扩展，自底向上定型、无需全局规格"
-        },
-        {
-          "tag": "结果",
-          "text": "类型上下文诱导有限 MDP，给出公平调度下无死锁与活性的概率下界"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.14795"
-    },
-    {
-      "rank": 2,
-      "lane": "推荐",
-      "sid": "2611.15207",
-      "cat": "cs.SE",
-      "score": 71.6,
-      "title_en": "Pre-QED: Environment Specifications for Agentic Verification",
-      "kw": [
-        "Pre-QED",
-        "LTL"
-      ],
-      "authors": "Tristan Lim, Haoxin Tu, Mehtab Zafar 等 5 人",
-      "units": [
-        "National University of Singapore"
-      ],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "模糊测试 harness 当规格只覆盖单一调用序列，证明的是场景不是库"
-        },
-        {
-          "tag": "做法",
-          "text": "验证 harness 建模 API 全部合法用法，用 LTL 排除非法调用顺序"
-        },
-        {
-          "tag": "结果",
-          "text": "关于 harness 的证明即关于所有行为良好客户端的证明"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.15207"
-    },
-    {
-      "rank": 3,
-      "lane": "推荐",
-      "sid": "2611.15847",
-      "cat": "cs.DC",
-      "score": 65.6,
-      "title_en": "SoK: Design Choices in Tendermint BFT Consensus",
-      "kw": [
-        "Tendermint",
-        "BFT",
-        "ABCI"
-      ],
-      "authors": "Sanaz Taheri-Boshrooyeh, Yahya Hassanzadeh-Nazarabadi",
-      "units": [
-        "Math Crypt Research Inc"
-      ],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "围绕 Tendermint 的改动散落各处，无人把协议与这些工作当一族系统研究"
-        },
-        {
-          "tag": "做法",
-          "text": "以设计选择为线索描述基线，按重新协商了哪个选择给每篇工作分类"
-        },
-        {
-          "tag": "结果",
-          "text": "方案归为性能、验证者问责、可利用信息保护三条主线"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.15847"
-    },
-    {
-      "rank": 4,
-      "lane": "推荐",
-      "sid": "2611.16886",
-      "cat": "cs.LO",
-      "score": 58.0,
-      "title_en": "LLM-Assisted Verification in Dafny",
-      "kw": [
-        "Dafny"
-      ],
-      "authors": "Wieger Wesselink, Kees Huizing, Huub van de Wetering",
+      "authors": "Eunsu Kim, Sukyoung Ryu, Jaemin Hong",
       "units": [],
       "bullets": [
         {
           "tag": "问题",
-          "text": "完整机器检查验证需迭代构造规格与不变式、诊断求解器失败"
+          "text": "规则式与 LLM 式 C→Rust 转换器都无形式保证，正确性止步于测试"
         },
         {
           "tag": "做法",
-          "text": "Dafny 十步工作流，含契约开发、不变式经验验证与瓶颈剖析"
+          "text": "在 LLVM IR 层用 Rocq 证明 Rust 程序精化 C 程序，证明由 AI 辅助生成"
         },
         {
           "tag": "结果",
-          "text": "37 个图论与迁移系统算法，含 Hopcroft-Tarjan 三连通性判定"
+          "text": "LLM 生成引理的健全性由差分翻译验证把关，覆盖所有可能执行"
         }
       ],
-      "link": "arxiv.org/abs/2611.16886"
+      "link": "arxiv.org/abs/2611.18036"
+    },
+    {
+      "rank": 2,
+      "lane": "推荐",
+      "sid": "2611.17880",
+      "cat": "cs.AI",
+      "score": 54.2,
+      "title_en": "Soteria: Formally Verified Planning with Runtime Enforcement for Safe LLM Agents",
+      "hook": "给 LLM 智能体装可验证安全带",
+      "title_hook": false,
+      "kw": [
+        "Soteria",
+        "Runtime",
+        "Enforcement",
+        "LLM"
+      ],
+      "authors": "Mike He, Ankush Desai, Sharad Malik 等 4 人",
+      "units": [],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "多步工具调用的智能体要同时完成任务与守住政策，硬拦截会让任务卡死"
+        },
+        {
+          "tag": "做法",
+          "text": "先生成结构化计划并证明满足规格，执行时由运行时强制器监控与回退"
+        },
+        {
+          "tag": "结果",
+          "text": "经验证的计划加运行时强制，安全与效用同时保住，不再二选一"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.17880"
+    },
+    {
+      "rank": 3,
+      "lane": "推荐",
+      "sid": "2611.17587",
+      "cat": "cs.PL",
+      "score": 51.7,
+      "title_en": "An Algebraic Perspective on Operational Semantics",
+      "hook": "指称与操作语义同源一体",
+      "title_hook": false,
+      "kw": [
+        "An",
+        "call-by-push-value"
+      ],
+      "authors": "Eric Bond, Max New",
+      "units": [
+        "University of Michigan"
+      ],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "带效应的语言通常有两套独立给出的语义，两者关系只能事后建立"
+        },
+        {
+          "tag": "做法",
+          "text": "在 call-by-push-value 上扩展代数理论，指称解释与操作归约同源构造"
+        },
+        {
+          "tag": "结果",
+          "text": "证明等式典范形式等性质，两套语义在同一框架内先天对齐"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.17587"
+    },
+    {
+      "rank": 4,
+      "lane": "推荐",
+      "sid": "2611.17440",
+      "cat": "cs.SE",
+      "score": 51.0,
+      "title_en": "Interpreting Coding Agents Through Their Behavioral Trajectories",
+      "hook": "",
+      "title_hook": false,
+      "kw": [],
+      "authors": "Ibragim Badertdinov, Alexander Golubev",
+      "units": [],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "编码智能体基准只看二元的任务成败，掩盖了产生结果的行为差异"
+        },
+        {
+          "tag": "做法",
+          "text": "解析 143,209 条轨迹、125 种配置，映射为搜索、改文件、跑测试等高层动作"
+        },
+        {
+          "tag": "结果",
+          "text": "解出率相近的智能体行为轨迹可能截然不同，六模型共识审计解析器"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.17440"
     },
     {
       "rank": 5,
       "lane": "推荐",
-      "sid": "2611.15596",
-      "cat": "cs.SE",
-      "score": 57.8,
-      "title_en": "Bug Finding With Agentic Symbolic Execution",
-      "kw": [
-        "Bug",
-        "CrossHair",
-        "符号执行"
-      ],
-      "authors": "George Granberry, Wolfgang Ahrendt, Andy Gordon 等 4 人",
-      "units": [
-        "Chalmers University of Technology",
-        "University of Edinburgh"
-      ],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "符号执行卡在人工加断言与外部环境建模两道门槛"
-        },
-        {
-          "tag": "做法",
-          "text": "智能体编排 CrossHair，自动插桩断言并合成约束感知的数据库环境"
-        },
-        {
-          "tag": "结果",
-          "text": "11 个 Web 应用函数覆盖 4.5%→81%，1050 个 bug 均有测试复现"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.15596"
-    },
-    {
-      "rank": 6,
-      "lane": "推荐",
-      "sid": "2611.16516",
+      "sid": "2611.18338",
       "cat": "cs.DB",
-      "score": 57.1,
-      "title_en": "Authenticated Approximate Nearest Neighbor Search in Outsourced Vector Databases",
+      "score": 50.1,
+      "title_en": "MEM-SQL: Memory-Empowered Text-to-SQL",
+      "hook": "",
+      "title_hook": false,
       "kw": [
-        "VIDA",
-        "ANN"
+        "Text-to-SQL"
       ],
-      "authors": "Yuanhang Zhou, Xinyi Zhang, Cheng Xu 等 4 人",
+      "authors": "Xiaoqi Wang, Wenqi Pei, Shizheng Hou 等 6 人",
       "units": [
-        "Department of Computer Science, Hong Kong Baptist…"
-      ],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "外包向量库不可信，已有可认证 ANN 需传高维向量、依赖拓扑无关结构"
-        },
-        {
-          "tag": "做法",
-          "text": "向量承诺 + 聚合内积论证 + 拓扑感知认证结构 MeST"
-        },
-        {
-          "tag": "结果",
-          "text": "量化感知剪枝减少需密码学认证的精确距离数量"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.16516"
-    },
-    {
-      "rank": 7,
-      "lane": "推荐",
-      "sid": "2611.14581",
-      "cat": "cs.SE",
-      "score": 55.8,
-      "title_en": "When Evaluators of AI Agents Disagree: An Empirical Study of Native Scoring, LLM Judges, and Commit-Boundary Checks on tau2-bench",
-      "kw": [
-        "LLM",
-        "裁判"
-      ],
-      "authors": "Sungbin Im",
-      "units": [
-        "Seoul School of Integrated Sciences and Technologies"
-      ],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "基准的原生评分与线上 LLM 裁判被当作可互换，实际是否成立未知"
-        },
-        {
-          "tag": "做法",
-          "text": "2160 个 tau2-bench episode，四种评分对照，120 例人工标注"
-        },
-        {
-          "tag": "结果",
-          "text": "裁判自洽 98.2% 但仅 56.2% 同原生评分；11 例禁止写入放过 10 例"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.14581"
-    },
-    {
-      "rank": 8,
-      "lane": "推荐",
-      "sid": "2611.16588",
-      "cat": "cs.CR",
-      "score": 52.1,
-      "title_en": "CrossPloit: A Benchmark for Cross-Version PoC Migration in Python Web Applications",
-      "kw": [
-        "CrossPloit",
-        "PoC",
-        "Python",
-        "Web"
-      ],
-      "authors": "Hung Nguyen-Huu, Nguyen Anh Tuan, Ting Zhang 等 6 人",
-      "units": [
-        "Singapore Management University",
-        "Hanoi University of Science and Technology"
-      ],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "漏洞库受影响版本区间不完整，有漏洞的旧版本被当作安全"
-        },
-        {
-          "tag": "做法",
-          "text": "127 个跨版本 PoC 迁移实例，版本固定容器 + 漏洞专用 oracle"
-        },
-        {
-          "tag": "结果",
-          "text": "最佳配置解决 58.3%，轨迹引导基线 8.7%；攻击向量迁移最难"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.16588"
-    },
-    {
-      "rank": 9,
-      "lane": "兴趣扩展",
-      "sid": "2611.16433",
-      "cat": "cs.CL",
-      "score": 60.5,
-      "title_en": "daVinci-Prover: Agent-Native Mid-Training for Formal Theorem Proving",
-      "kw": [
-        "Prover",
-        "daVinci-Prover",
-        "Lean"
-      ],
-      "authors": "Wenhong Zhu, Xuefeng Li, Jiashuo Zhang 等 6 人",
-      "units": [
-        "Generative Artificial Intelligence Research Lab",
-        "Shanghai Innovation Institute",
+        "NICE Lab, The University of Hong Kong",
+        "National University of Singapore",
         "等 3 家单位"
       ],
       "bullets": [
         {
           "tag": "问题",
-          "text": "定理证明模型缺少透明有效的数据配方"
+          "text": "Text-to-SQL 基准把问题当独立请求，忽视同一库上历史查询可复用"
         },
         {
           "tag": "做法",
-          "text": "33.7B token 智能体原生中训练语料 + Lean 交互轨迹微调"
+          "text": "HARE 基准：4 个数据集 823 条已验证查询派生 1,600 条请求并标注改写成分"
         },
         {
           "tag": "结果",
-          "text": "相对 Qwen3-8B 仅 SFT 基线平均提升 13.7 分"
+          "text": "专门测量把历史 SQL 适配到新问题的准确率与成本"
         }
       ],
-      "link": "arxiv.org/abs/2611.16433"
+      "link": "arxiv.org/abs/2611.18338"
     },
     {
-      "rank": 10,
-      "lane": "兴趣扩展",
-      "sid": "2611.16991",
-      "cat": "cs.AI",
-      "score": 53.7,
-      "title_en": "AnalogLayoutWorld: An Open Benchmark for Agentic Analog Layout Design",
+      "rank": 6,
+      "lane": "推荐",
+      "sid": "2611.17669",
+      "cat": "cs.SE",
+      "score": 47.8,
+      "title_en": "SZZBench: Controlled Git Histories with Explicit Oracles for Diagnosing SZZ Implementations",
+      "hook": "",
+      "title_hook": false,
       "kw": [
-        "AnalogLayoutWorld",
-        "An",
-        "Analog",
-        "Layout"
+        "SZZBench",
+        "Git",
+        "SZZ"
       ],
-      "authors": "NovaSilicon Team",
+      "authors": "Yoshiki Higo, Inase Kondo, Masanari Kondo 等 4 人",
+      "units": [
+        "The University of Osaka"
+      ],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "SZZ 实现靠真实项目挖的 oracle 评估，总分说不清成败原因"
+        },
+        {
+          "tag": "做法",
+          "text": "从声明式场景生成受控 Git 仓库与显式 oracle，按演化事件打分"
+        },
+        {
+          "tag": "结果",
+          "text": "能解释任意 SZZ 实现为什么错，支撑缺陷预测数据集的质量"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.17669"
+    },
+    {
+      "rank": 7,
+      "lane": "推荐",
+      "sid": "2611.18069",
+      "cat": "cs.PL",
+      "score": 47.1,
+      "title_en": "Quantifying the Advantage of Coarser DPOR",
+      "hook": "",
+      "title_hook": false,
+      "kw": [
+        "DPOR"
+      ],
+      "authors": "Minjian Zhang, Rupak Majumdar, Umang Mathur 等 4 人",
+      "units": [
+        "Nanyang Technological University",
+        "Max Planck Institute for Software Systems",
+        "等 3 家单位"
+      ],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "比 Mazurkiewicz 迹等价更粗的 reads-from 等价，理论上应更快"
+        },
+        {
+          "tag": "做法",
+          "text": "把等价关系参数化为可插拔组件，给出统一的 DPOR 框架"
+        },
+        {
+          "tag": "结果",
+          "text": "系统量化粗化收益：取决于类内如何避免重复，粗化甚至可能拖慢探索"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.18069"
+    },
+    {
+      "rank": 8,
+      "lane": "推荐",
+      "sid": "2611.18055",
+      "cat": "cs.PL",
+      "score": 46.5,
+      "title_en": "DeCompCert: A Verified Decompiler for CompCert-Generated AArch64",
+      "hook": "",
+      "title_hook": false,
+      "kw": [
+        "DeCompCert",
+        "AArch64"
+      ],
+      "authors": "Swarn Priya, Basavesh Ammanaghatta Shivakumar, Thomas Gilray 等 4 人",
+      "units": [
+        "Washington State University"
+      ],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "反编译器的输出此前没有机器验证的行为等价保证"
+        },
+        {
+          "tag": "做法",
+          "text": "九个逆向遍重建 CompCert C，不可信 OCaml/Datalog 提候选、验证器把关"
+        },
+        {
+          "tag": "结果",
+          "text": "组合正确性定理：被接受的 C 重建与输入汇编行为匹配"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.18055"
+    },
+    {
+      "rank": 9,
+      "lane": "兴趣扩展",
+      "sid": "2611.17776",
+      "cat": "cs.AI",
+      "score": 62.5,
+      "title_en": "Certified Improvements to Best-Known Thomson-Problem Configurations with a Search Pipeline Built with Large Language Model Agents",
+      "hook": "",
+      "title_hook": false,
+      "kw": [],
+      "authors": "Hui Shao, Tao Wang, Xiaotian Liu 等 4 人",
       "units": [],
       "bullets": [
         {
           "tag": "问题",
-          "text": "编码智能体在受物理约束的长程工程任务上能力不明"
+          "text": "Thomson 问题大 N 的最优构型纪录由 Cambridge Cluster Database 维护"
         },
         {
           "tag": "做法",
-          "text": "40 个专家评审的模拟版图任务，独立物理与版图后电气验证"
+          "text": "LLM 智能体搭建搜索流水线，改进 N=912、1382、2502 三个规模"
         },
         {
           "tag": "结果",
-          "text": "91.1% 能出 GDS，仅 23.0% 过验收；差距源于测试时扩展效率"
+          "text": "能量全部低于数据库值，经精确整数算术认证为严格局部极小"
         }
       ],
-      "link": "arxiv.org/abs/2611.16991"
+      "link": "arxiv.org/abs/2611.17776"
+    },
+    {
+      "rank": 10,
+      "lane": "兴趣扩展",
+      "sid": "2611.17884",
+      "cat": "math.LO",
+      "score": 52.4,
+      "title_en": "HOL in HOL: mechanized soundness, completeness and consistency, with and without infinity",
+      "hook": "",
+      "title_hook": true,
+      "kw": [
+        "HOL"
+      ],
+      "authors": "Christoph Benzmüller, Daniel Kirchner",
+      "units": [
+        "Otto-Friedrich-Universität Bamberg and Freie Universität…",
+        "Otto-Friedrich-Universität Bamberg"
+      ],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "一种逻辑能为它自己的副本证成什么？HOL 自验证的经典问题"
+        },
+        {
+          "tag": "做法",
+          "text": "在 Isabelle/HOL 深度嵌入 Church 简单类型论，Henkin 语义加自然演绎"
+        },
+        {
+          "tag": "结果",
+          "text": "两层证成：无无穷公理可自证；带之需更强集合论宇宙，并补齐完备性"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.17884"
     }
   ]
 }
