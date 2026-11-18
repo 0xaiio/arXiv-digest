@@ -1,335 +1,315 @@
 {
-  "issue": "20261117",
-  "range": "2026-11-13 · 回溯 3 天公告批次",
-  "generated": "2026-11-17T09:43:03+08:00",
-  "stats": {
-    "core": 46,
-    "expand": 379,
-    "rec": 14,
-    "exp": 10
-  },
-  "papers": [
+ "issue": "20261118",
+ "range": "2026-11-16 · 回溯 3 天公告批次",
+ "generated": "2026-11-18T09:50:13+08:00",
+ "stats": {
+  "core": 110,
+  "expand": 735,
+  "rec": 14,
+  "exp": 10
+ },
+ "papers": [
+  {
+   "rank": 1,
+   "lane": "推荐",
+   "sid": "2611.19267",
+   "cat": "cs.SE",
+   "score": 86.3,
+   "title_en": "Small Harnesses, Default Checks, Limited Coverage: Bounded Model Checking in Practice",
+   "hook": "17 位实践者的 BMC 实战画像",
+   "title_hook": false,
+   "kw": [],
+   "authors": "Kevin Kolyakov, Ricardo Calvo, James C. Davis 等 4 人",
+   "units": [
+    "University of Waterloo"
+   ],
+   "bullets": [
     {
-      "rank": 1,
-      "lane": "推荐",
-      "sid": "2611.18036",
-      "cat": "cs.PL",
-      "score": 78.9,
-      "title_en": "C-to-Rust Translation Validation at the LLVM IR Level via AI-Assisted Refinement Proof",
-      "hook": "C 转 Rust 正确性可证明",
-      "title_hook": false,
-      "kw": [
-        "LLVM",
-        "IR",
-        "Rocq"
-      ],
-      "authors": "Eunsu Kim, Sukyoung Ryu, Jaemin Hong",
-      "units": [],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "规则式与 LLM 式 C→Rust 转换器都无形式保证，正确性止步于测试"
-        },
-        {
-          "tag": "做法",
-          "text": "在 LLVM IR 层用 Rocq 证明 Rust 程序精化 C 程序，证明由 AI 辅助生成"
-        },
-        {
-          "tag": "结果",
-          "text": "LLM 生成引理的健全性由差分翻译验证把关，覆盖所有可能执行"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.18036"
+     "tag": "要点 1",
+     "text": "AI 生成软件与验证制品激增，有界模型检查（BMC）可对软件直接自动检查正确性与安全性质，成为可靠软件保证的实用基础"
     },
     {
-      "rank": 2,
-      "lane": "推荐",
-      "sid": "2611.17880",
-      "cat": "cs.AI",
-      "score": 54.2,
-      "title_en": "Soteria: Formally Verified Planning with Runtime Enforcement for Safe LLM Agents",
-      "hook": "给 LLM 智能体装可验证安全带",
-      "title_hook": false,
-      "kw": [
-        "Soteria",
-        "Runtime",
-        "Enforcement",
-        "LLM"
-      ],
-      "authors": "Mike He, Ankush Desai, Sharad Malik 等 4 人",
-      "units": [],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "多步工具调用的智能体要同时完成任务与守住政策，硬拦截会让任务卡死"
-        },
-        {
-          "tag": "做法",
-          "text": "先生成结构化计划并证明满足规格，执行时由运行时强制器监控与回退"
-        },
-        {
-          "tag": "结果",
-          "text": "经验证的计划加运行时强制，安全与效用同时保住，不再二选一"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.17880"
+     "tag": "要点 2",
+     "text": "但有效验证依赖性质选择、输入假设、函数建模与执行界等决策，实践者如何做这些决策缺乏系统证据"
     },
     {
-      "rank": 3,
-      "lane": "推荐",
-      "sid": "2611.17587",
-      "cat": "cs.PL",
-      "score": 51.7,
-      "title_en": "An Algebraic Perspective on Operational Semantics",
-      "hook": "指称与操作语义同源一体",
-      "title_hook": false,
-      "kw": [
-        "An",
-        "call-by-push-value"
-      ],
-      "authors": "Eric Bond, Max New",
-      "units": [
-        "University of Michigan"
-      ],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "带效应的语言通常有两套独立给出的语义，两者关系只能事后建立"
-        },
-        {
-          "tag": "做法",
-          "text": "在 call-by-push-value 上扩展代数理论，指称解释与操作归约同源构造"
-        },
-        {
-          "tag": "结果",
-          "text": "证明等式典范形式等性质，两套语义在同一框架内先天对齐"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.17587"
-    },
-    {
-      "rank": 4,
-      "lane": "推荐",
-      "sid": "2611.17440",
-      "cat": "cs.SE",
-      "score": 51.0,
-      "title_en": "Interpreting Coding Agents Through Their Behavioral Trajectories",
-      "hook": "",
-      "title_hook": false,
-      "kw": [],
-      "authors": "Ibragim Badertdinov, Alexander Golubev",
-      "units": [],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "编码智能体基准只看二元的任务成败，掩盖了产生结果的行为差异"
-        },
-        {
-          "tag": "做法",
-          "text": "解析 143,209 条轨迹、125 种配置，映射为搜索、改文件、跑测试等高层动作"
-        },
-        {
-          "tag": "结果",
-          "text": "解出率相近的智能体行为轨迹可能截然不同，六模型共识审计解析器"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.17440"
-    },
-    {
-      "rank": 5,
-      "lane": "推荐",
-      "sid": "2611.18338",
-      "cat": "cs.DB",
-      "score": 50.1,
-      "title_en": "MEM-SQL: Memory-Empowered Text-to-SQL",
-      "hook": "",
-      "title_hook": false,
-      "kw": [
-        "Text-to-SQL"
-      ],
-      "authors": "Xiaoqi Wang, Wenqi Pei, Shizheng Hou 等 6 人",
-      "units": [
-        "NICE Lab, The University of Hong Kong",
-        "National University of Singapore",
-        "等 3 家单位"
-      ],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "Text-to-SQL 基准把问题当独立请求，忽视同一库上历史查询可复用"
-        },
-        {
-          "tag": "做法",
-          "text": "HARE 基准：4 个数据集 823 条已验证查询派生 1,600 条请求并标注改写成分"
-        },
-        {
-          "tag": "结果",
-          "text": "专门测量把历史 SQL 适配到新问题的准确率与成本"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.18338"
-    },
-    {
-      "rank": 6,
-      "lane": "推荐",
-      "sid": "2611.17669",
-      "cat": "cs.SE",
-      "score": 47.8,
-      "title_en": "SZZBench: Controlled Git Histories with Explicit Oracles for Diagnosing SZZ Implementations",
-      "hook": "",
-      "title_hook": false,
-      "kw": [
-        "SZZBench",
-        "Git",
-        "SZZ"
-      ],
-      "authors": "Yoshiki Higo, Inase Kondo, Masanari Kondo 等 4 人",
-      "units": [
-        "The University of Osaka"
-      ],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "SZZ 实现靠真实项目挖的 oracle 评估，总分说不清成败原因"
-        },
-        {
-          "tag": "做法",
-          "text": "从声明式场景生成受控 Git 仓库与显式 oracle，按演化事件打分"
-        },
-        {
-          "tag": "结果",
-          "text": "能解释任意 SZZ 实现为什么错，支撑缺陷预测数据集的质量"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.17669"
-    },
-    {
-      "rank": 7,
-      "lane": "推荐",
-      "sid": "2611.18069",
-      "cat": "cs.PL",
-      "score": 47.1,
-      "title_en": "Quantifying the Advantage of Coarser DPOR",
-      "hook": "",
-      "title_hook": false,
-      "kw": [
-        "DPOR"
-      ],
-      "authors": "Minjian Zhang, Rupak Majumdar, Umang Mathur 等 4 人",
-      "units": [
-        "Nanyang Technological University",
-        "Max Planck Institute for Software Systems",
-        "等 3 家单位"
-      ],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "比 Mazurkiewicz 迹等价更粗的 reads-from 等价，理论上应更快"
-        },
-        {
-          "tag": "做法",
-          "text": "把等价关系参数化为可插拔组件，给出统一的 DPOR 框架"
-        },
-        {
-          "tag": "结果",
-          "text": "系统量化粗化收益：取决于类内如何避免重复，粗化甚至可能拖慢探索"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.18069"
-    },
-    {
-      "rank": 8,
-      "lane": "推荐",
-      "sid": "2611.18055",
-      "cat": "cs.PL",
-      "score": 46.5,
-      "title_en": "DeCompCert: A Verified Decompiler for CompCert-Generated AArch64",
-      "hook": "",
-      "title_hook": false,
-      "kw": [
-        "DeCompCert",
-        "AArch64"
-      ],
-      "authors": "Swarn Priya, Basavesh Ammanaghatta Shivakumar, Thomas Gilray 等 4 人",
-      "units": [
-        "Washington State University"
-      ],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "反编译器的输出此前没有机器验证的行为等价保证"
-        },
-        {
-          "tag": "做法",
-          "text": "九个逆向遍重建 CompCert C，不可信 OCaml/Datalog 提候选、验证器把关"
-        },
-        {
-          "tag": "结果",
-          "text": "组合正确性定理：被接受的 C 重建与输入汇编行为匹配"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.18055"
-    },
-    {
-      "rank": 9,
-      "lane": "兴趣扩展",
-      "sid": "2611.17776",
-      "cat": "cs.AI",
-      "score": 62.5,
-      "title_en": "Certified Improvements to Best-Known Thomson-Problem Configurations with a Search Pipeline Built with Large Language Model Agents",
-      "hook": "",
-      "title_hook": false,
-      "kw": [],
-      "authors": "Hui Shao, Tao Wang, Xiaotian Liu 等 4 人",
-      "units": [],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "Thomson 问题大 N 的最优构型纪录由 Cambridge Cluster Database 维护"
-        },
-        {
-          "tag": "做法",
-          "text": "LLM 智能体搭建搜索流水线，改进 N=912、1382、2502 三个规模"
-        },
-        {
-          "tag": "结果",
-          "text": "能量全部低于数据库值，经精确整数算术认证为严格局部极小"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.17776"
-    },
-    {
-      "rank": 10,
-      "lane": "兴趣扩展",
-      "sid": "2611.17884",
-      "cat": "math.LO",
-      "score": 52.4,
-      "title_en": "HOL in HOL: mechanized soundness, completeness and consistency, with and without infinity",
-      "hook": "",
-      "title_hook": true,
-      "kw": [
-        "HOL"
-      ],
-      "authors": "Christoph Benzmüller, Daniel Kirchner",
-      "units": [
-        "Otto-Friedrich-Universität Bamberg and Freie Universität…",
-        "Otto-Friedrich-Universität Bamberg"
-      ],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "一种逻辑能为它自己的副本证成什么？HOL 自验证的经典问题"
-        },
-        {
-          "tag": "做法",
-          "text": "在 Isabelle/HOL 深度嵌入 Church 简单类型论，Henkin 语义加自然演绎"
-        },
-        {
-          "tag": "结果",
-          "text": "两层证成：无无穷公理可自证；带之需更强集合论宇宙，并补齐完备性"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.17884"
+     "tag": "要点 3",
+     "text": "本文对 12 家组织的 17 位实践者做访谈与调查，归纳出「小型 harness、默认检查、覆盖有限」的实践形态，并提炼出对自动化验证工具设计的启示"
     }
-  ]
+   ],
+   "link": "arxiv.org/abs/2611.19267"
+  },
+  {
+   "rank": 2,
+   "lane": "推荐",
+   "sid": "2611.21084",
+   "cat": "cs.PL",
+   "score": 61.6,
+   "title_en": "CompCert4Lean: Porting a Verified C Compiler to Lean in Six Weeks with Parallel Coding Agents",
+   "hook": "六周移植 CompCert 到 Lean",
+   "title_hook": false,
+   "kw": [
+    "CompCert4Lean",
+    "Lean"
+   ],
+   "authors": "Cong Wang, Zhiyang Chen, Fan Long 等 4 人",
+   "units": [
+    "University of Toronto",
+    "Massachusetts Institute of Technology"
+   ],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "CompCert4Lean 把 CompCert 3.17 经验证编译器核心从 Rocq 大规模移植到 Lean：由一名专家指挥并行 LLM…"
+    },
+    {
+     "tag": "要点 2",
+     "text": "迁移流程沿依赖关系切分开发，先审计翻译后的定义与定理陈述，再对照稳定接口并行重建证明"
+    },
+    {
+     "tag": "要点 3",
+     "text": "结果覆盖类型化 CompCert C 到 x86-64 汇编，清偿全部 4,908 条证明义务、无项目专属公理，并能产出可执行 Linux 二进制"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.21084"
+  },
+  {
+   "rank": 3,
+   "lane": "推荐",
+   "sid": "2611.21148",
+   "cat": "cs.PL",
+   "score": 61.4,
+   "title_en": "SAFE: Formal Specification and Implementation of a Scalable Analysis Framework for ECMAScript",
+   "hook": "JavaScript 分析器首次形式化",
+   "title_hook": false,
+   "kw": [
+    "SAFE",
+    "ECMAScript"
+   ],
+   "authors": "Hongki Lee, Sooncheol Won, Joonho Jin 等 5 人",
+   "units": [],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "JavaScript 分析器对检测 Web 应用安全漏洞至关重要，但多数现有工具文档匮乏或闭源，难以理解、修改与复现"
+    },
+    {
+     "tag": "要点 2",
+     "text": "本文给出 SAFE（可扩展 ECMAScript 分析框架）的形式化规范与实现：形式定义其架构与组件接口，并讨论以调用图构建为核心的实现挑战…"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.21148"
+  },
+  {
+   "rank": 4,
+   "lane": "推荐",
+   "sid": "2611.20807",
+   "cat": "cs.DB",
+   "score": 59.4,
+   "title_en": "QuarkDB: A Hybrid Database System for Quantum Data Management",
+   "hook": "",
+   "title_hook": false,
+   "kw": [
+    "QuarkDB",
+    "Quantum"
+   ],
+   "authors": "Wenrui Zhang, Yu Wang, Xiao Zhang",
+   "units": [
+    "Renmin University of China"
+   ],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "量子通信等新兴应用产生海量高维量子数据，经典数据库系统难以满足量子处理与版本管理等需求"
+    },
+    {
+     "tag": "要点 2",
+     "text": "QuarkDB 是面向量子数据管理的混合数据库系统：建立关系数据与量子数据的统一对象模型，定义 Quantum SQL…"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.20807"
+  },
+  {
+   "rank": 5,
+   "lane": "推荐",
+   "sid": "2611.21421",
+   "cat": "cs.SE",
+   "score": 58.5,
+   "title_en": "AuXSpec: Learning to Autoformalize Program Specifications via Executable Postconditions",
+   "hook": "",
+   "title_hook": false,
+   "kw": [
+    "AuXSpec",
+    "Executable",
+    "Postconditions"
+   ],
+   "authors": "Haocheng Wang, Weixuan Yuan, Florian Hübler 等 6 人",
+   "units": [
+    "Department of Computer Science, ETH Zurich HKUST",
+    "ETH AI Center Institute for Theoretical Studies, ETH…"
+   ],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "形式规格是验证的基础，但用 Lean 等定理证明器写规格又慢又依赖专家，是形式正确代码规模化的主要瓶颈"
+    },
+    {
+     "tag": "要点 2",
+     "text": "AuXSpec 是一个 Lean 框架：用可执行后置条件（executable postconditions）自动获得「生成的规格是否刻画预期行为」的反馈信号…"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.21421"
+  },
+  {
+   "rank": 6,
+   "lane": "推荐",
+   "sid": "2611.18926",
+   "cat": "cs.DB",
+   "score": 57.5,
+   "title_en": "DataTrace: Benchmarking Data Agents for Evidence-Grounded Root-Cause Localization",
+   "hook": "",
+   "title_hook": false,
+   "kw": [
+    "DataTrace",
+    "Data"
+   ],
+   "authors": "Tung Sum Thomas Kwok, Xiaotian Lin, Yuyu Luo",
+   "units": [],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "数据库智能体诊断流水线故障，但根因只有配上「智能体确实查过的证据」才可信"
+    },
+    {
+     "tag": "要点 2",
+     "text": "现有基准只给最终答案打分，分不清「有证据支撑的正确诊断」与「蒙对」"
+    },
+    {
+     "tag": "要点 3",
+     "text": "DataTrace 是证据接地根因定位基准：在 83 个可运行环境中用受控故障注入派生根因与证据路径、无需人工标注…"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.18926"
+  },
+  {
+   "rank": 7,
+   "lane": "推荐",
+   "sid": "2611.19618",
+   "cat": "quant-ph",
+   "score": 54.9,
+   "title_en": "Latency-Preserving Rewrites and Translation Validation for Dynamic Quantum Circuits",
+   "hook": "",
+   "title_hook": false,
+   "kw": [],
+   "authors": "Rylan Malarchick",
+   "units": [
+    "Embry-Riddle Aeronautical University"
+   ],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "动态量子线路在运行中途测量量子比特并按结果选择后续操作，分支使量子比特等待经典控制器的往返"
+    },
+    {
+     "tag": "要点 2",
+     "text": "qlin 是降低这段等待的编译器：把操作移出分支而不延迟程序，该性质在 Lean 4 中证明"
+    },
+    {
+     "tag": "要点 3",
+     "text": "对几乎总是零综合的纠错解码器，把大概率综合编译进一条多路分支、其余保留原程序，由代价模型决定何时值得做经典控制转换"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.19618"
+  },
+  {
+   "rank": 8,
+   "lane": "推荐",
+   "sid": "2611.18930",
+   "cat": "cs.AI",
+   "score": 53.6,
+   "title_en": "Between Rigor and Reality: How AI Safety Benchmark Developers Understand Benchmark Use and Maintenance",
+   "hook": "",
+   "title_hook": false,
+   "kw": [
+    "AI"
+   ],
+   "authors": "Megan Li, Ningjing Tang, Christopher Stewart 等 5 人",
+   "units": [
+    "Carnegie Mellon University"
+   ],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "安全基准被当作理解生成式 AI 风险的首要工具，但越来越多证据表明它们满足不了真实安全评估的需求"
+    },
+    {
+     "tag": "要点 2",
+     "text": "本文对学术界与工业界的 AI 安全基准开发者做五次访谈，发现「预期有用性」与「部署系统安全评估中的实际有用性」之间存在脱节…"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.18930"
+  },
+  {
+   "rank": 9,
+   "lane": "推荐",
+   "sid": "2611.18890",
+   "cat": "cs.SE",
+   "score": 45.9,
+   "title_en": "Benchmark Factory: Agentic Benchmark Creation via Dataset Curation and Label-Free Quality Anchors",
+   "hook": "",
+   "title_hook": true,
+   "kw": [
+    "Benchmark",
+    "Factory"
+   ],
+   "authors": "Shervin Shahidi, James Poon, Hang Xie 等 6 人",
+   "units": [],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "部署编码智能体的团队需要用自家代码构建基准，但人工策展与验证成本高，未验证的基准还会悄悄误导"
+    },
+    {
+     "tag": "要点 2",
+     "text": "Benchmark Factory 是带人工检查点的自主元智能体循环：智能体对落库的生产代码变更写检索查询、让已知相对强弱的模型跑候选…"
+    },
+    {
+     "tag": "要点 3",
+     "text": "已在多团队生产代码上构建基准"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.18890"
+  },
+  {
+   "rank": 10,
+   "lane": "兴趣扩展",
+   "sid": "2611.21299",
+   "cat": "cs.AI",
+   "score": 91.2,
+   "title_en": "Turing Agent: Agentic Formal Verification for Mathematical Research",
+   "hook": "",
+   "title_hook": false,
+   "kw": [
+    "Turing",
+    "Agent"
+   ],
+   "authors": "Yang Chen, Qianyi Wang, Ronghui Yang 等 6 人",
+   "units": [
+    "Agent Center, Shanghai Artificial Intelligence Laboratory",
+    "Algorithms and Logic Group, University of Electronic…",
+    "等 4 家单位"
+   ],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "LLM 正把数学推向「证明过剩」时代，核心挑战变成如何确保海量 AI 生成证明的正确性并转化为可信的机器验证知识"
+    },
+    {
+     "tag": "要点 2",
+     "text": "Turing Agent 是编排研究级数学端到端形式验证的智能体 harness：双尺度架构整合定理形式化与证明搜索，在 IMO-ProofBench…"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.21299"
+  }
+ ]
 }
