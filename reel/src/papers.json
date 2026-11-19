@@ -1,10 +1,10 @@
 {
- "issue": "20261118",
- "range": "2026-11-16 · 回溯 3 天公告批次",
- "generated": "2026-11-18T09:50:13+08:00",
+ "issue": "20261119",
+ "range": "2026-11-17 · 回溯 3 天公告批次",
+ "generated": "2026-11-19T09:56:22+08:00",
  "stats": {
-  "core": 110,
-  "expand": 735,
+  "core": 55,
+  "expand": 498,
   "rec": 14,
   "exp": 10
  },
@@ -12,304 +12,297 @@
   {
    "rank": 1,
    "lane": "推荐",
-   "sid": "2611.19267",
-   "cat": "cs.SE",
-   "score": 86.3,
-   "title_en": "Small Harnesses, Default Checks, Limited Coverage: Bounded Model Checking in Practice",
-   "hook": "17 位实践者的 BMC 实战画像",
+   "sid": "2611.22401",
+   "cat": "cs.LO",
+   "score": 81.5,
+   "title_en": "RyBench: Runtime Verification Benchmarking Framework over Publish/Subscribe Networks",
+   "hook": "一条总线体检所有 RV 工具",
    "title_hook": false,
-   "kw": [],
-   "authors": "Kevin Kolyakov, Ricardo Calvo, James C. Davis 等 4 人",
-   "units": [
-    "University of Waterloo"
+   "kw": [
+    "RyBench"
    ],
+   "authors": "Mehmet Hilmi Dündar, Doğan Ulus",
+   "units": [],
    "bullets": [
     {
      "tag": "要点 1",
-     "text": "AI 生成软件与验证制品激增，有界模型检查（BMC）可对软件直接自动检查正确性与安全性质，成为可靠软件保证的实用基础"
+     "text": "RyBench 是面向发布/订阅中间件的运行时验证（RV）基准框架：以合成事件发布器替代被监控系统，统一测量监控吞吐与判定延迟"
     },
     {
      "tag": "要点 2",
-     "text": "但有效验证依赖性质选择、输入假设、函数建模与执行界等决策，实践者如何做这些决策缺乏系统证据"
+     "text": "框架把事件生成、序列化、传输拆成独立组件，可自由组合不同策略与格式"
     },
     {
      "tag": "要点 3",
-     "text": "本文对 12 家组织的 17 位实践者做访谈与调查，归纳出「小型 harness、默认检查、覆盖有限」的实践形态，并提炼出对自动化验证工具设计的启示"
+     "text": "用 OSI 模式与 Timescales 属性评估各配置吞吐，并以 Reelay 应用与 MonPoly 集成展示端到端基准流程"
     }
    ],
-   "link": "arxiv.org/abs/2611.19267"
+   "link": "arxiv.org/abs/2611.22401"
   },
   {
    "rank": 2,
    "lane": "推荐",
-   "sid": "2611.21084",
-   "cat": "cs.PL",
-   "score": 61.6,
-   "title_en": "CompCert4Lean: Porting a Verified C Compiler to Lean in Six Weeks with Parallel Coding Agents",
-   "hook": "六周移植 CompCert 到 Lean",
+   "sid": "2611.22403",
+   "cat": "cs.SE",
+   "score": 81.3,
+   "title_en": "BehaVerify: A Formal Verification Tool for Behavior Trees",
+   "hook": "给机器人行为树装上验证器",
    "title_hook": false,
    "kw": [
-    "CompCert4Lean",
-    "Lean"
+    "BehaVerify",
+    "Trees"
    ],
-   "authors": "Cong Wang, Zhiyang Chen, Fan Long 等 4 人",
-   "units": [
-    "University of Toronto",
-    "Massachusetts Institute of Technology"
-   ],
+   "authors": "Serena S. Serbinowska, Ben Wooding, Diego Manzanas Lopez 等 6 人",
+   "units": [],
    "bullets": [
     {
      "tag": "要点 1",
-     "text": "CompCert4Lean 把 CompCert 3.17 经验证编译器核心从 Rocq 大规模移植到 Lean：由一名专家指挥并行 LLM…"
+     "text": "BehaVerify 是行为树与神经符号行为树的验证工具箱：用带形式语法与语义的 DSL 描述行为树，语言内置 LTL/CTL 规约"
     },
     {
      "tag": "要点 2",
-     "text": "迁移流程沿依赖关系切分开发，先审计翻译后的定义与定理陈述，再对照稳定接口并行重建证明"
+     "text": "经 fastforwarding 高效编码到 nuXmv 快速判定规约是否成立，并能生成 Python/Haskell 实现、接入 PyTrees 与…"
     },
     {
      "tag": "要点 3",
-     "text": "结果覆盖类型化 CompCert C 到 x86-64 汇编，清偿全部 4,908 条证明义务、无项目专属公理，并能产出可执行 Linux 二进制"
+     "text": "开源，本文聚焦工具箱的使用、功能与实现"
     }
    ],
-   "link": "arxiv.org/abs/2611.21084"
+   "link": "arxiv.org/abs/2611.22403"
   },
   {
    "rank": 3,
    "lane": "推荐",
-   "sid": "2611.21148",
-   "cat": "cs.PL",
-   "score": 61.4,
-   "title_en": "SAFE: Formal Specification and Implementation of a Scalable Analysis Framework for ECMAScript",
-   "hook": "JavaScript 分析器首次形式化",
+   "sid": "2611.22394",
+   "cat": "cs.SE",
+   "score": 67.7,
+   "title_en": "Formal Analysis of a Fault-Tolerant Extension of the ROSACE Flight Controller",
+   "hook": "三模冗余让飞控带故障起降",
    "title_hook": false,
    "kw": [
-    "SAFE",
-    "ECMAScript"
+    "ROSACE"
    ],
-   "authors": "Hongki Lee, Sooncheol Won, Joonho Jin 等 5 人",
+   "authors": "Marco Bozzano, Alessandro Cimatti, Moussa Fall 等 4 人",
    "units": [],
    "bullets": [
     {
      "tag": "要点 1",
-     "text": "JavaScript 分析器对检测 Web 应用安全漏洞至关重要，但多数现有工具文档匮乏或闭源，难以理解、修改与复现"
+     "text": "用 COMPASTA（ESA TASTE 之上的模型驱动设计工具）分析 ROSACE 飞控基准的运行时韧性：加入基于三模冗余的…"
     },
     {
      "tag": "要点 2",
-     "text": "本文给出 SAFE（可扩展 ECMAScript 分析框架）的形式化规范与实现：形式定义其架构与组件接口，并讨论以调用图构建为核心的实现挑战…"
+     "text": "形式模型与仿真用的 Simulink 模型耦合"
     }
    ],
-   "link": "arxiv.org/abs/2611.21148"
+   "link": "arxiv.org/abs/2611.22394"
   },
   {
    "rank": 4,
    "lane": "推荐",
-   "sid": "2611.20807",
-   "cat": "cs.DB",
-   "score": 59.4,
-   "title_en": "QuarkDB: A Hybrid Database System for Quantum Data Management",
+   "sid": "2611.22663",
+   "cat": "cs.PL",
+   "score": 61.6,
+   "title_en": "A Unifying Metatheorem on Weak-Memory Robustness",
    "hook": "",
    "title_hook": false,
-   "kw": [
-    "QuarkDB",
-    "Quantum"
-   ],
-   "authors": "Wenrui Zhang, Yu Wang, Xiao Zhang",
-   "units": [
-    "Renmin University of China"
-   ],
+   "kw": [],
+   "authors": "Giovanna Kobus Conrado, Stephan Spengler, Mohamed Faouzi Atig 等 4 人",
+   "units": [],
    "bullets": [
     {
      "tag": "要点 1",
-     "text": "量子通信等新兴应用产生海量高维量子数据，经典数据库系统难以满足量子处理与版本管理等需求"
+     "text": "弱内存鲁棒性判定此前对每个内存模型都要单独证明 PSPACE 成员资格"
     },
     {
      "tag": "要点 2",
-     "text": "QuarkDB 是面向量子数据管理的混合数据库系统：建立关系数据与量子数据的统一对象模型，定义 Quantum SQL…"
+     "text": "本文证明统一元定理：对任何前缀封闭、可用带测试 Kleene 代数（KAT）定义的内存模型，鲁棒性判定都在 PSPACE 内——一举覆盖…"
+    },
+    {
+     "tag": "要点 3",
+     "text": "正确性已在 Lean 中形式化；另证明去掉前缀封闭后不可判定（KAT 可定义的 Relaxed 模型），并实现原型 RoboKAT 检查 9 个内存模型"
     }
    ],
-   "link": "arxiv.org/abs/2611.20807"
+   "link": "arxiv.org/abs/2611.22663"
   },
   {
    "rank": 5,
    "lane": "推荐",
-   "sid": "2611.21421",
-   "cat": "cs.SE",
-   "score": 58.5,
-   "title_en": "AuXSpec: Learning to Autoformalize Program Specifications via Executable Postconditions",
+   "sid": "2611.22631",
+   "cat": "cs.DC",
+   "score": 57.4,
+   "title_en": "Byzantine Resilience of Robot Gathering under Round-Robin Scheduling",
    "hook": "",
    "title_hook": false,
-   "kw": [
-    "AuXSpec",
-    "Executable",
-    "Postconditions"
-   ],
-   "authors": "Haocheng Wang, Weixuan Yuan, Florian Hübler 等 6 人",
+   "kw": [],
+   "authors": "Fabian Frei, Yuichi Sudo, Koichi Wada",
    "units": [
-    "Department of Computer Science, ETH Zurich HKUST",
-    "ETH AI Center Institute for Theoretical Studies, ETH…"
+    "Hosei University"
    ],
    "bullets": [
     {
      "tag": "要点 1",
-     "text": "形式规格是验证的基础，但用 Lean 等定理证明器写规格又慢又依赖专家，是形式正确代码规模化的主要瓶颈"
+     "text": "研究轮转调度下 n 个匿名、健忘平面机器人的确定性聚集，其中 f 个为拜占庭机器人、局部坐标系可在激活间被敌手改变"
     },
     {
      "tag": "要点 2",
-     "text": "AuXSpec 是一个 Lean 框架：用可执行后置条件（executable postconditions）自动获得「生成的规格是否刻画预期行为」的反馈信号…"
+     "text": "分析极简算法 ToMax：移动到重数最大的点，仅当自己处于唯一最大点时保持不动"
+    },
+    {
+     "tag": "要点 3",
+     "text": "证明 ToMax 在 f ≤ ⌊√n/2⌋ 时完成聚集，并给出可达拜占庭韧性的 Ω(√n) 下界"
     }
    ],
-   "link": "arxiv.org/abs/2611.21421"
+   "link": "arxiv.org/abs/2611.22631"
   },
   {
    "rank": 6,
    "lane": "推荐",
-   "sid": "2611.18926",
-   "cat": "cs.DB",
-   "score": 57.5,
-   "title_en": "DataTrace: Benchmarking Data Agents for Evidence-Grounded Root-Cause Localization",
+   "sid": "2611.22323",
+   "cat": "cs.SE",
+   "score": 49.3,
+   "title_en": "Agent Trajectories as Evidence for Software Quality Assurance",
    "hook": "",
    "title_hook": false,
-   "kw": [
-    "DataTrace",
-    "Data"
-   ],
-   "authors": "Tung Sum Thomas Kwok, Xiaotian Lin, Yuyu Luo",
+   "kw": [],
+   "authors": "Jonathan Ullrich, Julien Siebert, Michael Kläs 等 5 人",
    "units": [],
    "bullets": [
     {
      "tag": "要点 1",
-     "text": "数据库智能体诊断流水线故障，但根因只有配上「智能体确实查过的证据」才可信"
+     "text": "提议把可观测的智能体轨迹当作软件质量保证的证据：与软件/智能体规约及 AI 生成产物一并分析，用于圈定值得审查的关键决策、追溯其对软件问题的可能贡献…"
     },
     {
      "tag": "要点 2",
-     "text": "现有基准只给最终答案打分，分不清「有证据支撑的正确诊断」与「蒙对」"
+     "text": "工业经验支持动机，执行记录与初步分析方法使其可行"
     },
     {
      "tag": "要点 3",
-     "text": "DataTrace 是证据接地根因定位基准：在 83 个可运行环境中用受控故障注入派生根因与证据路径、无需人工标注…"
+     "text": "作者坦承轨迹本身不能证明决策合理，讨论了它何时够用、何时更简单的 QA 已足，并列举需求工程、验证、因果推断等视角的开放问题"
     }
    ],
-   "link": "arxiv.org/abs/2611.18926"
+   "link": "arxiv.org/abs/2611.22323"
   },
   {
    "rank": 7,
    "lane": "推荐",
-   "sid": "2611.19618",
-   "cat": "quant-ph",
-   "score": 54.9,
-   "title_en": "Latency-Preserving Rewrites and Translation Validation for Dynamic Quantum Circuits",
-   "hook": "",
-   "title_hook": false,
-   "kw": [],
-   "authors": "Rylan Malarchick",
-   "units": [
-    "Embry-Riddle Aeronautical University"
-   ],
-   "bullets": [
-    {
-     "tag": "要点 1",
-     "text": "动态量子线路在运行中途测量量子比特并按结果选择后续操作，分支使量子比特等待经典控制器的往返"
-    },
-    {
-     "tag": "要点 2",
-     "text": "qlin 是降低这段等待的编译器：把操作移出分支而不延迟程序，该性质在 Lean 4 中证明"
-    },
-    {
-     "tag": "要点 3",
-     "text": "对几乎总是零综合的纠错解码器，把大概率综合编译进一条多路分支、其余保留原程序，由代价模型决定何时值得做经典控制转换"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.19618"
-  },
-  {
-   "rank": 8,
-   "lane": "推荐",
-   "sid": "2611.18930",
+   "sid": "2611.22171",
    "cat": "cs.AI",
-   "score": 53.6,
-   "title_en": "Between Rigor and Reality: How AI Safety Benchmark Developers Understand Benchmark Use and Maintenance",
+   "score": 48.6,
+   "title_en": "Readie: Low-Latency Code Sandboxes for AI Agents",
    "hook": "",
    "title_hook": false,
    "kw": [
-    "AI"
+    "Readie"
    ],
-   "authors": "Megan Li, Ningjing Tang, Christopher Stewart 等 5 人",
-   "units": [
-    "Carnegie Mellon University"
-   ],
-   "bullets": [
-    {
-     "tag": "要点 1",
-     "text": "安全基准被当作理解生成式 AI 风险的首要工具，但越来越多证据表明它们满足不了真实安全评估的需求"
-    },
-    {
-     "tag": "要点 2",
-     "text": "本文对学术界与工业界的 AI 安全基准开发者做五次访谈，发现「预期有用性」与「部署系统安全评估中的实际有用性」之间存在脱节…"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.18930"
-  },
-  {
-   "rank": 9,
-   "lane": "推荐",
-   "sid": "2611.18890",
-   "cat": "cs.SE",
-   "score": 45.9,
-   "title_en": "Benchmark Factory: Agentic Benchmark Creation via Dataset Curation and Label-Free Quality Anchors",
-   "hook": "",
-   "title_hook": true,
-   "kw": [
-    "Benchmark",
-    "Factory"
-   ],
-   "authors": "Shervin Shahidi, James Poon, Hang Xie 等 6 人",
+   "authors": "Arjun Sivaraman, Zhaoheng Li, Alan Shi 等 6 人",
    "units": [],
    "bullets": [
     {
      "tag": "要点 1",
-     "text": "部署编码智能体的团队需要用自家代码构建基准，但人工策展与验证成本高，未验证的基准还会悄悄误导"
+     "text": "代码沙箱启动慢的根因是难以构造既紧凑又覆盖多样智能体生成代码的预热快照"
     },
     {
      "tag": "要点 2",
-     "text": "Benchmark Factory 是带人工检查点的自主元智能体循环：智能体对落库的生产代码变更写检索查询、让已知相对强弱的模型跑候选…"
+     "text": "Readie 改学一组启动快照：每个快照小、初始化快、只覆盖一部分代码，合起来覆盖大多数工作负载"
     },
     {
      "tag": "要点 3",
-     "text": "已在多团队生产代码上构建基准"
+     "text": "把快照集合构造形式化为优化问题并用近似算法求解；在 15K 公开+LLM 合成脚本上规划，相同存储预算下启动延迟降 3–22 倍、端到端运行时降…"
     }
    ],
-   "link": "arxiv.org/abs/2611.18890"
+   "link": "arxiv.org/abs/2611.22171"
+  },
+  {
+   "rank": 8,
+   "lane": "推荐",
+   "sid": "2611.22397",
+   "cat": "cs.RO",
+   "score": 47.7,
+   "title_en": "SkiNet-Sim: Simulating Petri Nets with Data for the Verification and Validation of Controllers for Autonomous Systems",
+   "hook": "",
+   "title_hook": false,
+   "kw": [
+    "Petri"
+   ],
+   "authors": "Baptiste Pelletier, Karen Godary",
+   "units": [],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "经典 Petri 网语义过简、高层形式化又过于专门，再加状态爆炸，使 Petri 网难以走出学界"
+    },
+    {
+     "tag": "要点 2",
+     "text": "本文提出带数据感知变迁与令牌的解释 Petri 网形式模型，把实现相关的行为与经典语义分离，保留简单触发语义与模型检验能力的同时贴合真实系统"
+    },
+    {
+     "tag": "要点 3",
+     "text": "配套轻量工具做数据感知状态空间探索，并以工业巡检机器人完整任务对比经典语义与新语义下的仿真和模型检验结果"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.22397"
+  },
+  {
+   "rank": 9,
+   "lane": "兴趣扩展",
+   "sid": "2611.21679",
+   "cat": "cs.AR",
+   "score": 68.6,
+   "title_en": "FCP: Formal Context Protocol for Verifying LLM-Generated Artifacts",
+   "hook": "",
+   "title_hook": false,
+   "kw": [
+    "FCP"
+   ],
+   "authors": "Shashank",
+   "units": [],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "形式上下文协议（FCP）：当 LLM 既写产物又写测试时，测试通过是弱证据"
+    },
+    {
+     "tag": "要点 2",
+     "text": "FCP 对照「请求本身」检查 AI 产物，把一致性（产物是否满足需求的一个形式读法？由模型检查器/SMT…"
+    },
+    {
+     "tag": "要点 3",
+     "text": "证明可能虚假认证需求的八种方式各变成一个机械检查；四个硬件设计上，信任 AI 断言会认证 23% 被违反的需求，FCP 认证 0；十个代码任务上三个 LLM…"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.21679"
   },
   {
    "rank": 10,
    "lane": "兴趣扩展",
-   "sid": "2611.21299",
-   "cat": "cs.AI",
-   "score": 91.2,
-   "title_en": "Turing Agent: Agentic Formal Verification for Mathematical Research",
+   "sid": "2611.21975",
+   "cat": "cs.CV",
+   "score": 56.4,
+   "title_en": "Pathology Randomization for Synthetic Priors and Zero-Shot Detection",
    "hook": "",
-   "title_hook": false,
-   "kw": [
-    "Turing",
-    "Agent"
-   ],
-   "authors": "Yang Chen, Qianyi Wang, Ronghui Yang 等 6 人",
+   "title_hook": true,
+   "kw": [],
+   "authors": "Alexandra G. Roberts, Tonmoy Hossain, Mark Olchanyi 等 6 人",
    "units": [
-    "Agent Center, Shanghai Artificial Intelligence Laboratory",
-    "Algorithms and Logic Group, University of Electronic…",
-    "等 4 家单位"
+    "Harvard Medical School and Massachusetts General Hospital",
+    "Massachusetts Institute of Technology",
+    "等 3 家单位"
    ],
    "bullets": [
     {
      "tag": "要点 1",
-     "text": "LLM 正把数学推向「证明过剩」时代，核心挑战变成如何确保海量 AI 生成证明的正确性并转化为可信的机器验证知识"
+     "text": "PathoDraw 是带病灶的脑 MRI 生成模型：先按「健康解剖→病灶」条件分布把病灶画进标签图，再做对比度无关渲染"
     },
     {
      "tag": "要点 2",
-     "text": "Turing Agent 是编排研究级数学端到端形式验证的智能体 harness：双尺度架构整合定理形式化与证明搜索，在 IMO-ProofBench…"
+     "text": "单个 3D UNet 直接学习病灶下的健康标签与有符号强度偏差，经稳健组织统计与习得特征识别病灶，全程未用真实病理数据训练"
+    },
+    {
+     "tag": "要点 3",
+     "text": "在公开卒中/肿瘤/白质高信号数据集与临床存档数据上零样本检测，跨 T1w/FLAIR/T2w 与多种分辨率…"
     }
    ],
-   "link": "arxiv.org/abs/2611.21299"
+   "link": "arxiv.org/abs/2611.21975"
   }
  ]
 }
