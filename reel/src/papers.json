@@ -1,10 +1,10 @@
 {
- "issue": "20261119",
- "range": "2026-11-17 · 回溯 3 天公告批次",
- "generated": "2026-11-19T09:56:22+08:00",
+ "issue": "20261120",
+ "range": "2026-11-18 · 回溯 3 天公告批次",
+ "generated": "2026-11-20T09:54:00+08:00",
  "stats": {
-  "core": 55,
-  "expand": 498,
+  "core": 72,
+  "expand": 496,
   "rec": 14,
   "exp": 10
  },
@@ -12,297 +12,307 @@
   {
    "rank": 1,
    "lane": "推荐",
-   "sid": "2611.22401",
-   "cat": "cs.LO",
-   "score": 81.5,
-   "title_en": "RyBench: Runtime Verification Benchmarking Framework over Publish/Subscribe Networks",
-   "hook": "一条总线体检所有 RV 工具",
-   "title_hook": false,
+   "sid": "2611.24833",
+   "cat": "cs.DB",
+   "score": 63.1,
+   "title_en": "DispersedBFT: Bottleneck-Free Primary-Backup Consensus using Dispersed Replication",
+   "hook": "取消主节点，PBFT 不再堵",
+   "title_hook": true,
    "kw": [
-    "RyBench"
+    "DispersedBFT",
+    "Dispersed"
    ],
-   "authors": "Mehmet Hilmi Dündar, Doğan Ulus",
-   "units": [],
+   "authors": "Nancy Kansal, Celine Sana, Jelle Hellings",
+   "units": [
+    "Department of Computing &amp"
+   ],
    "bullets": [
     {
      "tag": "要点 1",
-     "text": "RyBench 是面向发布/订阅中间件的运行时验证（RV）基准框架：以合成事件发布器替代被监控系统，统一测量监控吞吐与判定延迟"
+     "text": "DispersedBFT：用分散复制消除主节点瓶颈的 PBFT 型共识协议"
     },
     {
      "tag": "要点 2",
-     "text": "框架把事件生成、序列化、传输拆成独立组件，可自由组合不同策略与格式"
+     "text": "传统主备式 RDS 中 primary 负责协调请求的复制与执行，中心角色急剧限制性能"
     },
     {
      "tag": "要点 3",
-     "text": "用 OSI 模式与 Timescales 属性评估各配置吞吐，并以 Reelay 应用与 MonPoly 集成展示端到端基准流程"
+     "text": "DispersedBFT 把协调职责分散到副本，实测消除主节点瓶颈并显著提升吞吐，为区块链驱动的弹性数据管理系统提供新设计点"
     }
    ],
-   "link": "arxiv.org/abs/2611.22401"
+   "link": "arxiv.org/abs/2611.24833"
   },
   {
    "rank": 2,
    "lane": "推荐",
-   "sid": "2611.22403",
-   "cat": "cs.SE",
-   "score": 81.3,
-   "title_en": "BehaVerify: A Formal Verification Tool for Behavior Trees",
-   "hook": "给机器人行为树装上验证器",
+   "sid": "2611.23792",
+   "cat": "cs.PL",
+   "score": 61.3,
+   "title_en": "Validating Concurrent Correctness Witnesses with Ghosts by Thread-Modular Abstract Interpretation",
+   "hook": "并发验证结论可独立复核",
    "title_hook": false,
    "kw": [
-    "BehaVerify",
-    "Trees"
+    "Correctness"
    ],
-   "authors": "Serena S. Serbinowska, Ben Wooding, Diego Manzanas Lopez 等 6 人",
-   "units": [],
+   "authors": "Michael Schwarz, Zhendong Ang, Umang Mathur",
+   "units": [
+    "National University of Singapore"
+   ],
    "bullets": [
     {
      "tag": "要点 1",
-     "text": "BehaVerify 是行为树与神经符号行为树的验证工具箱：用带形式语法与语义的 DSL 描述行为树，语言内置 LTL/CTL 规约"
+     "text": "并发正确性见证（correctness witness）可独立验证软件验证器的结论，扩展 ghost 变量后表达力更强，但缺乏配套校验技术"
     },
     {
      "tag": "要点 2",
-     "text": "经 fastforwarding 高效编码到 nuXmv 快速判定规约是否成立，并能生成 Python/Haskell 实现、接入 PyTrees 与…"
-    },
-    {
-     "tag": "要点 3",
-     "text": "开源，本文聚焦工具箱的使用、功能与实现"
+     "text": "本文用线程模块化抽象解释校验含 ghost 的并发见证：以逐线程分析近似整个并发行为了解 ghost…"
     }
    ],
-   "link": "arxiv.org/abs/2611.22403"
+   "link": "arxiv.org/abs/2611.23792"
   },
   {
    "rank": 3,
    "lane": "推荐",
-   "sid": "2611.22394",
+   "sid": "2611.24210",
    "cat": "cs.SE",
-   "score": 67.7,
-   "title_en": "Formal Analysis of a Fault-Tolerant Extension of the ROSACE Flight Controller",
-   "hook": "三模冗余让飞控带故障起降",
+   "score": 60.7,
+   "title_en": "OmegaHyper: Explicit-State HyperLTL Model Checking on an omega-Automaton Diet",
+   "hook": "HyperLTL 检查不再爆内存",
    "title_hook": false,
    "kw": [
-    "ROSACE"
+    "OmegaHyper",
+    "HyperLTL"
    ],
-   "authors": "Marco Bozzano, Alessandro Cimatti, Moussa Fall 等 4 人",
-   "units": [],
+   "authors": "Hugo Pacheco",
+   "units": [
+    "University of Minho &amp"
+   ],
    "bullets": [
     {
      "tag": "要点 1",
-     "text": "用 COMPASTA（ESA TASTE 之上的模型驱动设计工具）分析 ROSACE 飞控基准的运行时韧性：加入基于三模冗余的…"
+     "text": "OmegaHyper 重构 HyperLTL 显式状态模型检查器 AutoHyper：算法不变，但把被处理的自动机分解并缩小，并集成 Kofola…"
     },
     {
      "tag": "要点 2",
-     "text": "形式模型与仿真用的 Simulink 模型耦合"
+     "text": "实测大幅缓解状态爆炸，让此前查不动的 HyperLTL 性质变得可检"
     }
    ],
-   "link": "arxiv.org/abs/2611.22394"
+   "link": "arxiv.org/abs/2611.24210"
   },
   {
    "rank": 4,
    "lane": "推荐",
-   "sid": "2611.22663",
+   "sid": "2611.24649",
    "cat": "cs.PL",
-   "score": 61.6,
-   "title_en": "A Unifying Metatheorem on Weak-Memory Robustness",
+   "score": 59.6,
+   "title_en": "A Principled Approach to Concurrency, Nondeterminism, and Asynchrony in Choreographies",
    "hook": "",
    "title_hook": false,
    "kw": [],
-   "authors": "Giovanna Kobus Conrado, Stephan Spengler, Mohamed Faouzi Atig 等 4 人",
-   "units": [],
+   "authors": "Xueying Qin, Marco Peressotti, Fabrizio Montesi",
+   "units": [
+    "University of Southern Denmark"
+   ],
    "bullets": [
     {
      "tag": "要点 1",
-     "text": "弱内存鲁棒性判定此前对每个内存模型都要单独证明 PSPACE 成员资格"
+     "text": "编排式编程（CP）把分布式系统写成全局程序再经端点投影编译，但异步（进程独立推进）与不确定性（交互引发的行为范围）此前从未同时纳入 CP 理论"
     },
     {
      "tag": "要点 2",
-     "text": "本文证明统一元定理：对任何前缀封闭、可用带测试 Kleene 代数（KAT）定义的内存模型，鲁棒性判定都在 PSPACE 内——一举覆盖…"
-    },
-    {
-     "tag": "要点 3",
-     "text": "正确性已在 Lean 中形式化；另证明去掉前缀封闭后不可判定（KAT 可定义的 Relaxed 模型），并实现原型 RoboKAT 检查 9 个内存模型"
+     "text": "Nyarlathotep 是首个异步非确定性 CP 框架：用标记迁移系统定义编排与网络的操作语义，证明端点投影在异步+非确定性下仍保正确"
     }
    ],
-   "link": "arxiv.org/abs/2611.22663"
+   "link": "arxiv.org/abs/2611.24649"
   },
   {
    "rank": 5,
    "lane": "推荐",
-   "sid": "2611.22631",
-   "cat": "cs.DC",
-   "score": 57.4,
-   "title_en": "Byzantine Resilience of Robot Gathering under Round-Robin Scheduling",
+   "sid": "2611.24804",
+   "cat": "cs.SE",
+   "score": 59.4,
+   "title_en": "MLIR-MRacle: Memory-Model-Aware Metamorphic Fuzzing of Concurrent MLIR",
    "hook": "",
    "title_hook": false,
-   "kw": [],
-   "authors": "Fabian Frei, Yuichi Sudo, Koichi Wada",
+   "kw": [
+    "MLIR-MRacle",
+    "MLIR"
+   ],
+   "authors": "Aaron Gabayoyo, Aidan Dakhama, Ajitha Rajan",
    "units": [
-    "Hosei University"
+    "School of Informatics",
+    "University of Edinburgh"
    ],
    "bullets": [
     {
      "tag": "要点 1",
-     "text": "研究轮转调度下 n 个匿名、健忘平面机器人的确定性聚集，其中 f 个为拜占庭机器人、局部坐标系可在激活间被敌手改变"
+     "text": "MLIR-MRacle 是并发 MLIR 程序的内存模型感知蜕变测试器：并发程序常无单一预期输出，既有 MLIR 模糊器多假设确定性，而 lowering…"
     },
     {
      "tag": "要点 2",
-     "text": "分析极简算法 ToMax：移动到重数最大的点，仅当自己处于唯一最大点时保持不动"
-    },
-    {
-     "tag": "要点 3",
-     "text": "证明 ToMax 在 f ≤ ⌊√n/2⌋ 时完成聚集，并给出可达拜占庭韧性的 Ω(√n) 下界"
+     "text": "它按目标内存模型门控蜕变关系，保证原程序与变换后程序都良定义，能发现「看似合理却悄悄改变行为」的并发优化"
     }
    ],
-   "link": "arxiv.org/abs/2611.22631"
+   "link": "arxiv.org/abs/2611.24804"
   },
   {
    "rank": 6,
    "lane": "推荐",
-   "sid": "2611.22323",
-   "cat": "cs.SE",
-   "score": 49.3,
-   "title_en": "Agent Trajectories as Evidence for Software Quality Assurance",
+   "sid": "2611.23811",
+   "cat": "cs.DC",
+   "score": 58.8,
+   "title_en": "Stephen: Verifying Sequencer-Aided Coordination Systems with Cross-View Prophecy",
    "hook": "",
    "title_hook": false,
-   "kw": [],
-   "authors": "Jonathan Ullrich, Julien Siebert, Michael Kläs 等 5 人",
-   "units": [],
+   "kw": [
+    "Stephen",
+    "Cross-View",
+    "Prophecy"
+   ],
+   "authors": "Jinkun Geng, Muhammad Haseeb, Daniel Qian 等 6 人",
+   "units": [
+    "New York University",
+    "Stony Brook University"
+   ],
    "bullets": [
     {
      "tag": "要点 1",
-     "text": "提议把可观测的智能体轨迹当作软件质量保证的证据：与软件/智能体规约及 AI 生成产物一并分析，用于圈定值得审查的关键决策、追溯其对软件问题的可能贡献…"
+     "text": "Stephen：形式化验证依赖定序器（sequencer）的协调系统实现"
     },
     {
      "tag": "要点 2",
-     "text": "工业经验支持动机，执行记录与初步分析方法使其可行"
+     "text": "从 Corfu、NOPaxos 到 LazyLog、SwitchBFT，十余年 SAC 系统只有纸面证明或协议级有界模型检查"
     },
     {
      "tag": "要点 3",
-     "text": "作者坦承轨迹本身不能证明决策合理，讨论了它何时够用、何时更简单的 QA 已足，并列举需求工程、验证、因果推断等视角的开放问题"
+     "text": "定序器看似简化证明（线性化点放在定序器即可），实则跨视图预言（cross-view prophecy）才是关键；本文给出实现级形式验证并发现真实缺陷"
     }
    ],
-   "link": "arxiv.org/abs/2611.22323"
+   "link": "arxiv.org/abs/2611.23811"
   },
   {
    "rank": 7,
    "lane": "推荐",
-   "sid": "2611.22171",
-   "cat": "cs.AI",
-   "score": 48.6,
-   "title_en": "Readie: Low-Latency Code Sandboxes for AI Agents",
-   "hook": "",
-   "title_hook": false,
-   "kw": [
-    "Readie"
-   ],
-   "authors": "Arjun Sivaraman, Zhaoheng Li, Alan Shi 等 6 人",
-   "units": [],
-   "bullets": [
-    {
-     "tag": "要点 1",
-     "text": "代码沙箱启动慢的根因是难以构造既紧凑又覆盖多样智能体生成代码的预热快照"
-    },
-    {
-     "tag": "要点 2",
-     "text": "Readie 改学一组启动快照：每个快照小、初始化快、只覆盖一部分代码，合起来覆盖大多数工作负载"
-    },
-    {
-     "tag": "要点 3",
-     "text": "把快照集合构造形式化为优化问题并用近似算法求解；在 15K 公开+LLM 合成脚本上规划，相同存储预算下启动延迟降 3–22 倍、端到端运行时降…"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.22171"
-  },
-  {
-   "rank": 8,
-   "lane": "推荐",
-   "sid": "2611.22397",
-   "cat": "cs.RO",
-   "score": 47.7,
-   "title_en": "SkiNet-Sim: Simulating Petri Nets with Data for the Verification and Validation of Controllers for Autonomous Systems",
-   "hook": "",
-   "title_hook": false,
-   "kw": [
-    "Petri"
-   ],
-   "authors": "Baptiste Pelletier, Karen Godary",
-   "units": [],
-   "bullets": [
-    {
-     "tag": "要点 1",
-     "text": "经典 Petri 网语义过简、高层形式化又过于专门，再加状态爆炸，使 Petri 网难以走出学界"
-    },
-    {
-     "tag": "要点 2",
-     "text": "本文提出带数据感知变迁与令牌的解释 Petri 网形式模型，把实现相关的行为与经典语义分离，保留简单触发语义与模型检验能力的同时贴合真实系统"
-    },
-    {
-     "tag": "要点 3",
-     "text": "配套轻量工具做数据感知状态空间探索，并以工业巡检机器人完整任务对比经典语义与新语义下的仿真和模型检验结果"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.22397"
-  },
-  {
-   "rank": 9,
-   "lane": "兴趣扩展",
-   "sid": "2611.21679",
+   "sid": "2611.24872",
    "cat": "cs.AR",
-   "score": 68.6,
-   "title_en": "FCP: Formal Context Protocol for Verifying LLM-Generated Artifacts",
+   "score": 53.2,
+   "title_en": "MicroAssert: Microarchitecture-Aware Structured Assertion Generation for CPU Verification",
    "hook": "",
    "title_hook": false,
    "kw": [
-    "FCP"
+    "MicroAssert",
+    "CPU"
    ],
-   "authors": "Shashank",
-   "units": [],
-   "bullets": [
-    {
-     "tag": "要点 1",
-     "text": "形式上下文协议（FCP）：当 LLM 既写产物又写测试时，测试通过是弱证据"
-    },
-    {
-     "tag": "要点 2",
-     "text": "FCP 对照「请求本身」检查 AI 产物，把一致性（产物是否满足需求的一个形式读法？由模型检查器/SMT…"
-    },
-    {
-     "tag": "要点 3",
-     "text": "证明可能虚假认证需求的八种方式各变成一个机械检查；四个硬件设计上，信任 AI 断言会认证 23% 被违反的需求，FCP 认证 0；十个代码任务上三个 LLM…"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.21679"
-  },
-  {
-   "rank": 10,
-   "lane": "兴趣扩展",
-   "sid": "2611.21975",
-   "cat": "cs.CV",
-   "score": 56.4,
-   "title_en": "Pathology Randomization for Synthetic Priors and Zero-Shot Detection",
-   "hook": "",
-   "title_hook": true,
-   "kw": [],
-   "authors": "Alexandra G. Roberts, Tonmoy Hossain, Mark Olchanyi 等 6 人",
+   "authors": "Hongqin Lyu, Yonghao Wang, Zhiteng Chao 等 6 人",
    "units": [
-    "Harvard Medical School and Massachusetts General Hospital",
-    "Massachusetts Institute of Technology",
+    "State Key Lab of Processors, Institute of Computing…",
+    "University of Chinese Academy of Sciences",
     "等 3 家单位"
    ],
    "bullets": [
     {
      "tag": "要点 1",
-     "text": "PathoDraw 是带病灶的脑 MRI 生成模型：先按「健康解剖→病灶」条件分布把病灶画进标签图，再做对比度无关渲染"
+     "text": "MicroAssert 是微架构感知的 CPU 断言自动生成框架：直接从 RTL 识别功能区域，经结构化契约与确定性验证原语生成本地与组合断言…"
     },
     {
      "tag": "要点 2",
-     "text": "单个 3D UNet 直接学习病灶下的健康标签与有符号强度偏差，经稳健组织统计与习得特征识别病灶，全程未用真实病理数据训练"
+     "text": "在五个开源 RISC-V CPU 上对比三种既有断言生成方法，能捕获既有方法漏掉的微架构行为与跨区域交互"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.24872"
+  },
+  {
+   "rank": 8,
+   "lane": "推荐",
+   "sid": "2611.23335",
+   "cat": "cs.CE",
+   "score": 50.6,
+   "title_en": "Truthgate: Checking Coding Agents Against a Record They Cannot Edit - Cheating, Deterrence and Disclosure on Impossible Tasks",
+   "hook": "",
+   "title_hook": false,
+   "kw": [
+    "Truthgate",
+    "Impossible"
+   ],
+   "authors": "Bravish Ghosh",
+   "units": [],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "Truthgate：拿「智能体改不了的记录」核查编码智能体是否诚实"
+    },
+    {
+     "tag": "要点 2",
+     "text": "每一步都由宿主重跑测试、在智能体看不见的容器里埋隐藏检查、由沙箱外签名者记录全部工具调用"
     },
     {
      "tag": "要点 3",
-     "text": "在公开卒中/肿瘤/白质高信号数据集与临床存档数据上零样本检测，跨 T1w/FLAIR/T2w 与多种分辨率…"
+     "text": "五步付费研究全部预注册；发现仅凭行为标签会高估说谎率；在 Impossible-LiveCodeBench 上测 Claude Sonnet 5.5…"
     }
    ],
-   "link": "arxiv.org/abs/2611.21975"
+   "link": "arxiv.org/abs/2611.23335"
+  },
+  {
+   "rank": 9,
+   "lane": "兴趣扩展",
+   "sid": "2611.24406",
+   "cat": "cs.AI",
+   "score": 99.0,
+   "title_en": "CaDO: Formal Verification-Guided Multi-Agent Framework for Causal Dataset Repair and Generation",
+   "hook": "",
+   "title_hook": false,
+   "kw": [
+    "CaDO"
+   ],
+   "authors": "Songli Yu, Qi Luo",
+   "units": [],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "CaDO：形式化因果推理引导的多智能体框架，自动诊断并修复因果数据集"
+    },
+    {
+     "tag": "要点 2",
+     "text": "现有因果数据集标注错误与结构失衡会造成偏见预测与泛化受限"
+    },
+    {
+     "tag": "要点 3",
+     "text": "框架分三阶段——形式因果推理、多层次诊断、自动数据修复与生成，用因果引擎的形式化结论引导智能体分工，产出高质量、结构均衡的因果推理数据"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.24406"
+  },
+  {
+   "rank": 10,
+   "lane": "兴趣扩展",
+   "sid": "2611.24788",
+   "cat": "cs.LO",
+   "score": 69.5,
+   "title_en": "Isabelle Pool Server: a pooled verification service for prover training and multi-agent proving",
+   "hook": "",
+   "title_hook": false,
+   "kw": [
+    "Isabelle",
+    "Pool",
+    "Server"
+   ],
+   "authors": "Xuanwei Ren, Wenda Li",
+   "units": [],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "Isabelle Pool Server（IPS）：面向证明器训练与多智能体证明的热会话池验证服务"
+    },
+    {
+     "tag": "要点 2",
+     "text": "HTTP API 后面维护温热的 headless Isabelle 会话，支持会话租借回收、内存感知准入控制与每次调用时限"
+    },
+    {
+     "tag": "要点 3",
+     "text": "验证接口覆盖单步执行、块级检查与全理论构建，带检查点支持廉价分支回溯，从零构建作最终仲裁；单容器部署，提供 Python 客户端、两个 MCP 服务器与裸…"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.24788"
   }
  ]
 }
