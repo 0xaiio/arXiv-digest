@@ -1,214 +1,214 @@
 {
-  "issue": "20261115",
+  "issue": "20261122",
   "window": {
-    "start": "2026-11-06",
-    "end": "2026-11-12"
+    "start": "2026-11-13",
+    "end": "2026-11-19"
   },
-  "generated": "2026-11-16T01:00:25",
+  "generated": "2026-11-22T10:11:58",
   "stats": {
-    "total": 3840,
-    "cats": 86,
+    "total": 4169,
+    "cats": 91,
     "clusters": 14,
-    "growth": 4
+    "growth": 7
   },
   "categories": [
     {
-      "cat": "cs.LG",
-      "count": 698,
-      "share": 0.1818,
-      "name": "机器学习"
-    },
-    {
       "cat": "cs.CV",
-      "count": 582,
-      "share": 0.1516,
+      "count": 836,
+      "share": 0.2005,
       "name": "计算机视觉"
     },
     {
+      "cat": "cs.LG",
+      "count": 620,
+      "share": 0.1487,
+      "name": "机器学习"
+    },
+    {
       "cat": "cs.AI",
-      "count": 456,
-      "share": 0.1187,
+      "count": 502,
+      "share": 0.1204,
       "name": "人工智能"
     },
     {
       "cat": "cs.RO",
-      "count": 322,
-      "share": 0.0839,
+      "count": 368,
+      "share": 0.0883,
       "name": "机器人"
     },
     {
       "cat": "cs.CL",
-      "count": 293,
-      "share": 0.0763,
+      "count": 296,
+      "share": 0.071,
       "name": "自然语言处理"
     },
     {
       "cat": "cs.CR",
-      "count": 156,
-      "share": 0.0406,
+      "count": 191,
+      "share": 0.0458,
       "name": "密码与安全"
     }
   ],
   "cloud": [
     {
       "text": "基准测试",
-      "count": 911,
+      "count": 990,
       "weight": 1.0
     },
     {
       "text": "智能体",
-      "count": 610,
-      "weight": 0.67
+      "count": 730,
+      "weight": 0.737
     },
     {
       "text": "大模型",
-      "count": 570,
-      "weight": 0.626
-    },
-    {
-      "text": "网络",
-      "count": 506,
-      "weight": 0.555
+      "count": 632,
+      "weight": 0.638
     },
     {
       "text": "控制",
-      "count": 497,
-      "weight": 0.546
+      "count": 586,
+      "weight": 0.592
+    },
+    {
+      "text": "网络",
+      "count": 579,
+      "weight": 0.585
     },
     {
       "text": "推理",
-      "count": 459,
-      "weight": 0.504
+      "count": 541,
+      "weight": 0.546
     },
     {
       "text": "优化",
-      "count": 413,
-      "weight": 0.453
-    },
-    {
-      "text": "图",
-      "count": 339,
-      "weight": 0.372
+      "count": 356,
+      "weight": 0.36
     },
     {
       "text": "流水线",
-      "count": 327,
-      "weight": 0.359
-    },
-    {
-      "text": "线性",
-      "count": 289,
-      "weight": 0.317
-    },
-    {
-      "text": "检测",
-      "count": 274,
-      "weight": 0.301
+      "count": 329,
+      "weight": 0.332
     },
     {
       "text": "迁移",
-      "count": 274,
-      "weight": 0.301
+      "count": 313,
+      "weight": 0.316
     },
     {
-      "text": "查询",
-      "count": 255,
-      "weight": 0.28
-    },
-    {
-      "text": "提示词",
-      "count": 243,
-      "weight": 0.267
-    },
-    {
-      "text": "几何",
-      "count": 238,
-      "weight": 0.261
-    },
-    {
-      "text": "空间",
-      "count": 237,
-      "weight": 0.26
-    },
-    {
-      "text": "机器人",
-      "count": 236,
-      "weight": 0.259
+      "text": "图",
+      "count": 305,
+      "weight": 0.308
     },
     {
       "text": "搜索",
-      "count": 236,
-      "weight": 0.259
+      "count": 293,
+      "weight": 0.296
     },
     {
-      "text": "重建",
-      "count": 234,
-      "weight": 0.257
+      "text": "检测",
+      "count": 288,
+      "weight": 0.291
     },
     {
-      "text": "对齐",
-      "count": 229,
-      "weight": 0.251
+      "text": "线性",
+      "count": 286,
+      "weight": 0.289
     },
     {
-      "text": "强化学习",
-      "count": 214,
-      "weight": 0.235
+      "text": "机器人",
+      "count": 280,
+      "weight": 0.283
+    },
+    {
+      "text": "提示词",
+      "count": 275,
+      "weight": 0.278
     },
     {
       "text": "场景",
-      "count": 212,
-      "weight": 0.233
+      "count": 272,
+      "weight": 0.275
     },
     {
       "text": "注意力机制",
-      "count": 211,
-      "weight": 0.232
+      "count": 271,
+      "weight": 0.274
     },
     {
-      "text": "检索",
-      "count": 203,
-      "weight": 0.223
-    },
-    {
-      "text": "在线",
-      "count": 201,
-      "weight": 0.221
-    },
-    {
-      "text": "采样",
-      "count": 199,
-      "weight": 0.218
-    },
-    {
-      "text": "鲁棒",
-      "count": 195,
-      "weight": 0.214
-    },
-    {
-      "text": "预训练",
-      "count": 193,
-      "weight": 0.212
-    },
-    {
-      "text": "估计",
-      "count": 190,
-      "weight": 0.209
-    },
-    {
-      "text": "梯度",
-      "count": 188,
-      "weight": 0.206
+      "text": "空间",
+      "count": 254,
+      "weight": 0.257
     },
     {
       "text": "多模态",
-      "count": 187,
-      "weight": 0.205
+      "count": 251,
+      "weight": 0.254
+    },
+    {
+      "text": "对齐",
+      "count": 250,
+      "weight": 0.253
+    },
+    {
+      "text": "几何",
+      "count": 246,
+      "weight": 0.248
+    },
+    {
+      "text": "查询",
+      "count": 244,
+      "weight": 0.246
+    },
+    {
+      "text": "重建",
+      "count": 233,
+      "weight": 0.235
+    },
+    {
+      "text": "采样",
+      "count": 231,
+      "weight": 0.233
+    },
+    {
+      "text": "运动",
+      "count": 226,
+      "weight": 0.228
+    },
+    {
+      "text": "扩散模型",
+      "count": 223,
+      "weight": 0.225
+    },
+    {
+      "text": "在线",
+      "count": 221,
+      "weight": 0.223
     },
     {
       "text": "Transformer",
-      "count": 185,
-      "weight": 0.203
+      "count": 215,
+      "weight": 0.217
+    },
+    {
+      "text": "鲁棒",
+      "count": 213,
+      "weight": 0.215
+    },
+    {
+      "text": "估计",
+      "count": 212,
+      "weight": 0.214
+    },
+    {
+      "text": "强化学习",
+      "count": 209,
+      "weight": 0.211
+    },
+    {
+      "text": "向量表示",
+      "count": 203,
+      "weight": 0.205
     }
   ],
   "segments": [
@@ -219,143 +219,143 @@
       "words": [
         {
           "text": "基准测试",
-          "count": 911,
+          "count": 990,
           "weight": 1.0
         },
         {
           "text": "智能体",
-          "count": 610,
-          "weight": 0.67
+          "count": 730,
+          "weight": 0.737
         },
         {
           "text": "大模型",
-          "count": 570,
-          "weight": 0.626
-        },
-        {
-          "text": "网络",
-          "count": 506,
-          "weight": 0.555
+          "count": 632,
+          "weight": 0.638
         },
         {
           "text": "控制",
-          "count": 497,
-          "weight": 0.546
+          "count": 586,
+          "weight": 0.592
+        },
+        {
+          "text": "网络",
+          "count": 579,
+          "weight": 0.585
         },
         {
           "text": "推理",
-          "count": 459,
-          "weight": 0.504
+          "count": 541,
+          "weight": 0.546
         },
         {
           "text": "优化",
-          "count": 413,
-          "weight": 0.453
-        },
-        {
-          "text": "图",
-          "count": 339,
-          "weight": 0.372
+          "count": 356,
+          "weight": 0.36
         },
         {
           "text": "流水线",
-          "count": 327,
-          "weight": 0.359
-        },
-        {
-          "text": "线性",
-          "count": 289,
-          "weight": 0.317
-        },
-        {
-          "text": "检测",
-          "count": 274,
-          "weight": 0.301
+          "count": 329,
+          "weight": 0.332
         },
         {
           "text": "迁移",
-          "count": 274,
-          "weight": 0.301
+          "count": 313,
+          "weight": 0.316
         },
         {
-          "text": "查询",
-          "count": 255,
-          "weight": 0.28
-        },
-        {
-          "text": "提示词",
-          "count": 243,
-          "weight": 0.267
-        },
-        {
-          "text": "几何",
-          "count": 238,
-          "weight": 0.261
-        },
-        {
-          "text": "空间",
-          "count": 237,
-          "weight": 0.26
-        },
-        {
-          "text": "机器人",
-          "count": 236,
-          "weight": 0.259
+          "text": "图",
+          "count": 305,
+          "weight": 0.308
         },
         {
           "text": "搜索",
-          "count": 236,
-          "weight": 0.259
+          "count": 293,
+          "weight": 0.296
         },
         {
-          "text": "重建",
-          "count": 234,
-          "weight": 0.257
+          "text": "检测",
+          "count": 288,
+          "weight": 0.291
         },
         {
-          "text": "对齐",
-          "count": 229,
-          "weight": 0.251
+          "text": "线性",
+          "count": 286,
+          "weight": 0.289
         },
         {
-          "text": "强化学习",
-          "count": 214,
-          "weight": 0.235
+          "text": "机器人",
+          "count": 280,
+          "weight": 0.283
+        },
+        {
+          "text": "提示词",
+          "count": 275,
+          "weight": 0.278
         },
         {
           "text": "场景",
-          "count": 212,
-          "weight": 0.233
+          "count": 272,
+          "weight": 0.275
         },
         {
           "text": "注意力机制",
-          "count": 211,
-          "weight": 0.232
+          "count": 271,
+          "weight": 0.274
         },
         {
-          "text": "检索",
-          "count": 203,
-          "weight": 0.223
+          "text": "空间",
+          "count": 254,
+          "weight": 0.257
         },
         {
-          "text": "在线",
-          "count": 201,
-          "weight": 0.221
+          "text": "多模态",
+          "count": 251,
+          "weight": 0.254
+        },
+        {
+          "text": "对齐",
+          "count": 250,
+          "weight": 0.253
+        },
+        {
+          "text": "几何",
+          "count": 246,
+          "weight": 0.248
+        },
+        {
+          "text": "查询",
+          "count": 244,
+          "weight": 0.246
+        },
+        {
+          "text": "重建",
+          "count": 233,
+          "weight": 0.235
         },
         {
           "text": "采样",
-          "count": 199,
-          "weight": 0.218
+          "count": 231,
+          "weight": 0.233
         },
         {
-          "text": "鲁棒",
-          "count": 195,
-          "weight": 0.214
+          "text": "运动",
+          "count": 226,
+          "weight": 0.228
         },
         {
-          "text": "预训练",
-          "count": 193,
-          "weight": 0.212
+          "text": "扩散模型",
+          "count": 223,
+          "weight": 0.225
+        },
+        {
+          "text": "在线",
+          "count": 221,
+          "weight": 0.223
+        },
+        {
+          "text": "Transformer",
+          "count": 215,
+          "weight": 0.217
         }
       ]
     },
@@ -363,336 +363,336 @@
       "kind": "topic",
       "rank": 1,
       "sid": "t1",
-      "label": "大语言模型 / LLM 智能体",
+      "label": "零样本 / 视觉语言模型",
       "terms": [
-        "大语言模型",
-        "LLM 智能体",
-        "推理",
-        "基准测试",
-        "编程"
+        "零样本",
+        "视觉语言模型",
+        "计算机视觉",
+        "检测",
+        "分割"
       ],
       "term_weights": [
-        1.0,
-        0.8063,
-        0.1064,
-        0.0987,
-        0.0857
+        0.4625,
+        0.4399,
+        0.95,
+        0.1506,
+        0.1196
       ],
-      "count": 554,
-      "share": 0.1443,
+      "count": 591,
+      "share": 0.1418,
       "samples": [
         {
-          "sid": "2611.13196",
-          "title": "From Process Models to Composable Agentic Workflows: Combining BPMN, Agents and Enterprise Knowledge",
-          "short": "Process Models",
-          "note": "BPMN 与智能体的可组合工作流"
+          "sid": "2611.25453",
+          "title": "Beyond Resemblance: Image Fusion Reimagined",
+          "short": "Beyond Resemblance",
+          "note": "跳出源图相似度的生成式图像融合"
         },
         {
-          "sid": "2611.09161",
-          "title": "GreyZone: Production-quality Agentic Application Threats",
-          "short": "GreyZone",
-          "note": "智能体应用的生产级安全威胁"
+          "sid": "2611.24579",
+          "title": "ALIVE: Bring Foundation Features to Life with Events",
+          "short": "ALIVE",
+          "note": "事件流增量刷新冻结视觉特征"
         },
         {
-          "sid": "2611.08946",
-          "title": "Flex-RSI: Benchmarking Recursive Self-Improvement of Frontier Agents",
-          "short": "Flex-RSI",
-          "note": "前沿智能体的递归自我改进评测"
+          "sid": "2611.22482",
+          "title": "LeViT-UNet++: Towards Balanced Fine-Grained Details and Context for Efficient Medical Image Segmentation",
+          "short": "LeViT-UNet++",
+          "note": "小波下采样平衡细节与全局上下文"
         }
       ],
       "sample": {
-        "sid": "2611.13196",
-        "title": "From Process Models to Composable Agentic Workflows: Combining BPMN, Agents and Enterprise Knowledge",
-        "short": "Process Models",
-        "note": "BPMN 与智能体的可组合工作流"
+        "sid": "2611.25453",
+        "title": "Beyond Resemblance: Image Fusion Reimagined",
+        "short": "Beyond Resemblance",
+        "note": "跳出源图相似度的生成式图像融合"
       }
     },
     {
       "kind": "topic",
       "rank": 2,
       "sid": "t2",
-      "label": "大语言模型 / 混合专家",
+      "label": "大语言模型 / LLM 智能体",
       "terms": [
         "大语言模型",
-        "混合专家",
+        "LLM 智能体",
+        "编程",
         "推理",
-        "服务系统",
-        "缓存"
+        "基准测试"
       ],
       "term_weights": [
-        0.6601,
-        0.429,
-        0.0878,
-        0.0709,
-        0.0643
+        1.0,
+        0.7885,
+        0.0873,
+        0.0867,
+        0.0867
       ],
-      "count": 404,
-      "share": 0.1052,
+      "count": 558,
+      "share": 0.1338,
       "samples": [
         {
-          "sid": "2611.10240",
-          "title": "PACE: Keeping the Right Tokens in the KV Cache Is Not Enough for Long-Horizon LLM Agents",
-          "short": "PACE",
-          "note": "长程智能体的 KV 缓存预算"
+          "sid": "2611.23346",
+          "title": "Securing and Auditing Long-Horizon LLM Agents: State-Transfer Auditing and Controls in the Agent Harness",
+          "short": "Securing",
+          "note": "长程智能体的状态转移审计与管控"
         },
         {
-          "sid": "2611.11696",
-          "title": "Direct GPU Energy Measurements of Batch-Level Sharing in Mixture-of-Experts and Recurrent Models",
-          "short": "Direct GPU Energy",
-          "note": "混合专家模型的 GPU 能耗实测"
+          "sid": "2611.21129",
+          "title": "Linglong Agent Service: A Runtime for Centralized Agent Reasoning and Distributed Execution",
+          "short": "Linglong Agent Service",
+          "note": "集中推理、分布式执行的智能体服务"
         },
         {
-          "sid": "2611.13413",
-          "title": "Placing LLM Lookup Tables by Per-Layer Prefetch Deadlines",
-          "short": "Placing LLM Lookup",
-          "note": "按层预取截止时间放置查表"
+          "sid": "2611.21053",
+          "title": "System 1 agents: a method for local, reliable and fast agentic AI",
+          "short": "System 1 agents",
+          "note": "本地智能体只做选择不生成文本"
         }
       ],
       "sample": {
-        "sid": "2611.10240",
-        "title": "PACE: Keeping the Right Tokens in the KV Cache Is Not Enough for Long-Horizon LLM Agents",
-        "short": "PACE",
-        "note": "长程智能体的 KV 缓存预算"
+        "sid": "2611.23346",
+        "title": "Securing and Auditing Long-Horizon LLM Agents: State-Transfer Auditing and Controls in the Agent Harness",
+        "short": "Securing",
+        "note": "长程智能体的状态转移审计与管控"
       }
     },
     {
       "kind": "topic",
       "rank": 3,
       "sid": "t3",
-      "label": "点云 / 零样本",
+      "label": "神经网络 / 强化学习",
       "terms": [
-        "点云",
-        "零样本",
-        "计算机视觉",
-        "重建",
-        "分割"
+        "神经网络",
+        "强化学习",
+        "优化",
+        "估计",
+        "梯度"
       ],
       "term_weights": [
-        0.4264,
-        0.4264,
-        0.95,
-        0.165,
-        0.1644
+        1.0,
+        0.2979,
+        0.1311,
+        0.1226,
+        0.0818
       ],
-      "count": 344,
-      "share": 0.0896,
+      "count": 470,
+      "share": 0.1127,
       "samples": [
         {
-          "sid": "2611.17318",
-          "title": "Spatial Foundry: A Multimodal Dataset for Spatial Intelligence",
-          "short": "Spatial Foundry",
-          "note": "空间智能的多模态数据集"
+          "sid": "2611.26410",
+          "title": "Statistical Inference with Ill-Conditioned Random Weight Neural Network Sieves",
+          "short": "Statistical Inference",
+          "note": "随机权重网络的病态条件与推断理论"
         },
         {
-          "sid": "2611.14440",
-          "title": "UGG: Unified Generative Geometry Model",
-          "short": "UGG",
-          "note": "统一的生成式几何模型"
+          "sid": "2611.26463",
+          "title": "Neural Conditional Gaussian Model: Efficient Data Assimilation with Sequential Uncertainty Quantification for Nonlinear Dynamics",
+          "short": "Neural Conditional",
+          "note": "潜空间条件高斯做非线性资料同化"
         },
         {
-          "sid": "2611.10379",
-          "title": "RefineSplat: Reconstruction-Guided Object-Centric Gaussian Splatting for Open-Vocabulary Querying",
-          "short": "RefineSplat",
-          "note": "重建引导的开放词表三维分割"
+          "sid": "2611.21933",
+          "title": "Physics-informed neural networks for spacecraft trajectory optimization with exact boundary conditions",
+          "short": "Physics-informed",
+          "note": "用变换精确满足边界条件的轨迹优化"
         }
       ],
       "sample": {
-        "sid": "2611.17318",
-        "title": "Spatial Foundry: A Multimodal Dataset for Spatial Intelligence",
-        "short": "Spatial Foundry",
-        "note": "空间智能的多模态数据集"
+        "sid": "2611.26410",
+        "title": "Statistical Inference with Ill-Conditioned Random Weight Neural Network Sieves",
+        "short": "Statistical Inference",
+        "note": "随机权重网络的病态条件与推断理论"
       }
     },
     {
       "kind": "topic",
       "rank": 4,
       "sid": "t4",
-      "label": "神经网络 / 强化学习",
+      "label": "大语言模型 / 扩散模型",
       "terms": [
-        "神经网络",
-        "强化学习",
-        "优化",
-        "量子",
-        "估计"
+        "大语言模型",
+        "扩散模型",
+        "计算机视觉",
+        "注意力机制",
+        "推理"
       ],
       "term_weights": [
-        0.8333,
-        0.6151,
-        0.1735,
-        0.1464,
-        0.1146
+        1.0,
+        0.7465,
+        0.95,
+        0.1601,
+        0.1337
       ],
-      "count": 336,
-      "share": 0.0875,
+      "count": 384,
+      "share": 0.0921,
       "samples": [
         {
-          "sid": "2611.11905",
-          "title": "On the Global Convergence of Stochastic Adam for Physics-Informed Neural Networks",
-          "short": "Global Convergence",
-          "note": "随机 Adam 的全局收敛分析"
+          "sid": "2611.20704",
+          "title": "QASK-Edit: Adaptive Sparse Attention Across Queries and Key Sources for Efficient Video Editing",
+          "short": "QASK-Edit",
+          "note": "按查询与键源分配算力的视频编辑"
         },
         {
-          "sid": "2611.14731",
-          "title": "A New Framework for Quantum Reinforcement Learning",
-          "short": "New Framework",
-          "note": "量子强化学习的新框架"
+          "sid": "2611.21339",
+          "title": "MovieRoll: A Systematic Framework for Rolling Out Long-Form Videos",
+          "short": "MovieRoll",
+          "note": "分层压缩缓存的长视频流式生成"
         },
         {
-          "sid": "2611.14186",
-          "title": "Koopman Model-Based Reinforcement Learning",
-          "short": "Koopman Model-Based",
-          "note": "基于 Koopman 模型的强化学习"
+          "sid": "2611.24240",
+          "title": "ViLFlow: Parallel Vision-Language Generation with Continuous Latent Flows",
+          "short": "ViLFlow",
+          "note": "连续隐流并行的视觉语言生成"
         }
       ],
       "sample": {
-        "sid": "2611.11905",
-        "title": "On the Global Convergence of Stochastic Adam for Physics-Informed Neural Networks",
-        "short": "Global Convergence",
-        "note": "随机 Adam 的全局收敛分析"
+        "sid": "2611.20704",
+        "title": "QASK-Edit: Adaptive Sparse Attention Across Queries and Key Sources for Efficient Video Editing",
+        "short": "QASK-Edit",
+        "note": "按查询与键源分配算力的视频编辑"
       }
     },
     {
       "kind": "topic",
       "rank": 5,
       "sid": "t5",
-      "label": "线性 / 多项式",
+      "label": "强化学习 / 视觉-语言-动作",
       "terms": [
-        "线性",
-        "多项式",
-        "近似",
-        "复杂度",
-        "证明"
+        "强化学习",
+        "视觉-语言-动作",
+        "机器人",
+        "操作",
+        "运动"
       ],
       "term_weights": [
-        0.164,
-        0.1565,
-        0.1242,
-        0.1019,
-        0.0935
+        1.0,
+        1.0,
+        0.95,
+        0.1709,
+        0.1499
       ],
-      "count": 307,
-      "share": 0.0799,
+      "count": 383,
+      "share": 0.0919,
       "samples": [
         {
-          "sid": "2611.16412",
-          "title": "Exact Quantum Algorithms for Composed Boolean Functions",
-          "short": "Exact Quantum",
-          "note": "复合布尔函数的精确量子算法"
+          "sid": "2611.25366",
+          "title": "Learning to Move from and for Manipulation Policies: Spatializing Latent Action Representations for Goal-Pose-Free Mobile Manipulation",
+          "short": "Learning",
+          "note": "从操作策略里学移动，免目标位姿"
         },
         {
-          "sid": "2611.17050",
-          "title": "Finding the Farthest in High Dimensions: Dynamic Diameter and Farthest-Neighbor Search",
-          "short": "Finding the Farthest",
-          "note": "高维动态直径与最远点"
+          "sid": "2611.23143",
+          "title": "TCP4D: A Unified Tool-Center-Point Tracking and Generation Model for Robot Manipulation",
+          "short": "TCP4D",
+          "note": "统一跟踪并生成工具中心点位姿"
         },
         {
-          "sid": "2611.12348",
-          "title": "How Hard Is Tokenisation? Algorithms and Complexity Beyond NP-Hardness",
-          "short": "Hard Is Tokenisation?",
-          "note": "分词算法的复杂度分析"
+          "sid": "2611.26105",
+          "title": "PhysVAM: Physics-oriented Future Value Action Model for Dynamic Object Manipulation",
+          "short": "PhysVAM",
+          "note": "用未来任务价值指导动态抓取动作"
         }
       ],
       "sample": {
-        "sid": "2611.16412",
-        "title": "Exact Quantum Algorithms for Composed Boolean Functions",
-        "short": "Exact Quantum",
-        "note": "复合布尔函数的精确量子算法"
+        "sid": "2611.25366",
+        "title": "Learning to Move from and for Manipulation Policies: Spatializing Latent Action Representations for Goal-Pose-Free Mobile Manipulation",
+        "short": "Learning",
+        "note": "从操作策略里学移动，免目标位姿"
       }
     },
     {
       "kind": "topic",
       "rank": 6,
       "sid": "t6",
-      "label": "世界模型 / 视觉-语言-动作",
+      "label": "大语言模型 / 视觉语言模型·社会",
       "terms": [
-        "世界模型",
-        "视觉-语言-动作",
-        "操作",
-        "机器人",
-        "预训练"
+        "大语言模型",
+        "视觉语言模型",
+        "社会",
+        "基准测试",
+        "多模态"
       ],
       "term_weights": [
-        0.7111,
-        0.6444,
-        0.1592,
-        0.1374,
-        0.1295
+        1.0,
+        0.3373,
+        0.1134,
+        0.1097,
+        0.0784
       ],
-      "count": 300,
-      "share": 0.0781,
+      "count": 336,
+      "share": 0.0806,
       "samples": [
         {
-          "sid": "2611.11500",
-          "title": "ForeAct: Geometry-Guided Action Learning from World Representations",
-          "short": "ForeAct",
-          "note": "几何引导的世界表征动作学习"
+          "sid": "2611.22006",
+          "title": "Supporting Researcher Control in AI-Assisted Social Media Analysis: A Mixed-Methods Study of AI4OSN",
+          "short": "Supporting Researcher",
+          "note": "研究者掌舵的 AI 社媒分析平台"
         },
         {
-          "sid": "2611.14048",
-          "title": "LaST0.5: A Generalist World Action Model with Interaction-Centric Latent Reasoning",
-          "short": "LaST0.5",
-          "note": "交互中心的世界动作模型"
+          "sid": "2611.20956",
+          "title": "From Vision to Interaction: Evaluating Dynamic Social Intelligence of VLM Agents in ALIVE-World",
+          "short": "Vision",
+          "note": "具身仿真里评测智能体的社交智能"
         },
         {
-          "sid": "2611.11140",
-          "title": "SurgWorld: Learning Surgical Representations Beyond Observation via Latent Prediction",
-          "short": "SurgWorld",
-          "note": "超越观测的手术表征学习"
+          "sid": "2611.22360",
+          "title": "Can Vision-Language Models Truly Understand Images? A Benchmark Beyond Commonsense Bias",
+          "short": "Can Vision-Language",
+          "note": "用反常识图文对检验模型是否真看图"
         }
       ],
       "sample": {
-        "sid": "2611.11500",
-        "title": "ForeAct: Geometry-Guided Action Learning from World Representations",
-        "short": "ForeAct",
-        "note": "几何引导的世界表征动作学习"
+        "sid": "2611.22006",
+        "title": "Supporting Researcher Control in AI-Assisted Social Media Analysis: A Mixed-Methods Study of AI4OSN",
+        "short": "Supporting Researcher",
+        "note": "研究者掌舵的 AI 社媒分析平台"
       }
     },
     {
       "kind": "topic",
       "rank": 7,
       "sid": "t7",
-      "label": "视觉语言模型 / 大语言模型",
+      "label": "大语言模型 / 视觉语言模型",
       "terms": [
-        "视觉语言模型",
         "大语言模型",
-        "计算机视觉",
-        "多模态",
-        "对齐"
+        "视觉语言模型",
+        "提示词",
+        "推理",
+        "基准测试"
       ],
       "term_weights": [
-        1.0,
-        1.0,
-        0.95,
-        0.2321,
-        0.142
+        0.8075,
+        0.7453,
+        0.0891,
+        0.0755,
+        0.0637
       ],
-      "count": 262,
-      "share": 0.0682,
+      "count": 322,
+      "share": 0.0772,
       "samples": [
         {
-          "sid": "2611.10552",
-          "title": "Seeing Isn't Enough: Unlocking Visual Reasoning by Bridging the Reasoning-Access Gap with TIGER",
-          "short": "Seeing Isn't Enough",
-          "note": "跨模态桥接的视觉推理"
+          "sid": "2611.22449",
+          "title": "How Many Training Labels Are Wrong? Auditing a Fitted Model through Gradient Allocation",
+          "short": "Many Training Labels",
+          "note": "用梯度分配估计训练标签错标率"
         },
         {
-          "sid": "2611.14898",
-          "title": "From Pixels to Prompts: Physics-Guided Language Enhancement for AI-Generated Image Detection",
-          "short": "Pixels",
-          "note": "物理引导的语言增强提示"
+          "sid": "2611.19561",
+          "title": "Read, Then Shade? How Visual Evidence Changes Incentive-Driven Misreporting in Vision-Language Advisors",
+          "short": "Read, Then Shade?",
+          "note": "有报酬激励时视觉模型会不会谎报"
         },
         {
-          "sid": "2611.15195",
-          "title": "A General Concept-based Decomposition for Vision-Language Embeddings",
-          "short": "General Concept-based",
-          "note": "概念分解的视觉语言嵌入"
+          "sid": "2611.24785",
+          "title": "Read Together, Answer Apart: How Earlier Questions Help Vision-Language Models Look",
+          "short": "Read Together, Answer",
+          "note": "同图连问为何既纠错又带偏"
         }
       ],
       "sample": {
-        "sid": "2611.10552",
-        "title": "Seeing Isn't Enough: Unlocking Visual Reasoning by Bridging the Reasoning-Access Gap with TIGER",
-        "short": "Seeing Isn't Enough",
-        "note": "跨模态桥接的视觉推理"
+        "sid": "2611.22449",
+        "title": "How Many Training Labels Are Wrong? Auditing a Fitted Model through Gradient Allocation",
+        "short": "Many Training Labels",
+        "note": "用梯度分配估计训练标签错标率"
       }
     },
     {
@@ -701,32 +701,32 @@
       "sid": "t8",
       "items": [
         {
-          "key": "reconstruction",
-          "cur": 223,
-          "base": 178.1,
-          "ratio": 1.25,
-          "z": 3.36
+          "key": "image",
+          "cur": 454,
+          "base": 344.7,
+          "ratio": 1.32,
+          "z": 5.88
         },
         {
-          "key": "simulation",
-          "cur": 269,
-          "base": 224.4,
-          "ratio": 1.2,
-          "z": 2.98
+          "key": "images",
+          "cur": 358,
+          "base": 262.7,
+          "ratio": 1.36,
+          "z": 5.88
         },
         {
-          "key": "foundation",
-          "cur": 230,
-          "base": 190.9,
-          "ratio": 1.2,
-          "z": 2.83
+          "key": "visual",
+          "cur": 493,
+          "base": 336.7,
+          "ratio": 1.46,
+          "z": 5.57
         },
         {
-          "key": "challenge",
-          "cur": 216,
-          "base": 179.7,
-          "ratio": 1.2,
-          "z": 2.71
+          "key": "video",
+          "cur": 265,
+          "base": 191.6,
+          "ratio": 1.38,
+          "z": 5.31
         }
       ]
     }
