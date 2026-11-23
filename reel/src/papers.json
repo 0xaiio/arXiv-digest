@@ -1,318 +1,345 @@
 {
- "issue": "20261120",
- "range": "2026-11-18 · 回溯 3 天公告批次",
- "generated": "2026-11-20T09:54:00+08:00",
- "stats": {
-  "core": 72,
-  "expand": 496,
-  "rec": 14,
-  "exp": 10
- },
- "papers": [
-  {
-   "rank": 1,
-   "lane": "推荐",
-   "sid": "2611.24833",
-   "cat": "cs.DB",
-   "score": 63.1,
-   "title_en": "DispersedBFT: Bottleneck-Free Primary-Backup Consensus using Dispersed Replication",
-   "hook": "取消主节点，PBFT 不再堵",
-   "title_hook": true,
-   "kw": [
-    "DispersedBFT",
-    "Dispersed"
-   ],
-   "authors": "Nancy Kansal, Celine Sana, Jelle Hellings",
-   "units": [
-    "Department of Computing &amp"
-   ],
-   "bullets": [
-    {
-     "tag": "要点 1",
-     "text": "DispersedBFT：用分散复制消除主节点瓶颈的 PBFT 型共识协议"
-    },
-    {
-     "tag": "要点 2",
-     "text": "传统主备式 RDS 中 primary 负责协调请求的复制与执行，中心角色急剧限制性能"
-    },
-    {
-     "tag": "要点 3",
-     "text": "DispersedBFT 把协调职责分散到副本，实测消除主节点瓶颈并显著提升吞吐，为区块链驱动的弹性数据管理系统提供新设计点"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.24833"
+  "issue": "20261123",
+  "range": "2026-11-19 · 回溯 3 天公告批次",
+  "generated": "2026-11-23T09:47:48+08:00",
+  "stats": {
+    "core": 60,
+    "expand": 566,
+    "rec": 14,
+    "exp": 10
   },
-  {
-   "rank": 2,
-   "lane": "推荐",
-   "sid": "2611.23792",
-   "cat": "cs.PL",
-   "score": 61.3,
-   "title_en": "Validating Concurrent Correctness Witnesses with Ghosts by Thread-Modular Abstract Interpretation",
-   "hook": "并发验证结论可独立复核",
-   "title_hook": false,
-   "kw": [
-    "Correctness"
-   ],
-   "authors": "Michael Schwarz, Zhendong Ang, Umang Mathur",
-   "units": [
-    "National University of Singapore"
-   ],
-   "bullets": [
+  "papers": [
     {
-     "tag": "要点 1",
-     "text": "并发正确性见证（correctness witness）可独立验证软件验证器的结论，扩展 ghost 变量后表达力更强，但缺乏配套校验技术"
+      "rank": 1,
+      "lane": "推荐",
+      "sid": "2611.25066",
+      "cat": "cs.SE",
+      "score": 74.1,
+      "title_en": "DVBench: End-to-End Benchmark for Real-World UVM Design Verification Agents",
+      "hook": "95 个任务，考倒前沿智能体",
+      "title_hook": false,
+      "kw": [
+        "DVBench",
+        "UVM",
+        "设计验证"
+      ],
+      "authors": "Jiaru Qian, Jiawei Li, Xiaolong Hu 等 6 人",
+      "units": [],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "UVM 大规模设计验证极度耗人，既有基准把流程拆成互不耦合的子任务，偏离真实工作流"
+        },
+        {
+          "tag": "做法",
+          "text": "DVBench 设 9 个功能域、5 个难度、95 个任务，要求智能体独立走完全流程"
+        },
+        {
+          "tag": "结果",
+          "text": "按编译、覆盖率、缺陷检出评最终产物，也评特性清单与测试计划，前沿系统得分仍低"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.25066"
     },
     {
-     "tag": "要点 2",
-     "text": "本文用线程模块化抽象解释校验含 ghost 的并发见证：以逐线程分析近似整个并发行为了解 ghost…"
+      "rank": 2,
+      "lane": "推荐",
+      "sid": "2611.26588",
+      "cat": "cs.SE",
+      "score": 64.6,
+      "title_en": "Verify the Verifier: Specification-Grounded LLM Cross-Checking for Bugs That Escape UVM Scoreboards",
+      "hook": "回归全绿，仍漏 41 个规格缺陷",
+      "title_hook": false,
+      "kw": [
+        "Verify",
+        "Verifier",
+        "LLM",
+        "scoreboard 逃逸"
+      ],
+      "authors": "Ana E. Sanchez Villalobos, Michael D. Quinn, Aakash Tyagi 等 5 人",
+      "units": [
+        "M University, College Station"
+      ],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "回归全过只说明设计在记分板范围内与参考模型一致，不说明满足规格"
+        },
+        {
+          "tag": "做法",
+          "text": "让大模型在回归通过后拿波形轨迹对照规格做异常交叉检查"
+        },
+        {
+          "tag": "结果",
+          "text": "四款 OpenTitan IP 注入 564 个缺陷，68 个候选逃逸中确认 41 个"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.26588"
+    },
+    {
+      "rank": 3,
+      "lane": "推荐",
+      "sid": "2611.24979",
+      "cat": "cs.SE",
+      "score": 62.4,
+      "title_en": "Trace2ST: Recovering PLC Structured Text from I/O Traces with LLM Generation and Verification",
+      "hook": "三轮修订还原丢失的 PLC 源码",
+      "title_hook": false,
+      "kw": [
+        "PLC",
+        "LLM",
+        "IEC 61131-3"
+      ],
+      "authors": "Hsi Chang, Irfan Khan",
+      "units": [
+        "School of Electrical, Computer and Energy Engineering",
+        "Arizona State University",
+        "等 3 家单位"
+      ],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "PLC 长期运行却常丢失源码，而每个输入输出都被持续记录"
+        },
+        {
+          "tag": "做法",
+          "text": "大模型从轨迹摘要写出候选结构化文本，逐扫描周期重放比对，失配处回传再改"
+        },
+        {
+          "tag": "结果",
+          "text": "最多三轮修订，并在两款独立开源运行时上校验，排除环境造成的假差异"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.24979"
+    },
+    {
+      "rank": 4,
+      "lane": "推荐",
+      "sid": "2611.26333",
+      "cat": "cs.LG",
+      "score": 61.6,
+      "title_en": "OceanCoder: A Verification-Guided Large Language Model for Automated Simulation Modelling in Ocean Engineering",
+      "hook": "",
+      "title_hook": false,
+      "kw": [
+        "OceanCoder",
+        "Ocean",
+        "GRPO"
+      ],
+      "authors": "Can Xue, Changhong He, Ziyi Sun 等 6 人",
+      "units": [
+        "organization=College of Engineering, Ocean University of…",
+        "organization=School of Mechanical Engineering and…"
+      ],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "海洋工程仿真建模依赖专家经验，代码能跑通不等于结果满足工程要求"
+        },
+        {
+          "tag": "做法",
+          "text": "以 Qwen3-8B 为底座，12000 条已验证样本微调，三层验证分别核对输入、分析与输出"
+        },
+        {
+          "tag": "结果",
+          "text": "验证结果转成分级奖励驱动 GRPO，并建立该领域首个自动化建模基准"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.26333"
+    },
+    {
+      "rank": 5,
+      "lane": "推荐",
+      "sid": "2611.25542",
+      "cat": "cs.SE",
+      "score": 54.8,
+      "title_en": "Technology-Enabled Fuel Supply Chain Resilience: An Integrated Information System for Real-Time Monitoring and Decision Support",
+      "hook": "",
+      "title_hook": false,
+      "kw": [
+        "SQL Server"
+      ],
+      "authors": "Mohamed Loutis, Esma Aïmeur",
+      "units": [
+        "Sorbonne Université, Paris, Île-de-France",
+        "Université de Montréal"
+      ],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "燃料物流信息系统的数据可靠性、监控与决策支持需要独立再评估"
+        },
+        {
+          "tag": "做法",
+          "text": "把源码重建的基线系统与修订版数据库系统放在 12 个场景下对比"
+        },
+        {
+          "tag": "结果",
+          "text": "集成缺陷率由 2.90%–3.46% 降至 0.14%–0.49%，但周需求预测未显著优于上年均值"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.25542"
+    },
+    {
+      "rank": 6,
+      "lane": "推荐",
+      "sid": "2611.25078",
+      "cat": "cs.DC",
+      "score": 41.8,
+      "title_en": "Twindex: Index Cache Offloading with Coarse-to-Fine Selection for Long-Context Sparse-Attention Serving",
+      "hook": "",
+      "title_hook": false,
+      "kw": [
+        "Twindex",
+        "Index",
+        "Cache",
+        "稀疏注意力"
+      ],
+      "authors": "Yuxuan Xia, Jiakun Fan, Han Meng 等 6 人",
+      "units": [],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "主 KV 下沉主机内存后，打分用的 indexer cache 成为新显存瓶颈，1M token 下占 63%–75%"
+        },
+        {
+          "tag": "做法",
+          "text": "显存只留紧凑副本粗选候选，全量放主机内存，再用模型自身 indexer 精选 top-k"
+        },
+        {
+          "tag": "结果",
+          "text": "不改权重、兼容 CUDA 图，1M token 下并发分别提升 1.78/1.62/3.03 倍"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.25078"
+    },
+    {
+      "rank": 7,
+      "lane": "推荐",
+      "sid": "2611.25790",
+      "cat": "cs.CR",
+      "score": 40.7,
+      "title_en": "On the Reliability of CyberGym Evaluation: Task Material Consistency and Reference-Target Identity",
+      "hook": "",
+      "title_hook": false,
+      "kw": [
+        "CyberGym"
+      ],
+      "authors": "Yule Ding, Hongzhen Wu",
+      "units": [],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "以 PoC 崩溃差分判漏洞复现成功，前提是材料自洽且真命中目标缺陷"
+        },
+        {
+          "tag": "做法",
+          "text": "对全部 1507 个任务做材料审计，对一次完整运行的最终 PoC 做身份评估"
+        },
+        {
+          "tag": "结果",
+          "text": "338 个任务（22.4%）材料不一致；1286 次差分通过中 89 次未命中目标"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.25790"
+    },
+    {
+      "rank": 8,
+      "lane": "推荐",
+      "sid": "2611.25091",
+      "cat": "cs.DC",
+      "score": 0.0,
+      "title_en": "Berth: SLO-Preserving GPU Sharing Without New Preemption",
+      "hook": "",
+      "title_hook": true,
+      "kw": [
+        "GPU"
+      ],
+      "authors": "Mohammadali Khodabandehlou, Mahdi Alizadeh, Lei Gao 等 5 人",
+      "units": [],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "推理服务按最坏负载预留 GPU，大量算力闲置；填进训练任务又会破坏毫秒级时延"
+        },
+        {
+          "tag": "做法",
+          "text": "利用商用 GPU 自带的时间片抢占，在用户态用预加载垫片控制喂给训练任务的算子"
+        },
+        {
+          "tag": "结果",
+          "text": "不改内核、不改驱动就造出外部优先级，时延与利用率同时保住"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.25091"
+    },
+    {
+      "rank": 9,
+      "lane": "兴趣扩展",
+      "sid": "2611.26313",
+      "cat": "cs.AI",
+      "score": 67.1,
+      "title_en": "Actor-Predictor Architecture for Reinforcement Learning with Formal Specification Objectives",
+      "hook": "",
+      "title_hook": false,
+      "kw": [
+        "Actor-Predictor",
+        "LTL"
+      ],
+      "authors": "Josef Brozovich, Qining Zhang, Lei Ying",
+      "units": [
+        "University of Michigan, Ann Arbor"
+      ],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "把逻辑公式编成自动机做状态增广，前提是自动机构造可行，只适于小规约"
+        },
+        {
+          "tag": "做法",
+          "text": "训练预测器估计当前轨迹后续能否满足规约，特征作为 actor 的辅助输入"
+        },
+        {
+          "tag": "结果",
+          "text": "证明预测足够准时等价于自动机状态，机器人与网格任务上优于自动机基线"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.26313"
+    },
+    {
+      "rank": 10,
+      "lane": "兴趣扩展",
+      "sid": "2611.25599",
+      "cat": "cs.CR",
+      "score": 64.9,
+      "title_en": "Tether: Verified Stateful Policy Engine for System-Level Monitoring of Agents",
+      "hook": "",
+      "title_hook": false,
+      "kw": [
+        "Tether",
+        "Lean 4",
+        "有状态策略"
+      ],
+      "authors": "Meghana Aparna Sistla, Alaia Solko-Breslin, Somesh Jha 等 5 人",
+      "units": [
+        "University of Pennsylvania",
+        "University of Wisconsin-Madison"
+      ],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "智能体可执行任意命令，可能偷发网络请求或对文件、进程、权限做持久改动"
+        },
+        {
+          "tag": "做法",
+          "text": "在临时隔离沙箱执行动作，从系统调用推断抽象语义，用 Lean 4 内嵌 DSL 写有状态策略"
+        },
+        {
+          "tag": "结果",
+          "text": "只放行合规动作，能覆盖多步数据流与策略语言未建模的副作用"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.25599"
     }
-   ],
-   "link": "arxiv.org/abs/2611.23792"
-  },
-  {
-   "rank": 3,
-   "lane": "推荐",
-   "sid": "2611.24210",
-   "cat": "cs.SE",
-   "score": 60.7,
-   "title_en": "OmegaHyper: Explicit-State HyperLTL Model Checking on an omega-Automaton Diet",
-   "hook": "HyperLTL 检查不再爆内存",
-   "title_hook": false,
-   "kw": [
-    "OmegaHyper",
-    "HyperLTL"
-   ],
-   "authors": "Hugo Pacheco",
-   "units": [
-    "University of Minho &amp"
-   ],
-   "bullets": [
-    {
-     "tag": "要点 1",
-     "text": "OmegaHyper 重构 HyperLTL 显式状态模型检查器 AutoHyper：算法不变，但把被处理的自动机分解并缩小，并集成 Kofola…"
-    },
-    {
-     "tag": "要点 2",
-     "text": "实测大幅缓解状态爆炸，让此前查不动的 HyperLTL 性质变得可检"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.24210"
-  },
-  {
-   "rank": 4,
-   "lane": "推荐",
-   "sid": "2611.24649",
-   "cat": "cs.PL",
-   "score": 59.6,
-   "title_en": "A Principled Approach to Concurrency, Nondeterminism, and Asynchrony in Choreographies",
-   "hook": "",
-   "title_hook": false,
-   "kw": [],
-   "authors": "Xueying Qin, Marco Peressotti, Fabrizio Montesi",
-   "units": [
-    "University of Southern Denmark"
-   ],
-   "bullets": [
-    {
-     "tag": "要点 1",
-     "text": "编排式编程（CP）把分布式系统写成全局程序再经端点投影编译，但异步（进程独立推进）与不确定性（交互引发的行为范围）此前从未同时纳入 CP 理论"
-    },
-    {
-     "tag": "要点 2",
-     "text": "Nyarlathotep 是首个异步非确定性 CP 框架：用标记迁移系统定义编排与网络的操作语义，证明端点投影在异步+非确定性下仍保正确"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.24649"
-  },
-  {
-   "rank": 5,
-   "lane": "推荐",
-   "sid": "2611.24804",
-   "cat": "cs.SE",
-   "score": 59.4,
-   "title_en": "MLIR-MRacle: Memory-Model-Aware Metamorphic Fuzzing of Concurrent MLIR",
-   "hook": "",
-   "title_hook": false,
-   "kw": [
-    "MLIR-MRacle",
-    "MLIR"
-   ],
-   "authors": "Aaron Gabayoyo, Aidan Dakhama, Ajitha Rajan",
-   "units": [
-    "School of Informatics",
-    "University of Edinburgh"
-   ],
-   "bullets": [
-    {
-     "tag": "要点 1",
-     "text": "MLIR-MRacle 是并发 MLIR 程序的内存模型感知蜕变测试器：并发程序常无单一预期输出，既有 MLIR 模糊器多假设确定性，而 lowering…"
-    },
-    {
-     "tag": "要点 2",
-     "text": "它按目标内存模型门控蜕变关系，保证原程序与变换后程序都良定义，能发现「看似合理却悄悄改变行为」的并发优化"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.24804"
-  },
-  {
-   "rank": 6,
-   "lane": "推荐",
-   "sid": "2611.23811",
-   "cat": "cs.DC",
-   "score": 58.8,
-   "title_en": "Stephen: Verifying Sequencer-Aided Coordination Systems with Cross-View Prophecy",
-   "hook": "",
-   "title_hook": false,
-   "kw": [
-    "Stephen",
-    "Cross-View",
-    "Prophecy"
-   ],
-   "authors": "Jinkun Geng, Muhammad Haseeb, Daniel Qian 等 6 人",
-   "units": [
-    "New York University",
-    "Stony Brook University"
-   ],
-   "bullets": [
-    {
-     "tag": "要点 1",
-     "text": "Stephen：形式化验证依赖定序器（sequencer）的协调系统实现"
-    },
-    {
-     "tag": "要点 2",
-     "text": "从 Corfu、NOPaxos 到 LazyLog、SwitchBFT，十余年 SAC 系统只有纸面证明或协议级有界模型检查"
-    },
-    {
-     "tag": "要点 3",
-     "text": "定序器看似简化证明（线性化点放在定序器即可），实则跨视图预言（cross-view prophecy）才是关键；本文给出实现级形式验证并发现真实缺陷"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.23811"
-  },
-  {
-   "rank": 7,
-   "lane": "推荐",
-   "sid": "2611.24872",
-   "cat": "cs.AR",
-   "score": 53.2,
-   "title_en": "MicroAssert: Microarchitecture-Aware Structured Assertion Generation for CPU Verification",
-   "hook": "",
-   "title_hook": false,
-   "kw": [
-    "MicroAssert",
-    "CPU"
-   ],
-   "authors": "Hongqin Lyu, Yonghao Wang, Zhiteng Chao 等 6 人",
-   "units": [
-    "State Key Lab of Processors, Institute of Computing…",
-    "University of Chinese Academy of Sciences",
-    "等 3 家单位"
-   ],
-   "bullets": [
-    {
-     "tag": "要点 1",
-     "text": "MicroAssert 是微架构感知的 CPU 断言自动生成框架：直接从 RTL 识别功能区域，经结构化契约与确定性验证原语生成本地与组合断言…"
-    },
-    {
-     "tag": "要点 2",
-     "text": "在五个开源 RISC-V CPU 上对比三种既有断言生成方法，能捕获既有方法漏掉的微架构行为与跨区域交互"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.24872"
-  },
-  {
-   "rank": 8,
-   "lane": "推荐",
-   "sid": "2611.23335",
-   "cat": "cs.CE",
-   "score": 50.6,
-   "title_en": "Truthgate: Checking Coding Agents Against a Record They Cannot Edit - Cheating, Deterrence and Disclosure on Impossible Tasks",
-   "hook": "",
-   "title_hook": false,
-   "kw": [
-    "Truthgate",
-    "Impossible"
-   ],
-   "authors": "Bravish Ghosh",
-   "units": [],
-   "bullets": [
-    {
-     "tag": "要点 1",
-     "text": "Truthgate：拿「智能体改不了的记录」核查编码智能体是否诚实"
-    },
-    {
-     "tag": "要点 2",
-     "text": "每一步都由宿主重跑测试、在智能体看不见的容器里埋隐藏检查、由沙箱外签名者记录全部工具调用"
-    },
-    {
-     "tag": "要点 3",
-     "text": "五步付费研究全部预注册；发现仅凭行为标签会高估说谎率；在 Impossible-LiveCodeBench 上测 Claude Sonnet 5.5…"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.23335"
-  },
-  {
-   "rank": 9,
-   "lane": "兴趣扩展",
-   "sid": "2611.24406",
-   "cat": "cs.AI",
-   "score": 99.0,
-   "title_en": "CaDO: Formal Verification-Guided Multi-Agent Framework for Causal Dataset Repair and Generation",
-   "hook": "",
-   "title_hook": false,
-   "kw": [
-    "CaDO"
-   ],
-   "authors": "Songli Yu, Qi Luo",
-   "units": [],
-   "bullets": [
-    {
-     "tag": "要点 1",
-     "text": "CaDO：形式化因果推理引导的多智能体框架，自动诊断并修复因果数据集"
-    },
-    {
-     "tag": "要点 2",
-     "text": "现有因果数据集标注错误与结构失衡会造成偏见预测与泛化受限"
-    },
-    {
-     "tag": "要点 3",
-     "text": "框架分三阶段——形式因果推理、多层次诊断、自动数据修复与生成，用因果引擎的形式化结论引导智能体分工，产出高质量、结构均衡的因果推理数据"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.24406"
-  },
-  {
-   "rank": 10,
-   "lane": "兴趣扩展",
-   "sid": "2611.24788",
-   "cat": "cs.LO",
-   "score": 69.5,
-   "title_en": "Isabelle Pool Server: a pooled verification service for prover training and multi-agent proving",
-   "hook": "",
-   "title_hook": false,
-   "kw": [
-    "Isabelle",
-    "Pool",
-    "Server"
-   ],
-   "authors": "Xuanwei Ren, Wenda Li",
-   "units": [],
-   "bullets": [
-    {
-     "tag": "要点 1",
-     "text": "Isabelle Pool Server（IPS）：面向证明器训练与多智能体证明的热会话池验证服务"
-    },
-    {
-     "tag": "要点 2",
-     "text": "HTTP API 后面维护温热的 headless Isabelle 会话，支持会话租借回收、内存感知准入控制与每次调用时限"
-    },
-    {
-     "tag": "要点 3",
-     "text": "验证接口覆盖单步执行、块级检查与全理论构建，带检查点支持廉价分支回溯，从零构建作最终仲裁；单容器部署，提供 Python 客户端、两个 MCP 服务器与裸…"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.24788"
-  }
- ]
+  ]
 }

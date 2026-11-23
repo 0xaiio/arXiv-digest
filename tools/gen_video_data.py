@@ -95,18 +95,22 @@ def _cap_ok(picked, max_per_primary=MAX_PER_PRIMARY):
 
 
 def ensure_hook(picked, pool, max_per_primary=MAX_PER_PRIMARY):
-    """保证至少一篇「标题自带钩子」；没有就换掉优先级最低的那篇。
+    """保证至少一篇「标题自带钩子」；没有就换掉分数最低的那篇。
 
-    换片只在分类上限允许时进行：先移除末尾一篇（腾出名额），再试候选；
-    全部候选都放不进去时保持原样，由 verify_episode 报错，而不是悄悄违规。
+    换片只在分类上限允许时进行：按分数从低到高试移除（分数相同则靠后的先走），
+    腾出名额后插入候选；全部候选都放不进去时保持原样，
+    由 verify_episode 报错，而不是悄悄违规。
     """
     if any(has_readable_hook(p.get("title", "")) for p, _ in picked):
         return picked
     used = {sid_of(p.get("id")) for p, _ in picked}
+    # 先考虑换掉最弱的一篇，避免把高分的「兴趣扩展」末尾篇挤掉。
+    order = sorted(range(len(picked)),
+                   key=lambda i: (float(picked[i][0].get("score") or 0), -i))
     for cand, lane in pool:
         if sid_of(cand.get("id")) in used or not has_readable_hook(cand.get("title", "")):
             continue
-        for i in range(len(picked) - 1, -1, -1):
+        for i in order:
             trial = picked[:i] + picked[i + 1:] + [(cand, lane)]
             if _cap_ok(trial, max_per_primary):
                 return trial
@@ -114,7 +118,7 @@ def ensure_hook(picked, pool, max_per_primary=MAX_PER_PRIMARY):
 
 
 def select_episode(core_sorted, expand_sorted, top, expand,
-                   max_per_primary=MAX_PER_PRIMARY):
+                   max_per_primary=MAX_PER_PRIMARY, spare=None):
     """按分数取片，同时满足两条硬约束。
 
     返回 `(picked, stats)`：picked 为 `[(paper, lane)]`（lane 决定片内「推荐 / 兴趣扩展」），
@@ -148,6 +152,10 @@ def select_episode(core_sorted, expand_sorted, top, expand,
         take(p, lane)
 
     pool = [(x, "推荐") for x in core_sorted] + [(x, "兴趣扩展") for x in expand_sorted]
+    # 推荐榜 / 扩展榜都不含带钩子标题时，允许从核心池（spare）换入一篇。
+    # 否则「整期标题恰好都没有数字或反直觉限定词」会让硬约束无解，只剩停发这一条路。
+    if spare:
+        pool = pool + [(x, "推荐") for x in spare]
     picked = ensure_hook(picked, pool, max_per_primary)
     picked.sort(key=lambda pl: (0 if pl[1] == "推荐" else 1,
                                 -float(pl[0].get("score") or 0)))
@@ -252,7 +260,8 @@ def main(argv=None):
         reverse=True,
     )
     # 两条硬约束（同一分类 ≤4 篇 / 至少 1 篇标题带钩子）在 select_episode 里统一处理。
-    picked, sel = select_episode(reco_sorted, exp_sorted, args.top, args.expand)
+    picked, sel = select_episode(reco_sorted, exp_sorted, args.top, args.expand,
+                                 spare=papers_core)
 
     if not picked:
         print("[err] recommend.json 为空，先跑流水线")
