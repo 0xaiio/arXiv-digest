@@ -1,330 +1,338 @@
 {
- "issue": "20261124",
- "range": "2026-11-20 · 回溯 3 天公告批次",
- "generated": "2026-11-24T09:41:50+08:00",
- "stats": {
-  "core": 51,
-  "expand": 451,
-  "rec": 14,
-  "exp": 10
- },
- "papers": [
-  {
-   "rank": 1,
-   "lane": "推荐",
-   "sid": "2611.27663",
-   "cat": "cs.DC",
-   "score": 127.8,
-   "title_en": "Asynchronous Byzantine Lattice Agreement with Logarithmic Response Time and Optimal Resilience",
-   "hook": "拜占庭容错，延迟仅对数级",
-   "title_hook": false,
-   "kw": [
-    "Lattice",
-    "Agreement",
-    "lattice agreement"
-   ],
-   "authors": "Hagit Attiya, Yao David Kolegain, Arnaud Labourel 等 4 人",
-   "units": [
-    "Technion",
-    "Aix-Marseille University"
-   ],
-   "bullets": [
-    {
-     "tag": "问题",
-     "text": "异步消息传递下的拜占庭格一致，过去要么依赖认证，要么做不到最优容错与对数延迟兼得"
-    },
-    {
-     "tag": "做法",
-     "text": "在 n>3f 下容忍 f 个拜占庭进程，无需认证，响应时间 O(log f)，沿用分类树框架"
-    },
-    {
-     "tag": "结果",
-     "text": "同时拿到最优容错与对数级响应时间，是异步拜占庭协调少见的双优结果"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.27663"
+  "issue": "20261125",
+  "range": "2026-11-23 · 回溯 3 天公告批次",
+  "generated": "2026-11-25T09:45:34+08:00",
+  "stats": {
+    "core": 114,
+    "expand": 792,
+    "rec": 14,
+    "exp": 10
   },
-  {
-   "rank": 2,
-   "lane": "推荐",
-   "sid": "2611.27473",
-   "cat": "cs.DC",
-   "score": 70.3,
-   "title_en": "Dugong: Composing Uncertified DAG Consensus",
-   "hook": "一个协议顶八个共识算法",
-   "title_hook": false,
-   "kw": [
-    "Dugong",
-    "DAG"
-   ],
-   "authors": "George Danezis, Lefteris Kokoris-Kogias, Alberto Sonnino",
-   "units": [
-    "University College London"
-   ],
-   "bullets": [
+  "papers": [
     {
-     "tag": "问题",
-     "text": "无证书 DAG 共识散落在同步/异步、崩溃/拜占庭/混合各档，每个都要从零设计、证明与实现"
+      "rank": 1,
+      "lane": "推荐",
+      "sid": "2611.28704",
+      "cat": "cs.SE",
+      "score": 87.4,
+      "title_en": "Zero-Trust Formal Methods: AI Agents Build Verified Checkers for Untrusted Solvers",
+      "hook": "不可信求解器，AI 造验证检查器",
+      "title_hook": true,
+      "kw": [
+        "Zero-Trust",
+        "Formal",
+        "Methods",
+        "AI"
+      ],
+      "authors": "Tobias Philipp",
+      "units": [],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "安全分析靠求解器回答「不可满足」「最优」这类无法靠看模型检查的结论，而求解器与翻译层都有过健全性缺陷"
+        },
+        {
+          "tag": "做法",
+          "text": "零信任：默认不信任任何组件，AI 智能体为不可信求解器构造已验证的检查器，求解器结论也纳入可验证范围"
+        },
+        {
+          "tag": "结果",
+          "text": "信任基础从求解器代码缩小到规格说明，AI 生成代码快于人工审查的风险被检查器兜住"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.28704"
     },
     {
-     "tag": "做法",
-     "text": "核心算法 Decider 参数化后即可实现 8 个已有协议，并派生出 4 个新协议"
+      "rank": 2,
+      "lane": "推荐",
+      "sid": "2611.28617",
+      "cat": "cs.AI",
+      "score": 72.6,
+      "title_en": "VeriLadder: A Multi-Agent Specification Refinement System for Tool-Verified Verilog Datasets",
+      "hook": "EDA 把关，Verilog 数据更真",
+      "title_hook": false,
+      "kw": [
+        "VeriLadder",
+        "Verilog"
+      ],
+      "authors": "Saeid Rajabi, Chengmo Yang, Satwik Patnaik",
+      "units": [
+        "University of Delaware"
+      ],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "训练会写 Verilog 的 LLM 缺真数据：RTL 代码很少公开，现有数据集多只查语法、不查功能正确"
+        },
+        {
+          "tag": "做法",
+          "text": "VeriLadder 用多智能体框架：LLM 撰写并修订规格，综合器与形式等价检查器等 EDA 工具裁决是否接受"
+        },
+        {
+          "tag": "结果",
+          "text": "五级数据集对齐工程师真实检查流程，产出工具验证过的指令级正确数据"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.28617"
     },
     {
-     "tag": "结果",
-     "text": "由于 DAG 把吞吐与延迟解耦，协议给出延迟与容错之间一条明确的调参曲线"
+      "rank": 3,
+      "lane": "推荐",
+      "sid": "2611.28916",
+      "cat": "cs.PL",
+      "score": 70.1,
+      "title_en": "An End-to-End Theory for Compositional Symbolic Execution: From Expressive Specifications to SMT (Extended Version)",
+      "hook": "组合符号执行，Rocq 端到端验证",
+      "title_hook": false,
+      "kw": [
+        "SMT",
+        "Rocq"
+      ],
+      "authors": "Shivanandan Tamil Kumaran, Andreas Lööw, Philippa Gardner",
+      "units": [
+        "Imperial College London",
+        "Royal Holloway, University of London"
+      ],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "组合符号执行是程序验证利器，但既有形式化理论与真实工具之间存在断层"
+        },
+        {
+          "tag": "做法",
+          "text": "在 Rocq 里给出端到端理论：前端支持代数数据类型、逻辑函数等强规约，后端提供到 SMT-LIB 求解器的已验证连接"
+        },
+        {
+          "tag": "结果",
+          "text": "从表达力规约到 SMT 整条管线形式化打通，理论与实现首次同源"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.28916"
+    },
+    {
+      "rank": 4,
+      "lane": "推荐",
+      "sid": "2611.30455",
+      "cat": "cs.DC",
+      "score": 67.3,
+      "title_en": "CGSpec: Consistency-Guided Speculative Decoding with Overlap-Aware Verification Scheduling for Edge-Cloud Inference",
+      "hook": "",
+      "title_hook": false,
+      "kw": [
+        "CGSpec"
+      ],
+      "authors": "Yuanbing Ouyang, Xiaoli Liu, Shirong Wei 等 5 人",
+      "units": [],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "边云协同投机解码让端侧起草、云端验证，但草稿目标分歧浪费通信，异构客户端返回时间难统一调度"
+        },
+        {
+          "tag": "做法",
+          "text": "CGSpec 按草稿与目标分布的散度自适应调投机预算，用提名-竞争机制在全局增长约束下构造候选树"
+        },
+        {
+          "tag": "结果",
+          "text": "重叠感知的验证调度显著提升多客户端共享验证器的利用率"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.30455"
+    },
+    {
+      "rank": 5,
+      "lane": "推荐",
+      "sid": "2611.30815",
+      "cat": "cs.DC",
+      "score": 67.1,
+      "title_en": "Which $\\Diamond \\mathcal{P}$ Algorithm is Suitable for You? An Empirical Benchmark on Real Network Traces",
+      "hook": "",
+      "title_hook": false,
+      "kw": [
+        "Diamond"
+      ],
+      "authors": "Yenan Wang, Jens Kollberg, Elad Michael Schiller 等 4 人",
+      "units": [
+        "Chalmers University of Technology, Swedenyenan",
+        "Chalmers University of Technology, Swedenjens.collberg01",
+        "等 4 家单位"
+      ],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "不可靠故障检测器是容错系统的基本抽象，但各家实现评测环境、负载与 QoS 各不相同，选型无据可依"
+        },
+        {
+          "tag": "做法",
+          "text": "系统化整理 14 个 diamond-P 类检测器、实现其中 13 个，在真实网络轨迹上统一故障注入与 QoS 指标"
+        },
+        {
+          "tag": "结果",
+          "text": "发布可复用基准，为共识等上层算法的检测器选型提供实证依据"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.30815"
+    },
+    {
+      "rank": 6,
+      "lane": "推荐",
+      "sid": "2611.30776",
+      "cat": "cs.DC",
+      "score": 66.9,
+      "title_en": "Torcalia.jl: An MPI-based Runtime System for Asynchronous Task Parallelism in Julia",
+      "hook": "",
+      "title_hook": false,
+      "kw": [
+        "Torcalia",
+        "Julia",
+        "MPI"
+      ],
+      "authors": "Argiris Sofotasios, Dimitris Metaxakis, Chrysostomos Stylios 等 4 人",
+      "units": [
+        "Department of Computer Engineering and Informatics…",
+        "Archimedes Unit, Athena Research Center",
+        "等 4 家单位"
+      ],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "Julia 解决了两语言问题，但不规则、自适应的科学计算负载仍难靠 BSP 模型吃满并行度"
+        },
+        {
+          "tag": "做法",
+          "text": "Torcalia.jl 基于 MPI 的异步多任务运行时：细粒度任务按数据依赖动态调度到分层 HPC 架构"
+        },
+        {
+          "tag": "结果",
+          "text": "Julia 用户不换语言即获得 AMT 任务级并行能力"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.30776"
+    },
+    {
+      "rank": 7,
+      "lane": "推荐",
+      "sid": "2611.31202",
+      "cat": "cs.DC",
+      "score": 59.3,
+      "title_en": "Decoupling Faults from Uncertainty: Message-Efficient Byzantine Agreement with Local Predictions",
+      "hook": "",
+      "title_hook": false,
+      "kw": [],
+      "authors": "Naama Ben-David, Tomer Shalit",
+      "units": [
+        "Technion – Israel Institute of Technology, Haifa…",
+        "Technion – Israel Institute of Technology, Haifa…"
+      ],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "拜占庭一致默认对故障做最坏假设，把对手腐化预算与系统认知不确定性绑死"
+        },
+        {
+          "tag": "做法",
+          "text": "研究互补问题：当每个进程对自身预测误差有局部保证时，一致协议能受益多少？给出算法与匹配下界"
+        },
+        {
+          "tag": "结果",
+          "text": "量化「局部可预测性」换通信复杂度的收益边界"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.31202"
+    },
+    {
+      "rank": 8,
+      "lane": "推荐",
+      "sid": "2611.29800",
+      "cat": "cs.RO",
+      "score": 59.3,
+      "title_en": "Generating Safety-Critical Driving Scenarios from Role-Typed Signal Temporal Logic Specifications Drafted by Large Language Models",
+      "hook": "",
+      "title_hook": false,
+      "kw": [],
+      "authors": "Zifan Zeng, Qunli Zhang, Peng Wang 等 6 人",
+      "units": [
+        "RAMS Lab, Huawei Heisenberg Research Center",
+        "Department of Computer Engineering, Technical University…",
+        "等 3 家单位"
+      ],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "安全关键驾驶场景在真实数据里稀少，引导扩散模型为每种场景要单独设计加权目标"
+        },
+        {
+          "tag": "做法",
+          "text": "把场景写成带角色类型的信号时序逻辑：每个子句声明可改谁、可读谁，被测车在攻击起点前读不到攻击者"
+        },
+        {
+          "tag": "结果",
+          "text": "由 LLM 起草规约、优化器执行，生成更公平的攻防场景"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.29800"
+    },
+    {
+      "rank": 9,
+      "lane": "兴趣扩展",
+      "sid": "2611.30766",
+      "cat": "cs.AR",
+      "score": 67.4,
+      "title_en": "Bridging the Semantic Gap from Natural Language Specifications to RTL with Layered Formal Guidance",
+      "hook": "",
+      "title_hook": false,
+      "kw": [
+        "RTL"
+      ],
+      "authors": "Yan Tan, Xiangchen Meng, Yangdi Lyu",
+      "units": [
+        "Microelectronics Thrust, The Hong Kong University of…"
+      ],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "LLM 从自然语言规约生成 RTL，控制逻辑一复杂就不可靠，根源是高层描述留白太多、假设未言明"
+        },
+        {
+          "tag": "做法",
+          "text": "分层形式引导：把形式化属性插在自然语言与 RTL 之间作中间语义层，逐层显式化隐含假设"
+        },
+        {
+          "tag": "结果",
+          "text": "复杂时序行为设计的生成可靠性与可检查性显著提升"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.30766"
+    },
+    {
+      "rank": 10,
+      "lane": "兴趣扩展",
+      "sid": "2611.29306",
+      "cat": "cs.AI",
+      "score": 67.3,
+      "title_en": "DoppelVet: Comparative Safety Verification for Self-Evolving Agents",
+      "hook": "",
+      "title_hook": false,
+      "kw": [
+        "DoppelVet"
+      ],
+      "authors": "Yifan Duan, Du Yin, Siyuan Zheng 等 6 人",
+      "units": [],
+      "bullets": [
+        {
+          "tag": "问题",
+          "text": "自进化智能体把反馈沉淀为记忆或技能，一次错误批准可能影响后续大量行为；相同证据可导向相反安全结果"
+        },
+        {
+          "tag": "做法",
+          "text": "DoppelVet 在更新进入持久状态前做对照验证：构造与现有验证器信号一致的替代更新，同状态重放对比"
+        },
+        {
+          "tag": "结果",
+          "text": "不需要安全标签即可拦截危险更新"
+        }
+      ],
+      "link": "arxiv.org/abs/2611.29306"
     }
-   ],
-   "link": "arxiv.org/abs/2611.27473"
-  },
-  {
-   "rank": 3,
-   "lane": "推荐",
-   "sid": "2611.26815",
-   "cat": "cs.AR",
-   "score": 60.5,
-   "title_en": "Specification-Grounded Adaptive Triage and Formal Invariant Exclusion Synthesis for Autonomous Silicon Coverage Closure",
-   "hook": "流片卡在最后 5% 覆盖率",
-   "title_hook": false,
-   "kw": [
-    "RTL"
-   ],
-   "authors": "Veni Mohan",
-   "units": [],
-   "bullets": [
-    {
-     "tag": "问题",
-     "text": "最后 5%–15% 的代码与功能覆盖率最难收敛，是流片排期的主要瓶颈"
-    },
-    {
-     "tag": "做法",
-     "text": "既有的 LLM 闭环把未覆盖 RTL 行直接喂进提示：上下文爆炸、激励违反跨信号不变式、给死代码幻觉出排除声明"
-    },
-    {
-     "tag": "结果",
-     "text": "ARGUS 以规格为锚做自适应分诊，再用形式化不变式合成安全的排除条件，避免脏覆盖与假排除"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.26815"
-  },
-  {
-   "rank": 4,
-   "lane": "推荐",
-   "sid": "2611.26980",
-   "cat": "cs.DC",
-   "score": 60.4,
-   "title_en": "Contexture: Runtime Context Eviction for High-Throughput Agent Serving",
-   "hook": "",
-   "title_hook": false,
-   "kw": [
-    "Contexture",
-    "Context"
-   ],
-   "authors": "Colin Hong, Bryan Shan, Wei Siong Pang 等 6 人",
-   "units": [
-    "Nanyang Technological University",
-    "Super Mem Pte. Ltd"
-   ],
-   "bullets": [
-    {
-     "tag": "问题",
-     "text": "智能体反复重发执行历史，推高 HBM 中共享 KV 缓存需求，而缓存容量正是服务吞吐的瓶颈"
-    },
-    {
-     "tag": "做法",
-     "text": "把 token 追溯到产生它的工具操作：后续操作会取代先前输出，最终历史中 64% 的 token 可淘汰"
-    },
-    {
-     "tag": "结果",
-     "text": "Contexture 与框架、模型无关，只按工具语义淘汰上下文，不动模型本身"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.26980"
-  },
-  {
-   "rank": 5,
-   "lane": "推荐",
-   "sid": "2611.27255",
-   "cat": "cs.DC",
-   "score": 56.9,
-   "title_en": "AceVLN: Asynchronous Cloud Edge Deployment of VLNs via Latent Scheduling and Compensation",
-   "hook": "",
-   "title_hook": false,
-   "kw": [
-    "AceVLN",
-    "VLN"
-   ],
-   "authors": "Zihao Zheng, Hangyu Cao, Yulong Han 等 6 人",
-   "units": [
-    "Beijing Jiaotong University"
-   ],
-   "bullets": [
-    {
-     "tag": "问题",
-     "text": "云边部署让双系统视觉语言导航异步运行，但推理与通信延迟造成潜在表示错配，导航直接走错"
-    },
-    {
-     "tag": "做法",
-     "text": "分析显示动作相关错配集中在紧凑的「关键子空间」，可由快系统特征漂移追踪"
-    },
-    {
-     "tag": "结果",
-     "text": "AceVLN 免训练：主动刷新潜在引导 + 边缘侧补偿，用关键特征漂移熵判断何时该刷新"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.27255"
-  },
-  {
-   "rank": 6,
-   "lane": "推荐",
-   "sid": "2611.27829",
-   "cat": "cs.SE",
-   "score": 53.9,
-   "title_en": "From Correctness to Consistency: Redefining Reliability for the Agentware Era",
-   "hook": "",
-   "title_hook": false,
-   "kw": [],
-   "authors": "Xue Qin, Maurício Gruppi",
-   "units": [],
-   "bullets": [
-    {
-     "tag": "问题",
-     "text": "氛围编程让「先跑起来」的未核验假设层层累积，形成标准测试抓不到的缺陷"
-    },
-    {
-     "tag": "做法",
-     "text": "在缺少可靠真值判据时，把关注点从正确性验证转向逻辑一致性"
-    },
-    {
-     "tag": "结果",
-     "text": "差分逻辑分析在并行与串行流程间比对，初步仿真能拦下矛盾陈述与未说明的假设"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.27829"
-  },
-  {
-   "rank": 7,
-   "lane": "推荐",
-   "sid": "2611.27895",
-   "cat": "cs.SE",
-   "score": 49.3,
-   "title_en": "TEA-Bench-BR: Can Coding Agents Turn a Branching Clinical Specification into Correct Code?",
-   "hook": "",
-   "title_hook": false,
-   "kw": [
-    "TEA-Bench-BR",
-    "FHIR"
-   ],
-   "authors": "Marcio Andre de Souza Estevam",
-   "units": [],
-   "bullets": [
-    {
-     "tag": "问题",
-     "text": "智能体实现专家写下的规则，缺陷是静默的：程序照跑，也给出看似合理的答案"
-    },
-    {
-     "tag": "做法",
-     "text": "以巴西儿童孤独症早筛路径为蓝本：三份仿真量表、多专业转诊流、FHIR R4 导出，全用葡语"
-    },
-    {
-     "tag": "结果",
-     "text": "144 个任务、6798 条隐藏用例，可杀灭参考实现全部 1955 个非等价变异体"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.27895"
-  },
-  {
-   "rank": 8,
-   "lane": "推荐",
-   "sid": "2611.27947",
-   "cat": "cs.SE",
-   "score": 0.0,
-   "title_en": "Perceived Differences in Activity and Experience Between Developing Software With and Without AI",
-   "hook": "",
-   "title_hook": true,
-   "kw": [
-    "AI"
-   ],
-   "authors": "Rubash Mali, Juho Leinonen, John Edwards",
-   "units": [],
-   "bullets": [
-    {
-     "tag": "问题",
-     "text": "生成式 AI 不只改岗位数量，也改「软件工程」本身长什么样"
-    },
-    {
-     "tag": "做法",
-     "text": "对比用 AI 工具与传统开发被感知到的差异，并按编程年限分层看梯度"
-    },
-    {
-     "tag": "结果",
-     "text": "写码重构修缺陷差异很小；讨论、分解、查文档、调试变少，任务切换变多，专注与掌控感下降，年限越长越明显"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.27947"
-  },
-  {
-   "rank": 9,
-   "lane": "兴趣扩展",
-   "sid": "2611.26717",
-   "cat": "cs.AI",
-   "score": 60.2,
-   "title_en": "Coherence by Construction: Synthesizing CTI Knowledge Graphs and the Formal Limits of Coherence Validation",
-   "hook": "",
-   "title_hook": false,
-   "kw": [],
-   "authors": "Tanzimul Alam Fahim, Mohammad Arif Hossain",
-   "units": [],
-   "bullets": [
-    {
-     "tag": "问题",
-     "text": "让模型一次吐一个三元组，每条自身合法，但对象之间的关系悬空、无法落地"
-    },
-    {
-     "tag": "做法",
-     "text": "改为生成即模拟：智能体提出意图，确定性裁判按显式世界模型裁决结果"
-    },
-    {
-     "tag": "结果",
-     "text": "只有事件真的发生才输出该关系，一致性成为构造性的，而非事后校验"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.26717"
-  },
-  {
-   "rank": 10,
-   "lane": "兴趣扩展",
-   "sid": "2611.27734",
-   "cat": "cs.CL",
-   "score": 59.7,
-   "title_en": "AutoOntologyBench: A Task-Grounded Benchmark for Agentic Knowledge Engineering",
-   "hook": "",
-   "title_hook": false,
-   "kw": [
-    "AutoOntologyBench",
-    "ontology"
-   ],
-   "authors": "Minye Shao, Chenghao Xiao, Xingyue Zhao 等 4 人",
-   "units": [
-    "Shanghai University of Finance and Economics",
-    "Peking Union Medical College Hospital, Peking Union…",
-    "等 3 家单位"
-   ],
-   "bullets": [
-    {
-     "tag": "问题",
-     "text": "智能体正从软件工程走向自主科研，而获取并整合领域知识仍是关键难点"
-    },
-    {
-     "tag": "做法",
-     "text": "以任务落地为锚：建出的本体要能帮智能体解决真实任务，并与其它知识表示对比"
-    },
-    {
-     "tag": "结果",
-     "text": "既有基准把本体正确性与任务成功率分开评，回答不了本体到底有没有用"
-    }
-   ],
-   "link": "arxiv.org/abs/2611.27734"
-  }
- ]
+  ]
 }
