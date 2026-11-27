@@ -780,6 +780,33 @@ def cmd_cover(a: argparse.Namespace) -> int:
     return 0
 
 
+# ---------------------------------------------------------------------------- 定时发布
+def resolve_dtime(value: str, now: dt.datetime | None = None) -> int:
+    """把 `--dtime` 解析成 10 位时间戳。
+
+    接受 `HH:MM`（今天该时刻；已过点则顺延一天）或 10 位 Unix 时间戳。
+    biliup 要求定时时间距提交 >4 小时，这里留 5 分钟余量并提前拒绝。
+    """
+    value = str(value).strip()
+    now = now or dt.datetime.now().astimezone()
+    if re.fullmatch(r"\d{10}", value):
+        ts = int(value)
+    else:
+        m = re.fullmatch(r"(\d{1,2}):(\d{2})", value)
+        if not m:
+            raise ValueError("--dtime 只接受 HH:MM 或 10 位时间戳，收到：%r" % value)
+        hour, minute = int(m.group(1)), int(m.group(2))
+        if hour > 23 or minute > 59:
+            raise ValueError("--dtime 时刻无效：%r" % value)
+        target = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+        if target <= now:
+            target += dt.timedelta(days=1)
+        ts = int(target.timestamp())
+    if ts - int(now.timestamp()) < 4 * 3600 + 300:
+        raise ValueError("定时时间距提交必须大于 4 小时，收到：%s" % value)
+    return ts
+
+
 # ---------------------------------------------------------------------------- cmd: upload
 def cmd_upload(a: argparse.Namespace) -> int:
     kind = kind_of(a)
@@ -815,9 +842,20 @@ def cmd_upload(a: argparse.Namespace) -> int:
         cmd += ["--cover", str(cover)]
     if getattr(a, "line", None):
         cmd += ["--line", a.line]
+    dtime = None
+    if getattr(a, "dtime", None):
+        try:
+            dtime = resolve_dtime(a.dtime)
+        except ValueError as e:
+            bad(str(e))
+            return 1
+        cmd += ["--dtime", str(dtime)]
     printable = subprocess.list2cmdline(cmd[:5]) + " --title … --tag … --desc … --copyright 1"
     if getattr(a, "line", None):
         printable += " --line " + a.line
+    if dtime:
+        when = dt.datetime.fromtimestamp(dtime).strftime("%m-%d %H:%M")
+        printable += f" --dtime {dtime}（定时 {when}）"
     print("== 投稿命令 ==")
     info(printable)
     info(f"视频 {Path(m['video']).name if m['video'] else '?'} / 封面 {cover.name if cover.is_file() else '无（B站自动生成）'}")
@@ -1032,6 +1070,9 @@ def main() -> int:
     ap.add_argument("--line", default=None,
                     help="上传线路（bda2/ws/qn/bldsa/tx/txa/bda/alia），默认由 biliup 探测；"
                          "某条线路 TLS 握手失败时换一条即可")
+    ap.add_argument("--dtime", default=None,
+                    help="定时发布时间：HH:MM（今天该时刻，已过点顺延一天）或 10 位 Unix 时间戳；"
+                         "距提交必须大于 4 小时。用于 22:00–22:30 发布策略")
     a = ap.parse_args()
     return {
         "check": cmd_check, "meta": cmd_meta, "cover": cmd_cover,
