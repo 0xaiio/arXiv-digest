@@ -1,315 +1,295 @@
 {
-  "issue": "20261126",
-  "range": "2026-11-24 · 回溯 3 天公告批次",
-  "generated": "2026-11-26T10:00:25+08:00",
-  "stats": {
-    "core": 50,
-    "expand": 349,
-    "rec": 14,
-    "exp": 10
-  },
-  "papers": [
+ "issue": "20261127",
+ "range": "2026-11-25 · 回溯 3 天公告批次",
+ "generated": "2026-11-27T10:11:50+08:00",
+ "stats": {
+  "core": 38,
+  "expand": 557,
+  "rec": 14,
+  "exp": 10
+ },
+ "papers": [
+  {
+   "rank": 1,
+   "lane": "推荐",
+   "sid": "2611.33817",
+   "cat": "cs.PL",
+   "score": 108.4,
+   "title_en": "SentryWard: Formal Verification of Warp-Specialized GPU Kernels",
+   "hook": "显卡异步并发编程，正确性可证",
+   "title_hook": false,
+   "kw": [
+    "SentryWard",
+    "GPU"
+   ],
+   "authors": "Mengdi Wu, Sreeram Vennam, Stephen Mell 等 6 人",
+   "units": [],
+   "bullets": [
     {
-      "rank": 1,
-      "lane": "推荐",
-      "sid": "2611.32032",
-      "cat": "cs.DC",
-      "score": 75.4,
-      "title_en": "Provenance-Isolated Epistemic Quorums: Execution-Bound Evidence Certification and Plausible-World Safety Gating in Agentic Control Planes",
-      "hook": "模型投票不算证据，看物证",
-      "title_hook": false,
-      "kw": [],
-      "authors": "Jun He, Deying Yu",
-      "units": [],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "让大模型投票批准生产变更看着稳妥，但模型共享同一套预训练先验，会一起犯同一个错，投票并不等于独立容错"
-        },
-        {
-          "tag": "做法",
-          "text": "把所有语言模型移出可信基：诊断前提由互不相交的物理故障域出证，变更要对所有未被推翻的故障世界都安全才放行，证据不足退回只读诊断"
-        },
-        {
-          "tag": "结果",
-          "text": "形式化保证加 etcd 故障套件实测：假设内不安全放行与假前提提交均为零，把偶发的证明缺漏变成可恢复的误拦而非错误动作"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.32032"
+     "tag": "要点 1",
+     "text": "SentryWard 对 warp 专用化 GPU kernel 做形式验证：把异步数据搬运、CUDA…"
     },
     {
-      "rank": 2,
-      "lane": "推荐",
-      "sid": "2611.32868",
-      "cat": "cs.DC",
-      "score": 60.2,
-      "title_en": "Sound Distributed Runtime Verification under Incomplete Evidence",
-      "hook": "证据不全就弃权，别误报",
-      "title_hook": false,
-      "kw": [],
-      "authors": "Nikolaos Kekatos, Antonio Anastasio Bruto da Costa, Alexios Lekidis 等 6 人",
-      "units": [
-        "University of Thessaly",
-        "Indian Institute of Technology Kharagpur"
-      ],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "分布式运行时验证要靠多节点证据合判，消息被延迟或扣押时，验证器分不清是没违规还是证据缺了，容易错报合规"
-        },
-        {
-          "tag": "做法",
-          "text": "先证明截止时间监控不可能同时健全、果断、可用，所以让监控允许弃权；用序号与周期报告找缺失事件，静默流则需时间假设"
-        },
-        {
-          "tag": "结果",
-          "text": "基于 MQTT 与 NATS JetStream 的三层监控，在 LLM 规划的机器人集群上复现故障模式，拦住无依据的合规结论并量化开销"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.32868"
-    },
-    {
-      "rank": 3,
-      "lane": "推荐",
-      "sid": "2611.32440",
-      "cat": "cs.DC",
-      "score": 52.8,
-      "title_en": "Joule is FLOP: Optimizing Tensor-Core Kernels Beyond Latency Hiding at the GPU Power Wall",
-      "hook": "显卡撞功耗墙，用省电换速度",
-      "title_hook": true,
-      "kw": [],
-      "authors": "Taowen Liu, Zhiwen Mo, Hongxiang Fan 等 4 人",
-      "units": [
-        "Imperial College London"
-      ],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "张量核贴着显卡功耗上限跑时，耗时约等于每次调用的能耗除以功耗帽，延迟被计算掩盖的数据搬运照样耗电"
-        },
-        {
-          "tag": "做法",
-          "text": "代价模型把硬件事件计数、数据通路能耗与非线性电压缩放合起来，解出功耗帽下的持续频率，并导出功耗感知的速度上限"
-        },
-        {
-          "tag": "结果",
-          "text": "B200 上能耗预测平均误差百分之零点六九，六十种形状的矩阵乘几何平均提速百分之四点九四，八卡融合专家层也提升百分之三点六"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.32440"
-    },
-    {
-      "rank": 4,
-      "lane": "推荐",
-      "sid": "2611.32973",
-      "cat": "cs.SE",
-      "score": 50.7,
-      "title_en": "SpecEngineeringBench: Evaluating Coding Agents as Autonomous Specification Engineers",
-      "hook": "会写测试，却找不到缺陷",
-      "title_hook": false,
-      "kw": [],
-      "authors": "Xingjian Wang, Shijian Wang, Minghao Liu 等 6 人",
-      "units": [],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "现有基准都直接给出问题描述、测试入口或待查文件，智能体真正该练的「从需求定位到实现」被绕过去了"
-        },
-        {
-          "tag": "做法",
-          "text": "新基准取七十八个开源 Python 仓库、一百个实例、十六类应用，每个埋多处缺陷，分成写测试套件与执行分析找缺陷两个独立任务"
-        },
-        {
-          "tag": "结果",
-          "text": "七个前沿智能体头部通过率九成一，但失败转通过率仅二成六，缺陷定位召回从文件级七成八掉到函数级五成一"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.32973"
-    },
-    {
-      "rank": 5,
-      "lane": "推荐",
-      "sid": "2611.32636",
-      "cat": "cs.SE",
-      "score": 44.1,
-      "title_en": "Generating Property-Based Regression Tests from Source Code Semantics",
-      "hook": "一条路径一个性质，自动生成",
-      "title_hook": false,
-      "kw": [],
-      "authors": "Clemens Bauer, Johann Glock, Martin Pinzger",
-      "units": [
-        "Department of Informatics Systems",
-        "University of Klagenfurt",
-        "等 3 家单位"
-      ],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "单元测试只验固定具体输入，期望输出对了也可能藏着故障；手写性质与输入生成器太贵，现有自动化又会过度泛化"
-        },
-        {
-          "tag": "做法",
-          "text": "用多路径符号执行为目标方法每条路径记录路径条件、符号返回值与状态变更表，每条路径语义诱导一个 Hoare 三元组，编译成可执行性质"
-        },
-        {
-          "tag": "结果",
-          "text": "Java 实现在 EqBench 上保留八成二方法的有效性质，变异得分六成四，高于 EvoSuite 的五成五与 Teralizer 的六成"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.32636"
-    },
-    {
-      "rank": 6,
-      "lane": "推荐",
-      "sid": "2611.32217",
-      "cat": "cs.PL",
-      "score": 41.7,
-      "title_en": "Vx: A Programming Language for Scalable, Maintainable and Secure Systems",
-      "hook": "内存住在哪，写进类型里",
-      "title_hook": false,
-      "kw": [],
-      "authors": "Aditya Kumar",
-      "units": [],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "今天的编译器看不见内存空间、链路和容量，读设备内存、工作集放不下、数据竞争都只能等运行时才炸"
-        },
-        {
-          "tag": "做法",
-          "text": "把机器写成声明文件，值的类型标明它住在哪块内存；除了一处例外，函数签名就是调用者能看到的全部契约"
-        },
-        {
-          "tag": "结果",
-          "text": "一份程序文本跑遍机器、核与 GPU 线程，编译器可选并行检查函数体且结果与线程数无关，安全代码自动查所有权、借用与竞争"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.32217"
-    },
-    {
-      "rank": 7,
-      "lane": "推荐",
-      "sid": "2611.32676",
-      "cat": "cs.SE",
-      "score": 41.3,
-      "title_en": "AI-Generated Code Issues: A Taxonomy from Repository Histories, AI Conversations, and Developer Interviews",
-      "hook": "八十七类 AI 代码毛病，都有据",
-      "title_hook": false,
-      "kw": [
-        "AI"
-      ],
-      "authors": "Rosalia Tufano, Nargiz Humbatova, Daniele Bifolco 等 6 人",
-      "units": [
-        "Software Institute – USI Università della Svizzera…",
-        "University of Sannio",
-        "等 3 家单位"
-      ],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "大模型写代码越来越普遍，可这类代码的质量问题只有零散认知，评审与测试不知道该重点防什么"
-        },
-        {
-          "tag": "做法",
-          "text": "三路取证：九百一十四个明确归因于 AI 代码的修复提交、两百九十九段带代码与错误信号的开发者对话、二十位从业者访谈"
-        },
-        {
-          "tag": "结果",
-          "text": "归纳出八十七类开发者归因的质量问题，可直接用来给代码评审清单和测试用例排版优先级"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.32676"
-    },
-    {
-      "rank": 8,
-      "lane": "推荐",
-      "sid": "2611.32234",
-      "cat": "cs.LO",
-      "score": 39.7,
-      "title_en": "Concurrent Visibility: Higher-Order Concurrency with First-Order Store",
-      "hook": "并发高阶语言，也能判等价",
-      "title_hook": true,
-      "kw": [],
-      "authors": "Iwan Qu{é}merais, Guilh{è}me Jaber, Ken Sakayori 等 4 人",
-      "units": [],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "带一阶存储的并发高阶语言，线程之间互相干扰，上下文等价几乎无从下手，顺序语言那套可见性论证不够用"
-        },
-        {
-          "tag": "做法",
-          "text": "提出操作博弈语义，把可见性概念搬到并发场景，用同步组合语义配置，并为线程依赖引入树状结构"
-        },
-        {
-          "tag": "结果",
-          "text": "定义完整迹前序并证明它对上下文前序健全；在函数只返回一阶值的子集上进一步证得完备"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.32234"
-    },
-    {
-      "rank": 9,
-      "lane": "兴趣扩展",
-      "sid": "2611.33078",
-      "cat": "cs.CL",
-      "score": 54.8,
-      "title_en": "FOL-Proof: Verifying LLM Text-to-Logic Translations via Deterministic Semantics",
-      "hook": "公式翻错了，先拦住再谈推理",
-      "title_hook": false,
-      "kw": [
-        "SMT"
-      ],
-      "authors": "Yisrael Clark, Guy Katz",
-      "units": [
-        "The Hebrew University of Jerusalem"
-      ],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "让大模型把自然语言翻成一阶逻辑来增强推理，可模型会出错，一个语义不忠实的公式会污染后面整条推理链"
-        },
-        {
-          "tag": "做法",
-          "text": "语义防火墙：先用英语资源语法等工具确定性地导出候选读法，再用 SMT 求解器检验每个读法与模型公式是否逻辑等价"
-        },
-        {
-          "tag": "结果",
-          "text": "等价才放行，否则拒绝或让模型重试修复；搜索不完备或判断不确定时选择弃权，在三个基准与一个新对抗基准上选择性准确率接近满分"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.33078"
-    },
-    {
-      "rank": 10,
-      "lane": "兴趣扩展",
-      "sid": "2611.33098",
-      "cat": "cs.AI",
-      "score": 50.3,
-      "title_en": "Delegent: A Multi-Agent Harness That Reduces Cost without Sacrificing Performance",
-      "hook": "难题留给大模型，粗活给小模型",
-      "title_hook": true,
-      "kw": [],
-      "authors": "Lingwei Gu, Jimmy Lin",
-      "units": [
-        "David R. Cheriton School of Computer Science",
-        "University of Waterloo"
-      ],
-      "bullets": [
-        {
-          "tag": "问题",
-          "text": "智能体每一步都让前沿模型重读全部上下文、做完所有子任务，账单随任务长度一路涨，而多数子任务其实很简单"
-        },
-        {
-          "tag": "做法",
-          "text": "不改路由而是改分工：前沿模型始终主导，把查代码、跑测试、搜语料这类聚焦子任务交给本地小模型子代理，两个模型都可自由替换"
-        },
-        {
-          "tag": "结果",
-          "text": "配二十七 B 的小模型，长程编码成本降六成七、智能体搜索降五成九且任务表现不降；连笔记本能跑的 2B 模型也降六成六"
-        }
-      ],
-      "link": "arxiv.org/abs/2611.33098"
+     "tag": "要点 2",
+     "text": "对 Hopper 上的真实 kernel 证明按任意调度执行都正确，覆盖现有 GPU 验证工具不支持的 warp 专用化场景"
     }
-  ]
+   ],
+   "link": "arxiv.org/abs/2611.33817"
+  },
+  {
+   "rank": 2,
+   "lane": "推荐",
+   "sid": "2611.34617",
+   "cat": "cs.SE",
+   "score": 63.4,
+   "title_en": "Evaluating More with Less: Black-Box Test Selection for AI Agents",
+   "hook": "智能体的回归测试，抽样就够",
+   "title_hook": false,
+   "kw": [],
+   "authors": "Ali Asgari, Mitchell Olsthoorn, Arie van Deursen 等 4 人",
+   "units": [
+    "Delft University of Technology"
+   ],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "首个面向智能体系统的黑盒测试用例选择实证研究：把基准任务当测试用例，按任务级历史表现选子集"
+    },
+    {
+     "tag": "要点 2",
+     "text": "结果表明少量任务即可外推整体通过率并提前暴露回归，且完全不需要访问模型内部，适合专有智能体的日常回归测试"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.34617"
+  },
+  {
+   "rank": 3,
+   "lane": "推荐",
+   "sid": "2611.33763",
+   "cat": "cs.DB",
+   "score": 58.4,
+   "title_en": "Data Agents Need a Map: Evolving, Demand-Driven Knowledge of Large Collections",
+   "hook": "开放数据湖缺地图，智能体迷路",
+   "title_hook": false,
+   "kw": [],
+   "authors": "Christos Koutras, Yurong Liu, Laura Haas 等 4 人",
+   "units": [
+    "New York University",
+    "University of Massachusetts Amherst"
+   ],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "主张为数据智能体建一张会演化的语义地图：数据湖与开放数据门户里的列含义、隐含上下文与数据集间组合方式，目前在每个任务的完整工作流里被反复重推导又随手丢弃"
+    },
+    {
+     "tag": "要点 2",
+     "text": "把这类知识按需沉淀成可导航的语义图集，检索、连接发现与程序合成都能复用，越用越准"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.33763"
+  },
+  {
+   "rank": 4,
+   "lane": "推荐",
+   "sid": "2611.33748",
+   "cat": "cs.AI",
+   "score": 51.3,
+   "title_en": "REFORGE: LLM-Assisted RTL Bug Repair with Structured Context and Verification Feedback",
+   "hook": "",
+   "title_hook": false,
+   "kw": [
+    "REFORGE",
+    "RTL"
+   ],
+   "authors": "Tanvir Hossain, Sudipta Paria, Aidan Gleason Myers 等 5 人",
+   "units": [
+    "Dept. of EECS, University of Kansas, Lawrence, KS, USA…",
+    "Dept. of ECE, University of Florida"
+   ],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "REFORGE 是首个跨迭代累积结构化修复证据的 LLM 辅助 RTL 修复框架：把功能正确、行为等价、安全性、可综合性分开留证，同时满足多目标"
+    },
+    {
+     "tag": "要点 2",
+     "text": "在真实缺陷上修复率超过单指标基线，且证据链可复现、可接入硬件设计流程"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.33748"
+  },
+  {
+   "rank": 5,
+   "lane": "推荐",
+   "sid": "2611.34534",
+   "cat": "cs.DC",
+   "score": 49.5,
+   "title_en": "DéjàVu: Plurality Consensus by First Repetition",
+   "hook": "",
+   "title_hook": true,
+   "kw": [],
+   "authors": "Niccolò D'Archivio, George Giakkoupis, Frédéric Giroire 等 4 人",
+   "units": [
+    "COATI, Inria, CNRS, I3S, Université Côte d’Azur",
+    "Inria, Univ Rennes"
+   ],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "DéjàVu 只靠「重复检测」达成多数意见共识：每轮随机采样一个同伴，见到第二次重复的观点就采纳并重置记忆，不需要频率计数、不知群体规模与意见数"
+    },
+    {
+     "tag": "要点 2",
+     "text": "论文给出严格收敛时间证明，机制在单个神经元与曝光效应中都有对应物"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.34534"
+  },
+  {
+   "rank": 6,
+   "lane": "推荐",
+   "sid": "2611.34875",
+   "cat": "cs.SE",
+   "score": 47.3,
+   "title_en": "How Much Do Coding Agents Over-Edit, and Why? An Empirical Study of Unneeded Edits in Repository-Level Agent Patches",
+   "hook": "",
+   "title_hook": false,
+   "kw": [],
+   "authors": "Aakash Goel, Benjamin Steenhoek, Yu Hu",
+   "units": [],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "提出 Delta Residue Attribution：重放智能体轨迹，把最终补丁的每个代码块回溯到产生它的步骤，逐块回退后重跑测试判断是否必要"
+    },
+    {
+     "tag": "要点 2",
+     "text": "在 7660 条 SWE-bench Verified / DeepSWE 轨迹上量化「过度编辑」：智能体补丁确实更大，且多数多余编辑有可解释来源"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.34875"
+  },
+  {
+   "rank": 7,
+   "lane": "推荐",
+   "sid": "2611.34627",
+   "cat": "cs.LG",
+   "score": 46.3,
+   "title_en": "DecisionReplay: A Corpus and Offline Simulator for Ensembling Decision Models",
+   "hook": "",
+   "title_hook": false,
+   "kw": [
+    "DecisionReplay",
+    "Decision"
+   ],
+   "authors": "Dean Ariel, Seffi Cohen",
+   "units": [
+    "Decision Replay: A Corpus and Offline Simulator for…",
+    "The Stein Faculty of Computer and Information Science",
+    "等 3 家单位"
+   ],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "DecisionReplay 释放 17 个商用决策模型在 35 个基准上每个答案选项的概率向量、token…"
+    },
+    {
+     "tag": "要点 2",
+     "text": "结论反直觉：每个基准选对单个模型就很难被打败，全模型混编反而常常更差"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.34627"
+  },
+  {
+   "rank": 8,
+   "lane": "推荐",
+   "sid": "2611.34363",
+   "cat": "cs.LG",
+   "score": 44.3,
+   "title_en": "Single-Database Rewards Are Hackable: Counterfactual Execution for Trustworthy Text-to-SQL RL",
+   "hook": "",
+   "title_hook": false,
+   "kw": [
+    "Text-to-SQL"
+   ],
+   "authors": "Shreshth Rai, Rishii Kumar Singh, Aksh Aggarwal",
+   "units": [
+    "Delhi Technological University, New"
+   ],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "text-to-SQL 强化学习的单库奖励可被「侥幸命中」骗过：数据缺行时错误查询也能对上参考结果"
+    },
+    {
+     "tag": "要点 2",
+     "text": "反事实执行奖励在几份隐藏生成的数据库副本上同时跑查询、全对才给分：buggy 查询全额得酬从 54.1% 压到 1.9%，2847 条正确查询零误杀"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.34363"
+  },
+  {
+   "rank": 9,
+   "lane": "兴趣扩展",
+   "sid": "2611.34132",
+   "cat": "cs.LG",
+   "score": 66.8,
+   "title_en": "Agent-as-a-Verifier: From Scores to Evidence for General Verification",
+   "hook": "",
+   "title_hook": false,
+   "kw": [
+    "Agent-as-a-Verifier"
+   ],
+   "authors": "Yuxuan Sun, Hao, Chen 等 6 人",
+   "units": [
+    "Imperial College London"
+   ],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "Agent-as-a-Verifier 把验证从「打分」升级为「出证据」：判别式奖励模型只给标量、无可审计依据"
+    },
+    {
+     "tag": "要点 2",
+     "text": "本文让智能体用工具调用与迭代推理产出细粒度、可核查的判断证据"
+    },
+    {
+     "tag": "要点 3",
+     "text": "覆盖事实核查与逐条声明验证；比现有生成式过程奖励模型更完整地利用了智能体能力。"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.34132"
+  },
+  {
+   "rank": 10,
+   "lane": "兴趣扩展",
+   "sid": "2611.33676",
+   "cat": "cs.AI",
+   "score": 65.0,
+   "title_en": "Interactive Proofs as a Unified Framework for Evaluating and Leveraging Verifiable Proof Generation by LLM Agents",
+   "hook": "",
+   "title_hook": false,
+   "kw": [
+    "LLM"
+   ],
+   "authors": "Yankai Shu, Xingyu Zhao, Chuan Mao 等 4 人",
+   "units": [],
+   "bullets": [
+    {
+     "tag": "要点 1",
+     "text": "Merlin-Bench 借交互证明系统测 LLM 智能体的「可验证证明」底层能力：在指定协议下智能体与形式验证器交互坐实自己的断言"
+    },
+    {
+     "tag": "要点 2",
+     "text": "考察的是构造可核查证据的协议无关能力"
+    },
+    {
+     "tag": "要点 3",
+     "text": "而非对某个证明语言或工具的熟练度。"
+    }
+   ],
+   "link": "arxiv.org/abs/2611.33676"
+  }
+ ]
 }
